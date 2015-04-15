@@ -1,0 +1,754 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
+package com.yahoo.squidb.data;
+
+import android.content.ContentValues;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
+import com.yahoo.squidb.utility.SquidUtilities;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
+
+/**
+ * Base class for models backed by a SQLite table or view. Attributes of a model are accessed and manipulated using
+ * {@link Property} objects along with the {@link #get(Property) get} and {@link #set(Property, Object) set} methods.
+ * <p>
+ * Generated models automatically contain Property objects that correspond to the underlying columns in the table or
+ * view as specified in their model spec definitions, and will have generated getter and setter methods for each
+ * Property.
+ * <p>
+ * <h3>Data Source Ordering</h3>
+ * When calling get(Property) or one of the generated getters, the model prioritizes values in the following order:
+ * <ol>
+ * <li>values explicitly set using set(Property, Object) or a generated setter, found in the set returned by
+ * {@link #getSetValues()}</li>
+ * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
+ * {@link SquidCursor}, found in the set returned by {@link #getDatabaseValues()}</li>
+ * <li>default values, found in the set returned by {@link #getDefaultValues()}</li>
+ * </ol>
+ * If a value is not found in any of these places, an exception is thrown.
+ * <p>
+ * Transitory values (set using {@link #putTransitory(String, Object) putTransitory}) allow you to attach arbitrary
+ * data that will not be saved to the database if you persist the model. Transitory values are not considered when
+ * calling get(Property) or using generated getters; use {@link #getTransitory(String) getTransitory} to read these
+ * values. Alternatively, use {@link #hasTransitory(String) checkTransitory} to merely check the presence of a
+ * transitory value.
+ * <p>
+ * <h3>Interacting with Models</h3>
+ * Models are usually created by fetching from a database or reading from a {@link SquidCursor} after querying a
+ * database.
+ *
+ * <pre>
+ * DatabaseDao dao = ...
+ * Model model = dao.fetch(Model.class, id, Model.PROPERTIES);
+ * // or
+ * SquidCursor{@code<Model>} cursor = dao.query(Model.class, query);
+ * cursor.moveToFirst();
+ * Model model = new Model(cursor);
+ * </pre>
+ *
+ * Models can also be instantiated in advance and populated with data from the current row of a SquidCursor.
+ *
+ * <pre>
+ * model = new Model();
+ * model.readPropertiesFromCursor(cursor);
+ * </pre>
+ *
+ * @see com.yahoo.squidb.data.TableModel
+ * @see com.yahoo.squidb.data.ViewModel
+ */
+public abstract class AbstractModel implements Parcelable, Cloneable {
+
+    // --- static variables
+
+    private static final ContentValuesSavingVisitor saver = new ContentValuesSavingVisitor();
+
+    private static final ValueCastingVisitor valueCastingVisitor = new ValueCastingVisitor();
+
+    // --- abstract methods
+
+    /** Get the default values for this object */
+    public abstract ContentValues getDefaultValues();
+
+    // --- data store variables and management
+
+    /** User set values */
+    protected ContentValues setValues = null;
+
+    /** Values from database */
+    protected ContentValues values = null;
+
+    /** Transitory Metadata (not saved in database) */
+    protected HashMap<String, Object> transitoryData = null;
+
+    /** Get the database-read values for this object */
+    public ContentValues getDatabaseValues() {
+        return values;
+    }
+
+    /** Get the user-set values for this object */
+    public ContentValues getSetValues() {
+        return setValues;
+    }
+
+    /** Get a list of all field/value pairs merged across data sources */
+    public ContentValues getMergedValues() {
+        ContentValues mergedValues = new ContentValues();
+
+        ContentValues defaultValues = getDefaultValues();
+        if (defaultValues != null) {
+            mergedValues.putAll(defaultValues);
+        }
+
+        if (values != null) {
+            mergedValues.putAll(values);
+        }
+
+        if (setValues != null) {
+            mergedValues.putAll(setValues);
+        }
+
+        return mergedValues;
+    }
+
+    /**
+     * Clear all data on this model
+     */
+    public void clear() {
+        values = null;
+        setValues = null;
+    }
+
+    /**
+     * Transfers all set values into values. This usually occurs when a model is saved in the database so that future
+     * saves will not need to write all the data again. Users should not usually need to call this method.
+     */
+    public void markSaved() {
+        if (values == null) {
+            values = setValues;
+        } else if (setValues != null) {
+            values.putAll(setValues);
+        }
+        setValues = null;
+    }
+
+    /**
+     * Use merged values to compare two models to each other. Must be of exactly the same class.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || other.getClass() != getClass()) {
+            return false;
+        }
+
+        return getMergedValues().equals(((AbstractModel) other).getMergedValues());
+    }
+
+    @Override
+    public int hashCode() {
+        return getMergedValues().hashCode() ^ getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getSimpleName()).append("\n")
+                .append("set values:\n")
+                .append(setValues).append("\n")
+                .append("values:\n")
+                .append(values).append("\n");
+        return builder.toString();
+    }
+
+    @Override
+    public AbstractModel clone() {
+        AbstractModel clone;
+        try {
+            clone = (AbstractModel) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (setValues != null) {
+            clone.setValues = new ContentValues(setValues);
+        }
+
+        if (values != null) {
+            clone.values = new ContentValues(values);
+        }
+        return clone;
+    }
+
+    /**
+     * @return true if this model has values that have been changed
+     */
+    public boolean isModified() {
+        return setValues != null && setValues.size() > 0;
+    }
+
+    // --- data retrieval
+
+    /**
+     * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
+     * values (i.e. will not be considered set values or mark the model as dirty).
+     */
+    public void readPropertiesFromContentValues(ContentValues values) {
+        prepareToReadProperties();
+
+        this.values.putAll(values);
+    }
+
+    /**
+     * Reads all properties from the supplied cursor into the model. This will clear any user-set values.
+     */
+    public void readPropertiesFromCursor(SquidCursor<?> cursor) {
+        prepareToReadProperties();
+
+        for (com.yahoo.squidb.sql.Field<?> field : cursor.getFields()) {
+            readFieldIntoModel(cursor, field);
+        }
+    }
+
+    /**
+     * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
+     */
+    public void readPropertiesFromCursor(SquidCursor<?> cursor, com.yahoo.squidb.sql.Field<?>... properties) {
+        prepareToReadProperties();
+
+        for (com.yahoo.squidb.sql.Field<?> field : properties) {
+            readFieldIntoModel(cursor, field);
+        }
+    }
+
+    private void prepareToReadProperties() {
+        if (values == null) {
+            values = new ContentValues();
+        }
+
+        // clears user-set values
+        setValues = null;
+        transitoryData = null;
+    }
+
+    private void readFieldIntoModel(SquidCursor<?> cursor, com.yahoo.squidb.sql.Field<?> field) {
+        try {
+            if (field instanceof Property<?>) {
+                Property<?> property = (Property<?>) field;
+                saver.save(property, values, cursor.get(property));
+            }
+        } catch (IllegalArgumentException e) {
+            // underlying cursor may have changed, suppress
+        }
+    }
+
+    /**
+     * Return the value of the specified {@link Property}. The model prioritizes values as follows:
+     * <ol>
+     * <li>values explicitly set using {@link #set(Property, Object)} or a generated setter</li>
+     * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
+     * {@link SquidCursor}</li>
+     * <li>the set of default values as specified by {@link #getDefaultValues()}</li>
+     * </ol>
+     * If a value is not found in any of those places, an exception is thrown.
+     *
+     * @return the value of the specified property
+     * @throws UnsupportedOperationException if the value is not found in the model
+     */
+    @SuppressWarnings("unchecked")
+    public <TYPE> TYPE get(Property<TYPE> property) {
+        Object value;
+        if (setValues != null && setValues.containsKey(property.getName())) {
+            value = setValues.get(property.getName());
+        } else if (values != null && values.containsKey(property.getName())) {
+            value = values.get(property.getName());
+        } else if (getDefaultValues().containsKey(property.getExpression())) {
+            value = getDefaultValues().get(property.getExpression());
+        } else {
+            throw new UnsupportedOperationException(property.getName()
+                    + " not found in model. Make sure the value was set explicitly, read from a cursor,"
+                    + " or that the model has a default value for this property.");
+        }
+
+        // resolve properties that were retrieved with a different type than accessed
+        try {
+            // Will throw a ClassCastException if the value could not be coerced
+            return (TYPE) property.accept(valueCastingVisitor, value);
+        } catch (NumberFormatException e) {
+            return (TYPE) getDefaultValues().get(property.getExpression());
+        }
+    }
+
+    /**
+     * @param property the {@link Property} to check
+     * @return true if a value for this property has been read from the database or set by the user
+     */
+    public boolean containsValue(Property<?> property) {
+        if (setValues != null && setValues.containsKey(property.getName())) {
+            return true;
+        }
+
+        if (values != null && values.containsKey(property.getName())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param property the {@link Property} to check
+     * @return true if a value for this property has been read from the database or set by the user, and the value
+     * stored is not null
+     */
+    public boolean containsNonNullValue(Property<?> property) {
+        if (setValues != null && setValues.containsKey(property.getName())) {
+            return setValues.get(property.getName()) != null;
+        }
+
+        if (values != null && values.containsKey(property.getName())) {
+            return values.get(property.getName()) != null;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param property the {@link Property} to check
+     * @return true if this property has a value that was set by the user
+     */
+    public boolean fieldIsDirty(Property<?> property) {
+        return setValues != null && setValues.containsKey(property.getName());
+    }
+
+    // --- data storage
+
+    /**
+     * Check whether the user has changed this property value and it should be stored for saving in the database
+     */
+    protected <TYPE> boolean shouldSaveValue(Property<TYPE> property, TYPE newValue) {
+        return shouldSaveValue(property.getName(), newValue);
+    }
+
+    protected boolean shouldSaveValue(String name, Object newValue) {
+        // we've already decided to save it, so overwrite old value
+        if (setValues.containsKey(name)) {
+            return true;
+        }
+
+        // values contains this key, we should check it out
+        if (values != null && values.containsKey(name)) {
+            Object value = values.get(name);
+            if (value == null) {
+                if (newValue == null) {
+                    return false;
+                }
+            } else if (value.equals(newValue)) {
+                return false;
+            }
+        }
+
+        // otherwise, good to save
+        return true;
+    }
+
+    /**
+     * Sets the specified {@link Property} to the given value. For generated models, it is preferred to call a
+     * generated set[Property] method instead.
+     *
+     * @param property the property to set
+     * @param value the new value for the property
+     */
+    public <TYPE> void set(Property<TYPE> property, TYPE value) {
+        if (setValues == null) {
+            setValues = new ContentValues();
+        }
+
+        if (!shouldSaveValue(property, value)) {
+            return;
+        }
+
+        saver.save(property, setValues, value);
+    }
+
+    /**
+     * Merges content values with those coming from another source. These values will be added to the model as set
+     * values, so they will mark the model as dirty.
+     */
+    public void setValues(ContentValues other) {
+        setAll(other, true);
+    }
+
+    /**
+     * Merges set values with those coming from another source, keeping the existing value if one already exists
+     */
+    public void setValuesWithoutReplacement(ContentValues other) {
+        setAll(other, false);
+    }
+
+    private void setAll(ContentValues toSet, boolean withReplacement) {
+        if (setValues == null) {
+            setValues = new ContentValues();
+        }
+        for (Entry<String, Object> item : toSet.valueSet()) {
+            String key = item.getKey();
+            Object value = item.getValue();
+            if (shouldSaveValue(key, value) &&
+                    (withReplacement || !setValues.containsKey(key))) {
+                SquidUtilities.putInto(setValues, key, value, true);
+            }
+        }
+    }
+
+    /**
+     * Clear the value for the given {@link Property}
+     *
+     * @param property the property to clear
+     */
+    public void clearValue(Property<?> property) {
+        if (setValues != null && setValues.containsKey(property.getName())) {
+            setValues.remove(property.getName());
+        }
+
+        if (values != null && values.containsKey(property.getName())) {
+            values.remove(property.getName());
+        }
+    }
+
+    // --- storing and retrieving transitory values
+
+    /**
+     * Add transitory data to the model. Transitory data is meant for developers to attach short-lived metadata to
+     * models and is not persisted to the database.
+     *
+     * @param key the key for the transitory data
+     * @param value the value for the transitory data
+     * @see #getTransitory(String)
+     */
+    public void putTransitory(String key, Object value) {
+        if (transitoryData == null) {
+            transitoryData = new HashMap<String, Object>();
+        }
+        transitoryData.put(key, value);
+    }
+
+    /**
+     * Get the transitory metadata object for the given key
+     *
+     * @param key the key for the transitory data
+     * @return the transitory data if it exists, or null otherwise
+     * @see #putTransitory(String, Object)
+     */
+    public Object getTransitory(String key) {
+        if (transitoryData == null) {
+            return null;
+        }
+        return transitoryData.get(key);
+    }
+
+    /**
+     * Remove the transitory object for the specified key, if one exists
+     *
+     * @param key the key for the transitory data
+     * @return the removed transitory value, or null if none existed
+     * @see #putTransitory(String, Object)
+     */
+    public Object clearTransitory(String key) {
+        if (transitoryData == null) {
+            return null;
+        }
+        return transitoryData.remove(key);
+    }
+
+    /**
+     * @return all transitory keys set on this model
+     * @see #putTransitory(String, Object)
+     */
+    public Set<String> getAllTransitoryKeys() {
+        if (transitoryData == null) {
+            return null;
+        }
+        return transitoryData.keySet();
+    }
+
+    // --- convenience wrappers for using transitory data as flags
+
+    /**
+     * Convenience for using transitory data as a flag
+     *
+     * @param key the key for the transitory data
+     * @return true if a transitory object is set for the given key, false otherwise
+     */
+    public boolean hasTransitory(String key) {
+        return getTransitory(key) != null;
+    }
+
+    /**
+     * Convenience for using transitory data as a flag. Removes the transitory data for this key if one existed.
+     *
+     * @param key the key for the transitory data
+     * @return true if a transitory object is set for the given flag, false otherwise
+     */
+    public boolean checkAndClearTransitory(String key) {
+        return clearTransitory(key) != null;
+    }
+
+    // --- property management
+
+    /**
+     * Looks inside the given class and finds all declared properties
+     */
+    @Deprecated
+    protected static Property<?>[] generateProperties(Class<? extends AbstractModel> cls) {
+        Property<?>[] properties = recursiveGenerateProperties(cls);
+        if (TableModel.class.isAssignableFrom(cls) && !checkForIdProperty(properties)) {
+            throw new IllegalStateException("Model class " + cls + " does not declare an id property with name "
+                    + TableModel.ID_PROPERTY_NAME);
+        }
+        return properties;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Property<?>[] recursiveGenerateProperties(Class<? extends AbstractModel> cls) {
+        ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
+        if (cls.getSuperclass() != AbstractModel.class) {
+            SquidUtilities.addAll(properties, recursiveGenerateProperties(
+                    (Class<? extends AbstractModel>) cls.getSuperclass()));
+        }
+
+        // a property is public, static & extends Property
+        for (Field field : cls.getFields()) {
+            if ((field.getModifiers() & Modifier.STATIC) == 0) {
+                continue;
+            }
+            if (field.getAnnotation(Deprecated.class) != null) {
+                continue;
+            }
+            if (!Property.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+            try {
+                if (TableModel.class.isAssignableFrom(cls) && ((Property<?>) field.get(null)).table == null) {
+                    continue;
+                }
+                properties.add((Property<?>) field.get(null));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return properties.toArray(new Property<?>[properties.size()]);
+    }
+
+    private static boolean checkForIdProperty(Property<?>[] properties) {
+        for (Property<?> p : properties) {
+            if (TableModel.ID_PROPERTY_NAME.equals(p.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Visitor that saves a value into a content values store
+     */
+    private static class ContentValuesSavingVisitor implements PropertyWritingVisitor<Void, ContentValues, Object> {
+
+        public void save(Property<?> property, ContentValues newStore, Object value) {
+            if (value != null) {
+                property.accept(this, newStore, value);
+            } else {
+                newStore.putNull(property.getName());
+            }
+        }
+
+        @Override
+        public Void visitDouble(Property<Double> property, ContentValues dst, Object value) {
+            dst.put(property.getName(), (Double) value);
+            return null;
+        }
+
+        @Override
+        public Void visitInteger(Property<Integer> property, ContentValues dst, Object value) {
+            dst.put(property.getName(), (Integer) value);
+            return null;
+        }
+
+        @Override
+        public Void visitLong(Property<Long> property, ContentValues dst, Object value) {
+            dst.put(property.getName(), (Long) value);
+            return null;
+        }
+
+        @Override
+        public Void visitString(Property<String> property, ContentValues dst, Object value) {
+            dst.put(property.getName(), (String) value);
+            return null;
+        }
+
+        @Override
+        public Void visitBoolean(Property<Boolean> property, ContentValues dst, Object value) {
+            if (value instanceof Boolean) {
+                dst.put(property.getName(), (Boolean) value);
+            } else if (value instanceof Integer) {
+                dst.put(property.getName(), ((Integer) value).intValue() != 0);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitBlob(Property<byte[]> property, ContentValues dst, Object value) {
+            dst.put(property.getName(), (byte[]) value);
+            return null;
+        }
+
+    }
+
+    private static class ValueCastingVisitor implements PropertyVisitor<Object, Object> {
+
+        @Override
+        public Object visitInteger(Property<Integer> property, Object data) {
+            if (data == null || data instanceof Integer) {
+                return data;
+            } else if (data instanceof Number) {
+                return ((Number) data).intValue();
+            } else if (data instanceof Boolean) {
+                return (Boolean) data ? 1 : 0;
+            } else if (data instanceof String) {
+                return Integer.valueOf((String) data);
+            }
+            return data;
+        }
+
+        @Override
+        public Object visitLong(Property<Long> property, Object data) {
+            if (data == null || data instanceof Long) {
+                return data;
+            } else if (data instanceof Number) {
+                return ((Number) data).longValue();
+            } else if (data instanceof Boolean) {
+                return (Boolean) data ? 1L : 0L;
+            } else if (data instanceof String) {
+                return Long.valueOf((String) data);
+            }
+            return data;
+        }
+
+        @Override
+        public Object visitDouble(Property<Double> property, Object data) {
+            if (data == null || data instanceof Double) {
+                return data;
+            } else if (data instanceof Number) {
+                return ((Number) data).doubleValue();
+            } else if (data instanceof String) {
+                return (Double.valueOf((String) data));
+            }
+            return data;
+        }
+
+        @Override
+        public Object visitString(Property<String> property, Object data) {
+            if (data == null || data instanceof String) {
+                return data;
+            } else {
+                return String.valueOf(data);
+            }
+        }
+
+        @Override
+        public Object visitBoolean(Property<Boolean> property, Object data) {
+            if (data == null || data instanceof Boolean) {
+                return data;
+            } else if (data instanceof Number) {
+                return ((Number) data).intValue() != 0;
+            }
+            return data;
+        }
+
+        @Override
+        public Object visitBlob(Property<byte[]> property, Object data) {
+            return data;
+        }
+
+    }
+
+    // --- parcelable helpers
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(setValues, 0);
+        dest.writeParcelable(values, 0);
+    }
+
+    /**
+     * In addition to overriding this class, model classes should create a static final variable named "CREATOR" in
+     * order to satisfy the requirements of the Parcelable interface.
+     */
+    protected abstract Parcelable.Creator<? extends AbstractModel> getCreator();
+
+    /**
+     * Parcelable creator helper
+     */
+    protected static final class ModelCreator<TYPE extends AbstractModel>
+            implements Parcelable.Creator<TYPE> {
+
+        private final Class<TYPE> cls;
+
+        public ModelCreator(Class<TYPE> cls) {
+            super();
+            this.cls = cls;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public TYPE createFromParcel(Parcel source) {
+            TYPE model;
+            try {
+                model = cls.newInstance();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            model.setValues = source.readParcelable(ContentValues.class.getClassLoader());
+            model.values = source.readParcelable(ContentValues.class.getClassLoader());
+            return model;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        @SuppressWarnings("unchecked")
+        public TYPE[] newArray(int size) {
+            return (TYPE[]) Array.newInstance(cls, size);
+        }
+    }
+
+}

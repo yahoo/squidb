@@ -1,0 +1,33 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
+project.ext.artifactId = 'squidb-processor'
+group = 'com.yahoo.squidb'
+version = '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile project(':squidb-annotations')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    from('./src') {
+        include 'META-INF/services/javax.annotation.processing.Processor'
+    }
+}

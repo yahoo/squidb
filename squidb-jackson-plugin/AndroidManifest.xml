@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ *-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yahoo.squidb.jackson"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+
+</manifest>

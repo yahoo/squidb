@@ -1,0 +1,53 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.1.0"
+
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+}
+
+dependencies {
+    compile project(':squidb')
+    compile project(':squidb-annotations')
+    compile project(':squidb-jackson-plugin')
+    compile project(':squidb-jackson-annotations')
+    apt project(':squidb-jackson-compiler')
+    apt project(':squidb-processor')
+}
+
+apt {
+    arguments {
+        squidbPlugins 'com.yahoo.squidb.jackson.JacksonPropertyGeneratorFactory'
+    }
+}

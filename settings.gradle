@@ -1,0 +1,7 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
+include ':squidb', ':squidb-annotations', 'squidb-processor', ':squidb-jackson-plugin', ':squidb-jackson-compiler',
+        ':squidb-jackson-annotations', 'squidb-tests'
