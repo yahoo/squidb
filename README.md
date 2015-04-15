@@ -64,7 +64,7 @@ dao.persist(newPerson);
 ...
 
 String firstName = newPerson.getFirstName();
-String lastName = newPerson.getFirstName();
+String lastName = newPerson.getLastName();
 long birthday = newPerson.getBirthday();
 ```
 
@@ -137,6 +137,6 @@ SquidCursor is an instance of Android's CursorWrapper, so you can use one anywhe
 These are simple examples that only use a single table, but it's still easy to work with model objects even if you need to join across multiple tables.
 
 ## And more!
-We've shown several simple examples here, but there's a lot that SquiDB can do to make more complicated use cases easy too--it can help you work with SQL views using model objects, write database migrations, implement flexible ContentProviders backed by your SQLite database, and more. For a more in-depth look at all you can do with SquiDB, check out the wiki at [WIKI URL HERE].
+We've shown several simple examples here, but there's a lot that SquiDB can do to make more complicated use cases easy too--it can help you work with SQL views using model objects, write database migrations, implement flexible ContentProviders backed by your SQLite database, and more. For a more in-depth look at all you can do with SquiDB, check out the wiki at https://github.com/yahoo/squidb/wiki.
 
 Code licensed under the Apache 2.0 license. See LICENSE file for terms.
