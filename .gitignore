@@ -20,7 +20,6 @@ lint.xml
 # Gradle files
 build-gradle
 .gradle/
-gradle/
 build/
 
 
