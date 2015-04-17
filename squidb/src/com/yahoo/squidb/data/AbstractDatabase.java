@@ -494,21 +494,19 @@ public abstract class AbstractDatabase {
      * @see android.database.sqlite.SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
      */
     public long insert(String table, String nullColumnHack, ContentValues values) {
-        long result = -1;
         boolean locked = acquireNonExclusiveLock();
         try {
-            result = getDatabase().insertOrThrow(table, nullColumnHack, values);
+            return getDatabase().insertOrThrow(table, nullColumnHack, values);
         } catch (SQLiteConstraintException e) { // Throw these exceptions
             throw e;
         } catch (Exception e) { // Suppress others
             onError("Error inserting " + values, e);
-            result = -1;
+            return -1;
         } finally {
             if (locked) {
                 releaseNonExclusiveLock();
             }
         }
-        return result;
     }
 
     /**
@@ -528,7 +526,7 @@ public abstract class AbstractDatabase {
     /**
      * Execute a SQL {@link com.yahoo.squidb.sql.Update} statement
      *
-     * @return the row id of the last row inserted on success, 0 on failure
+     * @return the row id of the last row inserted on success, -1 on failure
      */
     public long insert(Insert insert) {
         CompiledStatement compiled = insert.compile();
@@ -539,7 +537,7 @@ public abstract class AbstractDatabase {
             return statement.executeInsert();
         } catch (SQLException e) {
             onError("Failed to execute insert: " + compiled.sql, e);
-            return TableModel.NO_ID;
+            return -1;
         } finally {
             if (locked) {
                 releaseNonExclusiveLock();
