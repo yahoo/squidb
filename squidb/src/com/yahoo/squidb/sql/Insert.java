@@ -104,6 +104,13 @@ public class Insert extends TableStatement {
     }
 
     /**
+     * @return the number of rows to be inserted (i.e. the number of values sets provided)
+     */
+    public int getNumRows() {
+        return valuesToInsert.size();
+    }
+
+    /**
      * Specify a conflict algorithm for this statement
      *
      * @param conflictAlgorithm the {@link ConflictAlgorithm} to use

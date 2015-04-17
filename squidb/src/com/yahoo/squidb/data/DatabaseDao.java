@@ -426,7 +426,8 @@ public class DatabaseDao {
     public long insert(Insert insert) {
         long result = database.insert(insert);
         if (result > TableModel.NO_ID) {
-            notifyForTable(DBOperation.INSERT, null, insert.getTable(), result);
+            int numInserted = insert.getNumRows();
+            notifyForTable(DBOperation.INSERT, null, insert.getTable(), numInserted == 1 ? result : TableModel.NO_ID);
         }
         return result;
     }

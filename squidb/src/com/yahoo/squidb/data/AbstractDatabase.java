@@ -747,8 +747,7 @@ public abstract class AbstractDatabase {
     /**
      * Acquires an exclusive lock on the database. Only one thread can hold an exclusive lock at a time. This will
      * block until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been released, but
-     * will
-     * prevent any new non-exclusive locks from being acquired while it blocks.
+     * will prevent any new non-exclusive locks from being acquired while it blocks.
      */
     @Beta
     protected void acquireExclusiveLock() {
