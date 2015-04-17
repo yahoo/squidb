@@ -40,9 +40,7 @@ import com.yahoo.squidb.utility.VersionCode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * AbstractDatabase is a database abstraction which wraps a SQLite database.
@@ -208,8 +206,7 @@ public abstract class AbstractDatabase {
     private final Context context;
 
     private AbstractDatabase attachedTo = null;
-    private final AtomicInteger nonExclusiveLockCount = new AtomicInteger(0);
-    private final Lock exclusiveLock = new ReentrantLock();
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
      * SQLiteOpenHelper that takes care of database operations
@@ -468,25 +465,21 @@ public abstract class AbstractDatabase {
      * @return a {@link Cursor} containing results of the query
      */
     public Cursor rawQuery(String sql, Object[] sqlArgs) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().rawQueryWithFactory(new SquidCursorFactory(sqlArgs), sql, null, null);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
     // For use only by DatabaseDao when validating queries
     SQLiteStatement compileStatement(String sql) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().compileStatement(sql);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -494,7 +487,7 @@ public abstract class AbstractDatabase {
      * @see android.database.sqlite.SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
      */
     public long insert(String table, String nullColumnHack, ContentValues values) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().insertOrThrow(table, nullColumnHack, values);
         } catch (SQLiteConstraintException e) { // Throw these exceptions
@@ -503,9 +496,7 @@ public abstract class AbstractDatabase {
             onError("Error inserting " + values, e);
             return -1;
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -513,13 +504,11 @@ public abstract class AbstractDatabase {
      * @see android.database.sqlite.SQLiteDatabase#delete(String table, String whereClause, String[] whereArgs)
      */
     public long insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -530,7 +519,7 @@ public abstract class AbstractDatabase {
      */
     public long insert(Insert insert) {
         CompiledStatement compiled = insert.compile();
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
@@ -539,9 +528,7 @@ public abstract class AbstractDatabase {
             onError("Failed to execute insert: " + compiled.sql, e);
             return -1;
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -552,13 +539,11 @@ public abstract class AbstractDatabase {
      * conflictAlgorithm)
      */
     public int delete(String table, String whereClause, String[] whereArgs) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().delete(table, whereClause, whereArgs);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -569,7 +554,7 @@ public abstract class AbstractDatabase {
      */
     public int delete(Delete delete) {
         CompiledStatement compiled = delete.compile();
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
@@ -578,9 +563,7 @@ public abstract class AbstractDatabase {
             onError("Failed to execute delete: " + compiled.sql, e);
             return -1;
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -591,13 +574,11 @@ public abstract class AbstractDatabase {
      * String[] whereArgs)
      */
     public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().update(table, values, whereClause, whereArgs);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -609,13 +590,11 @@ public abstract class AbstractDatabase {
      */
     public int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
             int conflictAlgorithm) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             return getDatabase().updateWithOnConflict(table, values, whereClause, whereArgs, conflictAlgorithm);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
@@ -626,7 +605,7 @@ public abstract class AbstractDatabase {
      */
     public int update(Update update) {
         CompiledStatement compiled = update.compile();
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
@@ -635,51 +614,53 @@ public abstract class AbstractDatabase {
             onError("Failed to execute update: " + compiled.sql, e);
             return -1;
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
     /**
-     * Begin a transaction
+     * Begin a transaction. This acquires a non-exclusive lock.
      *
+     * @see #acquireNonExclusiveLock()
      * @see android.database.sqlite.SQLiteDatabase#beginTransaction()
      */
     public void beginTransaction() {
-        acquireNonExclusiveLock(true);
+        acquireNonExclusiveLock();
         getDatabase().beginTransaction();
     }
 
     /**
-     * Begin a non-exclusive transaction
+     * Begin a non-exclusive transaction. This acquires a non-exclusive lock.
      *
+     * @see #acquireNonExclusiveLock()
      * @see android.database.sqlite.SQLiteDatabase#beginTransactionNonExclusive()
      */
     public void beginTransactionNonExclusive() {
-        acquireNonExclusiveLock(true);
+        acquireNonExclusiveLock();
         getDatabase().beginTransactionNonExclusive();
     }
 
     /**
-     * Begin a transaction with a listener
+     * Begin a transaction with a listener. This acquires a non-exclusive lock.
      *
      * @param listener the transaction listener
+     * @see #acquireNonExclusiveLock()
      * @see android.database.sqlite.SQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener)
      */
     public void beginTransactionWithListener(SQLiteTransactionListener listener) {
-        acquireNonExclusiveLock(true);
+        acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListener(listener);
     }
 
     /**
-     * Begin a non-exclusive transaction with a listener
+     * Begin a non-exclusive transaction with a listener. This acquires a non-exclusive lock.
      *
      * @param listener the transaction listener
+     * @see #acquireNonExclusiveLock()
      * @see android.database.sqlite.SQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener)
      */
     public void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener listener) {
-        acquireNonExclusiveLock(true);
+        acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListenerNonExclusive(listener);
     }
 
@@ -745,23 +726,19 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Acquires an exclusive lock on the database. Only one thread can hold an exclusive lock at a time. This will
-     * block until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been released, but
-     * will prevent any new non-exclusive locks from being acquired while it blocks.
+     * Acquires an exclusive lock on the database. This is semantically similar to acquiring a write lock in a {@link
+     * java.util.concurrent.locks.ReadWriteLock ReadWriteLock} but it is not generally necessary for protecting actual
+     * database writes--it's only necessary when exclusive use of the database connection is required (e.g. while the
+     * database is attached to another database.
+     * <p>
+     * Only one thread can hold an exclusive lock at a time. Calling this while on a thread that already holds a non-
+     * exclusive lock is an error and will deadlock! Otherwise, this method will block until all non-exclusive locks
+     * acquired with {@link #acquireNonExclusiveLock()} have been released, but will prevent any new non-exclusive
+     * locks from being acquired while it blocks.
      */
     @Beta
     protected void acquireExclusiveLock() {
-        exclusiveLock.lock(); // Signals that we want to block on the exclusive lock, prevents new non-exclusive locks
-        while (nonExclusiveLockCount.get() > 0) {
-            // Wait for any non-exclusive locks on this DB to be released
-            synchronized (nonExclusiveLockCount) {
-                try {
-                    nonExclusiveLockCount.wait();
-                } catch (InterruptedException e) {
-                    //
-                }
-            }
-        }
+        readWriteLock.writeLock().lock();
     }
 
     /**
@@ -769,61 +746,26 @@ public abstract class AbstractDatabase {
      */
     @Beta
     protected void releaseExclusiveLock() {
-        exclusiveLock.unlock();
+        readWriteLock.writeLock().unlock();
     }
 
     /**
-     * Acquire a non-exclusive lock on the database. This will block if the exclusive lock is held,
-     * but otherwise just increment a counter. Many threads can hold non-exclusive locks as long as no thread
-     * holds the exclusive lock. If the thread is currently in a transaction, this will be a no-op, as there's
-     * no need for a non-exclusive lock inside a transaction.
-     *
-     * @return true if a non-exclusive lock was acquired and should be released with {@link #releaseNonExclusiveLock()}
+     * Acquire a non-exclusive lock on the database. This is semantically similar to acquiring a read lock in a {@link
+     * java.util.concurrent.locks.ReadWriteLock ReadWriteLock} but may also be used in most cases to protect database
+     * writes (see {@link #acquireExclusiveLock()} for why this is true). This will block if the exclusive lock is held
+     * by some other thread. Many threads can hold non-exclusive locks as long as no thread holds the exclusive lock.
      */
     @Beta
-    protected boolean acquireNonExclusiveLock() {
-        return acquireNonExclusiveLock(false);
+    protected void acquireNonExclusiveLock() {
+        readWriteLock.readLock().lock();
     }
 
     /**
-     * @param force if true, the non-exclusive lock will be acquired even if the thread is currently in a transaction
-     * @return true if a non-exclusive lock was acquired and should be released with {@link #releaseNonExclusiveLock()}
-     * @see #acquireExclusiveLock()
-     */
-    @Beta
-    protected boolean acquireNonExclusiveLock(boolean force) {
-        boolean blockOnExclusiveLock = !inTransaction();
-        boolean incrementCounter = force || blockOnExclusiveLock;
-        if (incrementCounter) {
-            if (blockOnExclusiveLock) {
-                // Block if any thread holds the exclusive lock. If we're in a transaction though,
-                // we should skip this because otherwise we might deadlock. Any blockers on the exclusive lock
-                // will wait until the xact has finished
-                exclusiveLock.lock();
-            }
-            try {
-                nonExclusiveLockCount.incrementAndGet();
-            } finally {
-                if (blockOnExclusiveLock) {
-                    // Once the count has been incremented, it's ok for other threads to try and start attaching
-                    exclusiveLock.unlock();
-                }
-            }
-        }
-        return incrementCounter;
-    }
-
-    /**
-     * Releases a non-exclusive lock acquired with {@link #acquireNonExclusiveLock()} or
-     * {@link #acquireNonExclusiveLock(boolean)}
+     * Releases a non-exclusive lock acquired with {@link #acquireNonExclusiveLock()}
      */
     @Beta
     protected void releaseNonExclusiveLock() {
-        if (nonExclusiveLockCount.decrementAndGet() == 0) {
-            synchronized (nonExclusiveLockCount) {
-                nonExclusiveLockCount.notify();
-            }
-        }
+        readWriteLock.readLock().unlock();
     }
 
     // --- helper classes
@@ -1121,16 +1063,14 @@ public abstract class AbstractDatabase {
      * @see android.database.sqlite.SQLiteDatabase#execSQL(String)
      */
     public boolean tryExecSql(String sql) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
             return true;
         } catch (SQLException e) {
             onError("Failed to execute statement: " + sql, e);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
         return false;
     }
@@ -1145,16 +1085,14 @@ public abstract class AbstractDatabase {
      * @see android.database.sqlite.SQLiteDatabase#execSQL(String, Object[])
      */
     public boolean tryExecSql(String sql, Object[] bindArgs) {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);
             return true;
         } catch (SQLException e) {
             onError("Failed to execute statement: " + sql, e);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
         return false;
     }
@@ -1164,7 +1102,7 @@ public abstract class AbstractDatabase {
      * @throws RuntimeException if the version could not be read
      */
     protected VersionCode getSqliteVersion() {
-        boolean locked = acquireNonExclusiveLock();
+        acquireNonExclusiveLock();
         try {
             SQLiteStatement stmt = getDatabase().compileStatement("select sqlite_version()");
             String versionString = stmt.simpleQueryForString();
@@ -1173,9 +1111,7 @@ public abstract class AbstractDatabase {
             onError("Failed to read sqlite version", e);
             throw new RuntimeException("Failed to read sqlite version", e);
         } finally {
-            if (locked) {
-                releaseNonExclusiveLock();
-            }
+            releaseNonExclusiveLock();
         }
     }
 
