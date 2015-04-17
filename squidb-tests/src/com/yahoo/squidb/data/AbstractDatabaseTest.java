@@ -136,6 +136,20 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         assertEquals(0, dao.count(Employee.class, Criterion.all));
     }
 
+    public void testAcquireExclusiveLockFailsWhenInTransaction() {
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                badDatabase.beginTransaction();
+                try {
+                    badDatabase.acquireExclusiveLock();
+                } finally {
+                    badDatabase.endTransaction();
+                }
+            }
+        }, IllegalStateException.class);
+    }
+
     /**
      * {@link TestDatabase} that intentionally fails in onUpgrade and onDowngrade
      */
