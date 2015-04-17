@@ -197,11 +197,11 @@ public class DatabaseDao {
      * in case there exists a non-ORM case where a more traditional SQL delete statement is required.
      *
      * @param delete the statement to execute
-     * @return true if the statement executed without error
+     * @return the number of rows deleted on success, -1 on failure
      */
-    public boolean delete(Delete delete) {
-        boolean result = database.tryExecStatement(delete);
-        if (result) {
+    public int delete(Delete delete) {
+        int result = database.delete(delete);
+        if (result > -1) {
             notifyForTable(DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
         }
         return result;
@@ -261,11 +261,11 @@ public class DatabaseDao {
      * traditional SQL update statement is required for some reason.
      *
      * @param update statement to execute
-     * @return true if the statement executed without error
+     * @return the number of rows updated on success, -1 on failure
      */
-    public boolean update(Update update) {
-        boolean result = database.tryExecStatement(update);
-        if (result) {
+    public int update(Update update) {
+        int result = database.update(update);
+        if (result > -1) {
             notifyForTable(DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
         }
         return result;
@@ -421,12 +421,12 @@ public class DatabaseDao {
      * there exists a non-ORM case where a more traditional SQL insert statement is required.
      *
      * @param insert the statement to execute
-     * @return true if the statement executed without error
+     * @return the row id of the last row inserted on success, 0 on failure
      */
-    public boolean insert(Insert insert) {
-        boolean result = database.tryExecStatement(insert);
-        if (result) {
-            notifyForTable(DBOperation.INSERT, null, insert.getTable(), TableModel.NO_ID);
+    public long insert(Insert insert) {
+        long result = database.insert(insert);
+        if (result > TableModel.NO_ID) {
+            notifyForTable(DBOperation.INSERT, null, insert.getTable(), result);
         }
         return result;
     }

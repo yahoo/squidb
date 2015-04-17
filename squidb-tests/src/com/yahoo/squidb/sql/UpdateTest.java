@@ -88,7 +88,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 1, newLuckyNumber);
 
-        assertTrue(dao.update(update));
+        assertEquals(numRows, dao.update(update));
 
         int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
         assertEquals(numRows, rowsWithNewLuckyNumber);
@@ -108,7 +108,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, luckyNumber, 0);
 
-        assertTrue(dao.update(update));
+        assertEquals(rowsBeforeWithLuckyNumberLteZero, dao.update(update));
         int rowsAfterWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
         int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
         assertEquals(0, rowsAfterWithLuckyNumberLteZero);
@@ -129,7 +129,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, template.getLuckyNumber(), 0);
 
-        assertTrue(dao.update(update));
+        assertEquals(rowsBeforeWithLuckyNumberLteZero, dao.update(update));
         int rowsAfterWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
         int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
         assertEquals(0, rowsAfterWithLuckyNumberLteZero);
@@ -157,7 +157,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
-        assertTrue(dao.update(update));
+        assertEquals(0, dao.update(update)); // Expect ignore
 
         int shouldBeOne = dao.count(TestModel.class, TestModel.LAST_NAME.eq(samLastName));
         assertEquals(1, shouldBeOne);
@@ -198,7 +198,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
-        assertTrue(dao.update(update));
+        assertEquals(1, dao.update(update));
         modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
                 TestModel.PROPERTIES);
         modelWithKevinFirstName = dao.fetchByCriterion(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName),
@@ -233,7 +233,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 0);
 
-        assertTrue(dao.update(update));
+        assertEquals(4, dao.update(update));
 
         // verify
         cursor = dao.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER).orderBy(TestModel.ID.asc()));

@@ -23,12 +23,15 @@ import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.sql.CompiledStatement;
+import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Index;
+import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.SqlStatement;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
 import com.yahoo.squidb.utility.SquidCursorFactory;
@@ -523,6 +526,28 @@ public abstract class AbstractDatabase {
     }
 
     /**
+     * Execute a SQL {@link com.yahoo.squidb.sql.Update} statement
+     *
+     * @return the row id of the last row inserted on success, 0 on failure
+     */
+    public long insert(Insert insert) {
+        CompiledStatement compiled = insert.compile();
+        boolean locked = acquireNonExclusiveLock();
+        try {
+            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
+            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
+            return statement.executeInsert();
+        } catch (SQLException e) {
+            onError("Failed to execute insert: " + compiled.sql, e);
+            return TableModel.NO_ID;
+        } finally {
+            if (locked) {
+                releaseNonExclusiveLock();
+            }
+        }
+    }
+
+    /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
      *
      * @see android.database.sqlite.SQLiteDatabase#delete(String, String, String[])
@@ -532,6 +557,28 @@ public abstract class AbstractDatabase {
         boolean locked = acquireNonExclusiveLock();
         try {
             return getDatabase().delete(table, whereClause, whereArgs);
+        } finally {
+            if (locked) {
+                releaseNonExclusiveLock();
+            }
+        }
+    }
+
+    /**
+     * Execute a SQL {@link com.yahoo.squidb.sql.Delete} statement
+     *
+     * @return the number of rows deleted on success, -1 on failure
+     */
+    public int delete(Delete delete) {
+        CompiledStatement compiled = delete.compile();
+        boolean locked = acquireNonExclusiveLock();
+        try {
+            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
+            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
+            return statement.executeUpdateDelete();
+        } catch (SQLException e) {
+            onError("Failed to execute delete: " + compiled.sql, e);
+            return -1;
         } finally {
             if (locked) {
                 releaseNonExclusiveLock();
@@ -567,6 +614,28 @@ public abstract class AbstractDatabase {
         boolean locked = acquireNonExclusiveLock();
         try {
             return getDatabase().updateWithOnConflict(table, values, whereClause, whereArgs, conflictAlgorithm);
+        } finally {
+            if (locked) {
+                releaseNonExclusiveLock();
+            }
+        }
+    }
+
+    /**
+     * Execute a SQL {@link com.yahoo.squidb.sql.Update} statement
+     *
+     * @return the number of rows updated on success, -1 on failure
+     */
+    public int update(Update update) {
+        CompiledStatement compiled = update.compile();
+        boolean locked = acquireNonExclusiveLock();
+        try {
+            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
+            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
+            return statement.executeUpdateDelete();
+        } catch (SQLException e) {
+            onError("Failed to execute update: " + compiled.sql, e);
+            return -1;
         } finally {
             if (locked) {
                 releaseNonExclusiveLock();
@@ -678,9 +747,10 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Acquires an exclusive lock on the database. Only one thread can hold an exclusive lock at a time. This will block
-     * until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been
-     * released, but will prevent any new non-exclusive locks from being acquired while it blocks.
+     * Acquires an exclusive lock on the database. Only one thread can hold an exclusive lock at a time. This will
+     * block until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been released, but
+     * will
+     * prevent any new non-exclusive locks from being acquired while it blocks.
      */
     @Beta
     protected void acquireExclusiveLock() {
