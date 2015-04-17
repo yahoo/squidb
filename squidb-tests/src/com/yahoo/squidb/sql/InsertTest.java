@@ -63,7 +63,7 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, fname, lname);
 
-        assertTrue(dao.insert(insert));
+        assertEquals(2, dao.insert(insert));
 
         TestModel shouldNotBeNull = dao.fetchByCriterion(TestModel.class, lastNameSparrow, TestModel.PROPERTIES);
         assertNotNull(shouldNotBeNull);
@@ -86,7 +86,7 @@ public class InsertTest extends DatabaseTestCase {
         verifyCompiledSqlArgs(compiled, 1, pi);
 
         int testModelsBeforeInsert = dao.count(TestModel.class, Criterion.all);
-        assertTrue(dao.insert(insert));
+        assertEquals(3, dao.insert(insert));
         int testModelsAfterInsert = dao.count(TestModel.class, Criterion.all);
         assertEquals(testModelsBeforeInsert + numThingsMatching, testModelsAfterInsert);
     }
@@ -99,7 +99,7 @@ public class InsertTest extends DatabaseTestCase {
         verifyCompiledSqlArgs(compiled, 0);
 
         int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertTrue(dao.insert(insert));
+        assertEquals(3, dao.insert(insert));
         int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert + 1, rowsAfterInsert);
@@ -146,7 +146,7 @@ public class InsertTest extends DatabaseTestCase {
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
         int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertTrue(dao.insert(insert));
+        assertEquals(-1, dao.insert(insert)); // Expect conflict
         int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
@@ -181,7 +181,7 @@ public class InsertTest extends DatabaseTestCase {
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
         int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertTrue(dao.insert(insert));
+        assertEquals(rowsBeforeInsert, dao.insert(insert)); // Expect replace
         int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);

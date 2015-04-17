@@ -59,7 +59,7 @@ public class DeleteTest extends DatabaseTestCase {
         CompiledStatement compiled = delete.compile();
         verifyCompiledSqlArgs(compiled, 1, 0);
 
-        assertTrue(dao.delete(delete));
+        assertEquals(1, dao.delete(delete));
 
         int numRows = dao.count(TestModel.class, Criterion.all);
         assertEquals(3, numRows);
@@ -78,7 +78,7 @@ public class DeleteTest extends DatabaseTestCase {
         CompiledStatement compiled = delete.compile();
         verifyCompiledSqlArgs(compiled, 0);
 
-        assertTrue(dao.delete(delete));
+        assertEquals(numRows, dao.delete(delete));
 
         numRows = dao.count(TestModel.class, Criterion.all);
         assertEquals(0, numRows);

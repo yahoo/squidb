@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteProgram;
 import android.database.sqlite.SQLiteQuery;
 import android.os.Build;
 
@@ -33,7 +34,7 @@ public class SquidCursorFactory implements CursorFactory {
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
     public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
-        bindArgumentsToQuery(query);
+        bindArgumentsToProgram(query, sqlArgs);
 
         if (Build.VERSION.SDK_INT < 11) {
             return new SQLiteCursor(db, masterQuery, editTable, query);
@@ -42,14 +43,14 @@ public class SquidCursorFactory implements CursorFactory {
         }
     }
 
-    private void bindArgumentsToQuery(SQLiteQuery query) {
+
+    public static void bindArgumentsToProgram(SQLiteProgram program, Object[] sqlArgs) {
         if (sqlArgs == null) {
             return;
         }
         for (int i = 1; i <= sqlArgs.length; i++) {
             Object arg = sqlArgs[i - 1];
-            DatabaseUtils.bindObjectToProgram(query, i, arg);
+            DatabaseUtils.bindObjectToProgram(program, i, arg);
         }
     }
-
 }

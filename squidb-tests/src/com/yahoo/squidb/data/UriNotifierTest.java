@@ -121,7 +121,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         };
 
-        testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, null, 0);
+        testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, null, 3);
     }
 
     public void testUpdate() {
