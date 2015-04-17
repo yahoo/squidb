@@ -737,15 +737,20 @@ public abstract class AbstractDatabase {
      * Acquires an exclusive lock on the database. This is semantically similar to acquiring a write lock in a {@link
      * java.util.concurrent.locks.ReadWriteLock ReadWriteLock} but it is not generally necessary for protecting actual
      * database writes--it's only necessary when exclusive use of the database connection is required (e.g. while the
-     * database is attached to another database.
+     * database is attached to another database).
      * <p>
      * Only one thread can hold an exclusive lock at a time. Calling this while on a thread that already holds a non-
-     * exclusive lock is an error and will deadlock! Otherwise, this method will block until all non-exclusive locks
+     * exclusive lock is an error and will deadlock! We will throw an exception if this method is called while the
+     * calling thread is in a transaction. Otherwise, this method will block until all non-exclusive locks
      * acquired with {@link #acquireNonExclusiveLock()} have been released, but will prevent any new non-exclusive
      * locks from being acquired while it blocks.
      */
     @Beta
     protected void acquireExclusiveLock() {
+        if (inTransaction()) {
+            throw new IllegalStateException(
+                    "Can't acquire an exclusive lock when the calling thread is in a transaction");
+        }
         readWriteLock.writeLock().lock();
     }
 
