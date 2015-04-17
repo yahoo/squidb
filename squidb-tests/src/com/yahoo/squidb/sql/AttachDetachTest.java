@@ -68,6 +68,20 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertFalse(database2.tryExecStatement(insert)); // Should fail after detatch
     }
 
+    public void testAttachWhileOtherDbInTransactionThrowsException() {
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                database.beginTransaction();
+                try {
+                    database2.attachDatabase(database);
+                } finally {
+                    database.endTransaction();
+                }
+            }
+        }, IllegalStateException.class);
+    }
+
     public void testAttachBlocksNewTransactions() {
         try {
             testAttachDetachConcurrency(false);

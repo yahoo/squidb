@@ -300,8 +300,11 @@ public abstract class AbstractDatabase {
      * a database can only be attached to one other database. This method will throw an exception
      * if the other database is already attached somewhere.
      * <p>
+     * Caveats:
      * Make sure you call {@link #detachDatabase(AbstractDatabase)} when you are done! Otherwise, the other
      * database will not be unlocked.
+     * <p>
+     * If the database being attached is in a transaction that was started on this thread, an exception will be thrown.
      *
      * @return the alias used to attach the database; this can be used to qualify tables using
      * {@link Table#qualifiedFromDatabase(String)}
@@ -333,6 +336,11 @@ public abstract class AbstractDatabase {
         if (attachedTo != null) {
             throw new IllegalArgumentException(
                     "Database " + getName() + " is already attached to " + attachedTo.getName());
+        }
+        if (inTransaction()) {
+            throw new IllegalStateException(
+                    "Cannot attach database " + getName() + " to " + attachTo.getName() + " -- " + getName()
+                            + " is in a transaction on the calling thread");
         }
 
         acquireExclusiveLock();
