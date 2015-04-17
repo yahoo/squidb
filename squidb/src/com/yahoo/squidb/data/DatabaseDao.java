@@ -201,7 +201,7 @@ public class DatabaseDao {
      */
     public int delete(Delete delete) {
         int result = database.delete(delete);
-        if (result > -1) {
+        if (result > 0) {
             notifyForTable(DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
         }
         return result;
@@ -265,7 +265,7 @@ public class DatabaseDao {
      */
     public int update(Update update) {
         int result = database.update(update);
-        if (result > -1) {
+        if (result > 0) {
             notifyForTable(DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
         }
         return result;
