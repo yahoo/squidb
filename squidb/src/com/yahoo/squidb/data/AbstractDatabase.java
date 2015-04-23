@@ -227,17 +227,15 @@ public abstract class AbstractDatabase {
     private boolean isInMigration;
 
     /**
-     * Create a new AbstractDatabase. Subclasses should be sure to call super() in their constructors. Context must not
-     * be null. Generally, you should call this constructor with an application context to avoid keeping a reference
-     * to an Activity.
+     * Create a new AbstractDatabase
      *
-     * @param context the Context
+     * @param context the Context, must not be null
      */
     public AbstractDatabase(Context context) {
-        this.context = context;
         if (context == null) {
             throw new NullPointerException("Null context creating AbstractDatabase");
         }
+        this.context = context.getApplicationContext();
         initializeTableMap();
     }
 
