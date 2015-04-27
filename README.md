@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.org/yahoo/squidb.svg?branch=master)](https://travis-ci.org/yahoo/squidb)
 
 ## Introducing SquiDB
-SquiDB is a SQLite database layer for Android. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines features of an ORM with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
+SquiDB is a SQLite database layer for Android. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
 
 ## Model objects
-Like most ORMs, SquiDB represents rows in your SQLite tables as objects. Unlike some other ORMs, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A DatabaseDao object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
+SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A DatabaseDao object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
 
 ```java
 // This is a table schema
@@ -134,7 +134,12 @@ try {
 }
 ```
 
-SquidCursor is an instance of Android's CursorWrapper, so you can use one anywhere a standard Android Cursor is expected.
+SquidCursor is an instance of Android's CursorWrapper, so you can use one anywhere a standard Android Cursor is expected. It also provides users a typesafe get() method that can work directly with table columns if you don’t want or need to inflate a full model object:
+
+```java
+String firstName = personCursor.get(Person.FIRST_NAME);
+Long birthday = personCursor.get(Person.BIRTHDAY);
+```
 
 These are simple examples that only use a single table, but it's still easy to work with model objects even if you need to join across multiple tables.
 
