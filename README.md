@@ -3,6 +3,10 @@
 ## Introducing SquiDB
 SquiDB is a SQLite database layer for Android. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
 
+## Getting started
+
+Add SquiDB to your existing project by following the instructions in [How to Set Up the Code Generator](https://github.com/yahoo/squidb/wiki/How-to-set-up-the-SquiDB-code-generator). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
+
 ## Model objects
 SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A DatabaseDao object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
 
@@ -144,6 +148,6 @@ Long birthday = personCursor.get(Person.BIRTHDAY);
 These are simple examples that only use a single table, but it's still easy to work with model objects even if you need to join across multiple tables.
 
 ## And more!
-We've shown several simple examples here, but there's a lot that SquiDB can do to make more complicated use cases easy too--it can help you work with SQL views using model objects, write database migrations, implement flexible ContentProviders backed by your SQLite database, and more. For a more in-depth look at all you can do with SquiDB, check out the wiki at https://github.com/yahoo/squidb/wiki.
+We've shown several simple examples here, but there's a lot that SquiDB can do to make more complicated use cases easy too--it can help you work with SQL views using model objects, write database migrations, implement flexible ContentProviders backed by your SQLite database, and more. For an in-depth look at all you can do with SquiDB, check out the wiki at https://github.com/yahoo/squidb/wiki.
 
 Code licensed under the Apache 2.0 license. See LICENSE file for terms.
