@@ -11,7 +11,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -496,11 +495,6 @@ public abstract class AbstractDatabase {
         acquireNonExclusiveLock();
         try {
             return getDatabase().insertOrThrow(table, nullColumnHack, values);
-        } catch (SQLiteConstraintException e) { // Throw these exceptions
-            throw e;
-        } catch (Exception e) { // Suppress others
-            onError("Error inserting " + values, e);
-            return -1;
         } finally {
             releaseNonExclusiveLock();
         }
@@ -530,9 +524,6 @@ public abstract class AbstractDatabase {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
             return statement.executeInsert();
-        } catch (SQLException e) {
-            onError("Failed to execute insert: " + compiled.sql, e);
-            return -1;
         } finally {
             releaseNonExclusiveLock();
         }
@@ -565,9 +556,6 @@ public abstract class AbstractDatabase {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
             return statement.executeUpdateDelete();
-        } catch (SQLException e) {
-            onError("Failed to execute delete: " + compiled.sql, e);
-            return -1;
         } finally {
             releaseNonExclusiveLock();
         }
@@ -616,9 +604,6 @@ public abstract class AbstractDatabase {
             SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
             SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
             return statement.executeUpdateDelete();
-        } catch (SQLException e) {
-            onError("Failed to execute update: " + compiled.sql, e);
-            return -1;
         } finally {
             releaseNonExclusiveLock();
         }
@@ -1080,10 +1065,26 @@ public abstract class AbstractDatabase {
             return true;
         } catch (SQLException e) {
             onError("Failed to execute statement: " + sql, e);
+            return false;
         } finally {
             releaseNonExclusiveLock();
         }
-        return false;
+    }
+
+    /**
+     * Execute a raw SQL statement
+     *
+     * @param sql the statement to execute
+     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @see android.database.sqlite.SQLiteDatabase#execSQL(String)
+     */
+    public void execSqlOrThrow(String sql) throws SQLException {
+        acquireNonExclusiveLock();
+        try {
+            getDatabase().execSQL(sql);
+        } finally {
+            releaseNonExclusiveLock();
+        }
     }
 
     /**
@@ -1102,10 +1103,28 @@ public abstract class AbstractDatabase {
             return true;
         } catch (SQLException e) {
             onError("Failed to execute statement: " + sql, e);
+            return false;
         } finally {
             releaseNonExclusiveLock();
         }
-        return false;
+    }
+
+    /**
+     * Execute a raw SQL statement with optional arguments. The sql string may contain '?' placeholders for the
+     * arguments.
+     *
+     * @param sql the statement to execute
+     * @param bindArgs the arguments to bind to the statement
+     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @see android.database.sqlite.SQLiteDatabase#execSQL(String, Object[])
+     */
+    public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLException {
+        acquireNonExclusiveLock();
+        try {
+            getDatabase().execSQL(sql, bindArgs);
+        } finally {
+            releaseNonExclusiveLock();
+        }
     }
 
     /**
