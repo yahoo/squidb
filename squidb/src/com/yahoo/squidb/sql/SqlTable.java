@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,22 +16,25 @@ import java.util.List;
 public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTable<T>> {
 
     protected final Class<? extends T> modelClass;
+    protected final Property<?>[] properties;
 
     /**
      * @param expression the string-literal representation of this SqlTable
      */
-    protected SqlTable(Class<? extends T> modelClass, String expression) {
+    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression) {
         super(expression);
         this.modelClass = modelClass;
+        this.properties = properties;
     }
 
     /**
      * @param expression the string-literal representation of this SqlTable
      * @param qualifier the string-literal representation of a qualifying object, e.g. a database name
      */
-    protected SqlTable(Class<? extends T> modelClass, String expression, String qualifier) {
+    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression, String qualifier) {
         super(expression, qualifier);
         this.modelClass = modelClass;
+        this.properties = properties;
     }
 
     /**
@@ -98,10 +100,10 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @return the fields associated to this data source
      */
     protected Field<?>[] allFields() {
-        if (modelClass == null) {
+        if (properties == null) {
             return new Field<?>[0];
         }
-        return SquidUtilities.getProperties(modelClass);
+        return properties;
     }
 
 }

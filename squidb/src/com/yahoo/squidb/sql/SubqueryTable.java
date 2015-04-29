@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class SubqueryTable extends QueryTable {
 
-    private SubqueryTable(Class<? extends ViewModel> modelClass, String name, Query query) {
-        super(modelClass, name, query);
+    private SubqueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
+        super(modelClass, properties, name, query);
     }
 
     /**
@@ -26,7 +26,7 @@ public class SubqueryTable extends QueryTable {
      * @return a new SubqueryTable
      */
     public static SubqueryTable fromQuery(Query query, String name) {
-        return new SubqueryTable(null, name, query);
+        return new SubqueryTable(null, null, name, query);
     }
 
     /**
@@ -38,8 +38,9 @@ public class SubqueryTable extends QueryTable {
      * @param modelClass the ViewModel to associate
      * @return a new SubqueryTable
      */
-    public static SubqueryTable fromQuery(Query query, String name, Class<? extends ViewModel> modelClass) {
-        return new SubqueryTable(modelClass, name, query);
+    public static SubqueryTable fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
+            Property<?>[] properties) {
+        return new SubqueryTable(modelClass, properties, name, query);
     }
 
     @Override

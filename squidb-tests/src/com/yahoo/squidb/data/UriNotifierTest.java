@@ -25,7 +25,7 @@ public class UriNotifierTest extends DatabaseTestCase {
 
         @SuppressWarnings("unchecked")
         public TestUriNotifier() {
-            super(TestModel.class);
+            super(TestModel.TABLE);
         }
 
         @Override

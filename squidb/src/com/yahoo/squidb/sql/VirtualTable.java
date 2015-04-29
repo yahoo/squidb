@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.data.TableModel;
-import com.yahoo.squidb.utility.SquidUtilities;
 
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
@@ -19,12 +18,14 @@ public class VirtualTable extends SqlTable<TableModel> {
     private final String moduleName;
     private final Field<String> anyColumn;
 
-    public VirtualTable(Class<? extends TableModel> modelClass, String expression, String module) {
-        this(modelClass, expression, module, null);
+    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
+            String module) {
+        this(modelClass, properties, expression, module, null);
     }
 
-    public VirtualTable(Class<? extends TableModel> modelClass, String expression, String module, String alias) {
-        super(modelClass, expression);
+    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
+            String module, String alias) {
+        super(modelClass, properties, expression);
         this.moduleName = module;
         this.alias = alias;
         anyColumn = Field.field(expression);
@@ -39,7 +40,7 @@ public class VirtualTable extends SqlTable<TableModel> {
 
     @Override
     public VirtualTable as(String newAlias) {
-        return new VirtualTable(modelClass, getExpression(), moduleName, newAlias);
+        return new VirtualTable(modelClass, properties, getExpression(), moduleName, newAlias);
     }
 
     /**
@@ -67,7 +68,7 @@ public class VirtualTable extends SqlTable<TableModel> {
         sql.append("CREATE VIRTUAL TABLE IF NOT EXISTS ").append(getExpression()).append(" USING ").append(moduleName)
                 .append('(');
         boolean needComma = false;
-        for (Property<?> property : SquidUtilities.getProperties(modelClass)) {
+        for (Property<?> property : properties) {
             if (TableModel.ROWID.equals(property.getExpression())) {
                 continue;
             }
