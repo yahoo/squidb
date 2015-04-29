@@ -164,9 +164,8 @@ public class DatabaseDao {
      * @return true if delete was successful
      */
     public boolean delete(Class<? extends TableModel> modelClass, long id) {
-        String selection = TableModel.ID_PROPERTY.eq(id).toString();
         SqlTable<?> table = getTableFrom(modelClass);
-        int rowsUpdated = database.delete(table.getExpression(), selection, null);
+        int rowsUpdated = database.delete(table.getExpression(), TableModel.ID_PROPERTY.eq(id).toRawSql(), null);
         if (rowsUpdated > 0) {
             notifyForTable(DBOperation.DELETE, null, table, id);
         }
@@ -180,9 +179,8 @@ public class DatabaseDao {
      * @return the number of deleted rows
      */
     public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
-        String selection = where.toString();
         SqlTable<?> table = getTableFrom(modelClass);
-        int rowsUpdated = database.delete(table.getExpression(), selection, null);
+        int rowsUpdated = database.delete(table.getExpression(), where.toRawSql(), null);
         if (rowsUpdated > 0) {
             notifyForTable(DBOperation.DELETE, null, table, TableModel.NO_ID);
         }
@@ -241,10 +239,10 @@ public class DatabaseDao {
         int rowsUpdated;
         if (conflictAlgorithm == null) {
             rowsUpdated = database.update(table.getExpression(), template.getSetValues(),
-                    where.toString(), null);
+                    where.toRawSql(), null);
         } else {
             rowsUpdated = database.updateWithOnConflict(table.getExpression(),
-                    template.getSetValues(), where.toString(), null, conflictAlgorithm.getAndroidValue());
+                    template.getSetValues(), where.toRawSql(), null, conflictAlgorithm.getAndroidValue());
         }
         if (rowsUpdated > 0) {
             notifyForTable(DBOperation.UPDATE, template, table, TableModel.NO_ID);
@@ -293,7 +291,7 @@ public class DatabaseDao {
      * @see #persist(TableModel)
      */
     public boolean persistWithOnConflict(TableModel item, ConflictAlgorithm conflictAlgorithm) {
-        if (item.getId() == TableModel.NO_ID) {
+        if (!item.isSaved()) {
             return insertRow(item, conflictAlgorithm);
         }
         if (!item.isModified()) {
@@ -392,7 +390,7 @@ public class DatabaseDao {
         if (!item.isModified()) { // nothing changed
             return true;
         }
-        if (item.getId() == TableModel.NO_ID) {
+        if (!item.isSaved()) {
             return false;
         }
 
@@ -401,10 +399,10 @@ public class DatabaseDao {
         boolean result;
         if (conflictAlgorithm == null) {
             result = database.update(table.getExpression(), item.getSetValues(),
-                    TableModel.ID_PROPERTY.eq(item.getId()).toString(), null) > 0;
+                    TableModel.ID_PROPERTY.eq(item.getId()).toRawSql(), null) > 0;
         } else {
             result = database.updateWithOnConflict(table.getExpression(), item.getSetValues(),
-                    TableModel.ID_PROPERTY.eq(item.getId()).toString(), null, conflictAlgorithm.getAndroidValue()) > 0;
+                    TableModel.ID_PROPERTY.eq(item.getId()).toRawSql(), null, conflictAlgorithm.getAndroidValue()) > 0;
         }
         if (result) {
             notifyForTable(DBOperation.UPDATE, item, table, item.getId());
