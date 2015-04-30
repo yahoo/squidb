@@ -7,7 +7,6 @@ package com.yahoo.squidb.processor.writers;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
@@ -92,8 +91,20 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     @Override
-    protected Expression getPropertiesArrayExpression() {
-        return Expressions.staticReference(superclass, PROPERTIES_ARRAY_NAME);
+    protected void emitPropertiesArray() throws IOException {
+        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
+                Expressions.staticReference(getModelSuperclass(), PROPERTIES_ARRAY_NAME),
+                TypeConstants.PUBLIC_STATIC_FINAL);
+    }
+
+    @Override
+    protected void writePropertiesInitializationBlock() throws IOException {
+        // Not needed
+    }
+
+    @Override
+    protected void emitPropertyArrayInitialization() throws IOException {
+        // The superclass declares this
     }
 
     @Override

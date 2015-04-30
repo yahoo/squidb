@@ -183,6 +183,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
         beginClassDeclaration(getModelSuperclass());
         emitConstantElements();
 
+        emitPropertiesArray();
+
         emitModelSpecificFields();
 
         emitPropertyDeclarations();
@@ -227,7 +229,9 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected abstract DeclaredTypeName getModelSuperclass();
 
-    protected abstract void emitModelSpecificFields() throws IOException;
+    protected void emitModelSpecificFields() throws IOException {
+        // Subclasses can override
+    }
 
     protected void emitPackage() throws IOException {
         writer.writePackage(generatedClassName.getPackageName());
@@ -290,19 +294,35 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected void emitPropertyDeclarations() throws IOException {
         writer.writeComment("--- property declarations");
         emitAllProperties();
-        emitGenerateProperties();
+        emitPropertyArrayInitialization();
+    }
+
+    protected void emitPropertiesArray() throws IOException {
+        writer.writeComment("--- allocate properties array");
+        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
+                new Expression() {
+                    @Override
+                    public boolean writeExpression(JavaFileWriter javaFileWriter) throws IOException {
+                        javaFileWriter.appendString("new Property<?>[" + getPropertiesArrayLength() + "]");
+                        return true;
+                    }
+                }, TypeConstants.PUBLIC_STATIC_FINAL);
+        writer.writeNewline();
+    }
+
+    protected int getPropertiesArrayLength() {
+        return propertyGenerators.size();
     }
 
     protected abstract void emitAllProperties() throws IOException;
 
-    protected void emitGenerateProperties() throws IOException {
-        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
-                getPropertiesArrayExpression(),
-                TypeConstants.PUBLIC_STATIC_FINAL);
-        writer.writeNewline();
+    protected void emitPropertyArrayInitialization() throws IOException {
+        writer.beginInitializerBlock(true, true);
+        writePropertiesInitializationBlock();
+        writer.finishInitializerBlock(false, true);
     }
 
-    protected abstract Expression getPropertiesArrayExpression();
+    protected abstract void writePropertiesInitializationBlock() throws IOException;
 
     protected void emitConstructors() throws IOException {
         writer.writeComment("--- constructors");
