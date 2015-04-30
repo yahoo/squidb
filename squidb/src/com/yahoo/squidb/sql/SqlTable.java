@@ -45,6 +45,13 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     }
 
     /**
+     * @return the properties array corresponding to this table
+     */
+    public Property<?>[] getProperties() {
+        return properties;
+    }
+
+    /**
      * Clone the given {@link Field fields} with this object's name as their qualifier. This is useful for selecting
      * from views, subqueries, or aliased tables.
      *
