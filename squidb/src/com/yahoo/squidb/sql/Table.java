@@ -35,8 +35,7 @@ public final class Table extends SqlTable<TableModel> {
     }
 
     private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String tableConstraint,
-            String alias,
-            String databaseName) {
+            String alias, String databaseName) {
         super(modelClass, properties, name, databaseName);
         this.alias = alias;
         this.tableConstraint = tableConstraint;
