@@ -128,6 +128,13 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             generator.afterEmitPropertyDeclaration(writer);
             writer.writeNewline();
         }
+
+        for (PropertyGenerator deprecatedProperty : deprecatedPropertyGenerators) {
+            deprecatedProperty.beforeEmitPropertyDeclaration(writer);
+            deprecatedProperty.emitPropertyDeclaration(writer);
+            deprecatedProperty.afterEmitPropertyDeclaration(writer);
+            writer.writeNewline();
+        }
     }
 
     private void emitIdPropertyDeclaration() throws IOException {

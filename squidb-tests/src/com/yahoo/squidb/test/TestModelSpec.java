@@ -50,14 +50,15 @@ public class TestModelSpec {
     @ColumnSpec(defaultValue = "7")
     int luckyNumber;
 
+    @Deprecated
+    long someDeprecatedLong;
+    
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
 
     @JacksonProperty
     Map<String, Integer> someMap;
 
-    @Deprecated
-    long someDeprecatedLong;
 
     @ModelMethod
     public static String getDisplayName(TestModel instance) {

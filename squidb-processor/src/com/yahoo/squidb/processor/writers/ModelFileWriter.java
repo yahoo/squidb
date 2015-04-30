@@ -58,6 +58,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
     protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
     protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
+    protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
     private List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
     private List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
 
@@ -218,7 +219,11 @@ public abstract class ModelFileWriter<T extends Annotation> {
         PropertyGenerator generator = propertyGeneratorFactory
                 .getPropertyGeneratorForVariableElement(e, generatedClassName, modelSpecElement);
         if (generator != null) {
-            propertyGenerators.add(generator);
+            if (generator.isDeprecated()) {
+                deprecatedPropertyGenerators.add(generator);
+            } else {
+                propertyGenerators.add(generator);
+            }
         } else {
             utils.getMessager()
                     .printMessage(Kind.WARNING, "No PropertyGenerator found to handle this modelSpecElement", e);
