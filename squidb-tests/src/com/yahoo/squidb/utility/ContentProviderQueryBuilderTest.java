@@ -236,7 +236,8 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
     }
 
     public void testBuilderFromModel() {
-        ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.class);
+        ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.PROPERTIES,
+                TestSubqueryModel.SUBQUERY);
         Query query = builder.build(null, null, null, null);
         assertEquals(Arrays.asList(TestSubqueryModel.PROPERTIES), query.getFields());
         assertEquals(TestSubqueryModel.SUBQUERY, query.getTable());
@@ -249,7 +250,8 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         dao.persist(employee1);
         dao.persist(employee2);
 
-        ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.class);
+        ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.PROPERTIES,
+                TestSubqueryModel.SUBQUERY);
         Query query = builder.build(null, null, null, null);
 
         SquidCursor<TestSubqueryModel> cursor = null;

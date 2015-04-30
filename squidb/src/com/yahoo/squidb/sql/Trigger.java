@@ -28,8 +28,8 @@ import static com.yahoo.squidb.sql.SqlUtils.EMPTY_ARGS;
  */
 public class Trigger extends DBObject<Trigger> implements SqlStatement {
 
-    private static final Table OLD = new Table(TableModel.class, "OLD");
-    private static final Table NEW = new Table(TableModel.class, "NEW");
+    private static final Table OLD = new Table(TableModel.class, null, "OLD");
+    private static final Table NEW = new Table(TableModel.class, null, "NEW");
 
     private SqlTable<?> table;
     private TriggerType triggerType;

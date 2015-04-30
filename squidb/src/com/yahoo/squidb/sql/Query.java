@@ -641,8 +641,8 @@ public final class Query extends TableStatement {
      * @param modelClass the model class representing the subquery
      * @return a {@link SubqueryTable} from this Query
      */
-    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass) {
-        return SubqueryTable.fromQuery(this, alias, modelClass);
+    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, Property<?>[] properties) {
+        return SubqueryTable.fromQuery(this, alias, modelClass, properties);
     }
 
     /**

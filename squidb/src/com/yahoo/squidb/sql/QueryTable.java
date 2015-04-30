@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
-import com.yahoo.squidb.utility.SquidUtilities;
 
 /**
  * Table backed by a query. Examples include views or subqueries (e.g. SELECT FROM (SELECT...)).
@@ -15,8 +14,8 @@ abstract class QueryTable extends SqlTable<ViewModel> {
 
     final Query query;
 
-    protected QueryTable(Class<? extends ViewModel> modelClass, String name, Query query) {
-        super(modelClass, name);
+    protected QueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
+        super(modelClass, properties, name);
         this.query = query;
     }
 
@@ -29,8 +28,8 @@ abstract class QueryTable extends SqlTable<ViewModel> {
 
     @Override
     protected Field<?>[] allFields() {
-        if (modelClass != null) {
-            return SquidUtilities.getProperties(modelClass);
+        if (properties != null) {
+            return properties;
         } else {
             return qualifiedFields();
         }

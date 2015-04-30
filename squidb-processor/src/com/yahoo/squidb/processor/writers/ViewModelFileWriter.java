@@ -199,9 +199,10 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
     private Expression constructInitializer(String name, boolean view) {
         if (view) {
             return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery",
-                    QUERY_NAME, name, Expressions.classObject(generatedClassName));
+                    QUERY_NAME, name, Expressions.classObject(generatedClassName), PROPERTIES_ARRAY_NAME);
         } else {
-            return Expressions.callMethodOn(QUERY_NAME, "as", name, Expressions.classObject(generatedClassName));
+            return Expressions.callMethodOn(QUERY_NAME, "as", name, Expressions.classObject(generatedClassName),
+                    PROPERTIES_ARRAY_NAME);
         }
     }
 
@@ -230,18 +231,17 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
     }
 
     @Override
-    protected Expression getPropertiesArrayExpression() {
-        Expression body = new Expression() {
-            @Override
-            public boolean writeExpression(JavaFileWriter javaFileWriter) throws IOException {
-                for (PropertyGenerator generator : propertyGenerators) {
-                    javaFileWriter.writeString(generator.getPropertyName())
-                            .appendString(",").writeNewline();
-                }
-                return propertyGenerators.size() > 0;
-            }
-        };
-        return Expressions.block(body, false, false, false, false);
+    protected int getPropertiesArrayLength() {
+        return propertyGenerators.size();
+    }
+
+    @Override
+    protected void writePropertiesInitializationBlock() throws IOException {
+        for (int i = 0; i < propertyGenerators.size(); i++) {
+            writer.writeStatement(Expressions
+                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
+                            Expressions.fromString(propertyGenerators.get(i).getPropertyName())));
+        }
     }
 
     private void emitTableModelMapper() throws IOException {

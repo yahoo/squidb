@@ -66,8 +66,10 @@ public class ProjectionMap {
      * @param columns the Fields to add
      */
     public void putAll(Field<?>... columns) {
-        for (Field<?> field : columns) {
-            put(field);
+        if (columns != null) {
+            for (Field<?> field : columns) {
+                put(field);
+            }
         }
     }
 

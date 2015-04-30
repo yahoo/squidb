@@ -8,7 +8,6 @@ package com.yahoo.squidb.processor.writers;
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
@@ -97,6 +96,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
         writer.writeComment("--- table declaration");
         List<Object> arguments = new ArrayList<Object>();
         arguments.add(Expressions.classObject(generatedClassName));
+        arguments.add(PROPERTIES_ARRAY_NAME);
         arguments.add("\"" + modelSpec.tableName() + "\"");
         if (isVirtualTable()) {
             if (AptUtils.isEmpty(modelSpec.virtualModule())) {
@@ -115,12 +115,24 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
     }
 
     @Override
+    protected int getPropertiesArrayLength() {
+        return super.getPropertiesArrayLength() + 1;
+    }
+
+    @Override
     protected void emitAllProperties() throws IOException {
         emitIdPropertyDeclaration();
         for (PropertyGenerator generator : propertyGenerators) {
             generator.beforeEmitPropertyDeclaration(writer);
             generator.emitPropertyDeclaration(writer);
             generator.afterEmitPropertyDeclaration(writer);
+            writer.writeNewline();
+        }
+
+        for (PropertyGenerator deprecatedProperty : deprecatedPropertyGenerators) {
+            deprecatedProperty.beforeEmitPropertyDeclaration(writer);
+            deprecatedProperty.emitPropertyDeclaration(writer);
+            deprecatedProperty.afterEmitPropertyDeclaration(writer);
             writer.writeNewline();
         }
     }
@@ -141,19 +153,14 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
     }
 
     @Override
-    protected Expression getPropertiesArrayExpression() {
-        Expression body = new Expression() {
-            @Override
-            public boolean writeExpression(JavaFileWriter javaFileWriter) throws IOException {
-                javaFileWriter.writeString("ID,").writeNewline();
-                for (PropertyGenerator generator : propertyGenerators) {
-                    javaFileWriter.writeString(generator.getPropertyName())
-                            .appendString(",").writeNewline();
-                }
-                return true;
-            }
-        };
-        return Expressions.block(body, false, false, false, false);
+    protected void writePropertiesInitializationBlock() throws IOException {
+        writer.writeStatement(Expressions
+                .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, 0), Expressions.fromString("ID")));
+        for (int i = 0; i < propertyGenerators.size(); i++) {
+            writer.writeStatement(Expressions
+                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i + 1),
+                            Expressions.fromString(propertyGenerators.get(i).getPropertyName())));
+        }
     }
 
     @Override

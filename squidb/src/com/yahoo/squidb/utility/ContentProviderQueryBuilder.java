@@ -8,7 +8,6 @@ package com.yahoo.squidb.utility;
 import android.content.ContentProvider;
 import android.text.TextUtils;
 
-import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Field;
@@ -51,20 +50,21 @@ public class ContentProviderQueryBuilder {
     }
 
     /**
-     * Construct a ContentProviderQueryBuilder initialized with a {@link ProjectionMap} from the properties present in
-     * the specified model. If the model class defines a public static data source (e.g. a {@link Table}), this
-     * object's data source is initialized to that.
+     * Construct a ContentProviderQueryBuilder initialized with a {@link ProjectionMap} from the given properties array
+     * and data source. Typically, these would come from the same model class, e.g.
+     * <pre>
+     *     new ContentProviderQueryBuilder(ContractContact.PROPERTIES, ContractContact.SUBQUERY);
+     * </pre>
      *
-     * @param modelClass the model class
+     * @param properties the properties to initialize the projection map with
+     * @param dataSource the data source to select from
      */
-    public ContentProviderQueryBuilder(Class<? extends AbstractModel> modelClass) {
-        Property<?>[] properties = SquidUtilities.getProperties(modelClass);
+    public ContentProviderQueryBuilder(Property<?>[] properties, SqlTable<?> dataSource) {
         ProjectionMap projectionMap = new ProjectionMap();
         projectionMap.putAll(properties);
         setProjectionMap(projectionMap);
 
-        SqlTable<?> table = SquidUtilities.getSqlTable(modelClass);
-        setDataSource(table);
+        setDataSource(dataSource);
     }
 
     /**

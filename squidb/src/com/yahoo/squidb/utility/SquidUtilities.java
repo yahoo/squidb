@@ -9,72 +9,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 
-import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.sql.Property;
-import com.yahoo.squidb.sql.SqlTable;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 
 /**
  * Various utility functions for SquiDB
  */
 public class SquidUtilities {
-
-    /**
-     * Reads a list of {@link Property properties} from a model class by reflection
-     *
-     * @param modelClass the model class
-     * @return an array of Property objects
-     */
-    public static Property<?>[] getProperties(Class<? extends AbstractModel> modelClass) {
-        try {
-            return (Property<?>[]) modelClass.getField("PROPERTIES").get(null);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Inspect a model class for its declared {@link SqlTable} by reflection
-     *
-     * @param modelClass the model class
-     * @return the SqlTable declared for this model, if one exists
-     */
-    public static SqlTable<?> getSqlTable(Class<? extends AbstractModel> modelClass) {
-        Field[] fields = modelClass.getFields();
-        if (fields != null) {
-            for (Field field : fields) {
-                if (!SqlTable.class.isAssignableFrom(field.getType())) {
-                    continue;
-                }
-                if ((field.getModifiers() & Modifier.STATIC) == 0) {
-                    continue;
-                }
-                try {
-                    return (SqlTable<?>) field.get(null);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalArgumentException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Put an arbitrary object into a {@link ContentValues}

@@ -15,9 +15,6 @@ import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -502,64 +499,6 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     public boolean checkAndClearTransitory(String key) {
         return clearTransitory(key) != null;
-    }
-
-    // --- property management
-
-    /**
-     * Looks inside the given class and finds all declared properties
-     */
-    @Deprecated
-    protected static Property<?>[] generateProperties(Class<? extends AbstractModel> cls) {
-        Property<?>[] properties = recursiveGenerateProperties(cls);
-        if (TableModel.class.isAssignableFrom(cls) && !checkForIdProperty(properties)) {
-            throw new IllegalStateException("Model class " + cls + " does not declare an id property with name "
-                    + TableModel.ID_PROPERTY_NAME);
-        }
-        return properties;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Property<?>[] recursiveGenerateProperties(Class<? extends AbstractModel> cls) {
-        ArrayList<Property<?>> properties = new ArrayList<Property<?>>();
-        if (cls.getSuperclass() != AbstractModel.class) {
-            SquidUtilities.addAll(properties, recursiveGenerateProperties(
-                    (Class<? extends AbstractModel>) cls.getSuperclass()));
-        }
-
-        // a property is public, static & extends Property
-        for (Field field : cls.getFields()) {
-            if ((field.getModifiers() & Modifier.STATIC) == 0) {
-                continue;
-            }
-            if (field.getAnnotation(Deprecated.class) != null) {
-                continue;
-            }
-            if (!Property.class.isAssignableFrom(field.getType())) {
-                continue;
-            }
-            try {
-                if (TableModel.class.isAssignableFrom(cls) && ((Property<?>) field.get(null)).table == null) {
-                    continue;
-                }
-                properties.add((Property<?>) field.get(null));
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return properties.toArray(new Property<?>[properties.size()]);
-    }
-
-    private static boolean checkForIdProperty(Property<?>[] properties) {
-        for (Property<?> p : properties) {
-            if (TableModel.ID_PROPERTY_NAME.equals(p.getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

@@ -58,6 +58,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
     protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
     protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
+    protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
     private List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
     private List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
 
@@ -183,6 +184,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
         beginClassDeclaration(getModelSuperclass());
         emitConstantElements();
 
+        emitPropertiesArray();
+
         emitModelSpecificFields();
 
         emitPropertyDeclarations();
@@ -216,7 +219,11 @@ public abstract class ModelFileWriter<T extends Annotation> {
         PropertyGenerator generator = propertyGeneratorFactory
                 .getPropertyGeneratorForVariableElement(e, generatedClassName, modelSpecElement);
         if (generator != null) {
-            propertyGenerators.add(generator);
+            if (generator.isDeprecated()) {
+                deprecatedPropertyGenerators.add(generator);
+            } else {
+                propertyGenerators.add(generator);
+            }
         } else {
             utils.getMessager()
                     .printMessage(Kind.WARNING, "No PropertyGenerator found to handle this modelSpecElement", e);
@@ -227,7 +234,9 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected abstract DeclaredTypeName getModelSuperclass();
 
-    protected abstract void emitModelSpecificFields() throws IOException;
+    protected void emitModelSpecificFields() throws IOException {
+        // Subclasses can override
+    }
 
     protected void emitPackage() throws IOException {
         writer.writePackage(generatedClassName.getPackageName());
@@ -287,22 +296,34 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
     }
 
-    protected void emitPropertyDeclarations() throws IOException {
-        writer.writeComment("--- property declarations");
-        emitAllProperties();
-        emitGenerateProperties();
-    }
-
-    protected abstract void emitAllProperties() throws IOException;
-
-    protected void emitGenerateProperties() throws IOException {
+    protected void emitPropertiesArray() throws IOException {
+        writer.writeComment("--- allocate properties array");
         writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
-                getPropertiesArrayExpression(),
+                Expressions.arrayAllocation(TypeConstants.PROPERTY, 1, getPropertiesArrayLength()),
                 TypeConstants.PUBLIC_STATIC_FINAL);
         writer.writeNewline();
     }
 
-    protected abstract Expression getPropertiesArrayExpression();
+    protected int getPropertiesArrayLength() {
+        return propertyGenerators.size();
+    }
+
+    protected void emitPropertyDeclarations() throws IOException {
+        writer.writeComment("--- property declarations");
+        emitAllProperties();
+        emitPropertyArrayInitialization();
+    }
+
+
+    protected abstract void emitAllProperties() throws IOException;
+
+    protected void emitPropertyArrayInitialization() throws IOException {
+        writer.beginInitializerBlock(true, true);
+        writePropertiesInitializationBlock();
+        writer.finishInitializerBlock(false, true);
+    }
+
+    protected abstract void writePropertiesInitializationBlock() throws IOException;
 
     protected void emitConstructors() throws IOException {
         writer.writeComment("--- constructors");

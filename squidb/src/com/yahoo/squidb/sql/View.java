@@ -14,8 +14,9 @@ public class View extends QueryTable {
 
     private boolean temporary;
 
-    private View(Class<? extends ViewModel> modelClass, String expression, Query query, boolean temporary) {
-        super(modelClass, expression, query);
+    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression, Query query,
+            boolean temporary) {
+        super(modelClass, properties, expression, query);
         this.temporary = temporary;
     }
 
@@ -27,7 +28,7 @@ public class View extends QueryTable {
      * @return a new View instance
      */
     public static View fromQuery(Query query, String name) {
-        return fromQuery(query, name, null);
+        return fromQuery(query, name, null, null);
 
     }
 
@@ -39,8 +40,9 @@ public class View extends QueryTable {
      * @param modelClass the model class representing this View
      * @return a new View instance
      */
-    public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass) {
-        return new View(modelClass, name, query, false);
+    public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
+            Property<?>[] properties) {
+        return new View(modelClass, properties, name, query, false);
     }
 
     /**
@@ -51,7 +53,7 @@ public class View extends QueryTable {
      * @return a new View instance
      */
     public static View temporaryFromQuery(Query query, String name) {
-        return temporaryFromQuery(query, name, null);
+        return temporaryFromQuery(query, name, null, null);
     }
 
     /**
@@ -62,8 +64,9 @@ public class View extends QueryTable {
      * @param modelClass the model class representing this View
      * @return a new View instance
      */
-    public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass) {
-        return new View(modelClass, name, query, true);
+    public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
+            Property<?>[] properties) {
+        return new View(modelClass, properties, name, query, true);
     }
 
     /**

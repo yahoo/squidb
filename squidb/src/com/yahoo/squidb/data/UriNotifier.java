@@ -56,18 +56,6 @@ public abstract class UriNotifier {
     }
 
     /**
-     * Construct a UriNotifier that will be notified of changes to all tables relevant to the given model classes
-     */
-    public UriNotifier(Class<? extends AbstractModel>... modelClasses) {
-        for (Class<? extends AbstractModel> model : modelClasses) {
-            SqlTable<?> table = SquidUtilities.getSqlTable(model);
-            if (table != null) {
-                tables.add(table);
-            }
-        }
-    }
-
-    /**
      * For constructing a UriNotifier that will be notified of changes to the given tables
      */
     public UriNotifier(SqlTable<?>... tables) {
@@ -108,8 +96,8 @@ public abstract class UriNotifier {
      * @param operation the type of database write that occurred
      * @param modelValues the model values that triggered this database update. This parameter may be null; the dao
      * will provide it when possible, but it is not always present. If you only need a row id, check the rowId
-     * parameter. This parameter will be null for delete operations, and will contain only the changed columns and their
-     * new values for updates.
+     * parameter. This parameter will be null for delete operations, and will contain only the changed columns and
+     * their new values for updates.
      * @param rowId the single row id that was updated, if applicable
      */
     public abstract void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,

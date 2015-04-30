@@ -75,4 +75,8 @@ public abstract class PropertyGenerator {
 
     public abstract void emitPutDefault(JavaFileWriter writer, String contentValuesName) throws IOException;
 
+    public boolean isDeprecated() {
+        return isDeprecated;
+    }
+
 }
