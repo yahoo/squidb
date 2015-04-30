@@ -501,7 +501,8 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * @see android.database.sqlite.SQLiteDatabase#delete(String table, String whereClause, String[] whereArgs)
+     * @see android.database.sqlite.SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues,
+     * int)
      */
     public long insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
         acquireNonExclusiveLock();
