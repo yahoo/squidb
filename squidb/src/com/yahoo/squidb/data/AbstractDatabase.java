@@ -115,7 +115,8 @@ public abstract class AbstractDatabase {
      *
      * @param db the {@link SQLiteDatabase} being created
      */
-    protected abstract void onTablesCreated(SQLiteDatabase db);
+    protected void onTablesCreated(SQLiteDatabase db) {
+    }
 
     /**
      * Called when the database should be upgraded from one version to another. The most common pattern to use is a

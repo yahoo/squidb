@@ -53,11 +53,6 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected void onTablesCreated(SQLiteDatabase db) {
-        //
-    }
-
-    @Override
     protected boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
     }
