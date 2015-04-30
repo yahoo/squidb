@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.Criterion;
+import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 
@@ -67,5 +68,13 @@ public class ModelTest extends DatabaseTestCase {
         // delete
         assertTrue(dao.delete(TestModel.class, id));
         assertEquals(0, dao.count(TestModel.class, Criterion.all));
+    }
+
+    public void testDeprecatedPropertiesNotIncluded() {
+        for (Property<?> property : TestModel.PROPERTIES) {
+            if (TestModel.SOME_DEPRECATED_LONG.equals(property)) {
+                fail("The PROPERTIES array contained a deprecated property");
+            }
+        }
     }
 }
