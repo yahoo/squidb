@@ -296,28 +296,24 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
     }
 
-    protected void emitPropertyDeclarations() throws IOException {
-        writer.writeComment("--- property declarations");
-        emitAllProperties();
-        emitPropertyArrayInitialization();
-    }
-
     protected void emitPropertiesArray() throws IOException {
         writer.writeComment("--- allocate properties array");
         writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
-                new Expression() {
-                    @Override
-                    public boolean writeExpression(JavaFileWriter javaFileWriter) throws IOException {
-                        javaFileWriter.appendString("new Property<?>[" + getPropertiesArrayLength() + "]");
-                        return true;
-                    }
-                }, TypeConstants.PUBLIC_STATIC_FINAL);
+                Expressions.arrayAllocation(TypeConstants.PROPERTY, 1, getPropertiesArrayLength()),
+                TypeConstants.PUBLIC_STATIC_FINAL);
         writer.writeNewline();
     }
 
     protected int getPropertiesArrayLength() {
         return propertyGenerators.size();
     }
+
+    protected void emitPropertyDeclarations() throws IOException {
+        writer.writeComment("--- property declarations");
+        emitAllProperties();
+        emitPropertyArrayInitialization();
+    }
+
 
     protected abstract void emitAllProperties() throws IOException;
 
