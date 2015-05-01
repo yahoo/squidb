@@ -379,4 +379,50 @@ public class SqlFunctionsTest extends DatabaseTestCase {
             cursor.close();
         }
     }
+
+    public void testDistinctAggregates() {
+        database.clear();
+        long now = System.currentTimeMillis();
+        peristModelForDistinctAggregates("A", "A", now - 3, 1);
+        peristModelForDistinctAggregates("A", "B", now - 2, 1);
+        peristModelForDistinctAggregates("A", "C", now - 1, 1);
+
+        peristModelForDistinctAggregates("B", "D", now + 1, 2);
+        peristModelForDistinctAggregates("B", "E", now + 2, 2);
+        peristModelForDistinctAggregates("B", "F", now + 3, 2);
+
+        StringProperty firstNameConcat = StringProperty.fromFunction(
+                Function.groupConcat(TestModel.FIRST_NAME, "|"), "fname_concat");
+        StringProperty firstNameDistinct = StringProperty.fromFunction(
+                Function.groupConcatDistinct(TestModel.FIRST_NAME), "fname_distinct");
+        SquidCursor<TestModel> cursor = dao.query(TestModel.class,
+                Query.select(firstNameConcat, firstNameDistinct).groupBy(TestModel.FIRST_NAME));
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals("A|A|A", cursor.get(firstNameConcat));
+            assertEquals("A", cursor.get(firstNameDistinct));
+            cursor.moveToNext();
+            assertEquals("B|B|B", cursor.get(firstNameConcat));
+            assertEquals("B", cursor.get(firstNameDistinct));
+        } finally {
+            cursor.close();
+        }
+
+        IntegerProperty sumDistinct = IntegerProperty.fromFunction(Function.sumDistinct(TestModel.LUCKY_NUMBER),
+                "sumDistinct");
+        cursor = dao.query(TestModel.class, Query.select(sumDistinct));
+        try {
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(3, cursor.get(sumDistinct).intValue());
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private void peristModelForDistinctAggregates(String firstName, String lastName, long birthday, int luckyNumber) {
+        dao.persist(new TestModel().setFirstName(firstName).setLastName(lastName)
+                .setBirthday(birthday).setLuckyNumber(luckyNumber));
+    }
 }
