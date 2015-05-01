@@ -140,14 +140,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      * @return a Function that counts the number of distinct values of the specified field
      */
     public static Function<Integer> countDistinct(Field<?> field) {
-        return new ArgumentFunction<Integer>("COUNT", field) {
-            @Override
-            protected void appendArgumentList(StringBuilder sql, List<Object> selectionArgsBuilder,
-                    Object[] arguments) {
-                sql.append("DISTINCT ");
-                super.appendArgumentList(sql, selectionArgsBuilder, arguments);
-            }
-        };
+        return new DistinctArgumentFunction<Integer>("COUNT", field);
     }
 
     /**
@@ -181,10 +174,24 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
+     * Create a function that returns the sum of distinct values in a group
+     */
+    public static <T extends Number> Function<T> sumDistinct(Field<T> field) {
+        return new DistinctArgumentFunction<T>("SUM", field);
+    }
+
+    /**
      * Create a function that returns the average value in a group
      */
     public static <T extends Number> Function<Double> avg(Field<T> field) {
         return new ArgumentFunction<Double>("AVG", field);
+    }
+
+    /**
+     * Create a function that returns the average value of the distinct values in a group
+     */
+    public static <T extends Number> Function<Double> avgDistinct(Field<T> field) {
+        return new DistinctArgumentFunction<Double>("AVG", field);
     }
 
     /**
@@ -199,6 +206,13 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      */
     public static Function<String> groupConcat(Field<?> field) {
         return new ArgumentFunction<String>("GROUP_CONCAT", field);
+    }
+
+    /**
+     * Create a Function that concatenates non-null distinct values in a group, separated by commas
+     */
+    public static Function<String> groupConcatDistinct(Field<?> field) {
+        return new DistinctArgumentFunction<String>("GROUP_CONCAT", field);
     }
 
     /**
