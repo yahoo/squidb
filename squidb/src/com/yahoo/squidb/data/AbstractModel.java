@@ -580,7 +580,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof String) {
                 return Integer.valueOf((String) data);
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Integer");
         }
 
         @Override
@@ -594,7 +594,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof String) {
                 return Long.valueOf((String) data);
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Long");
         }
 
         @Override
@@ -606,7 +606,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof String) {
                 return (Double.valueOf((String) data));
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Double");
         }
 
         @Override
@@ -625,11 +625,14 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Number) {
                 return ((Number) data).intValue() != 0;
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Boolean");
         }
 
         @Override
         public Object visitBlob(Property<byte[]> property, Object data) {
+            if (data != null && !(data instanceof byte[])) {
+                throw new ClassCastException("Data " + data + " could not be cast to byte[]");
+            }
             return data;
         }
 

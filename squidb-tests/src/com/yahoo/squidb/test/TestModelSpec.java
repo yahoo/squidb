@@ -52,7 +52,9 @@ public class TestModelSpec {
 
     @Deprecated
     long someDeprecatedLong;
-    
+
+    double someDouble;
+
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
 
