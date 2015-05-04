@@ -290,13 +290,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values) {
         Object value = values.get(property.getName());
 
-        // resolve properties that were retrieved with a different type than accessed
-        try {
-            // Will throw a ClassCastException if the value could not be coerced
-            return (TYPE) property.accept(valueCastingVisitor, value);
-        } catch (NumberFormatException e) {
-            return (TYPE) getDefaultValues().get(property.getExpression());
-        }
+        // Will throw a ClassCastException if the value could not be coerced to the correct type
+        return (TYPE) property.accept(valueCastingVisitor, value);
     }
 
     /**
@@ -578,7 +573,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Boolean) {
                 return (Boolean) data ? 1 : 0;
             } else if (data instanceof String) {
-                return Integer.valueOf((String) data);
+                try {
+                    return Integer.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
             throw new ClassCastException("Value " + data + " could not be cast to Integer");
         }
@@ -592,7 +591,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Boolean) {
                 return (Boolean) data ? 1L : 0L;
             } else if (data instanceof String) {
-                return Long.valueOf((String) data);
+                try {
+                    return Long.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
             throw new ClassCastException("Value " + data + " could not be cast to Long");
         }
@@ -604,7 +607,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Number) {
                 return ((Number) data).doubleValue();
             } else if (data instanceof String) {
-                return (Double.valueOf((String) data));
+                try {
+                    return Double.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
             throw new ClassCastException("Value " + data + " could not be cast to Double");
         }
