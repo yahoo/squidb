@@ -202,10 +202,16 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values) {
+    public void readPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
         prepareToReadProperties();
 
-        this.values.putAll(values);
+        if (values != null) {
+            for (Property<?> property : properties) {
+                if (values.containsKey(property.getName())) {
+                    SquidUtilities.putInto(this.values, property.getName(), getFromValues(property, values), true);
+                }
+            }
+        }
     }
 
     /**
@@ -222,10 +228,10 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     /**
      * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
      */
-    public void readPropertiesFromCursor(SquidCursor<?> cursor, com.yahoo.squidb.sql.Field<?>... properties) {
+    public void readPropertiesFromCursor(SquidCursor<?> cursor, Property<?>... properties) {
         prepareToReadProperties();
 
-        for (com.yahoo.squidb.sql.Field<?> field : properties) {
+        for (Property<?> field : properties) {
             readFieldIntoModel(cursor, field);
         }
     }
@@ -266,18 +272,23 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     @SuppressWarnings("unchecked")
     public <TYPE> TYPE get(Property<TYPE> property) {
-        Object value;
         if (setValues != null && setValues.containsKey(property.getName())) {
-            value = setValues.get(property.getName());
+            return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
-            value = values.get(property.getName());
+            return getFromValues(property, values);
         } else if (getDefaultValues().containsKey(property.getExpression())) {
-            value = getDefaultValues().get(property.getExpression());
+            return (TYPE) getDefaultValues().get(property.getExpression());
         } else {
             throw new UnsupportedOperationException(property.getName()
                     + " not found in model. Make sure the value was set explicitly, read from a cursor,"
                     + " or that the model has a default value for this property.");
         }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values) {
+        Object value = values.get(property.getName());
 
         // resolve properties that were retrieved with a different type than accessed
         try {

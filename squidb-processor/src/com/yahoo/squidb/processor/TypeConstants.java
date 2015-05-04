@@ -65,11 +65,17 @@ public class TypeConstants {
     public static final DeclaredTypeName BLOB_PROPERTY = new DeclaredTypeName(PROPERTY.toString(), "BlobProperty");
 
     public static final DeclaredTypeName PROPERTY_ARRAY;
+    public static final DeclaredTypeName PROPERTY_VARARGS;
 
     static {
         PROPERTY.setTypeArgs(Arrays.asList(GenericName.DEFAULT_WILDCARD));
+
         PROPERTY_ARRAY = PROPERTY.clone();
         PROPERTY_ARRAY.setArrayDepth(1);
+
+        PROPERTY_VARARGS = PROPERTY.clone();
+        PROPERTY_VARARGS.setArrayDepth(1);
+        PROPERTY_VARARGS.setIsVarArgs(true);
     }
 
     private static final Set<DeclaredTypeName> PROPERTY_TYPES = new HashSet<DeclaredTypeName>();

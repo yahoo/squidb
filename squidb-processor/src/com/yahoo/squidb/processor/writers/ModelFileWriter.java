@@ -344,8 +344,14 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
         params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES)).setArgumentNames("contentValues");
         writer.beginConstructorDeclaration(params)
+                .writeStatement(Expressions.callMethod("this", "contentValues", PROPERTIES_ARRAY_NAME))
+                .finishMethodDefinition();
+
+        params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES, TypeConstants.PROPERTY_VARARGS))
+                .setArgumentNames("contentValues", "withProperties");
+        writer.beginConstructorDeclaration(params)
                 .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromContentValues(contentValues)")
+                .writeStringStatement("readPropertiesFromContentValues(contentValues, withProperties)")
                 .finishMethodDefinition();
     }
 
