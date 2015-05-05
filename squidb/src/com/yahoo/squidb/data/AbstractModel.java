@@ -202,10 +202,16 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values) {
+    public void readPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
         prepareToReadProperties();
 
-        this.values.putAll(values);
+        if (values != null) {
+            for (Property<?> property : properties) {
+                if (values.containsKey(property.getName())) {
+                    SquidUtilities.putInto(this.values, property.getName(), getFromValues(property, values), true);
+                }
+            }
+        }
     }
 
     /**
@@ -222,10 +228,10 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     /**
      * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
      */
-    public void readPropertiesFromCursor(SquidCursor<?> cursor, com.yahoo.squidb.sql.Field<?>... properties) {
+    public void readPropertiesFromCursor(SquidCursor<?> cursor, Property<?>... properties) {
         prepareToReadProperties();
 
-        for (com.yahoo.squidb.sql.Field<?> field : properties) {
+        for (Property<?> field : properties) {
             readFieldIntoModel(cursor, field);
         }
     }
@@ -266,26 +272,26 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     @SuppressWarnings("unchecked")
     public <TYPE> TYPE get(Property<TYPE> property) {
-        Object value;
         if (setValues != null && setValues.containsKey(property.getName())) {
-            value = setValues.get(property.getName());
+            return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
-            value = values.get(property.getName());
+            return getFromValues(property, values);
         } else if (getDefaultValues().containsKey(property.getExpression())) {
-            value = getDefaultValues().get(property.getExpression());
+            return (TYPE) getDefaultValues().get(property.getExpression());
         } else {
             throw new UnsupportedOperationException(property.getName()
                     + " not found in model. Make sure the value was set explicitly, read from a cursor,"
                     + " or that the model has a default value for this property.");
         }
 
-        // resolve properties that were retrieved with a different type than accessed
-        try {
-            // Will throw a ClassCastException if the value could not be coerced
-            return (TYPE) property.accept(valueCastingVisitor, value);
-        } catch (NumberFormatException e) {
-            return (TYPE) getDefaultValues().get(property.getExpression());
-        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values) {
+        Object value = values.get(property.getName());
+
+        // Will throw a ClassCastException if the value could not be coerced to the correct type
+        return (TYPE) property.accept(valueCastingVisitor, value);
     }
 
     /**
@@ -567,9 +573,13 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Boolean) {
                 return (Boolean) data ? 1 : 0;
             } else if (data instanceof String) {
-                return Integer.valueOf((String) data);
+                try {
+                    return Integer.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Integer");
         }
 
         @Override
@@ -581,9 +591,13 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Boolean) {
                 return (Boolean) data ? 1L : 0L;
             } else if (data instanceof String) {
-                return Long.valueOf((String) data);
+                try {
+                    return Long.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Long");
         }
 
         @Override
@@ -593,9 +607,13 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Number) {
                 return ((Number) data).doubleValue();
             } else if (data instanceof String) {
-                return (Double.valueOf((String) data));
+                try {
+                    return Double.valueOf((String) data);
+                } catch (NumberFormatException e) {
+                    // Suppress and throw the class cast
+                }
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Double");
         }
 
         @Override
@@ -614,11 +632,14 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             } else if (data instanceof Number) {
                 return ((Number) data).intValue() != 0;
             }
-            return data;
+            throw new ClassCastException("Value " + data + " could not be cast to Boolean");
         }
 
         @Override
         public Object visitBlob(Property<byte[]> property, Object data) {
+            if (data != null && !(data instanceof byte[])) {
+                throw new ClassCastException("Data " + data + " could not be cast to byte[]");
+            }
             return data;
         }
 
