@@ -40,7 +40,7 @@ public abstract class UriNotifier {
     /**
      * Enumerates the possible database write operations
      */
-    public static enum DBOperation {
+    public enum DBOperation {
         INSERT,
         UPDATE,
         DELETE
@@ -84,7 +84,7 @@ public abstract class UriNotifier {
      * public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
      *     AbstractModel modelValues, long rowId) {
      *     // Notifies some constant Uri for any update on the students table
-     *     if (Student.TABLE.equals(table) {
+     *     if (Student.TABLE.equals(table)) {
      *         uris.add(Student.CONTENT_URI);
      *     }
      * }
