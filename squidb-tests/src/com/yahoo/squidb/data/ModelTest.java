@@ -103,4 +103,22 @@ public class ModelTest extends DatabaseTestCase {
             }
         }, ClassCastException.class);
     }
+
+    public void testValueCoercionAppliesToAllValues() {
+        // Make sure the model is initialized with values and setValues
+        ContentValues values = new ContentValues();
+        values.put(TestModel.FIRST_NAME.getName(), "A");
+        TestModel model = new TestModel();
+        model.readPropertiesFromContentValues(values, TestModel.FIRST_NAME);
+        model.setFirstName("B");
+
+        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);
+        assertTrue(model.isHappy()); // Test default values
+        model.getDatabaseValues().put(TestModel.IS_HAPPY.getName(), 0);
+        assertFalse(model.isHappy()); // Test database values
+        model.getSetValues().put(TestModel.IS_HAPPY.getName(), 1);
+        assertTrue(model.isHappy()); // Test set values
+
+        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
+    }
 }
