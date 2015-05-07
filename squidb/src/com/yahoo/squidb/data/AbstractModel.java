@@ -209,7 +209,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             for (Property<?> property : properties) {
                 if (values.containsKey(property.getName())) {
                     SquidUtilities.putInto(this.values, property.getName(),
-                            getFromValues(property, values, false), true);
+                            getFromValues(property, values), true);
                 }
             }
         }
@@ -274,11 +274,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     @SuppressWarnings("unchecked")
     public <TYPE> TYPE get(Property<TYPE> property) {
         if (setValues != null && setValues.containsKey(property.getName())) {
-            return getFromValues(property, setValues, false);
+            return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
-            return getFromValues(property, values, false);
+            return getFromValues(property, values);
         } else if (getDefaultValues().containsKey(property.getExpression())) {
-            return getFromValues(property, getDefaultValues(), true);
+            return getFromValues(property, getDefaultValues());
         } else {
             throw new UnsupportedOperationException(property.getName()
                     + " not found in model. Make sure the value was set explicitly, read from a cursor,"
@@ -288,8 +288,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     }
 
     @SuppressWarnings("unchecked")
-    private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values, boolean useExpression) {
-        Object value = values.get(useExpression ? property.getExpression() : property.getName());
+    private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values) {
+        Object value = values.get(property.getName());
 
         // Will throw a ClassCastException if the value could not be coerced to the correct type
         return (TYPE) property.accept(valueCastingVisitor, value);
