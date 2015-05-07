@@ -17,6 +17,7 @@ import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 import com.yahoo.squidb.processor.writers.ViewModelFileWriter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         result.add(ViewModelSpec.class.getName());
         result.add(InheritedModelSpec.class.getName());
         return result;
+    }
+
+    @Override
+    public Set<String> getSupportedOptions() {
+        return Collections.singleton(PLUGINS_KEY);
     }
 
     @Override
