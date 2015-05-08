@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -906,6 +907,61 @@ public class QueryTest extends DatabaseTestCase {
 
         String withValidation = query.sqlForValidation();
         assertEquals(queryLength + 6, withValidation.length());
+    }
+
+    public void testValidationConcurrencyWithSharedState() {
+        // If the code to compile queries with extra parentheses for validation isn't threadsafe,
+        // one of these should throw a SQL parsing exception. If the test passes, all is well
+        final AtomicBoolean compiledOnce = new AtomicBoolean(false);
+        final Semaphore blockCriterion = new Semaphore(0);
+        final Semaphore blockThread = new Semaphore(0);
+        Criterion weirdCriterion = new BinaryCriterion(Thing.BAR, Operator.eq, 0) {
+            @Override
+            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
+                super.populate(sql, selectionArgsBuilder);
+                if (compiledOnce.compareAndSet(false, true)) {
+                    try {
+                        blockThread.release();
+                        blockCriterion.acquire();
+                    } catch (InterruptedException e) {
+                        fail("InterruptedException");
+                    }
+                }
+            }
+        };
+        Query subquery = Query.select(Thing.FOO).from(Thing.TABLE).where(weirdCriterion);
+        final SubqueryTable subqueryTable = subquery.as("t1");
+
+        Query query = Query.select().from(subqueryTable);
+        query.requestValidation();
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    blockThread.acquire();
+
+                    Query query2 = Query.select().from(subqueryTable).where(Criterion.all);
+                    query2.requestValidation();
+
+                    SquidCursor<Thing> cursor = dao.query(Thing.class, query2);
+                    cursor.close();
+                    blockCriterion.release();
+                } catch (InterruptedException e) {
+                    fail("InterruptedException");
+                }
+            }
+        });
+        t.start();
+
+        SquidCursor<Thing> cursor = dao.query(Thing.class, query);
+        cursor.close();
+
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            fail("InterruptedException");
+        }
     }
 
     public void testNeedsValidationUpdatedByMutation() {
