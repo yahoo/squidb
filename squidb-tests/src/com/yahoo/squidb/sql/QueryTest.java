@@ -904,8 +904,8 @@ public class QueryTest extends DatabaseTestCase {
 
         final int queryLength = query.compile().sql.length();
 
-        CompiledStatement withValidation = query.compileWithValidation();
-        assertEquals(queryLength + 6, withValidation.sql.length());
+        String withValidation = query.sqlForValidation();
+        assertEquals(queryLength + 6, withValidation.length());
     }
 
     public void testNeedsValidationUpdatedByMutation() {
