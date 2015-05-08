@@ -482,11 +482,11 @@ public final class Query extends TableStatement {
         return toString().hashCode();
     }
 
-    public final CompiledStatement compileWithValidation() {
+    public final String sqlForValidation() {
         List<Object> argsOrReferences = new ArrayList<Object>();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
         appendCompiledStringWithArguments(sql, argsOrReferences, true);
-        return new CompiledArgumentResolver(sql.toString(), argsOrReferences).resolveToCompiledStatement();
+        return new CompiledArgumentResolver(sql.toString(), argsOrReferences).resolveToCompiledStatement().sql;
     }
 
     @Override

@@ -73,7 +73,7 @@ public final class CompoundSelect extends Validatable {
     }
 
     @Override
-    public void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
+    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
             boolean withValidation) {
         sql.append(operator.toString()).append(" ");
         query.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);

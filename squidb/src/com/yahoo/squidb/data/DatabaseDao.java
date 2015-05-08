@@ -83,8 +83,8 @@ public class DatabaseDao {
             query = query.from(table); // If argument was frozen, we may get a new object
         }
         if (query.needsValidation()) {
-            CompiledStatement compiled = query.compileWithValidation();
-            database.compileStatement(compiled.sql); // throws if the statement fails to compile
+            String compiled = query.sqlForValidation();
+            database.compileStatement(compiled); // throws if the statement fails to compile
         }
         CompiledStatement compiled = query.compile();
         Cursor cursor = database.rawQuery(compiled.sql, compiled.sqlArgs);
