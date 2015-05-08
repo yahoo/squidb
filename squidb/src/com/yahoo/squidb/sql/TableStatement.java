@@ -20,7 +20,7 @@ public abstract class TableStatement extends CompilableWithArguments implements 
      *
      * @see <a href="http://www.sqlite.org/lang_conflict.html">http://www.sqlite.org/lang_conflict.html</a>
      */
-    public static enum ConflictAlgorithm {
+    public enum ConflictAlgorithm {
         /**
          * No conflict algorithm specified.
          */
@@ -53,7 +53,7 @@ public abstract class TableStatement extends CompilableWithArguments implements 
 
         private final int androidValue;
 
-        private ConflictAlgorithm(int androidValue) {
+        ConflictAlgorithm(int androidValue) {
             this.androidValue = androidValue;
         }
 

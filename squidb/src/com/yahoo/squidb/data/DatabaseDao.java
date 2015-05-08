@@ -83,10 +83,8 @@ public class DatabaseDao {
             query = query.from(table); // If argument was frozen, we may get a new object
         }
         if (query.needsValidation()) {
-            query.parenthesizeWhere(true);
-            CompiledStatement compiled = query.compile();
+            CompiledStatement compiled = query.compileWithValidation();
             database.compileStatement(compiled.sql); // throws if the statement fails to compile
-            query.parenthesizeWhere(false);
         }
         CompiledStatement compiled = query.compile();
         Cursor cursor = database.rawQuery(compiled.sql, compiled.sqlArgs);

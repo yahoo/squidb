@@ -15,9 +15,9 @@ import java.util.List;
  * datasets. If a join constraint is specified, it is evaluated for each row of the cartesian product as a boolean
  * expression, and only rows for which the expression evaluates to true are included in the result.
  */
-public class Join extends CompilableWithArguments {
+public class Join extends Validatable {
 
-    private static enum JoinType {
+    private enum JoinType {
         INNER, LEFT, CROSS
     }
 
@@ -109,9 +109,15 @@ public class Join extends CompilableWithArguments {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
+            boolean withValidation) {
         sql.append(joinType).append(" JOIN ");
-        joinTable.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        if (joinTable instanceof SubqueryTable) {
+            ((SubqueryTable) joinTable)
+                    .appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
+        } else {
+            joinTable.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        }
         sql.append(" ");
         if (criterions != null) {
             sql.append("ON ");
