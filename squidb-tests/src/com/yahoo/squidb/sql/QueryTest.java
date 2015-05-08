@@ -892,7 +892,7 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
-    public void testParenthesizeWherePropagates() {
+    public void testValidationPropagatesToSubqueryJoinAndCompoundSelect() {
         Query subquery = Query.select(Thing.FOO).from(Thing.TABLE).where(Thing.BAR.gt(0));
         Query joinSubquery = Query.select(Thing.BAR).from(Thing.TABLE).where(Thing.FOO.isNotEmpty());
         Query compoundSubquery = Query.select(Thing.BAZ).from(Thing.TABLE).where(Thing.IS_ALIVE.isTrue());
@@ -902,16 +902,10 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(subqueryTable).innerJoin(joinTable, Criterion.all)
                 .union(compoundSubquery);
 
-        final int subqueryLength = subquery.toRawSql().length();
-        final int joinSubqueryLength = joinSubquery.toRawSql().length();
-        final int compoundSubqueryLength = compoundSubquery.toRawSql().length();
-        final int queryLength = query.toRawSql().length();
+        final int queryLength = query.compile().sql.length();
 
-        query.parenthesizeWhere(true);
-        assertEquals(subqueryLength + 2, subquery.toRawSql().length());
-        assertEquals(joinSubqueryLength + 2, joinSubquery.toRawSql().length());
-        assertEquals(compoundSubqueryLength + 2, compoundSubquery.toRawSql().length());
-        assertEquals(queryLength + 6, query.toRawSql().length());
+        CompiledStatement withValidation = query.compileWithValidation();
+        assertEquals(queryLength + 6, withValidation.sql.length());
     }
 
     public void testNeedsValidationUpdatedByMutation() {
