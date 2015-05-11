@@ -132,6 +132,20 @@ public class SqlUtils {
         }
     }
 
+    static void appendConcatenatedValidatables(List<? extends Validatable> validatables, StringBuilder sql,
+            List<Object> selectionArgsBuilder, String separator, boolean withValidation) {
+        if (validatables != null && !validatables.isEmpty()) {
+            boolean needSeparator = false;
+            for (Validatable compilable : validatables) {
+                if (needSeparator) {
+                    sql.append(separator);
+                }
+                needSeparator = true;
+                compilable.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
+            }
+        }
+    }
+
     /**
      * Escape a pattern for use in LIKE clauses. LIKE clauses support the meta-characters '_' (matching a single
      * character) and '%' (matching a string of any length, including the empty string). Use this method to escape

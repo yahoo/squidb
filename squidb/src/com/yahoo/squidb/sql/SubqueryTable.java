@@ -45,8 +45,13 @@ public class SubqueryTable extends QueryTable {
 
     @Override
     void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+        appendCompiledStringWithArguments(sql, selectionArgsBuilder, false);
+    }
+
+    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
+            boolean withValidation) {
         sql.append("(");
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
         sql.append(") AS ").append(getName());
     }
 

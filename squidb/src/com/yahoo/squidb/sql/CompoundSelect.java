@@ -12,9 +12,9 @@ import java.util.List;
  *
  * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
  */
-public final class CompoundSelect extends CompilableWithArguments {
+public final class CompoundSelect extends Validatable {
 
-    private static enum CompoundSelectOperator {
+    private enum CompoundSelectOperator {
         UNION("UNION"),
         UNION_ALL("UNION ALL"),
         INTERSECT("INTERSECT"),
@@ -22,7 +22,7 @@ public final class CompoundSelect extends CompilableWithArguments {
 
         private final String expression;
 
-        private CompoundSelectOperator(String expression) {
+        CompoundSelectOperator(String expression) {
             this.expression = expression;
         }
 
@@ -73,9 +73,9 @@ public final class CompoundSelect extends CompilableWithArguments {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
+            boolean withValidation) {
         sql.append(operator.toString()).append(" ");
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
     }
-
 }

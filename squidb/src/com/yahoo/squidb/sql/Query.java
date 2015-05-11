@@ -35,7 +35,6 @@ public final class Query extends TableStatement {
     private boolean immutable = false;
 
     private boolean needsValidation = false;
-    private boolean parenthesizeWhere = false;
 
     private ArrayList<Field<?>> selectAllCache = null;
 
@@ -451,35 +450,6 @@ public final class Query extends TableStatement {
     }
 
     /**
-     * Set whether to use additional parentheses surrounding the WHERE clause of this query. This setting is propagated
-     * to subqueries in the FROM and JOIN clauses as well as any compound select clauses.
-     *
-     * @param parenthesize true to surround the WHERE clause with parentheses, false otherwise
-     */
-    public void parenthesizeWhere(boolean parenthesize) {
-        if (this.parenthesizeWhere != parenthesize) {
-            this.parenthesizeWhere = parenthesize;
-            invalidateCompileCache();
-        }
-
-        if (table instanceof SubqueryTable) {
-            ((SubqueryTable) table).query.parenthesizeWhere(parenthesize);
-        }
-        if (joins != null) {
-            for (Join join : joins) {
-                if (join.joinTable instanceof SubqueryTable) {
-                    ((SubqueryTable) join.joinTable).query.parenthesizeWhere(parenthesize);
-                }
-            }
-        }
-        if (compoundSelects != null) {
-            for (CompoundSelect compoundSelect : compoundSelects) {
-                compoundSelect.query.parenthesizeWhere(parenthesize);
-            }
-        }
-    }
-
-    /**
      * Mark that this query should be checked for syntactic anomalies in the WHERE clause (e.g. if a raw selection was
      * applied)
      */
@@ -512,14 +482,26 @@ public final class Query extends TableStatement {
         return toString().hashCode();
     }
 
+    public final String sqlForValidation() {
+        List<Object> argsOrReferences = new ArrayList<Object>();
+        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+        appendCompiledStringWithArguments(sql, argsOrReferences, true);
+        return new CompiledArgumentResolver(sql.toString(), argsOrReferences).resolveToCompiledStatement().sql;
+    }
+
     @Override
     protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+        appendCompiledStringWithArguments(sql, selectionArgsBuilder, false);
+    }
+
+    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
+            boolean withValidation) {
         visitSelectClause(sql, selectionArgsBuilder);
-        visitFromClause(sql, selectionArgsBuilder);
-        visitJoinClause(sql, selectionArgsBuilder);
-        visitWhereClause(sql, selectionArgsBuilder);
+        visitFromClause(sql, selectionArgsBuilder, withValidation);
+        visitJoinClause(sql, selectionArgsBuilder, withValidation);
+        visitWhereClause(sql, selectionArgsBuilder, withValidation);
         visitGroupByClause(sql, selectionArgsBuilder);
-        visitCompoundSelectClauses(sql, selectionArgsBuilder);
+        visitCompoundSelectClauses(sql, selectionArgsBuilder, withValidation);
         visitOrderByClause(sql, selectionArgsBuilder);
         visitLimitClause(sql);
     }
@@ -537,32 +519,37 @@ public final class Query extends TableStatement {
         SqlUtils.appendConcatenatedCompilables(fields, sql, selectionArgsBuilder, ", ");
     }
 
-    private void visitFromClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitFromClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
         if (table == null) {
             return;
         }
         sql.append(" FROM ");
-        table.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        if (table instanceof SubqueryTable) {
+            ((SubqueryTable) table)
+                    .appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
+        } else {
+            table.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+        }
     }
 
-    private void visitJoinClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitJoinClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
         if (isEmpty(joins)) {
             return;
         }
         sql.append(" ");
-        SqlUtils.appendConcatenatedCompilables(joins, sql, selectionArgsBuilder, " ");
+        SqlUtils.appendConcatenatedValidatables(joins, sql, selectionArgsBuilder, " ", withValidation);
     }
 
-    private void visitWhereClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitWhereClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
         if (isEmpty(criterions)) {
             return;
         }
         sql.append(" WHERE ");
-        if (parenthesizeWhere) {
+        if (withValidation) {
             sql.append("(");
         }
         SqlUtils.appendConcatenatedCompilables(criterions, sql, selectionArgsBuilder, " AND ");
-        if (parenthesizeWhere) {
+        if (withValidation) {
             sql.append(")");
         }
     }
@@ -585,12 +572,13 @@ public final class Query extends TableStatement {
         SqlUtils.appendConcatenatedCompilables(havings, sql, selectionArgsBuilder, " AND ");
     }
 
-    private void visitCompoundSelectClauses(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitCompoundSelectClauses(StringBuilder sql, List<Object> selectionArgsBuilder,
+            boolean withValidation) {
         if (isEmpty(compoundSelects)) {
             return;
         }
         sql.append(" ");
-        SqlUtils.appendConcatenatedCompilables(compoundSelects, sql, selectionArgsBuilder, " ");
+        SqlUtils.appendConcatenatedValidatables(compoundSelects, sql, selectionArgsBuilder, " ", withValidation);
     }
 
     private void visitOrderByClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
@@ -663,7 +651,6 @@ public final class Query extends TableStatement {
         newQuery.offset = offset;
         newQuery.distinct = distinct;
         newQuery.needsValidation = needsValidation;
-        newQuery.parenthesizeWhere = parenthesizeWhere;
         return newQuery;
     }
 
