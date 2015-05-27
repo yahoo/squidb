@@ -16,7 +16,6 @@ import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -387,30 +386,23 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     }
 
     /**
-     * Merges content values with those coming from another source. These values will be added to the model as set
-     * values, so they will mark the model as dirty.
+     * Analogous to {@link #readPropertiesFromContentValues(ContentValues, Property[])} but adds the values to the
+     * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setValues(ContentValues other) {
-        setAll(other, true);
-    }
-
-    /**
-     * Merges set values with those coming from another source, keeping the existing value if one already exists
-     */
-    public void setValuesWithoutReplacement(ContentValues other) {
-        setAll(other, false);
-    }
-
-    private void setAll(ContentValues toSet, boolean withReplacement) {
+    public void setPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
         if (setValues == null) {
             setValues = new ContentValues();
         }
-        for (Entry<String, Object> item : toSet.valueSet()) {
-            String key = item.getKey();
-            Object value = item.getValue();
-            if (shouldSaveValue(key, value) &&
-                    (withReplacement || !setValues.containsKey(key))) {
-                SquidUtilities.putInto(setValues, key, value, true);
+
+        if (values != null) {
+            for (Property<?> property : properties) {
+                String key = property.getName();
+                if (values.containsKey(key)) {
+                    Object value = property.accept(valueCastingVisitor, values.get(key));
+                    if (shouldSaveValue(key, value)) {
+                        SquidUtilities.putInto(this.setValues, property.getName(), value, true);
+                    }
+                }
             }
         }
     }
