@@ -113,7 +113,7 @@ public class Insert extends TableStatement {
     /**
      * Specify a conflict algorithm for this statement
      *
-     * @param conflictAlgorithm the {@link ConflictAlgorithm} to use
+     * @param conflictAlgorithm the {@link TableStatement.ConflictAlgorithm} to use
      * @return this Insert object, to allow chaining method calls
      */
     public Insert onConflict(ConflictAlgorithm conflictAlgorithm) {

@@ -587,7 +587,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
 
         /**
          * Construct a BooleanProperty from a {@link Function} and with the given alias,
-         * e.g. "CASE WHEN column {@code>} 10 THEN 1 ELSE 0 END AS moreThanTen"
+         * e.g. "CASE WHEN column &gt; 10 THEN 1 ELSE 0 END AS moreThanTen"
          *
          * @param function the function
          * @param selectAs the alias to use. May be null.

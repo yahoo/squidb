@@ -5,9 +5,10 @@
  */
 project.ext.artifactId = 'squidb-annotations'
 group = 'com.yahoo.squidb'
-version = '1.0'
+version = '1.0.0'
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -18,4 +19,45 @@ sourceSets {
             srcDir 'src'
         }
     }
+}
+
+def siteUrl = 'https://github.com/yahoo/squidb'
+def gitUrl = 'https://github.com/yahoo/squidb.git'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'jar'
+                name 'SquiDB Annotations'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
 }

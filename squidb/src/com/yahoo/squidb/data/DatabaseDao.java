@@ -35,17 +35,17 @@ import java.util.Set;
  * Class for reading data from an instance of {@link AbstractDatabase}.
  * <p>
  * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
- * fetchByQuery} methods, if the {@code query} argument does not have a FROM clause, the table or view to select from
- * will be inferred from the provided {@code modelClass} argument (if possible). This allows for invocations where
- * {@link Query#from(com.yahoo.squidb.sql.SqlTable) Query.from} is never explicitly called:
+ * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
+ * from will be inferred from the provided <code>modelClass</code> argument (if possible). This allows for invocations
+ * where {@link Query#from(com.yahoo.squidb.sql.SqlTable) Query.from} is never explicitly called:
  *
  * <pre>
- * SquidCursor{@code<Person>} cursor =
+ * SquidCursor&lt;Person&gt; cursor =
  *         dao.query(Person.class, Query.select().orderBy(Person.NAME.asc()));
  * </pre>
  *
- * By convention, the {@code fetch...} methods return a single model instance corresponding to the first record found,
- * or null if no records are found for that particular form of fetch.
+ * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
+ * found, or null if no records are found for that particular form of fetch.
  */
 public class DatabaseDao {
 
@@ -252,8 +252,8 @@ public class DatabaseDao {
      * Executes an {@link Update} statement.
      * <p>
      * Note: Generally speaking, you should prefer to use {@link #update(Criterion, TableModel)}
-     * or {@link #updateWithOnConflict(Criterion, TableModel, ConflictAlgorithm)} for bulk database updates.
-     * This is provided as a convenience in case there exists a non-ORM case where a more
+     * or {@link #updateWithOnConflict(Criterion, TableModel, com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm)}
+     * for bulk database updates. This is provided as a convenience in case there exists a non-ORM case where a more
      * traditional SQL update statement is required for some reason.
      *
      * @param update statement to execute

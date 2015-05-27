@@ -15,10 +15,10 @@ import java.util.List;
  * When used with queries and models, it is typical to wrap the function with a {@link Property}:
  *
  * <pre>
- * Function{@code<Long>} maxFunc = Function.max(Model.TIMESTAMP);
+ * Function&lt;Long&gt; maxFunc = Function.max(Model.TIMESTAMP);
  * LongProperty maxTimestamp = LongProperty.fromFunction(maxFunc, "maxTimestamp");
  * Query query = Query.select(Model.TYPE, maxTimestamp).groupBy(Model.TYPE);
- * SquidCursor{@code<Model>} cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
  * </pre>
  *
  * This allows the value to be read directly from the cursor using {@link SquidCursor#get(Property) get(Property)}, or

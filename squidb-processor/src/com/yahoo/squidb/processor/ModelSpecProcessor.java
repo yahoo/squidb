@@ -34,22 +34,22 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
 /**
- * Annotation processor for generating boilerplate for subclasses of {@link com.yahoo.squidb.data.AbstractModel}
+ * Annotation processor for generating boilerplate for subclasses of AbstractModel
  * from simple template classes. Only processes classes annotated with one of the
  * model spec annotations ({@link TableModelSpec}, {@link ViewModelSpec}, or {@link InheritedModelSpec})
  *
  * Example template class:
  * <pre>
- * {@literal @}TableModelSpec(className="Person", tableName="people")
+ * &#064;TableModelSpec(className="Person", tableName="people")
  * public class PersonSpec {
  *     String firstName;
  *
  *     String lastName;
  *
- *     {@literal @}PropertyExtras(columnName="creationDate")
+ *     &#064;PropertyExtras(columnName="creationDate")
  *     long birthday;
  *
- *     {@literal @}PropertyExtras(defaultValue="true")
+ *     &#064;PropertyExtras(defaultValue="true")
  *     boolean isHappy;
  * }
  * </pre>

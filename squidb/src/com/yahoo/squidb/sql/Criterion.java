@@ -22,11 +22,11 @@ import java.util.List;
  * Criterions can be easily combined (with AND and OR) and negated (with NOT or with an appropriate contrary operator):
  *
  * <pre>
- * Person.AGE.gte(18).and(Person.IS_EMPLOYED.isTrue()) // "person.age {@code>=} 18 AND person.is_employed {@code<>} 0"
- * Person.NUM_SIBLINGS.neq(0).or(Person.NUM_PETS.neq(0)) // "person.num_siblings {@code } 0 OR person.num_pets {@code<>} 0"
+ * Person.AGE.gte(18).and(Person.IS_EMPLOYED.isTrue()) // person.age &gt;= 18 AND person.is_employed &lt;&gt; 0
+ * Person.NUM_SIBLINGS.neq(0).or(Person.NUM_PETS.neq(0)) // person.num_siblings &lt;&gt; 0 OR person.num_pets &lt;&gt; 0
  *
- * Person.AGE.gte(18).negate() // "person.age {@code<} 18"
- * Person.ID.in(1,2,3).negate() // "NOT person._id IN (1,2,3)"
+ * Person.AGE.gte(18).negate() // person.age < 18
+ * Person.ID.in(1,2,3).negate() // NOT person._id IN (1,2,3)
  * </pre>
  *
  * Additionally, this class provides static method equivalents to the above.
@@ -123,10 +123,10 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * Construct a {@link Criterion} using the given literal value, e.g. {@code "WHERE 3"} or {@code "WHERE 'happy'"}.
-     * SQLite evaluates the where clause as a boolean expression by casting the result to a numeric value and comparing
-     * to zero. For example, the values NULL, 0.0, 0, 'sqlite' and '0sqlite' are all considered to be false. Values 1,
-     * 1.0, 0.1, -0.1 and '1sqlite' are considered to be true.
+     * Construct a {@link Criterion} using the given literal value, e.g. <code>"WHERE 3"</code> or
+     * <code>"WHERE 'happy'"</code>. SQLite evaluates the where clause as a boolean expression by casting the result to
+     * a numeric value and comparing to zero. For example, the values NULL, 0.0, 0, 'sqlite' and '0sqlite' are all
+     * considered to be false. Values 1, 1.0, 0.1, -0.1 and '1sqlite' are considered to be true.
      */
     public static Criterion literal(final Object value) {
         return new Criterion(null) {
@@ -139,8 +139,8 @@ public abstract class Criterion extends CompilableWithArguments {
 
     /**
      * Convert this object's contents to valid SQL and append it to the SQL string being built. If
-     * {@code selectionArgsBuilder} is provided, then use the '?' character in place of literal values and add those
-     * values to {@code selectionArgsBuilder} instead. In most cases, use
+     * <code>selectionArgsBuilder</code> is provided, then use the '?' character in place of literal values and add
+     * those values to <code>selectionArgsBuilder</code> instead. In most cases, use
      * {@link SqlUtils#addToSqlString(StringBuilder, List, Object)} to handle this properly.
      *
      * @param sql the SQL string being built
