@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.sql.CompiledStatement;
+import com.yahoo.squidb.sql.ConcreteTable;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
@@ -49,7 +50,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * recommended for type safety reasons. Instead, use an instance of {@link DatabaseDao} to issue the request and return
  * a {@link SquidCursor}.
  * <p>
- * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(Table) tryCreateTable}) return true if the
+ * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(ConcreteTable) tryCreateTable}) return true
+ * if the
  * operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
  * {@link #onError(String, Throwable) onError}.
  * <p>
@@ -80,16 +82,10 @@ public abstract class AbstractDatabase {
     protected abstract int getVersion();
 
     /**
-     * @return all {@link Table Tables} that should be created when the database is created
+     * @return all {@link Table Tables} and {@link VirtualTable VirtualTables} and that should be created when the
+     * database is created
      */
-    protected abstract Table[] getTables();
-
-    /**
-     * @return all {@link VirtualTable VirtualTables} that should be created when the database is created
-     */
-    protected VirtualTable[] getVirtualTables() {
-        return null;
-    }
+    protected abstract ConcreteTable[] getTables();
 
     /**
      * @return all {@link View Views} that should be created when the database is created. Views will be created after
@@ -108,10 +104,10 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Called after the database has been created. At this time, all {@link Table Tables} returned from
-     * {@link #getTables()} and {@link #getVirtualTables()}, all {@link View Views} from {@link #getViews()}, and all
-     * {@link Index Indexes} from {@link #getIndexes()} will have been created. Any additional database setup should be
-     * done here, e.g. creating other views, indexes, triggers, or inserting data.
+     * Called after the database has been created. At this time, all {@link Table Tables} and {@link
+     * VirtualTable VirtualTables} returned from {@link #getTables()}, all {@link View Views} from {@link #getViews()},
+     * and all {@link Index Indexes} from {@link #getIndexes()} will have been created. Any additional database setup
+     * should be done here, e.g. creating other views, indexes, triggers, or inserting data.
      *
      * @param db the {@link SQLiteDatabase} being created
      */
@@ -242,7 +238,6 @@ public abstract class AbstractDatabase {
     private void initializeTableMap() {
         tableMap = new HashMap<Class<? extends AbstractModel>, SqlTable<?>>();
         registerTableModels(getTables());
-        registerTableModels(getVirtualTables());
         registerTableModels(getViews());
     }
 
@@ -787,19 +782,10 @@ public abstract class AbstractDatabase {
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
 
             // create tables
-            Table[] tables = getTables();
+            ConcreteTable[] tables = getTables();
             if (tables != null) {
-                for (Table table : tables) {
+                for (ConcreteTable table : tables) {
                     table.appendCreateTableSql(sql, sqlVisitor);
-                    db.execSQL(sql.toString());
-                    sql.setLength(0);
-                }
-            }
-
-            VirtualTable[] virtualTables = getVirtualTables();
-            if (virtualTables != null) {
-                for (VirtualTable table : virtualTables) {
-                    table.appendCreateTableSql(sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -909,12 +895,12 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Create a new {@link Table} in the database
+     * Create a new {@link Table} or {@link VirtualTable} in the database
      *
-     * @param table the Table to create
+     * @param table the Table or VirtualTable to create
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateTable(Table table) {
+    protected boolean tryCreateTable(ConcreteTable table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
         table.appendCreateTableSql(sql, sqlVisitor);
@@ -922,34 +908,12 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Create a new {@link VirtualTable} in the database
+     * Drop a {@link Table} or {@link VirtualTable} in the database if it exists
      *
-     * @param table the VirtualTable to create
+     * @param table the Table or VirtualTable to drop
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateTable(VirtualTable table) {
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        table.appendCreateTableSql(sql);
-        return tryExecSql(sql.toString());
-    }
-
-    /**
-     * Drop a {@link Table} in the database if it exists
-     *
-     * @param table the Table to drop
-     * @return true if the statement executed without error, false otherwise
-     */
-    protected boolean tryDropTable(Table table) {
-        return tryDropTable(table.getExpression());
-    }
-
-    /**
-     * Drop a {@link VirtualTable} in the database if it exists
-     *
-     * @param table the VirtualTable to drop
-     * @return true if the statement executed without error, false otherwise
-     */
-    protected boolean tryDropTable(VirtualTable table) {
+    protected boolean tryDropTable(ConcreteTable table) {
         return tryDropTable(table.getExpression());
     }
 

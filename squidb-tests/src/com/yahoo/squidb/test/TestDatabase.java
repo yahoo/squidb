@@ -9,9 +9,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.yahoo.squidb.data.AbstractDatabase;
-import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.ConcreteTable;
 import com.yahoo.squidb.sql.View;
-import com.yahoo.squidb.sql.VirtualTable;
 
 public class TestDatabase extends AbstractDatabase {
 
@@ -25,19 +24,15 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected Table[] getTables() {
-        return new Table[]{
+    protected ConcreteTable[] getTables() {
+        return new ConcreteTable[]{
                 TestModel.TABLE,
                 Thing.TABLE,
                 Employee.TABLE,
                 TriggerTester.TABLE,
-                BasicData.TABLE
+                BasicData.TABLE,
+                TestVirtualModel.TABLE
         };
-    }
-
-    @Override
-    protected VirtualTable[] getVirtualTables() {
-        return new VirtualTable[]{TestVirtualModel.TABLE};
     }
 
     @Override

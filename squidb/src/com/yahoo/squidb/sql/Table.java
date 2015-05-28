@@ -14,7 +14,7 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 /**
  * A standard SQLite table.
  */
-public final class Table extends SqlTable<TableModel> {
+public final class Table extends ConcreteTable {
 
     private final String tableConstraint;
 
@@ -41,8 +41,14 @@ public final class Table extends SqlTable<TableModel> {
         this.tableConstraint = tableConstraint;
     }
 
+    @Override
     public Table qualifiedFromDatabase(String databaseName) {
         return new Table(modelClass, properties, getExpression(), tableConstraint, alias, databaseName);
+    }
+
+    @Override
+    public Table as(String newAlias) {
+        return new Table(modelClass, properties, getExpression(), null, newAlias);
     }
 
     /**
@@ -68,11 +74,6 @@ public final class Table extends SqlTable<TableModel> {
         return new Index(name, this, true, columns);
     }
 
-    @Override
-    public Table as(String newAlias) {
-        return new Table(modelClass, properties, getExpression(), null, newAlias);
-    }
-
     /**
      * @return the additional table definition information used when creating the table
      */
@@ -92,6 +93,7 @@ public final class Table extends SqlTable<TableModel> {
      * Append a CREATE TABLE statement that would create this table and its columns. Users normally should not call
      * this method and instead let {@link AbstractDatabase} build tables automatically.
      */
+    @Override
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(').
                 append(TableModel.DEFAULT_ID_COLUMN).append(" INTEGER PRIMARY KEY AUTOINCREMENT");

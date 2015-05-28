@@ -29,7 +29,6 @@ public class View extends QueryTable {
      */
     public static View fromQuery(Query query, String name) {
         return fromQuery(query, name, null, null);
-
     }
 
     /**
