@@ -390,11 +390,10 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * model as set values, i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
-        if (setValues == null) {
-            setValues = new ContentValues();
-        }
-
         if (values != null) {
+            if (setValues == null) {
+                setValues = new ContentValues();
+            }
             for (Property<?> property : properties) {
                 String key = property.getName();
                 if (values.containsKey(key)) {
