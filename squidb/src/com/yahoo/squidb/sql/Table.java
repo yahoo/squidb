@@ -14,41 +14,38 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 /**
  * A standard SQLite table.
  */
-public final class Table extends ConcreteTable {
+public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
-        this(modelClass, properties, name, null, null);
+        this(modelClass, properties, name, null);
     }
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName) {
+        this(modelClass, properties, name, databaseName, null, null);
+    }
+
+    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
             String tableConstraint) {
-        this(modelClass, properties, name, tableConstraint, null);
+        this(modelClass, properties, name, databaseName, tableConstraint, null);
     }
 
-    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String tableConstraint,
-            String alias) {
-        super(modelClass, properties, name);
-        this.alias = alias;
-        this.tableConstraint = tableConstraint;
-    }
-
-    private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String tableConstraint,
-            String alias, String databaseName) {
+    private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
+            String tableConstraint, String alias) {
         super(modelClass, properties, name, databaseName);
-        this.alias = alias;
         this.tableConstraint = tableConstraint;
+        this.alias = alias;
     }
 
-    @Override
     public Table qualifiedFromDatabase(String databaseName) {
-        return new Table(modelClass, properties, getExpression(), tableConstraint, alias, databaseName);
+        return new Table(modelClass, properties, getExpression(), databaseName, tableConstraint, alias);
     }
 
     @Override
     public Table as(String newAlias) {
-        return new Table(modelClass, properties, getExpression(), null, newAlias);
+        return new Table(modelClass, properties, getExpression(), qualifier, tableConstraint, newAlias);
     }
 
     /**
@@ -93,7 +90,6 @@ public final class Table extends ConcreteTable {
      * Append a CREATE TABLE statement that would create this table and its columns. Users normally should not call
      * this method and instead let {@link AbstractDatabase} build tables automatically.
      */
-    @Override
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(').
                 append(TableModel.DEFAULT_ID_COLUMN).append(" INTEGER PRIMARY KEY AUTOINCREMENT");

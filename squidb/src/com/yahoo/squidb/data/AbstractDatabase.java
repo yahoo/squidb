@@ -22,7 +22,6 @@ import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.sql.CompiledStatement;
-import com.yahoo.squidb.sql.ConcreteTable;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
@@ -50,9 +49,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * recommended for type safety reasons. Instead, use an instance of {@link DatabaseDao} to issue the request and return
  * a {@link SquidCursor}.
  * <p>
- * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(ConcreteTable) tryCreateTable}) return true
- * if the
- * operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
+ * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(Table) tryCreateTable}) return true
+ * if the operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
  * {@link #onError(String, Throwable) onError}.
  * <p>
  * Methods that use String arrays for where clause arguments ({@link #update(String, ContentValues, String, String[])
@@ -85,7 +83,7 @@ public abstract class AbstractDatabase {
      * @return all {@link Table Tables} and {@link VirtualTable VirtualTables} and that should be created when the
      * database is created
      */
-    protected abstract ConcreteTable[] getTables();
+    protected abstract Table[] getTables();
 
     /**
      * @return all {@link View Views} that should be created when the database is created. Views will be created after
@@ -782,9 +780,9 @@ public abstract class AbstractDatabase {
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
 
             // create tables
-            ConcreteTable[] tables = getTables();
+            Table[] tables = getTables();
             if (tables != null) {
-                for (ConcreteTable table : tables) {
+                for (Table table : tables) {
                     table.appendCreateTableSql(sql, sqlVisitor);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
@@ -900,7 +898,7 @@ public abstract class AbstractDatabase {
      * @param table the Table or VirtualTable to create
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateTable(ConcreteTable table) {
+    protected boolean tryCreateTable(Table table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
         table.appendCreateTableSql(sql, sqlVisitor);
@@ -913,7 +911,7 @@ public abstract class AbstractDatabase {
      * @param table the Table or VirtualTable to drop
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryDropTable(ConcreteTable table) {
+    protected boolean tryDropTable(Table table) {
         return tryDropTable(table.getExpression());
     }
 

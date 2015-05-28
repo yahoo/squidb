@@ -14,27 +14,19 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
  * table but does not actually store information in the database file. Virtual tables are implemented using a module
  * that was registered with SQLite database connection. Android currently supports FTS3 and FTS4 modules.
  */
-public class VirtualTable extends ConcreteTable {
+public class VirtualTable extends Table {
 
     private final String moduleName;
     private final Field<String> anyColumn;
 
-    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
-            String module) {
-        this(modelClass, properties, expression, module, null);
+    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName, String module) {
+        this(modelClass, properties, name, databaseName, module, null);
     }
 
-    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
-            String module, String alias) {
-        super(modelClass, properties, expression);
-        this.moduleName = module;
-        this.alias = alias;
-        anyColumn = Field.field(expression);
-    }
-
-    private VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
-            String module, String alias, String databaseName) {
-        super(modelClass, properties, expression, databaseName);
+    private VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName, String module, String alias) {
+        super(modelClass, properties, name, databaseName);
         this.moduleName = module;
         this.alias = alias;
         anyColumn = Field.field(expression);
@@ -49,12 +41,12 @@ public class VirtualTable extends ConcreteTable {
 
     @Override
     public VirtualTable qualifiedFromDatabase(String databaseName) {
-        return new VirtualTable(modelClass, properties, getExpression(), moduleName, alias, databaseName);
+        return new VirtualTable(modelClass, properties, getExpression(), databaseName, moduleName, alias);
     }
 
     @Override
     public VirtualTable as(String newAlias) {
-        return new VirtualTable(modelClass, properties, getExpression(), moduleName, newAlias);
+        return new VirtualTable(modelClass, properties, getExpression(), qualifier, moduleName, newAlias);
     }
 
     /**

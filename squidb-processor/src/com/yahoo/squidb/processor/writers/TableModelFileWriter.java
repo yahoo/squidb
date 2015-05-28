@@ -95,9 +95,10 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
     private void emitTableDeclaration() throws IOException {
         writer.writeComment("--- table declaration");
         List<Object> arguments = new ArrayList<Object>();
-        arguments.add(Expressions.classObject(generatedClassName));
-        arguments.add(PROPERTIES_ARRAY_NAME);
-        arguments.add("\"" + modelSpec.tableName() + "\"");
+        arguments.add(Expressions.classObject(generatedClassName)); // modelClass
+        arguments.add(PROPERTIES_ARRAY_NAME); // properties
+        arguments.add("\"" + modelSpec.tableName() + "\""); // name
+        arguments.add(null); // database name, null by default
         if (isVirtualTable()) {
             if (AptUtils.isEmpty(modelSpec.virtualModule())) {
                 utils.getMessager()
