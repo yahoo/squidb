@@ -87,6 +87,7 @@ public class ModelTest extends DatabaseTestCase {
         values.put(TestModel.BIRTHDAY.getName(), 1); // Putting an int where long expected
         values.put(TestModel.IS_HAPPY.getName(), 1); // Putting an int where boolean expected
         values.put(TestModel.SOME_DOUBLE.getName(), 1); // Putting an int where double expected
+        values.put(TestModel.$_123_ABC.getName(), "1"); // Putting a String where int expected
 
         TestModel fromValues = new TestModel(values);
         assertEquals("A", fromValues.getFirstName());
@@ -94,12 +95,40 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals(1L, fromValues.getBirthday().longValue());
         assertTrue(fromValues.isHappy());
         assertEquals(1.0, fromValues.getSomeDouble());
+        assertEquals(1, fromValues.get$123abc().intValue());
 
         values.put(TestModel.IS_HAPPY.getName(), "ABC");
         testThrowsException(new Runnable() {
             @Override
             public void run() {
                 new TestModel(values);
+            }
+        }, ClassCastException.class);
+    }
+
+    public void testTypesafeSetFromContentValues() {
+        final ContentValues values = new ContentValues();
+        values.put(TestModel.FIRST_NAME.getName(), "A");
+        values.put(TestModel.LAST_NAME.getName(), "B");
+        values.put(TestModel.BIRTHDAY.getName(), 1); // Putting an int where long expected
+        values.put(TestModel.IS_HAPPY.getName(), 1); // Putting an int where boolean expected
+        values.put(TestModel.SOME_DOUBLE.getName(), 1); // Putting an int where double expected
+        values.put(TestModel.$_123_ABC.getName(), "1"); // Putting a String where int expected
+
+        TestModel fromValues = new TestModel();
+        fromValues.setPropertiesFromContentValues(values, TestModel.PROPERTIES);
+        assertEquals("A", fromValues.getFirstName());
+        assertEquals("B", fromValues.getLastName());
+        assertEquals(1L, fromValues.getBirthday().longValue());
+        assertTrue(fromValues.isHappy());
+        assertEquals(1.0, fromValues.getSomeDouble());
+        assertEquals(1, fromValues.get$123abc().intValue());
+
+        values.put(TestModel.IS_HAPPY.getName(), "ABC");
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                new TestModel().setPropertiesFromContentValues(values, TestModel.IS_HAPPY);
             }
         }, ClassCastException.class);
     }
