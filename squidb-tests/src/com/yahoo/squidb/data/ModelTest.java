@@ -81,32 +81,14 @@ public class ModelTest extends DatabaseTestCase {
     }
 
     public void testTypesafeReadFromContentValues() {
-        final ContentValues values = new ContentValues();
-        values.put(TestModel.FIRST_NAME.getName(), "A");
-        values.put(TestModel.LAST_NAME.getName(), "B");
-        values.put(TestModel.BIRTHDAY.getName(), 1); // Putting an int where long expected
-        values.put(TestModel.IS_HAPPY.getName(), 1); // Putting an int where boolean expected
-        values.put(TestModel.SOME_DOUBLE.getName(), 1); // Putting an int where double expected
-        values.put(TestModel.$_123_ABC.getName(), "1"); // Putting a String where int expected
-
-        TestModel fromValues = new TestModel(values);
-        assertEquals("A", fromValues.getFirstName());
-        assertEquals("B", fromValues.getLastName());
-        assertEquals(1L, fromValues.getBirthday().longValue());
-        assertTrue(fromValues.isHappy());
-        assertEquals(1.0, fromValues.getSomeDouble());
-        assertEquals(1, fromValues.get$123abc().intValue());
-
-        values.put(TestModel.IS_HAPPY.getName(), "ABC");
-        testThrowsException(new Runnable() {
-            @Override
-            public void run() {
-                new TestModel(values);
-            }
-        }, ClassCastException.class);
+        testContentValuesTypes(false);
     }
 
     public void testTypesafeSetFromContentValues() {
+        testContentValuesTypes(true);
+    }
+
+    private void testContentValuesTypes(final boolean useSetValues) {
         final ContentValues values = new ContentValues();
         values.put(TestModel.FIRST_NAME.getName(), "A");
         values.put(TestModel.LAST_NAME.getName(), "B");
@@ -115,8 +97,24 @@ public class ModelTest extends DatabaseTestCase {
         values.put(TestModel.SOME_DOUBLE.getName(), 1); // Putting an int where double expected
         values.put(TestModel.$_123_ABC.getName(), "1"); // Putting a String where int expected
 
-        TestModel fromValues = new TestModel();
-        fromValues.setPropertiesFromContentValues(values, TestModel.PROPERTIES);
+        TestModel fromValues;
+        if (useSetValues) {
+            fromValues = new TestModel();
+            fromValues.setPropertiesFromContentValues(values, TestModel.PROPERTIES);
+        } else {
+            fromValues = new TestModel(values);
+        }
+
+        // Check the types stored in the values
+        ContentValues checkTypesOn = useSetValues ? fromValues.getSetValues() : fromValues.getDatabaseValues();
+        assertTrue(checkTypesOn.get(TestModel.FIRST_NAME.getName()) instanceof String);
+        assertTrue(checkTypesOn.get(TestModel.LAST_NAME.getName()) instanceof String);
+        assertTrue(checkTypesOn.get(TestModel.BIRTHDAY.getName()) instanceof Long);
+        assertTrue(checkTypesOn.get(TestModel.IS_HAPPY.getName()) instanceof Boolean);
+        assertTrue(checkTypesOn.get(TestModel.SOME_DOUBLE.getName()) instanceof Double);
+        assertTrue(checkTypesOn.get(TestModel.$_123_ABC.getName()) instanceof Integer);
+
+        // Check the types using the model getters
         assertEquals("A", fromValues.getFirstName());
         assertEquals("B", fromValues.getLastName());
         assertEquals(1L, fromValues.getBirthday().longValue());
@@ -124,11 +122,16 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals(1.0, fromValues.getSomeDouble());
         assertEquals(1, fromValues.get$123abc().intValue());
 
+        values.clear();
         values.put(TestModel.IS_HAPPY.getName(), "ABC");
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                new TestModel().setPropertiesFromContentValues(values, TestModel.IS_HAPPY);
+                if (useSetValues) {
+                    new TestModel().setPropertiesFromContentValues(values, TestModel.IS_HAPPY);
+                } else {
+                    new TestModel(values);
+                }
             }
         }, ClassCastException.class);
     }
