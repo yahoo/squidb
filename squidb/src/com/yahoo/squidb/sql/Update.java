@@ -30,9 +30,9 @@ public class Update extends TableStatement {
     }
 
     /**
-     * Construct a new Update statement on the specified {@link Table}
+     * Construct a new Update statement on the specified {@link Table} or {@link VirtualTable}
      */
-    public static Update table(Table table) {
+    public static Update table(ConcreteTable table) {
         return new Update(table);
     }
 

@@ -26,9 +26,9 @@ public class Insert extends TableStatement {
     }
 
     /**
-     * Construct a new Insert statement on the specified {@link Table}
+     * Construct a new Insert statement on the specified {@link Table} or {@link VirtualTable}
      */
-    public static Insert into(Table table) {
+    public static Insert into(ConcreteTable table) {
         return new Insert(table);
     }
 

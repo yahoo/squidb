@@ -28,6 +28,7 @@ public class VirtualModelTest extends DatabaseTestCase {
         model.setTitle("Charlie Brown").setBody("It's the Easter Beagle, Charlie Brown");
         assertTrue(dao.saveExisting(model));
         assertEquals(1, dao.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, dao.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown")));
 
         // delete
         assertTrue(dao.delete(TestVirtualModel.class, id));
