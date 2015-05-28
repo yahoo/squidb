@@ -78,6 +78,7 @@ public class VirtualTable extends ConcreteTable {
      * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users normally should not
      * call this method and instead let {@link AbstractDatabase} build tables automatically.
      */
+    @Override
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE IF NOT EXISTS ").append(getExpression()).append(" USING ").append(moduleName)
                 .append('(');
