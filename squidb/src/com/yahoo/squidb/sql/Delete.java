@@ -26,7 +26,7 @@ public class Delete extends TableStatement {
     }
 
     /**
-     * Construct a new Delete statement on the specified {@link Table}
+     * Construct a new Delete statement on the specified {@link Table} or {@link VirtualTable}
      */
     public static Delete from(Table table) {
         return new Delete(table);

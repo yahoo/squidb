@@ -5,6 +5,7 @@ import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.TestVirtualModel;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -13,6 +14,7 @@ public class AttachDetachTest extends DatabaseTestCase {
     private TestModel model1;
     private TestModel model2;
     private TestModel model3;
+    private TestVirtualModel virtualModel;
 
     private TestDatabase database2;
     private DatabaseDao dao2;
@@ -31,6 +33,9 @@ public class AttachDetachTest extends DatabaseTestCase {
         model2 = insertBasicTestModel("Guy 2", "Lname2", System.currentTimeMillis() - 4);
         model3 = insertBasicTestModel("Guy 3", "Lname3", System.currentTimeMillis() - 3);
 
+        virtualModel = new TestVirtualModel().setTestNumber(1L).setTitle("A").setBody("B");
+        dao.persist(virtualModel);
+
         dao2 = new DatabaseDao(database2);
         database2.clear();
         assertEquals(0, dao2.count(TestModel.class, Criterion.all));
@@ -41,9 +46,13 @@ public class AttachDetachTest extends DatabaseTestCase {
         Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.PROPERTIES)
                 .select(Query.select(TestModel.PROPERTIES)
                         .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs)));
+        Insert insertVirtual = Insert.into(TestVirtualModel.TABLE).columns(TestVirtualModel.PROPERTIES)
+                .select(Query.select(TestVirtualModel.PROPERTIES)
+                        .from(TestVirtualModel.TABLE.qualifiedFromDatabase(attachedAs)));
         dao2.beginTransaction();
         try {
             database2.tryExecStatement(insert);
+            database2.tryExecStatement(insertVirtual);
             dao2.setTransactionSuccessful();
         } finally {
             dao2.endTransaction();
@@ -64,6 +73,8 @@ public class AttachDetachTest extends DatabaseTestCase {
         } finally {
             cursor.close();
         }
+        assertEquals(virtualModel,
+                dao2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
 
         assertFalse(database2.tryExecStatement(insert)); // Should fail after detatch
     }

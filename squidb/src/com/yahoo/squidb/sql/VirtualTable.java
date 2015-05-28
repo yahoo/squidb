@@ -7,25 +7,26 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.data.TableModel;
+import com.yahoo.squidb.sql.Property.PropertyVisitor;
 
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
  * table but does not actually store information in the database file. Virtual tables are implemented using a module
  * that was registered with SQLite database connection. Android currently supports FTS3 and FTS4 modules.
  */
-public class VirtualTable extends SqlTable<TableModel> {
+public class VirtualTable extends Table {
 
     private final String moduleName;
     private final Field<String> anyColumn;
 
-    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
-            String module) {
-        this(modelClass, properties, expression, module, null);
+    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName, String module) {
+        this(modelClass, properties, name, databaseName, module, null);
     }
 
-    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String expression,
-            String module, String alias) {
-        super(modelClass, properties, expression);
+    private VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName, String module, String alias) {
+        super(modelClass, properties, name, databaseName);
         this.moduleName = module;
         this.alias = alias;
         anyColumn = Field.field(expression);
@@ -39,8 +40,13 @@ public class VirtualTable extends SqlTable<TableModel> {
     }
 
     @Override
+    public VirtualTable qualifiedFromDatabase(String databaseName) {
+        return new VirtualTable(modelClass, properties, getExpression(), databaseName, moduleName, alias);
+    }
+
+    @Override
     public VirtualTable as(String newAlias) {
-        return new VirtualTable(modelClass, properties, getExpression(), moduleName, newAlias);
+        return new VirtualTable(modelClass, properties, getExpression(), qualifier, moduleName, newAlias);
     }
 
     /**
@@ -64,7 +70,8 @@ public class VirtualTable extends SqlTable<TableModel> {
      * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users normally should not
      * call this method and instead let {@link AbstractDatabase} build tables automatically.
      */
-    public void appendCreateTableSql(StringBuilder sql) {
+    @Override
+    public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE IF NOT EXISTS ").append(getExpression()).append(" USING ").append(moduleName)
                 .append('(');
         boolean needComma = false;

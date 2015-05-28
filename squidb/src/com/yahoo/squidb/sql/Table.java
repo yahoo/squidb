@@ -14,35 +14,38 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 /**
  * A standard SQLite table.
  */
-public final class Table extends SqlTable<TableModel> {
+public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
-        this(modelClass, properties, name, null, null);
+        this(modelClass, properties, name, null);
     }
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+            String databaseName) {
+        this(modelClass, properties, name, databaseName, null, null);
+    }
+
+    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
             String tableConstraint) {
-        this(modelClass, properties, name, tableConstraint, null);
+        this(modelClass, properties, name, databaseName, tableConstraint, null);
     }
 
-    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String tableConstraint,
-            String alias) {
-        super(modelClass, properties, name);
-        this.alias = alias;
-        this.tableConstraint = tableConstraint;
-    }
-
-    private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String tableConstraint,
-            String alias, String databaseName) {
+    private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
+            String tableConstraint, String alias) {
         super(modelClass, properties, name, databaseName);
-        this.alias = alias;
         this.tableConstraint = tableConstraint;
+        this.alias = alias;
     }
 
     public Table qualifiedFromDatabase(String databaseName) {
-        return new Table(modelClass, properties, getExpression(), tableConstraint, alias, databaseName);
+        return new Table(modelClass, properties, getExpression(), databaseName, tableConstraint, alias);
+    }
+
+    @Override
+    public Table as(String newAlias) {
+        return new Table(modelClass, properties, getExpression(), qualifier, tableConstraint, newAlias);
     }
 
     /**
@@ -66,11 +69,6 @@ public final class Table extends SqlTable<TableModel> {
      */
     public Index uniqueIndex(String name, Property<?>... columns) {
         return new Index(name, this, true, columns);
-    }
-
-    @Override
-    public Table as(String newAlias) {
-        return new Table(modelClass, properties, getExpression(), null, newAlias);
     }
 
     /**
