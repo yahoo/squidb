@@ -22,10 +22,9 @@ import java.util.Set;
  * Represents a row in a SQLite view. The properties of a ViewModel are defined in terms of the properties of other
  * models relevant to the query that backs the corresponding {@link View}.
  * <p>
- * To define a View for a ViewModel, include a static final {@link Query} object annotated with {@link
- * com.yahoo.squidb.annotations.ViewQuery} in the model spec definition. However, this is not required; you can use
- * ViewModels simply as models composed from other models and use them in conjunction with queries specific to those
- * compositions.
+ * To define a View for a ViewModel, include a static final {@link Query} object annotated with @ViewQuery in the model
+ * spec definition. However, this is not required; you can use ViewModels simply as models composed from other models
+ * and use them in conjunction with queries specific to those compositions.
  */
 public abstract class ViewModel extends AbstractModel {
 
