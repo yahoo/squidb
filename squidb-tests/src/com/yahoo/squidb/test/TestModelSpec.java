@@ -6,19 +6,25 @@
 package com.yahoo.squidb.test;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.jackson.JacksonProperty;
 import com.yahoo.squidb.sql.Property;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 @TableModelSpec(className = "TestModel", tableName = "testModels",
         tableConstraint = "UNIQUE (creationDate) ON CONFLICT REPLACE")
+@Implements(interfaceClasses = Runnable.class,
+        interfaceDefinitions = @Implements.InterfaceSpec(interfaceClass = Iterable.class,
+                interfaceTypeArgs = {String.class}))
 public class TestModelSpec {
 
     public static final int INT_CONST = 0;
@@ -75,6 +81,16 @@ public class TestModelSpec {
     @ModelMethod
     public static void testVoidMethod(TestModel instance) {
         System.err.println("Hello");
+    }
+
+    @ModelMethod
+    public static void run(TestModel instance) {
+        Log.e("TestModel", "Interface method");
+    }
+
+    @ModelMethod
+    public static Iterator<String> iterator(TestModel instance) {
+        return null;
     }
 
     public static String someStaticMethod(TestModel instance, TestModel anotherInstance) {

@@ -17,6 +17,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.annotations.Ignore;
+import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
@@ -28,11 +29,14 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -59,6 +63,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
     protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
     protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
+
+    private List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
     private List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
     private List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
 
@@ -73,7 +79,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
         extend.add(TypeConstants.ABSTRACT_MODEL);
         GenericName returnGeneric = new GenericName(GenericName.WILDCARD_CHAR, extend, null);
         DeclaredTypeName returnType = TypeConstants.CREATOR.clone();
-        returnType.setTypeArgs(Arrays.asList(returnGeneric));
+        returnType.setTypeArgs(Collections.singletonList(returnGeneric));
         GET_CREATOR_PARAMS = new MethodDeclarationParameters()
                 .setMethodName("getCreator")
                 .setModifiers(Modifier.PROTECTED)
@@ -94,6 +100,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
         this.modelSpec = modelSpecElement.getAnnotation(modelSpecClass);
         generatedClassName = new DeclaredTypeName(sourceElementName.getPackageName(), getGeneratedClassName());
         initModelMethods();
+        initInterfaces();
     }
 
     protected abstract String getGeneratedClassName();
@@ -147,6 +154,38 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
     }
 
+    protected void initInterfaces() {
+        List<DeclaredTypeName> typeNames = utils.getTypeNamesFromAnnotationValue(
+                utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceClasses"));
+        if (!AptUtils.isEmpty(typeNames)) {
+            interfaces.addAll(typeNames);
+        }
+
+        AnnotationValue value = utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceDefinitions");
+        List<AnnotationMirror> interfaceSpecs = utils.getValuesFromAnnotationValue(value,
+                AnnotationMirror.class);
+
+        for (AnnotationMirror spec : interfaceSpecs) {
+            AnnotationValue interfaceClassValue = utils.getAnnotationValueFromMirror(spec, "interfaceClass");
+            List<DeclaredTypeName> interfaceClassList = utils.getTypeNamesFromAnnotationValue(interfaceClassValue);
+            if (!AptUtils.isEmpty(interfaceClassList)) {
+                DeclaredTypeName interfaceClass = interfaceClassList.get(0);
+
+                AnnotationValue interfaceTypeArgsValue = utils.getAnnotationValueFromMirror(spec, "interfaceTypeArgs");
+                List<DeclaredTypeName> typeArgs = utils.getTypeNamesFromAnnotationValue(interfaceTypeArgsValue);
+                if (AptUtils.isEmpty(typeArgs)) {
+                    List<String> typeArgNames = utils.getValuesFromAnnotationValue(
+                            utils.getAnnotationValueFromMirror(spec, "interfaceTypeArgNames"), String.class);
+                    for (String typeArgName : typeArgNames) {
+                        typeArgs.add(new DeclaredTypeName(typeArgName));
+                    }
+                }
+                interfaceClass.setTypeArgs(typeArgs);
+                interfaces.add(interfaceClass);
+            }
+        }
+    }
+
     private boolean checkFirstArgType(TypeMirror type) {
         if (type instanceof ErrorType) {
             return true;
@@ -181,7 +220,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
         emitPackage();
         emitImports();
-        beginClassDeclaration(getModelSuperclass());
+        beginClassDeclaration();
         emitConstantElements();
 
         emitPropertiesArray();
@@ -268,11 +307,12 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
         utils.accumulateImportsFromElements(imports, constantElements);
         utils.accumulateImportsFromElements(imports, modelMethods);
+        utils.accumulateImportsFromTypeNames(imports, interfaces);
     }
 
     protected abstract Collection<DeclaredTypeName> getModelSpecificImports();
 
-    protected void beginClassDeclaration(DeclaredTypeName superclass) throws IOException {
+    protected void beginClassDeclaration() throws IOException {
         writer.writeComment("Generated code -- do not modify!");
         writer.writeComment("This class was generated from the model spec at " + sourceElementName);
         if (modelSpecElement.getAnnotation(Deprecated.class) != null) {
@@ -280,7 +320,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
         TypeDeclarationParameters params = new TypeDeclarationParameters()
                 .setName(generatedClassName)
-                .setSuperclass(superclass)
+                .setSuperclass(getModelSuperclass())
+                .setInterfaces(interfaces)
                 .setKind(Type.CLASS)
                 .setModifiers(Modifier.PUBLIC);
         writer.beginTypeDefinition(params);
@@ -339,14 +380,15 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 .finishMethodDefinition();
 
         DeclaredTypeName squidCursorType = TypeConstants.SQUID_CURSOR.clone();
-        squidCursorType.setTypeArgs(Arrays.asList(getSquidCursorTypeArg()));
+        squidCursorType.setTypeArgs(Collections.singletonList(getSquidCursorTypeArg()));
         params.setArgumentTypes(squidCursorType).setArgumentNames("cursor");
         writer.beginConstructorDeclaration(params)
                 .writeStringStatement("this()")
                 .writeStringStatement("readPropertiesFromCursor(cursor)")
                 .finishMethodDefinition();
 
-        params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES)).setArgumentNames("contentValues");
+        params.setArgumentTypes(Collections.singletonList(TypeConstants.CONTENT_VALUES))
+                .setArgumentNames("contentValues");
         writer.beginConstructorDeclaration(params)
                 .writeStatement(Expressions.callMethod("this", "contentValues", PROPERTIES_ARRAY_NAME))
                 .finishMethodDefinition();
@@ -458,7 +500,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected void emitCreator() throws IOException {
         writer.writeComment("--- parcelable helpers");
-        List<DeclaredTypeName> genericList = Arrays.asList(generatedClassName);
+        List<DeclaredTypeName> genericList = Collections.singletonList(generatedClassName);
         DeclaredTypeName creatorType = TypeConstants.CREATOR.clone();
         DeclaredTypeName modelCreatorType = TypeConstants.MODEL_CREATOR.clone();
         creatorType.setTypeArgs(genericList);

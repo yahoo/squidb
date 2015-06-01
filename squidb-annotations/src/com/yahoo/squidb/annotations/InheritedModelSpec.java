@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * A model spec for generating a model that subclasses from another model. Properties can be re-declared with new names
  * in an inherited model. For example:
  * <pre>
- *     {@literal @}TableModelSpec(className = "Metadata", tableName = "metadata")
+ *     &#064;TableModelSpec(className = "Metadata", tableName = "metadata")
  *     public class MetadataSpec {
  *
  *          String data1;
@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  *
  *     ...
  *
- *     {@literal @}InheritedModelSpec(className = "KeyValueMetadata", inheritsFrom = "com.mypackage.Metadata")
+ *     &#064;InheritedModelSpec(className = "KeyValueMetadata", inheritsFrom = "com.mypackage.Metadata")
  *     public class SpecificMetadataSpec {
  *
  *         public static final StringProperty KEY = Metadata.DATA_1;
