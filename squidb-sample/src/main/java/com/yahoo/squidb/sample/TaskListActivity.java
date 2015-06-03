@@ -130,8 +130,8 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         Function<Long> sinceCompletion = Function.subtract(unixNow, Task.COMPLETION_DATE);
 
         Query query = mTaskUtils.getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0)
-                .or(sinceCompletion.lt(DateUtils.MINUTE_IN_MILLIS * 5)));
-        query.orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
+                .or(sinceCompletion.lt(DateUtils.MINUTE_IN_MILLIS * 5)))
+                .orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
 
         SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);
         loader.setNotificationUri(Task.CONTENT_URI);
