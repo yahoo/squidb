@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
@@ -25,6 +26,7 @@ import com.yahoo.squidb.sample.adapter.TaskListAdapter;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sample.modules.HelloSquiDBInjector;
 import com.yahoo.squidb.sample.utils.TaskUtils;
+import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.utility.SquidCursorLoader;
 
@@ -87,6 +89,28 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         }
     }
 
+    private class NewTaskDialogFragment extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.create_new_task);
+            View view = getLayoutInflater().inflate(R.layout.new_task_dialog, null);
+            final TextView taskTitle = (TextView) view.findViewById(R.id.task_title);
+            final TextView taskTags = (TextView) view.findViewById(R.id.task_tags);
+            builder.setView(view);
+            builder.setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String[] tags = taskTags.getText().toString().split("\\s,\\s");
+                            mTaskUtils.insertNewTask(taskTitle.getText().toString(), 0, 0, tags);
+                        }
+                    });
+            return builder.create();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -108,7 +132,8 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.create_new_task) {
+            new NewTaskDialogFragment().show(getFragmentManager(), "NewTask");
             return true;
         }
 
@@ -118,7 +143,11 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
     @Override
     public Loader<SquidCursor<Task>> onCreateLoader(int id, Bundle args) {
         Query query = mTaskUtils.getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0));
-        return new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);
+        query.orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
+
+        SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);
+        loader.setNotificationUri(Task.CONTENT_URI);
+        return loader;
     }
 
     @Override

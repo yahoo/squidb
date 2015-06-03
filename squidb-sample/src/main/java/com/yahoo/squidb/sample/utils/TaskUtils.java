@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sample.utils;
 
+import android.text.TextUtils;
+
 import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
@@ -38,14 +40,19 @@ public class TaskUtils {
         return TASKS_WITH_TAGS.where(filterBy);
     }
 
-    public boolean insertNewTask(String title, int priority, String... tags) {
+    public boolean insertNewTask(String title, int priority, long dueDate, String... tags) {
         mDatabaseDao.beginTransaction();
         try {
-            Task task = new Task().setTitle(title).setPriority(priority);
+            Task task = new Task()
+                    .setTitle(title)
+                    .setPriority(priority)
+                    .setDueDate(dueDate);
             if (mDatabaseDao.persist(task)) {
                 for (String tag : tags) {
-                    if (!mDatabaseDao.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
-                        return false;
+                    if (!TextUtils.isEmpty(tag)) {
+                        if (!mDatabaseDao.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
+                            return false;
+                        }
                     }
                 }
                 mDatabaseDao.setTransactionSuccessful();

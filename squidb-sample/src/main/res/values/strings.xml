@@ -6,8 +6,9 @@
  *-->
 <resources>
     <string name="app_name">Hello SquiDB</string>
-    <string name="action_settings">Settings</string>
-
+    <string name="create_new_task">New task</string>
     <string name="complete_task">Complete task</string>
     <string name="delete_task">Delete task</string>
+    <string name="task_title">Task title</string>
+    <string name="task_tags">Task tags (comma separated)</string>
 </resources>
