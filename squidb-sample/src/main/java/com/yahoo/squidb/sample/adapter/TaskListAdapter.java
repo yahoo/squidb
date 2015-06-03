@@ -24,7 +24,7 @@ public class TaskListAdapter extends SquidCursorAdapter<Task> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = getLayoutInflater().inflate(R.layout.task_row, parent);
+            convertView = getLayoutInflater().inflate(R.layout.task_row, null);
             convertView.setTag(new TaskRowViewHolder(convertView));
         }
 
