@@ -38,6 +38,9 @@ public class TaskListAdapter extends SquidCursorAdapter<Task> {
         } else {
             viewHolder.taskTitle.setPaintFlags(viewHolder.taskTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
+
+        // Note how the model object can contain a property that isn't part of its core definition--the property
+        // was in the query, so it's read into the adapter model and we can access it using the generic getter
         viewHolder.taskTags.setText(item.get(TaskUtils.TAGS_CONCAT));
         return convertView;
     }
