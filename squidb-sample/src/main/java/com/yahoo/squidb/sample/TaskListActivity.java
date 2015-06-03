@@ -14,8 +14,6 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
 import android.text.format.DateUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -59,6 +57,14 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         });
         mTaskListAdapter = new TaskListAdapter(this, new Task());
         mTaskListView.setAdapter(mTaskListAdapter);
+
+        View newTaskButton = findViewById(R.id.create_new_task);
+        newTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new NewTaskDialogFragment().show(getFragmentManager(), "NewTask");
+            }
+        });
     }
 
     private class EditTaskDialogFragment extends DialogFragment {
@@ -116,29 +122,6 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
     protected void onResume() {
         super.onResume();
         getLoaderManager().restartLoader(LOADER_ID_TASKS, null, this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_task_list, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.create_new_task) {
-            new NewTaskDialogFragment().show(getFragmentManager(), "NewTask");
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
