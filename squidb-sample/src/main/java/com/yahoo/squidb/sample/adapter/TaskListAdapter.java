@@ -6,6 +6,7 @@
 package com.yahoo.squidb.sample.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,6 +33,11 @@ public class TaskListAdapter extends SquidCursorAdapter<Task> {
 
         Task item = getItem(position);
         viewHolder.taskTitle.setText(item.getTitle());
+        if (item.isCompleted()) {
+            viewHolder.taskTitle.setPaintFlags(viewHolder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            viewHolder.taskTitle.setPaintFlags(viewHolder.taskTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
         viewHolder.taskTags.setText(item.get(TaskUtils.TAGS_CONCAT));
         return convertView;
     }

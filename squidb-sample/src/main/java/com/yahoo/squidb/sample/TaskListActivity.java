@@ -13,6 +13,7 @@ import android.app.LoaderManager;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -103,7 +104,7 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            String[] tags = taskTags.getText().toString().split("\\s,\\s");
+                            String[] tags = taskTags.getText().toString().split("\\s*,\\s*");
                             mTaskUtils.insertNewTask(taskTitle.getText().toString(), 0, 0, tags);
                         }
                     });
@@ -142,7 +143,11 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
 
     @Override
     public Loader<SquidCursor<Task>> onCreateLoader(int id, Bundle args) {
-        Query query = mTaskUtils.getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0));
+        Function<Long> unixNow = Function.multiply(1000, Function.functionWithArguments("strftime", "%s", "now"));
+        Function<Long> sinceCompletion = Function.subtract(unixNow, Task.COMPLETION_DATE);
+
+        Query query = mTaskUtils.getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0)
+                .or(sinceCompletion.lt(DateUtils.MINUTE_IN_MILLIS * 5)));
         query.orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
 
         SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);

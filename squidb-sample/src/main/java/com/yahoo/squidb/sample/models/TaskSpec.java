@@ -8,6 +8,7 @@ package com.yahoo.squidb.sample.models;
 import android.net.Uri;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "Task", tableName = "tasks")
@@ -26,4 +27,9 @@ public class TaskSpec {
 
     @ColumnSpec(defaultValue = "0")
     int priority;
+
+    @ModelMethod
+    public static boolean isCompleted(Task instance) {
+        return instance.getCompletionDate() > 0;
+    }
 }
