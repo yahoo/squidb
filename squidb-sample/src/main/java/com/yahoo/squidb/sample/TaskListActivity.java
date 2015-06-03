@@ -6,7 +6,11 @@
 package com.yahoo.squidb.sample;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.LoaderManager;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,14 +23,19 @@ import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sample.adapter.TaskListAdapter;
 import com.yahoo.squidb.sample.models.Task;
+import com.yahoo.squidb.sample.modules.HelloSquiDBInjector;
 import com.yahoo.squidb.sample.utils.TaskUtils;
+import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.utility.SquidCursorLoader;
+
+import javax.inject.Inject;
 
 public class TaskListActivity extends Activity implements LoaderManager.LoaderCallbacks<SquidCursor<Task>> {
 
     private static final int LOADER_ID_TASKS = 1;
 
-    private DatabaseDao mDatabaseDao;
+    @Inject TaskUtils mTaskUtils;
+    @Inject DatabaseDao mDatabaseDao;
 
     private ListView mTaskListView;
     private TaskListAdapter mTaskListAdapter;
@@ -34,19 +43,48 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        HelloSquiDBInjector.getInstance().inject(this);
         setContentView(R.layout.activity_task_list);
         mTaskListView = (ListView) findViewById(R.id.task_list);
 
-        mTaskListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        mTaskListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO: Handle long click
-                return false;
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                new EditTaskDialogFragment(mTaskListAdapter.getItem(position))
+                        .show(getFragmentManager(), "EditTask");
             }
         });
-
         mTaskListAdapter = new TaskListAdapter(this, new Task());
         mTaskListView.setAdapter(mTaskListAdapter);
+    }
+
+    private class EditTaskDialogFragment extends DialogFragment {
+
+        private Task mTask;
+
+        public EditTaskDialogFragment(Task task) {
+            mTask = task.clone(); // We might be using a shared object, so clone the task to work with
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(mTask.getTitle())
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setNeutralButton(R.string.complete_task, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mTaskUtils.completeTask(mTask);
+                        }
+                    })
+                    .setPositiveButton(R.string.delete_task, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mTaskUtils.deleteTask(mTask);
+                        }
+                    });
+            return builder.create();
+        }
     }
 
     @Override
@@ -79,7 +117,8 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
 
     @Override
     public Loader<SquidCursor<Task>> onCreateLoader(int id, Bundle args) {
-        return new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, TaskUtils.TASKS_WITH_TAGS);
+        Query query = mTaskUtils.getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0));
+        return new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);
     }
 
     @Override

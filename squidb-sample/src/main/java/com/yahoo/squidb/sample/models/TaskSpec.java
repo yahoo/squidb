@@ -15,9 +15,6 @@ public class TaskSpec {
     String title;
 
     @ColumnSpec(defaultValue = "0")
-    long deletionDate;
-
-    @ColumnSpec(defaultValue = "0")
     long completionDate;
 
     @ColumnSpec(defaultValue = "0")
