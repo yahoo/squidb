@@ -94,9 +94,13 @@ public class Table extends SqlTable<TableModel> {
      */
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
+        boolean needsComma = false;
         for (Property<?> property : properties) {
-            sql.append(',');
+            if (needsComma) {
+                sql.append(", ");
+            }
             property.accept(propertyVisitor, sql);
+            needsComma = true;
         }
         if (!TextUtils.isEmpty(getTableConstraint())) {
             sql.append(", ").append(getTableConstraint());
