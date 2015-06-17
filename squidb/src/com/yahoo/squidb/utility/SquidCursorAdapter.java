@@ -70,7 +70,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
         this.context = context;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.model = model;
-        this.columnForId = columnForId;
+        this.columnForId = columnForId != null ? columnForId : ID_PROPERTY;
     }
 
     /**

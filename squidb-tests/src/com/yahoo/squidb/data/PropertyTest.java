@@ -16,7 +16,8 @@ public class PropertyTest extends SquidTestCase {
 
     public void testPropertyAliasing() {
         LongProperty p = TestModel.ID;
-        assertEquals(p.getExpression(), "testModels._id");
+        assertEquals(p.getQualifiedExpression(), "testModels._id");
+        assertEquals(p.getExpression(), "_id");
         assertEquals(p.getName(), "_id");
 
         LongProperty basicAlias = p.as("newAlias");
@@ -38,7 +39,8 @@ public class PropertyTest extends SquidTestCase {
         assertEquals("SELECT testView.newAlias AS superAlias", Query.select(asSelectionFromTable).toString());
 
         LongProperty virtualP = TestVirtualModel.ID;
-        assertEquals(virtualP.getExpression(), "virtual_models.rowid");
+        assertEquals(virtualP.getQualifiedExpression(), "virtual_models.rowid");
+        assertEquals(virtualP.getExpression(), "rowid");
         assertEquals(virtualP.getName(), "rowid");
     }
 
