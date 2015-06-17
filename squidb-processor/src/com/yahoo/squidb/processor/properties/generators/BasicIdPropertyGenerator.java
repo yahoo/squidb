@@ -20,7 +20,7 @@ public class BasicIdPropertyGenerator extends BasicLongPropertyGenerator {
     protected String getColumnDefinition() {
         String columnDef = super.getColumnDefinition();
         if (AptUtils.isEmpty(columnDef) || !columnDef.contains("PRIMARY KEY")) {
-            String newColumnDef = "INTEGER PRIMARY KEY AUTOINCREMENT";
+            String newColumnDef = "PRIMARY KEY AUTOINCREMENT";
             if (!AptUtils.isEmpty(columnDef)) {
                 newColumnDef += ", " + columnDef;
             }

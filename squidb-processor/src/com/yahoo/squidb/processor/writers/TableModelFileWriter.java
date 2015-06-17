@@ -169,7 +169,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             } else {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY, TABLE_NAME,
                         Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
-                        "\"INTEGER PRIMARY KEY AUTOINCREMENT\"");
+                        "\"PRIMARY KEY AUTOINCREMENT\"");
             }
 
             writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, "ID", constructor,
