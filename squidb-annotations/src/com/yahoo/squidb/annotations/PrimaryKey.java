@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * key of type long is supported. You can use this annotation in combination with {@link ColumnSpec} to customize
  * your primary key column, including giving it a custom column name or specifying whether or not the column
  * should autoincrement (using {@link ColumnSpec#constraints()}.
- * <p/>
+ * <p>
  * If a PrimaryKey annotation is not present in a TableModelSpec class, a default ID property for the table will
  * automatically be generated.
  */

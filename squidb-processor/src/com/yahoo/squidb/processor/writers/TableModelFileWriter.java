@@ -191,6 +191,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
         } else {
             writer.writeStringStatement("return ID");
         }
+        writer.finishMethodDefinition();
         writer.writeNewline();
     }
 

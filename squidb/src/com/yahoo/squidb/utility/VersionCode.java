@@ -113,14 +113,14 @@ public class VersionCode implements Comparable<VersionCode> {
      * minor or micro version is considered to be 0.
      *
      * <pre>
-     * "1"              =>  1.0.0
-     * "1.2"            =>  1.2.0
-     * "1.2.3"          =>  1.2.3
-     * "1.2.3foo"       =>  1.2.3foo
-     * "1.2.3foo bar"   =>  1.2.3foo
-     * "1foo"           =>  1.0.0foo
-     * "1.2foo"         =>  1.2.0foo
-     * "foo"            =>  0.0.0
+     * "1"              =&lt;  1.0.0
+     * "1.2"            =&lt;  1.2.0
+     * "1.2.3"          =&lt;  1.2.3
+     * "1.2.3foo"       =&lt;  1.2.3foo
+     * "1.2.3foo bar"   =&lt;  1.2.3foo
+     * "1foo"           =&lt;  1.0.0foo
+     * "1.2foo"         =&lt;  1.2.0foo
+     * "foo"            =&lt;  0.0.0
      * </pre>
      *
      * @throws IllegalArgumentException if the input cannot be parsed.

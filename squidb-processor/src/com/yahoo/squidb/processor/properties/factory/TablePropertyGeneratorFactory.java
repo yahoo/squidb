@@ -47,7 +47,7 @@ public class TablePropertyGeneratorFactory extends PluggablePropertyGeneratorFac
         Class<? extends PropertyGenerator> generatorClass = generatorMap.get(elementType);
         try {
             if (element.getAnnotation(PrimaryKey.class) != null &&
-                    BasicLongPropertyGenerator.handledColumnTypes().contains(elementType)) {
+                    BasicLongPropertyGenerator.class.equals(generatorClass)) {
                 return new BasicIdPropertyGenerator(element, elementType, utils);
             }
             return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, AptUtils.class)
