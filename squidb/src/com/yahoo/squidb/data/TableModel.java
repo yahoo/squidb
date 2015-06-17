@@ -23,9 +23,6 @@ public abstract class TableModel extends AbstractModel {
     /** sentinel for objects without an id */
     public static final long NO_ID = 0;
 
-    /** id property common to all table based models */
-    protected static final String ID_PROPERTY_NAME = DEFAULT_ID_COLUMN;
-
     /**
      * Utility method to get the identifier of the model, if it exists.
      *

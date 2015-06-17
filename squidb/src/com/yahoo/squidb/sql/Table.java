@@ -93,12 +93,8 @@ public class Table extends SqlTable<TableModel> {
      * this method and instead let {@link AbstractDatabase} build tables automatically.
      */
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
-        sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(').
-                append(TableModel.DEFAULT_ID_COLUMN).append(" INTEGER PRIMARY KEY AUTOINCREMENT");
+        sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
         for (Property<?> property : properties) {
-            if (TableModel.DEFAULT_ID_COLUMN.equals(property.getExpression())) {
-                continue;
-            }
             sql.append(',');
             property.accept(propertyVisitor, sql);
         }

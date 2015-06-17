@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.SqlTable;
 
@@ -45,7 +46,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
 
     /** Property for default "_id" name */
     private static final Property<Long> ID_PROPERTY = new Property.LongProperty((SqlTable<?>) null,
-            "_id", null);
+            TableModel.DEFAULT_ID_COLUMN, null);
 
     /**
      * Equivalent to SquidCursorAdapter(context, model, null). Should be used for TableModel cursors where the _id
