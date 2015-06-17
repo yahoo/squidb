@@ -11,6 +11,7 @@ import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.TestVirtualModel;
+import com.yahoo.squidb.test.Thing;
 
 public class PropertyTest extends SquidTestCase {
 
@@ -38,10 +39,13 @@ public class PropertyTest extends SquidTestCase {
         assertEquals("superAlias", asSelectionFromTable.getName());
         assertEquals("SELECT testView.newAlias AS superAlias", Query.select(asSelectionFromTable).toString());
 
-        LongProperty virtualP = TestVirtualModel.ID;
-        assertEquals(virtualP.getQualifiedExpression(), "virtual_models.rowid");
-        assertEquals(virtualP.getExpression(), "rowid");
-        assertEquals(virtualP.getName(), "rowid");
+        assertEquals(TestVirtualModel.ID.getQualifiedExpression(), "virtual_models.rowid");
+        assertEquals(TestVirtualModel.ID.getExpression(), "rowid");
+        assertEquals(TestVirtualModel.ID.getName(), "rowid");
+
+        assertEquals(Thing.ID.getQualifiedExpression(), "things.id");
+        assertEquals(Thing.ID.getExpression(), "id");
+        assertEquals(Thing.ID.getName(), "id");
     }
 
 }
