@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.data;
 
+import android.content.ContentValues;
+
 import com.yahoo.squidb.sql.Property.LongProperty;
 
 /**
@@ -29,11 +31,18 @@ public abstract class TableModel extends AbstractModel {
      * @return {@value #NO_ID} if this model was not added to the database
      */
     public long getId() {
-        Long id = get(getIdProperty());
-        if (id == null) {
-            return NO_ID;
+        Long id = null;
+        String idPropertyName = getIdProperty().getName();
+        if (setValues != null && setValues.containsKey(idPropertyName)) {
+            id = setValues.getAsLong(idPropertyName);
+        } else if (values != null && values.containsKey(idPropertyName)) {
+            id = values.getAsLong(idPropertyName);
         }
-        return id;
+
+        if (id != null) {
+            return id;
+        }
+        return NO_ID;
     }
 
     /**
@@ -44,7 +53,10 @@ public abstract class TableModel extends AbstractModel {
         if (id == NO_ID) {
             clearValue(getIdProperty());
         } else {
-            set(getIdProperty(), id);
+            if (setValues == null) {
+                setValues = new ContentValues();
+            }
+            setValues.put(getIdProperty().getName(), id);
         }
         return this;
     }
