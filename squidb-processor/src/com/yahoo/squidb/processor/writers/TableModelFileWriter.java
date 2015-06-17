@@ -185,7 +185,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
     private void emitGetIdPropertyMethod() throws IOException {
         writer.writeAnnotation(CoreTypes.OVERRIDE);
         MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PROTECTED)
+                .setModifiers(Modifier.PUBLIC)
                 .setReturnType(TypeConstants.LONG_PROPERTY)
                 .setMethodName("getIdProperty");
         writer.beginMethodDefinition(params);
