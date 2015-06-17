@@ -103,7 +103,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
             if (ColumnSpec.DEFAULT_NONE.equals(toReturn)) {
                 toReturn = "DEFAULT " + columnDefaultValue;
             } else if (!ColumnSpec.DEFAULT_NONE.equals(columnDefaultValue)) {
-                if (!toReturn.contains("DEFAULT")) {
+                if (!toReturn.toUpperCase().contains("DEFAULT")) {
                     toReturn += " DEFAULT " + columnDefaultValue;
                 } else {
                     utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", element);

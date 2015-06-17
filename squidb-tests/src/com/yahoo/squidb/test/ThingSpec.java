@@ -16,8 +16,7 @@ public class ThingSpec {
     public static final int DEFAULT_BAR = 100;
     public static final boolean DEFAULT_IS_ALIVE = true;
 
-    @PrimaryKey
-    @ColumnSpec(constraints = "PRIMARY KEY")
+    @PrimaryKey(autoincrement = false)
     long id;
 
     @ColumnSpec(defaultValue = DEFAULT_FOO)

@@ -21,4 +21,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface PrimaryKey {
 
+    /**
+     * @return true if AUTOINCREMENT behavior for the primary key should be used. Defaults to true
+     */
+    boolean autoincrement() default true;
+
 }
