@@ -160,7 +160,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             idPropertyGenerator.beforeEmitPropertyDeclaration(writer);
             idPropertyGenerator.emitPropertyDeclaration(writer);
             idPropertyGenerator.afterEmitPropertyDeclaration(writer);
-            writer.writeNewline();
         } else {
             // Default ID property
             Expression constructor;
@@ -174,9 +173,13 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             }
 
             writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, "ID", constructor,
-                    TypeConstants.PUBLIC_STATIC_FINAL)
-                    .writeNewline();
+                    TypeConstants.PUBLIC_STATIC_FINAL);
         }
+        writer.beginInitializerBlock(true, true);
+        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setIdProperty",
+                idPropertyGenerator == null ? "ID" : idPropertyGenerator.getPropertyName()));
+        writer.finishInitializerBlock(true, true);
+        writer.writeNewline();
     }
 
     private void emitGetIdPropertyMethod() throws IOException {
@@ -192,7 +195,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             writer.writeStringStatement("return ID");
         }
         writer.finishMethodDefinition();
-        writer.writeNewline();
     }
 
     @Override

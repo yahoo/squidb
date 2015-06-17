@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.data.TableModel;
+import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 
 /**
@@ -17,6 +18,7 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
+    private LongProperty idProperty;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
         this(modelClass, properties, name, null);
@@ -104,5 +106,28 @@ public class Table extends SqlTable<TableModel> {
             sql.append(", ").append(getTableConstraint());
         }
         sql.append(')');
+    }
+
+    /**
+     * Sets the primary key column for this table. Do not call this method! Exposed only so that it can be set
+     * when initializing a model class.
+     *
+     * @param idProperty a LongProperty representing the table's primary key id column
+     */
+    public void setIdProperty(LongProperty idProperty) {
+        if (idProperty != null) {
+            throw new UnsupportedOperationException("Can't call setIdProperty on a Table more than once");
+        }
+        this.idProperty = idProperty;
+    }
+
+    /**
+     * @return the property representing the table's primary key id column
+     */
+    public LongProperty getIdProperty() {
+        if (idProperty == null) {
+            throw new UnsupportedOperationException("Table " + getExpression() + " has no id property defined");
+        }
+        return idProperty;
     }
 }

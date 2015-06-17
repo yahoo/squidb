@@ -6,7 +6,6 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.Property.LongProperty;
-import com.yahoo.squidb.sql.SqlTable;
 
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
@@ -27,10 +26,6 @@ public abstract class TableModel extends AbstractModel {
     /** id property common to all table based models */
     protected static final String ID_PROPERTY_NAME = DEFAULT_ID_COLUMN;
 
-    /** id field common to all table based models */
-    public static final LongProperty ID_PROPERTY = new LongProperty((SqlTable<?>) null, ROWID,
-            ID_PROPERTY_NAME, null);
-
     /**
      * Utility method to get the identifier of the model, if it exists.
      *
@@ -50,7 +45,7 @@ public abstract class TableModel extends AbstractModel {
      */
     public TableModel setId(long id) {
         if (id == NO_ID) {
-            clearValue(ID_PROPERTY);
+            clearValue(getIdProperty());
         } else {
             set(getIdProperty(), id);
         }

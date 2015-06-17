@@ -18,7 +18,6 @@ public class PropertyTest extends SquidTestCase {
         LongProperty p = TestModel.ID;
         assertEquals(p.getExpression(), "testModels._id");
         assertEquals(p.getName(), "_id");
-        assertEquals(p.getQualifiedExpression(), "testModels._id AS _id");
 
         LongProperty basicAlias = p.as("newAlias");
         assertEquals(p.table, basicAlias.table);
@@ -41,8 +40,6 @@ public class PropertyTest extends SquidTestCase {
         LongProperty virtualP = TestVirtualModel.ID;
         assertEquals(virtualP.getExpression(), "virtual_models.rowid");
         assertEquals(virtualP.getName(), "rowid");
-        assertEquals(virtualP.getQualifiedExpression(), "virtual_models.rowid AS rowid");
-
     }
 
 }

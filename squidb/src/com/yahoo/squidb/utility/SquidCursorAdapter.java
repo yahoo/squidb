@@ -12,8 +12,8 @@ import android.widget.BaseAdapter;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
-import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.sql.SqlTable;
 
 /**
  * A base {@link Adapter} implementation backed by a {@link SquidCursor}. Subclass implementations typically supply a
@@ -43,6 +43,10 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
     private final T model;
     private final Property<Long> columnForId;
 
+    /** Property for default "_id" name */
+    private static final Property<Long> ID_PROPERTY = new Property.LongProperty((SqlTable<?>) null,
+            "_id", null);
+
     /**
      * Equivalent to SquidCursorAdapter(context, model, null). Should be used for TableModel cursors where the _id
      * column is present.
@@ -50,7 +54,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
      */
     public SquidCursorAdapter(Context context, T model) {
-        this(context, model, null);
+        this(context, model, ID_PROPERTY);
     }
 
     /**
@@ -132,9 +136,8 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
 
     @Override
     public long getItemId(int position) {
-        Property<Long> idProperty = columnForId != null ? columnForId : TableModel.ID_PROPERTY;
         if (cursor != null && cursor.moveToPosition(position)) {
-            return cursor.get(idProperty);
+            return cursor.get(columnForId);
         }
         return 0;
     }
