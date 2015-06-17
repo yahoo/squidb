@@ -111,7 +111,7 @@ public class Table extends SqlTable<TableModel> {
      * @param idProperty a LongProperty representing the table's primary key id column
      */
     public void setIdProperty(LongProperty idProperty) {
-        if (idProperty != null) {
+        if (this.idProperty != null) {
             throw new UnsupportedOperationException("Can't call setIdProperty on a Table more than once");
         }
         this.idProperty = idProperty;
