@@ -55,7 +55,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
      */
     public SquidCursorAdapter(Context context, T model) {
-        this(context, model, ID_PROPERTY);
+        this(context, model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : ID_PROPERTY);
     }
 
     /**

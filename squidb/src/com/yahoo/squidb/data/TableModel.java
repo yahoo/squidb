@@ -71,5 +71,5 @@ public abstract class TableModel extends AbstractModel {
     /**
      * @return a {@link LongProperty to use as the integer primary key}
      */
-    protected abstract LongProperty getIdProperty();
+    public abstract LongProperty getIdProperty();
 }
