@@ -14,19 +14,19 @@ import java.util.Map;
 public enum Operator {
     /** EQUALS ('=') */
     eq("="),
-    /** NOT EQUALS ('<>') */
+    /** NOT EQUALS ('&gt;&lt;') */
     neq("<>"),
     /** IS */
     is(" IS "),
     /** IS NOT */
     isNot(" IS NOT "),
-    /** GREATER THAN ('>') */
+    /** GREATER THAN ('&gt;') */
     gt(">"),
-    /** LESS THAN ('<') */
+    /** LESS THAN ('&lt;') */
     lt("<"),
-    /** GREATER THAN OR EQUAL ('>=') */
+    /** GREATER THAN OR EQUAL ('&gt;=') */
     gte(">="),
-    /** LESS THAN OR EQUAL ('<=') */
+    /** LESS THAN OR EQUAL ('&lt;=') */
     lte("<="),
     /** AND */
     and(" AND "),

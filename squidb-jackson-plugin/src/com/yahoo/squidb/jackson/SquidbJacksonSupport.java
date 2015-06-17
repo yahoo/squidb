@@ -48,7 +48,7 @@ public class SquidbJacksonSupport {
      * Sets the given Jackson-serialized property to the given value
      *
      * @return true if the value object was successfully serialized, false otherwise
-     * @see {@link #getObjectValue}
+     * @see #getObjectValue(AbstractModel, StringProperty, JavaType)
      */
     public static boolean setObjectProperty(AbstractModel model, StringProperty property, Object data) {
         try {

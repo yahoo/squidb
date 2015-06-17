@@ -7,10 +7,12 @@ package com.yahoo.squidb.processor.properties.factory;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.properties.generators.BasicBlobPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicBooleanPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicDoublePropertyGenerator;
+import com.yahoo.squidb.processor.properties.generators.BasicIdPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicIntegerPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicLongPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicStringPropertyGenerator;
@@ -44,6 +46,10 @@ public class TablePropertyGeneratorFactory extends PluggablePropertyGeneratorFac
             DeclaredTypeName modelClass) {
         Class<? extends PropertyGenerator> generatorClass = generatorMap.get(elementType);
         try {
+            if (element.getAnnotation(PrimaryKey.class) != null &&
+                    BasicLongPropertyGenerator.class.equals(generatorClass)) {
+                return new BasicIdPropertyGenerator(element, elementType, utils);
+            }
             return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, AptUtils.class)
                     .newInstance(element, modelClass, utils);
         } catch (Exception e) {

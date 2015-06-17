@@ -216,8 +216,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = propertyGeneratorFactory
-                .getPropertyGeneratorForVariableElement(e, generatedClassName, modelSpecElement);
+        PropertyGenerator generator = propertyGeneratorForElement(e);
         if (generator != null) {
             if (generator.isDeprecated()) {
                 deprecatedPropertyGenerators.add(generator);
@@ -228,6 +227,11 @@ public abstract class ModelFileWriter<T extends Annotation> {
             utils.getMessager()
                     .printMessage(Kind.WARNING, "No PropertyGenerator found to handle this modelSpecElement", e);
         }
+    }
+
+    protected PropertyGenerator propertyGeneratorForElement(VariableElement e) {
+        return propertyGeneratorFactory
+                .getPropertyGeneratorForVariableElement(e, generatedClassName, modelSpecElement);
     }
 
     protected abstract void processVariableElement(VariableElement e, DeclaredTypeName elementType);

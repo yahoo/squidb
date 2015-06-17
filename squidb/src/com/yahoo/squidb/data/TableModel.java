@@ -8,7 +8,6 @@ package com.yahoo.squidb.data;
 import android.content.ContentValues;
 
 import com.yahoo.squidb.sql.Property.LongProperty;
-import com.yahoo.squidb.sql.SqlTable;
 
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
@@ -26,13 +25,6 @@ public abstract class TableModel extends AbstractModel {
     /** sentinel for objects without an id */
     public static final long NO_ID = 0;
 
-    /** id property common to all table based models */
-    protected static final String ID_PROPERTY_NAME = DEFAULT_ID_COLUMN;
-
-    /** id field common to all table based models */
-    public static final LongProperty ID_PROPERTY = new LongProperty((SqlTable<?>) null, ROWID,
-            ID_PROPERTY_NAME, null);
-
     /**
      * Utility method to get the identifier of the model, if it exists.
      *
@@ -40,10 +32,11 @@ public abstract class TableModel extends AbstractModel {
      */
     public long getId() {
         Long id = null;
-        if (setValues != null && setValues.containsKey(ID_PROPERTY_NAME)) {
-            id = setValues.getAsLong(ID_PROPERTY_NAME);
-        } else if (values != null && values.containsKey(ID_PROPERTY_NAME)) {
-            id = values.getAsLong(ID_PROPERTY_NAME);
+        String idPropertyName = getIdProperty().getName();
+        if (setValues != null && setValues.containsKey(idPropertyName)) {
+            id = setValues.getAsLong(idPropertyName);
+        } else if (values != null && values.containsKey(idPropertyName)) {
+            id = values.getAsLong(idPropertyName);
         }
 
         if (id != null) {
@@ -57,14 +50,13 @@ public abstract class TableModel extends AbstractModel {
      * @return this model instance, to allow chaining calls
      */
     public TableModel setId(long id) {
-        if (setValues == null) {
-            setValues = new ContentValues();
-        }
-
         if (id == NO_ID) {
-            clearValue(ID_PROPERTY);
+            clearValue(getIdProperty());
         } else {
-            setValues.put(ID_PROPERTY_NAME, id);
+            if (setValues == null) {
+                setValues = new ContentValues();
+            }
+            setValues.put(getIdProperty().getName(), id);
         }
         return this;
     }
@@ -76,4 +68,8 @@ public abstract class TableModel extends AbstractModel {
         return getId() != NO_ID;
     }
 
+    /**
+     * @return a {@link LongProperty to use as the integer primary key}
+     */
+    public abstract LongProperty getIdProperty();
 }

@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.data.TableModel;
+import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 
 /**
@@ -17,6 +18,7 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
+    private LongProperty idProperty;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
         this(modelClass, properties, name, null);
@@ -91,18 +93,41 @@ public class Table extends SqlTable<TableModel> {
      * this method and instead let {@link AbstractDatabase} build tables automatically.
      */
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
-        sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(').
-                append(TableModel.DEFAULT_ID_COLUMN).append(" INTEGER PRIMARY KEY AUTOINCREMENT");
+        sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
+        boolean needsComma = false;
         for (Property<?> property : properties) {
-            if (TableModel.DEFAULT_ID_COLUMN.equals(property.getExpression())) {
-                continue;
+            if (needsComma) {
+                sql.append(", ");
             }
-            sql.append(',');
             property.accept(propertyVisitor, sql);
+            needsComma = true;
         }
         if (!TextUtils.isEmpty(getTableConstraint())) {
             sql.append(", ").append(getTableConstraint());
         }
         sql.append(')');
+    }
+
+    /**
+     * Sets the primary key column for this table. Do not call this method! Exposed only so that it can be set
+     * when initializing a model class.
+     *
+     * @param idProperty a LongProperty representing the table's primary key id column
+     */
+    public void setIdProperty(LongProperty idProperty) {
+        if (this.idProperty != null) {
+            throw new UnsupportedOperationException("Can't call setIdProperty on a Table more than once");
+        }
+        this.idProperty = idProperty;
+    }
+
+    /**
+     * @return the property representing the table's primary key id column
+     */
+    public LongProperty getIdProperty() {
+        if (idProperty == null) {
+            throw new UnsupportedOperationException("Table " + getExpression() + " has no id property defined");
+        }
+        return idProperty;
     }
 }

@@ -81,7 +81,7 @@ public abstract class UriNotifier {
      * Most UriNotifiers will probably not need all these parameters. For example:
      *
      * <pre>
-     * public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
+     * public void addUrisToNotify(Set&lt;Uri&gt; uris, SqlTable&lt;?&gt; table, String databaseName, DBOperation operation,
      *     AbstractModel modelValues, long rowId) {
      *     // Notifies some constant Uri for any update on the students table
      *     if (Student.TABLE.equals(table)) {

@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlTable;
+import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
 import java.util.ArrayList;
@@ -169,7 +170,7 @@ public abstract class ViewModel extends AbstractModel {
             String name = base.getName();
             if (duplicates.contains(name)) {
                 String alias;
-                if (TableModel.ID_PROPERTY_NAME.equals(name) && base.table != null) {
+                if (base.table instanceof Table && ((Table) base.table).getIdProperty().equals(base)) {
                     alias = base.table.getName() + "Id";
                 } else {
                     int occurence = numOccurences.get(name);
