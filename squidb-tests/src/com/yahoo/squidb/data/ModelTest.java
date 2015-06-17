@@ -11,6 +11,7 @@ import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.Thing;
 
 public class ModelTest extends DatabaseTestCase {
 
@@ -70,6 +71,25 @@ public class ModelTest extends DatabaseTestCase {
         // delete
         assertTrue(dao.delete(TestModel.class, id));
         assertEquals(0, dao.count(TestModel.class, Criterion.all));
+    }
+
+    public void testCrudMethodsWithNonDefaultPrimaryKey() {
+        Thing thing = new Thing();
+        dao.persist(thing);
+        assertEquals(1, thing.getId());
+
+        Thing fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        assertNotNull(fetched);
+
+        thing.setFoo("new foo");
+        dao.persist(thing);
+        fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        assertEquals("new foo", fetched.getFoo());
+        assertEquals(1, dao.count(Thing.class, Criterion.all));
+
+        // delete
+        assertTrue(dao.delete(Thing.class, thing.getId()));
+        assertEquals(0, dao.count(Thing.class, Criterion.all));
     }
 
     public void testDeprecatedPropertiesNotIncluded() {
