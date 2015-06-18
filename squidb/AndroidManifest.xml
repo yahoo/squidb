@@ -5,10 +5,10 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  *-->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yahoo.squidb"
-    android:versionCode="1"
-    android:versionName="1.0">
+<manifest package="com.yahoo.squidb"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="2"
+    android:versionName="1.0.1">
 
     <uses-sdk android:minSdkVersion="14" />
 
