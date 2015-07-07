@@ -207,10 +207,10 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onMigrationFailed(int oldVersion, int newVersion) {
+        protected void onMigrationFailed(MigrationFailedException failure) {
             onMigrationFailedCalled = true;
-            migrationFailedOldVersion = oldVersion;
-            migrationFailedNewVersion = newVersion;
+            migrationFailedOldVersion = failure.oldVersion;
+            migrationFailedNewVersion = failure.newVersion;
         }
 
         public void setShouldThrowDuringMigration(boolean flag) {
