@@ -1097,14 +1097,18 @@ public abstract class AbstractDatabase {
      */
     protected VersionCode getSqliteVersion() {
         acquireNonExclusiveLock();
+        SQLiteStatement stmt = null;
         try {
-            SQLiteStatement stmt = getDatabase().compileStatement("select sqlite_version()");
+            stmt = getDatabase().compileStatement("select sqlite_version()");
             String versionString = stmt.simpleQueryForString();
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
             throw new RuntimeException("Failed to read sqlite version", e);
         } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
             releaseNonExclusiveLock();
         }
     }
