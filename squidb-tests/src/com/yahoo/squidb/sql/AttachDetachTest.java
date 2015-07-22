@@ -76,24 +76,37 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertEquals(virtualModel,
                 dao2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
 
-        assertFalse(database2.tryExecStatement(insert)); // Should fail after detatch
+        assertFalse(database2.tryExecStatement(insert)); // Should fail after detach
     }
 
-    public void testAttachWhileOtherDbInTransactionThrowsException() {
+    public void testAttacheeWithTransactionOnSameThreadThrowsException() {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                database.beginTransaction();
+                dao.beginTransaction();
                 try {
                     database2.attachDatabase(database);
                 } finally {
-                    database.endTransaction();
+                    dao.endTransaction();
                 }
             }
         }, IllegalStateException.class);
     }
 
-    public void testAttachBlocksNewTransactions() {
+    public void testAttacherWithTransactionOnSameThreadThrowsException() {
+        testThrowsException(new Runnable() {
+            public void run() {
+                dao2.beginTransaction();
+                try {
+                    database2.attachDatabase(database);
+                } finally {
+                    dao2.endTransaction();
+                }
+            }
+        }, IllegalStateException.class);
+    }
+
+    public void testAttachBlocksNewTransactionsInAttachee() {
         try {
             testAttachDetachConcurrency(false);
         } catch (Exception e) {
@@ -101,7 +114,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         }
     }
 
-    public void testInProgressTransactionsBlockAttach() {
+    public void testAttacheeWithTransactionOnOtherThreadBlocksAttach() {
         try {
             testAttachDetachConcurrency(true);
         } catch (Exception e) {
@@ -121,7 +134,7 @@ public class AttachDetachTest extends DatabaseTestCase {
                         if (transactionBeforeAttach) {
                             sleep(2000L);
                         }
-                        dao.beginTransaction(); // Test with nested xact
+                        dao.beginTransaction(); // Test with nested transaction
                         try {
                             insertBasicTestModel("New", "Guy", System.currentTimeMillis() - 1);
                             dao.setTransactionSuccessful();
@@ -150,7 +163,7 @@ public class AttachDetachTest extends DatabaseTestCase {
                             .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs))));
             if (!transactionBeforeAttach) {
                 anotherThread.start();
-                Thread.sleep(2000);
+                Thread.sleep(2000L);
             }
             dao2.setTransactionSuccessful();
         } finally {
@@ -223,17 +236,4 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertEquals(4, dao2.count(TestModel.class, Criterion.all));
     }
 
-    public void testAttacherInTransactionOnSameThreadThrowsException() {
-        Runnable totest = new Runnable() {
-            public void run() {
-                dao2.beginTransaction();
-                try {
-                    database2.attachDatabase(database);
-                } finally {
-                    dao2.endTransaction();
-                }
-            }
-        };
-        testThrowsException(totest, IllegalStateException.class);
-    }
 }
