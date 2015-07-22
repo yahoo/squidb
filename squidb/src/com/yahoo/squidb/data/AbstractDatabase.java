@@ -290,18 +290,25 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Attaches another database to this database using the SQLite ATTACH command. For now,
-     * a database can only be attached to one other database. This method will throw an exception
-     * if the other database is already attached somewhere.
-     * <p>
-     * Caveats:
-     * Make sure you call {@link #detachDatabase(AbstractDatabase)} when you are done! Otherwise, the other
+     * Attaches another database to this database using the SQLite ATTACH command. This locks the other database
+     * exclusively; you must call {@link #detachDatabase(AbstractDatabase)} when you are done, otherwise the attached
      * database will not be unlocked.
      * <p>
-     * If the database being attached is in a transaction that was started on this thread, an exception will be thrown.
+     * This method will throw an exception if either database is already attached to another database, or if either
+     * database has an open transaction on the current thread.
+     * <p>
+     * Note that Android disables write-ahead logging when attaching a database. On Jelly Bean (API 16) and later, if
+     * this database has write-ahead logging enabled and it has any open transactions on other threads, this
+     * method <b>will block</b> until those transactions complete before attaching the database.
      *
-     * @return the alias used to attach the database; this can be used to qualify tables using
-     * {@link Table#qualifiedFromDatabase(String)}
+     * @param other the database to attach to this one
+     * @return the alias used to attach the database. This can be used to qualify tables using
+     * {@link Table#qualifiedFromDatabase(String)}. If the attach command fails for any reason not mentioned above,
+     * null is returned.
+     * @throws IllegalStateException if this database is already attached to another database
+     * @throws IllegalArgumentException if the other database is already attached to another database
+     * @throws IllegalStateException if either database has an open transaction on the current thread
+     * @see SQLiteDatabase#enableWriteAheadLogging()
      */
     @Beta
     @TargetApi(VERSION_CODES.JELLY_BEAN)
