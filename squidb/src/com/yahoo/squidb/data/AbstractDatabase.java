@@ -309,6 +309,9 @@ public abstract class AbstractDatabase {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
+        if (inTransaction()) {
+            throw new IllegalStateException("Can't attach a database while in a transaction on the current thread");
+        }
 
         boolean walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
                 && getDatabase().isWriteAheadLoggingEnabled();

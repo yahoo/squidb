@@ -223,4 +223,17 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertEquals(4, dao2.count(TestModel.class, Criterion.all));
     }
 
+    public void testAttacherInTransactionOnSameThreadThrowsException() {
+        Runnable totest = new Runnable() {
+            public void run() {
+                dao2.beginTransaction();
+                try {
+                    database2.attachDatabase(database);
+                } finally {
+                    dao2.endTransaction();
+                }
+            }
+        };
+        testThrowsException(totest, IllegalStateException.class);
+    }
 }
