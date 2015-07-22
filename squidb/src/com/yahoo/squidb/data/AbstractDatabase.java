@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +18,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.net.Uri;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -301,12 +304,25 @@ public abstract class AbstractDatabase {
      * {@link Table#qualifiedFromDatabase(String)}
      */
     @Beta
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
     public final String attachDatabase(AbstractDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
 
-        return other.attachTo(this);
+        boolean walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
+                && getDatabase().isWriteAheadLoggingEnabled();
+        if (walEnabled) {
+            // need to wait for transactions to finish
+            acquireExclusiveLock();
+        }
+        try {
+            return other.attachTo(this);
+        } finally {
+            if (walEnabled) {
+                releaseExclusiveLock();
+            }
+        }
     }
 
     /**

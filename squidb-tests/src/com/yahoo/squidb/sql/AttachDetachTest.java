@@ -171,4 +171,56 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertEquals(3 + (transactionBeforeAttach ? 1 : 0), dao2.count(TestModel.class, Criterion.all));
     }
 
+    /*
+     * NOTE: This test is only relevant if write ahead logging (WAL) is enabled on the attacher. If the attacher does
+     * not have WAL enabled, this test should always pass.
+     */
+    public void testAttacherInTransactionOnAnotherThread() throws Exception {
+        final AtomicReference<Exception> threadFailed = new AtomicReference<Exception>(null);
+
+        Thread anotherThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    dao2.beginTransaction();
+                    try {
+                        sleep(2000L);
+                        dao2.persist(new TestModel().setFirstName("Alan").setLastName("Turing"));
+                        dao2.setTransactionSuccessful();
+                    } finally {
+                        dao2.endTransaction();
+                    }
+                } catch (Exception e) {
+                    threadFailed.set(e);
+                }
+            }
+        };
+
+        anotherThread.start();
+        Thread.sleep(1000L);
+
+        String attachedAs = database2.attachDatabase(database);
+        dao2.beginTransaction();
+        try {
+            database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                    .select(Query.select(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                            .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs))));
+            dao2.setTransactionSuccessful();
+        } finally {
+            dao2.endTransaction();
+            database2.detachDatabase(database);
+        }
+
+        try {
+            anotherThread.join();
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        if (threadFailed.get() != null) {
+            throw threadFailed.get();
+        }
+        assertEquals(4, dao2.count(TestModel.class, Criterion.all));
+    }
+
 }
