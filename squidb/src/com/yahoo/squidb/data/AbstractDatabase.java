@@ -799,6 +799,7 @@ public abstract class AbstractDatabase {
          */
         @Override
         public void onCreate(SQLiteDatabase db) {
+            database = db;
             StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
 
@@ -829,7 +830,6 @@ public abstract class AbstractDatabase {
             }
 
             // post-table-creation
-            database = db;
             onTablesCreated(db);
         }
 
