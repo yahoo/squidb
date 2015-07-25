@@ -1122,7 +1122,7 @@ public abstract class AbstractDatabase {
      * @return the current SQLite version as a {@link VersionCode}
      * @throws RuntimeException if the version could not be read
      */
-    protected VersionCode getSqliteVersion() {
+    public VersionCode getSqliteVersion() {
         acquireNonExclusiveLock();
         SQLiteStatement stmt = null;
         try {

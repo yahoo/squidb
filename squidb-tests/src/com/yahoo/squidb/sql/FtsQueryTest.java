@@ -62,8 +62,6 @@ public class FtsQueryTest extends DatabaseTestCase {
         testQueryResults(TestVirtualModel.TABLE.match("programmer"), model1, model2, model3);
         // match prefix
         testQueryResults(TestVirtualModel.BODY.match("program*"), model2, model3, model4);
-        // match first token
-        testQueryResults(TestVirtualModel.BODY.match("^program*"), model4);
         // AND
         testQueryResults(TestVirtualModel.BODY.match("program* java"), model2);
         // OR
@@ -76,6 +74,13 @@ public class FtsQueryTest extends DatabaseTestCase {
         // near
         testQueryResults(TestVirtualModel.BODY.match("program* NEAR java"), model2);
         testQueryResults(TestVirtualModel.BODY.match("program* NEAR/7 java"));
+
+        // match first token. only available since sqlite 3.7.9
+        if (database.getSqliteVersion().isAtLeast("3.7.9")) {
+            testQueryResults(TestVirtualModel.BODY.match("^program*"), model4);
+        } else {
+            testQueryResults(TestVirtualModel.BODY.match("^program*"), model2, model3, model4);
+        }
     }
 
     private void testQueryResults(Criterion criterion, TestVirtualModel... expectedResults) {
