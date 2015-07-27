@@ -21,7 +21,7 @@ import com.yahoo.squidb.data.SqlValidatorFactory.SqlValidator;
         if (version >= VERSION_CODES.JELLY_BEAN) {
             INSTANCE = new DefaultSqlValidator();
         } else if (version >= VERSION_CODES.ICE_CREAM_SANDWICH) {
-            INSTANCE = new ReflectiveSqlValidator();
+            INSTANCE = new IcsSqlValidator();
         } else {
             // included for forks that reduce minSdk below 14
             INSTANCE = new DefaultSqlValidator();
@@ -45,7 +45,7 @@ import com.yahoo.squidb.data.SqlValidatorFactory.SqlValidator;
     }
 }
 
-/*package*/ class ReflectiveSqlValidator implements SqlValidator {
+/*package*/ class IcsSqlValidator implements SqlValidator {
 
     @Override
     public void compileStatement(SQLiteDatabase db, String sql) {
