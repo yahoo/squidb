@@ -830,6 +830,8 @@ public abstract class AbstractDatabase {
 
             if (thrown instanceof RecreateDuringMigrationException) {
                 throw (RecreateDuringMigrationException) thrown;
+            } else if (thrown instanceof MigrationFailedException) {
+                throw (MigrationFailedException) thrown;
             } else if (!success) {
                 throw new MigrationFailedException(getName(), oldVersion, newVersion, thrown);
             }
@@ -855,6 +857,8 @@ public abstract class AbstractDatabase {
 
             if (thrown instanceof RecreateDuringMigrationException) {
                 throw (RecreateDuringMigrationException) thrown;
+            } else if (thrown instanceof MigrationFailedException) {
+                throw (MigrationFailedException) thrown;
             } else if (!success) {
                 throw new MigrationFailedException(getName(), oldVersion, newVersion, thrown);
             }
@@ -1167,6 +1171,10 @@ public abstract class AbstractDatabase {
         public final String dbName;
         public final int oldVersion;
         public final int newVersion;
+
+        public MigrationFailedException(String dbName, int oldVersion, int newVersion) {
+            this(dbName, oldVersion, newVersion, null);
+        }
 
         public MigrationFailedException(String dbName, int oldVersion, int newVersion, Throwable throwable) {
             super(throwable);

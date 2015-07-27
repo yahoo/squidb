@@ -14,6 +14,8 @@ import com.yahoo.squidb.sql.View;
 
 public class TestDatabase extends AbstractDatabase {
 
+    public boolean caughtCustomMigrationException;
+
     public TestDatabase(Context context) {
         super(context);
     }
@@ -48,7 +50,32 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
+    protected void onTablesCreated(SQLiteDatabase db) {
+        super.onTablesCreated(db);
+    }
+
+    @Override
     protected boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
+    }
+
+    @Override
+    protected boolean onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        throw new CustomMigrationException(getName(), oldVersion, newVersion);
+    }
+
+    @Override
+    protected void onMigrationFailed(MigrationFailedException failure) {
+        if (failure instanceof CustomMigrationException) {
+            // suppress
+            caughtCustomMigrationException = true;
+        }
+    }
+
+    private static class CustomMigrationException extends MigrationFailedException {
+
+        public CustomMigrationException(String dbName, int oldVersion, int newVersion) {
+            super(dbName, oldVersion, newVersion);
+        }
     }
 }
