@@ -1163,6 +1163,13 @@ public abstract class AbstractDatabase {
         private static final long serialVersionUID = 480910684116077495L;
     }
 
+    /**
+     * Exception thrown when an upgrade or downgrade fails for any reason. Clients that want to provide more
+     * information about why an upgrade or downgrade failed can subclass this class and throw it intentionally in
+     * {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade()} or {@link #onDowngrade(SQLiteDatabase, int, int)
+     * onDowngrade()}, and it will be forwarded to {@link #onMigrationFailed(MigrationFailedException)
+     * onMigrationFailed()}.
+     */
     public static class MigrationFailedException extends RuntimeException {
 
         /* suppress compiler warning */
