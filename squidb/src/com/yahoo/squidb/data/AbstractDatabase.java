@@ -499,10 +499,10 @@ public abstract class AbstractDatabase {
     }
 
     // For use only by DatabaseDao when validating queries
-    SQLiteStatement compileStatement(String sql) {
+    void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
-            return getDatabase().compileStatement(sql);
+            SqlValidatorFactory.getValidator().compileStatement(getDatabase(), sql);
         } finally {
             releaseNonExclusiveLock();
         }
