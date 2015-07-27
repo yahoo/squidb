@@ -76,24 +76,37 @@ public class AttachDetachTest extends DatabaseTestCase {
         assertEquals(virtualModel,
                 dao2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
 
-        assertFalse(database2.tryExecStatement(insert)); // Should fail after detatch
+        assertFalse(database2.tryExecStatement(insert)); // Should fail after detach
     }
 
-    public void testAttachWhileOtherDbInTransactionThrowsException() {
+    public void testAttacheeWithTransactionOnSameThreadThrowsException() {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                database.beginTransaction();
+                dao.beginTransaction();
                 try {
                     database2.attachDatabase(database);
                 } finally {
-                    database.endTransaction();
+                    dao.endTransaction();
                 }
             }
         }, IllegalStateException.class);
     }
 
-    public void testAttachBlocksNewTransactions() {
+    public void testAttacherWithTransactionOnSameThreadThrowsException() {
+        testThrowsException(new Runnable() {
+            public void run() {
+                dao2.beginTransaction();
+                try {
+                    database2.attachDatabase(database);
+                } finally {
+                    dao2.endTransaction();
+                }
+            }
+        }, IllegalStateException.class);
+    }
+
+    public void testAttachBlocksNewTransactionsInAttachee() {
         try {
             testAttachDetachConcurrency(false);
         } catch (Exception e) {
@@ -101,7 +114,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         }
     }
 
-    public void testInProgressTransactionsBlockAttach() {
+    public void testAttacheeWithTransactionOnOtherThreadBlocksAttach() {
         try {
             testAttachDetachConcurrency(true);
         } catch (Exception e) {
@@ -121,7 +134,7 @@ public class AttachDetachTest extends DatabaseTestCase {
                         if (transactionBeforeAttach) {
                             sleep(2000L);
                         }
-                        dao.beginTransaction(); // Test with nested xact
+                        dao.beginTransaction(); // Test with nested transaction
                         try {
                             insertBasicTestModel("New", "Guy", System.currentTimeMillis() - 1);
                             dao.setTransactionSuccessful();
@@ -150,7 +163,7 @@ public class AttachDetachTest extends DatabaseTestCase {
                             .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs))));
             if (!transactionBeforeAttach) {
                 anotherThread.start();
-                Thread.sleep(2000);
+                Thread.sleep(2000L);
             }
             dao2.setTransactionSuccessful();
         } finally {
@@ -169,6 +182,58 @@ public class AttachDetachTest extends DatabaseTestCase {
         }
         assertEquals(4, dao.count(TestModel.class, Criterion.all));
         assertEquals(3 + (transactionBeforeAttach ? 1 : 0), dao2.count(TestModel.class, Criterion.all));
+    }
+
+    /*
+     * NOTE: This test is only relevant if write ahead logging (WAL) is enabled on the attacher. If the attacher does
+     * not have WAL enabled, this test should always pass.
+     */
+    public void testAttacherInTransactionOnAnotherThread() throws Exception {
+        final AtomicReference<Exception> threadFailed = new AtomicReference<Exception>(null);
+
+        Thread anotherThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    dao2.beginTransaction();
+                    try {
+                        sleep(2000L);
+                        dao2.persist(new TestModel().setFirstName("Alan").setLastName("Turing"));
+                        dao2.setTransactionSuccessful();
+                    } finally {
+                        dao2.endTransaction();
+                    }
+                } catch (Exception e) {
+                    threadFailed.set(e);
+                }
+            }
+        };
+
+        anotherThread.start();
+        Thread.sleep(1000L);
+
+        String attachedAs = database2.attachDatabase(database);
+        dao2.beginTransaction();
+        try {
+            database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                    .select(Query.select(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                            .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs))));
+            dao2.setTransactionSuccessful();
+        } finally {
+            dao2.endTransaction();
+            database2.detachDatabase(database);
+        }
+
+        try {
+            anotherThread.join();
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        if (threadFailed.get() != null) {
+            throw threadFailed.get();
+        }
+        assertEquals(4, dao2.count(TestModel.class, Criterion.all));
     }
 
 }

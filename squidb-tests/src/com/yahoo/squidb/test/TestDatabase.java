@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
@@ -50,5 +51,11 @@ public class TestDatabase extends AbstractDatabase {
     @Override
     protected boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
+    }
+
+    @Override
+    protected void onConfigure(SQLiteDatabase db) {
+        /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
+        db.enableWriteAheadLogging();
     }
 }

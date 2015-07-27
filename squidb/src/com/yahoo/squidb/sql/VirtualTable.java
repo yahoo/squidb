@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import android.os.Build;
+
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
@@ -72,8 +74,11 @@ public class VirtualTable extends Table {
      */
     @Override
     public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
-        sql.append("CREATE VIRTUAL TABLE IF NOT EXISTS ").append(getExpression()).append(" USING ").append(moduleName)
-                .append('(');
+        sql.append("CREATE VIRTUAL TABLE ");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            sql.append("IF NOT EXISTS ");
+        }
+        sql.append(getExpression()).append(" USING ").append(moduleName).append('(');
         boolean needComma = false;
         for (Property<?> property : properties) {
             if (TableModel.ROWID.equals(property.getExpression())) {

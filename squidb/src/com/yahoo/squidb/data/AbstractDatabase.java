@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +18,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.net.Uri;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -165,7 +168,7 @@ public abstract class AbstractDatabase {
      * onDowngrade}, and {@link #onOpen(SQLiteDatabase) onOpen}.
      * <p>
      * This method should only call methods that configure the parameters of the database connection, such as
-     * {@link SQLiteDatabase#enableWriteAheadLogging} {@link SQLiteDatabase#setForeignKeyConstraintsEnabled},
+     * {@link SQLiteDatabase#enableWriteAheadLogging}, {@link SQLiteDatabase#setForeignKeyConstraintsEnabled},
      * {@link SQLiteDatabase#setLocale}, {@link SQLiteDatabase#setMaximumSize}, or executing PRAGMA statements.
      *
      * @param db the {@link SQLiteDatabase} being configured
@@ -287,26 +290,49 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Attaches another database to this database using the SQLite ATTACH command. For now,
-     * a database can only be attached to one other database. This method will throw an exception
-     * if the other database is already attached somewhere.
-     * <p>
-     * Caveats:
-     * Make sure you call {@link #detachDatabase(AbstractDatabase)} when you are done! Otherwise, the other
+     * Attaches another database to this database using the SQLite ATTACH command. This locks the other database
+     * exclusively; you must call {@link #detachDatabase(AbstractDatabase)} when you are done, otherwise the attached
      * database will not be unlocked.
      * <p>
-     * If the database being attached is in a transaction that was started on this thread, an exception will be thrown.
+     * This method will throw an exception if either database is already attached to another database, or if either
+     * database has an open transaction on the current thread.
+     * <p>
+     * Note that Android disables write-ahead logging when attaching a database. On Jelly Bean (API 16) and later, if
+     * this database has write-ahead logging enabled and it has any open transactions on other threads, this
+     * method <b>will block</b> until those transactions complete before attaching the database.
      *
-     * @return the alias used to attach the database; this can be used to qualify tables using
-     * {@link Table#qualifiedFromDatabase(String)}
+     * @param other the database to attach to this one
+     * @return the alias used to attach the database. This can be used to qualify tables using
+     * {@link Table#qualifiedFromDatabase(String)}. If the attach command fails for any reason not mentioned above,
+     * null is returned.
+     * @throws IllegalStateException if this database is already attached to another database
+     * @throws IllegalArgumentException if the other database is already attached to another database
+     * @throws IllegalStateException if either database has an open transaction on the current thread
+     * @see SQLiteDatabase#enableWriteAheadLogging()
      */
     @Beta
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
     public final String attachDatabase(AbstractDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
+        if (inTransaction()) {
+            throw new IllegalStateException("Can't attach a database while in a transaction on the current thread");
+        }
 
-        return other.attachTo(this);
+        boolean walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
+                && getDatabase().isWriteAheadLoggingEnabled();
+        if (walEnabled) {
+            // need to wait for transactions to finish
+            acquireExclusiveLock();
+        }
+        try {
+            return other.attachTo(this);
+        } finally {
+            if (walEnabled) {
+                releaseExclusiveLock();
+            }
+        }
     }
 
     /**
@@ -483,7 +509,7 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * @see android.database.sqlite.SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
+     * @see SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
      */
     public long insert(String table, String nullColumnHack, ContentValues values) {
         acquireNonExclusiveLock();
@@ -495,8 +521,7 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * @see android.database.sqlite.SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues,
-     * int)
+     * @see SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues, int)
      */
     public long insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
         acquireNonExclusiveLock();
@@ -527,8 +552,7 @@ public abstract class AbstractDatabase {
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
      *
-     * @see android.database.sqlite.SQLiteDatabase#delete(String, String, String[])
-     * conflictAlgorithm)
+     * @see SQLiteDatabase#delete(String, String, String[])
      */
     public int delete(String table, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
@@ -559,8 +583,7 @@ public abstract class AbstractDatabase {
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
      *
-     * @see android.database.sqlite.SQLiteDatabase#update(String table, ContentValues values, String whereClause,
-     * String[] whereArgs)
+     * @see SQLiteDatabase#update(String table, ContentValues values, String whereClause, String[] whereArgs)
      */
     public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
@@ -574,8 +597,8 @@ public abstract class AbstractDatabase {
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
      *
-     * @see android.database.sqlite.SQLiteDatabase#updateWithOnConflict(String table, ContentValues values, String
-     * whereClause, String[] whereArgs, int conflictAlgorithm)
+     * @see SQLiteDatabase#updateWithOnConflict(String table, ContentValues values, String whereClause, String[]
+     * whereArgs, int conflictAlgorithm)
      */
     public int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
             int conflictAlgorithm) {
@@ -608,7 +631,7 @@ public abstract class AbstractDatabase {
      * Begin a transaction. This acquires a non-exclusive lock.
      *
      * @see #acquireNonExclusiveLock()
-     * @see android.database.sqlite.SQLiteDatabase#beginTransaction()
+     * @see SQLiteDatabase#beginTransaction()
      */
     public void beginTransaction() {
         acquireNonExclusiveLock();
@@ -619,7 +642,7 @@ public abstract class AbstractDatabase {
      * Begin a non-exclusive transaction. This acquires a non-exclusive lock.
      *
      * @see #acquireNonExclusiveLock()
-     * @see android.database.sqlite.SQLiteDatabase#beginTransactionNonExclusive()
+     * @see SQLiteDatabase#beginTransactionNonExclusive()
      */
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
@@ -631,7 +654,7 @@ public abstract class AbstractDatabase {
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
-     * @see android.database.sqlite.SQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener)
+     * @see SQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener)
      */
     public void beginTransactionWithListener(SQLiteTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -643,7 +666,7 @@ public abstract class AbstractDatabase {
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
-     * @see android.database.sqlite.SQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener)
+     * @see SQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener)
      */
     public void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -653,7 +676,7 @@ public abstract class AbstractDatabase {
     /**
      * Mark the current transaction as successful
      *
-     * @see android.database.sqlite.SQLiteDatabase#setTransactionSuccessful()
+     * @see SQLiteDatabase#setTransactionSuccessful()
      */
     public void setTransactionSuccessful() {
         getDatabase().setTransactionSuccessful();
@@ -661,7 +684,7 @@ public abstract class AbstractDatabase {
 
     /**
      * @return true if a transaction is active
-     * @see android.database.sqlite.SQLiteDatabase#inTransaction()
+     * @see SQLiteDatabase#inTransaction()
      */
     public synchronized boolean inTransaction() {
         return database != null && database.inTransaction();
@@ -670,7 +693,7 @@ public abstract class AbstractDatabase {
     /**
      * End the current transaction
      *
-     * @see android.database.sqlite.SQLiteDatabase#endTransaction()
+     * @see SQLiteDatabase#endTransaction()
      */
     public void endTransaction() {
         getDatabase().endTransaction();
@@ -680,7 +703,7 @@ public abstract class AbstractDatabase {
     /**
      * Yield the current transaction
      *
-     * @see android.database.sqlite.SQLiteDatabase#yieldIfContendedSafely()
+     * @see SQLiteDatabase#yieldIfContendedSafely()
      */
     public boolean yieldIfContendedSafely() {
         return getDatabase().yieldIfContendedSafely();
@@ -1020,7 +1043,7 @@ public abstract class AbstractDatabase {
      *
      * @param sql the statement to execute
      * @return true if the statement executed without an error
-     * @see android.database.sqlite.SQLiteDatabase#execSQL(String)
+     * @see SQLiteDatabase#execSQL(String)
      */
     public boolean tryExecSql(String sql) {
         acquireNonExclusiveLock();
@@ -1040,7 +1063,7 @@ public abstract class AbstractDatabase {
      *
      * @param sql the statement to execute
      * @throws SQLException if there is an error parsing the SQL or some other error
-     * @see android.database.sqlite.SQLiteDatabase#execSQL(String)
+     * @see SQLiteDatabase#execSQL(String)
      */
     public void execSqlOrThrow(String sql) throws SQLException {
         acquireNonExclusiveLock();
@@ -1058,7 +1081,7 @@ public abstract class AbstractDatabase {
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
      * @return true if the statement executed without an error
-     * @see android.database.sqlite.SQLiteDatabase#execSQL(String, Object[])
+     * @see SQLiteDatabase#execSQL(String, Object[])
      */
     public boolean tryExecSql(String sql, Object[] bindArgs) {
         acquireNonExclusiveLock();
@@ -1080,7 +1103,7 @@ public abstract class AbstractDatabase {
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
      * @throws SQLException if there is an error parsing the SQL or some other error
-     * @see android.database.sqlite.SQLiteDatabase#execSQL(String, Object[])
+     * @see SQLiteDatabase#execSQL(String, Object[])
      */
     public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLException {
         acquireNonExclusiveLock();
