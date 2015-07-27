@@ -160,7 +160,11 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         database.close();
         database.getDatabase();
 
-        assertTrue(database.caughtCustomMigrationException);
+        try {
+            assertTrue(database.caughtCustomMigrationException);
+        } finally {
+            database.clear(); // clean up since this is the only test using it
+        }
     }
 
     /**
