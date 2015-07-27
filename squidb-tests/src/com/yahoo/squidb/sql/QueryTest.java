@@ -556,7 +556,7 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testSelectFromView() {
-        View view = View.temporaryFromQuery(Query.select(Employee.PROPERTIES)
+        View view = View.fromQuery(Query.select(Employee.PROPERTIES)
                 .from(Employee.TABLE).where(Employee.MANAGER_ID.eq(bigBird.getId())), "bigBirdsEmployees");
 
         database.tryCreateView(view);

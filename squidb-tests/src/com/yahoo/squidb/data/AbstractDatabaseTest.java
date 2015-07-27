@@ -150,6 +150,23 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         }, IllegalStateException.class);
     }
 
+    public void testCustomMigrationException() {
+        TestDatabase database = new TestDatabase(getContext());
+        SQLiteDatabase db = database.getDatabase();
+        // force a downgrade
+        final int version = db.getVersion();
+        final int previousVersion = version + 1;
+        db.setVersion(previousVersion);
+        database.close();
+        database.getDatabase();
+
+        try {
+            assertTrue(database.caughtCustomMigrationException);
+        } finally {
+            database.clear(); // clean up since this is the only test using it
+        }
+    }
+
     /**
      * {@link TestDatabase} that intentionally fails in onUpgrade and onDowngrade
      */
@@ -207,10 +224,10 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onMigrationFailed(int oldVersion, int newVersion) {
+        protected void onMigrationFailed(MigrationFailedException failure) {
             onMigrationFailedCalled = true;
-            migrationFailedOldVersion = oldVersion;
-            migrationFailedNewVersion = newVersion;
+            migrationFailedOldVersion = failure.oldVersion;
+            migrationFailedNewVersion = failure.newVersion;
         }
 
         public void setShouldThrowDuringMigration(boolean flag) {

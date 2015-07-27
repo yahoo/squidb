@@ -150,15 +150,15 @@ public abstract class AbstractDatabase {
      * Called to notify of a failure in {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade()} or
      * {@link #onDowngrade(SQLiteDatabase, int, int) onDowngrade()}, either because it returned false or because an
      * unexpected exception occurred. Subclasses can take drastic corrective action here, e.g. recreating the database
-     * with {@link #recreate()}. The default implementation does nothing.
+     * with {@link #recreate()}. The default implementation throws an exception.
      * <p>
      * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
      * can result in unexpected errors if callers are allowed to invoke further operations on the database.
      *
-     * @param oldVersion the current database version
-     * @param newVersion the database version being upgraded to
+     * @param failure details about the upgrade or downgrade that failed
      */
-    protected void onMigrationFailed(int oldVersion, int newVersion) {
+    protected void onMigrationFailed(MigrationFailedException failure) {
+        throw failure;
     }
 
     /**
@@ -398,7 +398,7 @@ public abstract class AbstractDatabase {
             performRecreate = true;
         } catch (MigrationFailedException fail) {
             onError(fail.getMessage(), fail);
-            onMigrationFailed(fail.oldVersion, fail.newVersion);
+            onMigrationFailed(fail);
         } catch (RuntimeException e) {
             onError("Failed to open database: " + getName(), e);
             throw e;
@@ -853,6 +853,8 @@ public abstract class AbstractDatabase {
 
             if (thrown instanceof RecreateDuringMigrationException) {
                 throw (RecreateDuringMigrationException) thrown;
+            } else if (thrown instanceof MigrationFailedException) {
+                throw (MigrationFailedException) thrown;
             } else if (!success) {
                 throw new MigrationFailedException(getName(), oldVersion, newVersion, thrown);
             }
@@ -878,6 +880,8 @@ public abstract class AbstractDatabase {
 
             if (thrown instanceof RecreateDuringMigrationException) {
                 throw (RecreateDuringMigrationException) thrown;
+            } else if (thrown instanceof MigrationFailedException) {
+                throw (MigrationFailedException) thrown;
             } else if (!success) {
                 throw new MigrationFailedException(getName(), oldVersion, newVersion, thrown);
             }
@@ -1186,14 +1190,25 @@ public abstract class AbstractDatabase {
         private static final long serialVersionUID = 480910684116077495L;
     }
 
-    private static class MigrationFailedException extends RuntimeException {
+    /**
+     * Exception thrown when an upgrade or downgrade fails for any reason. Clients that want to provide more
+     * information about why an upgrade or downgrade failed can subclass this class and throw it intentionally in
+     * {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade()} or {@link #onDowngrade(SQLiteDatabase, int, int)
+     * onDowngrade()}, and it will be forwarded to {@link #onMigrationFailed(MigrationFailedException)
+     * onMigrationFailed()}.
+     */
+    public static class MigrationFailedException extends RuntimeException {
 
         /* suppress compiler warning */
         private static final long serialVersionUID = 2949995666882182744L;
 
-        final String dbName;
-        final int oldVersion;
-        final int newVersion;
+        public final String dbName;
+        public final int oldVersion;
+        public final int newVersion;
+
+        public MigrationFailedException(String dbName, int oldVersion, int newVersion) {
+            this(dbName, oldVersion, newVersion, null);
+        }
 
         public MigrationFailedException(String dbName, int oldVersion, int newVersion, Throwable throwable) {
             super(throwable);
