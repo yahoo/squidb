@@ -57,9 +57,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a {@link SQLiteOpenHelper}.
- * Call {@link #getDatabase()} to open the database and {@link #close()} to close the database. Direct querying is not
- * recommended for type safety reasons. Instead, use an instance of {@link DatabaseDao} to issue the request and return
- * a {@link SquidCursor}.
+ * The first call to a read or write operation will open the database. You can close it again using {@link #close()}.
+ * <p>
+ * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
+ * get a Cursor, use {@link #query(Class, Query)}.
  * <p>
  * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(Table) tryCreateTable}) return true
  * if the operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
@@ -519,8 +520,8 @@ public abstract class SquidDatabase {
         }
     }
 
-    // For use only by DatabaseDao when validating queries
-    void compileStatement(String sql) {
+    // For use only whenvalidating queries
+    private void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
             SqlValidatorFactory.getValidator().compileStatement(getDatabase(), sql);

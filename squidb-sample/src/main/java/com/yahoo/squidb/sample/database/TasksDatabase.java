@@ -27,7 +27,7 @@ public class TasksDatabase extends SquidDatabase {
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "hello-squidb-tasks.db";
     }
 

@@ -9,7 +9,6 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.UriNotifier;
 import com.yahoo.squidb.sample.HelloSquiDBApplication;
 import com.yahoo.squidb.sample.TaskListActivity;
@@ -41,20 +40,19 @@ public class HelloSquiDBModule {
     }
 
     @Provides
-    @Singleton
-    DatabaseDao provideDatabaseDao(@ForApplicaton Context context) {
-        // Since we want the wrapped TasksDatabase to be a singleton, DatabaseDao is also a singleton
-        DatabaseDao dao = new DatabaseDao(new TasksDatabase(context));
+    @Singleton // We want the database instance to be a singleton
+    TasksDatabase provideTasksDatabase(@ForApplicaton Context context) {
+        TasksDatabase database = new TasksDatabase(context);
 
         // Setting up a UriNotifier will sent ContentObserver notifications to Uris on table writes
-        dao.registerUriNotifier(new UriNotifier(Task.TABLE, Tag.TABLE) {
+        database.registerUriNotifier(new UriNotifier(Task.TABLE, Tag.TABLE) {
             @Override
             public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName,
-                    DBOperation operation, AbstractModel modelValues, long rowId) {
+                                        DBOperation operation, AbstractModel modelValues, long rowId) {
                 uris.add(Task.CONTENT_URI);
             }
         });
-        return dao;
+        return database;
     }
 
 }

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * UriNotifiers can be registered with an instance of {@link DatabaseDao} to receive notifications whenever a table
+ * UriNotifiers can be registered with an instance of {@link SquidDatabase} to receive notifications whenever a table
  * they are interested in is updated.
  * <p>
  * A UriNotifier can be constructed to listen for database operations on specific instances of {@link SqlTable} (a
@@ -26,12 +26,12 @@ import java.util.Set;
  * automatically). If you want your UriNotifier instance to be notified of all database operations regardless of table,
  * use the no-argument constructor.
  * <p>
- * When an instance of UriNotifier is registered with a DatabaseDao, the dao will call {@link #addUrisToNotify(Set,
+ * When an instance of UriNotifier is registered with a SquidDatabase, the dao will call {@link #addUrisToNotify(Set,
  * SqlTable, String, DBOperation, AbstractModel, long) addUrisToNotify} on the notifier whenever one of the
  * notifier's relevant tables was modified. Subclasses should override this method to construct a Uri to notify based
  * on the parameters passed to the method.
  *
- * @see com.yahoo.squidb.data.DatabaseDao#registerUriNotifier(UriNotifier)
+ * @see com.yahoo.squidb.data.SquidDatabase#registerUriNotifier(UriNotifier)
  * @see #addUrisToNotify(java.util.Set, com.yahoo.squidb.sql.SqlTable, String, com.yahoo.squidb.data.UriNotifier.DBOperation,
  * AbstractModel, long)
  */
