@@ -578,7 +578,8 @@ public abstract class SquidDatabase {
     /**
      * @see SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues, int)
      */
-    protected long insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
+    protected long insertWithOnConflict(String table, String nullColumnHack, ContentValues values,
+            int conflictAlgorithm) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
@@ -588,7 +589,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Execute a SQL {@link com.yahoo.squidb.sql.Update} statement
+     * Execute a SQL {@link com.yahoo.squidb.sql.Insert} statement
      *
      * @return the row id of the last row inserted on success, -1 on failure
      */
@@ -682,6 +683,8 @@ public abstract class SquidDatabase {
         }
     }
 
+    // --- transaction management
+
     /**
      * Begin a transaction. This acquires a non-exclusive lock.
      *
@@ -767,6 +770,42 @@ public abstract class SquidDatabase {
             successState.reset();
         }
     }
+
+    // Tracks nested transaction success or failure state. If any
+    // nested transaction fails, the entire outer transaction
+    // is also considered to have failed.
+    private static class TransactionSuccessState {
+
+        Deque<Boolean> nestedSuccessStack = new LinkedList<Boolean>();
+        boolean outerTransactionSuccess = true;
+
+        private void beginTransaction() {
+            nestedSuccessStack.push(false);
+        }
+
+        private void setTransactionSuccessful() {
+            nestedSuccessStack.pop();
+            nestedSuccessStack.push(true);
+        }
+
+        private void endTransaction() {
+            Boolean mostRecentTransactionSuccess = nestedSuccessStack.pop();
+            if (!mostRecentTransactionSuccess) {
+                outerTransactionSuccess = false;
+            }
+        }
+
+        private void reset() {
+            nestedSuccessStack.clear();
+            outerTransactionSuccess = true;
+        }
+    }
+
+    private ThreadLocal<TransactionSuccessState> transactionSuccessState = new ThreadLocal<TransactionSuccessState>() {
+        protected TransactionSuccessState initialValue() {
+            return new TransactionSuccessState();
+        }
+    };
 
     /**
      * Yield the current transaction
@@ -1344,7 +1383,7 @@ public abstract class SquidDatabase {
      * @return an instance of the model matching the given criterion, or null if no record was found
      */
     public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
-                                                              Property<?>... properties) {
+            Property<?>... properties) {
         SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, criterion, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -1657,59 +1696,22 @@ public abstract class SquidDatabase {
         long result = insertInternal(insert);
         if (result > TableModel.NO_ID) {
             int numInserted = insert.getNumRows();
-            notifyForTable(UriNotifier.DBOperation.INSERT, null, insert.getTable(), numInserted == 1 ? result : TableModel.NO_ID);
+            notifyForTable(UriNotifier.DBOperation.INSERT, null, insert.getTable(),
+                    numInserted == 1 ? result : TableModel.NO_ID);
         }
         return result;
     }
 
-    // --- transaction management
-
-    // Tracks nested transaction success or failure state. If any
-    // nested transaction fails, the entire outer transaction
-    // is also considered to have failed.
-    private static class TransactionSuccessState {
-
-        Deque<Boolean> nestedSuccessStack = new LinkedList<Boolean>();
-        boolean outerTransactionSuccess = true;
-
-        private void beginTransaction() {
-            nestedSuccessStack.push(false);
-        }
-
-        private void setTransactionSuccessful() {
-            nestedSuccessStack.pop();
-            nestedSuccessStack.push(true);
-        }
-
-        private void endTransaction() {
-            Boolean mostRecentTransactionSuccess = nestedSuccessStack.pop();
-            if (!mostRecentTransactionSuccess) {
-                outerTransactionSuccess = false;
-            }
-        }
-
-        private void reset() {
-            nestedSuccessStack.clear();
-            outerTransactionSuccess = true;
-        }
-    }
-
-    private ThreadLocal<TransactionSuccessState> transactionSuccessState = new ThreadLocal<TransactionSuccessState>() {
-        protected TransactionSuccessState initialValue() {
-            return new TransactionSuccessState();
-        }
-    };
-
     // --- helper methods
 
     protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
-                                                                        Property<?>... properties) {
+            Property<?>... properties) {
         Table table = getTable(modelClass);
         return fetchFirstItem(modelClass, table.getIdProperty().eq(id), properties);
     }
 
     protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
-                                                                            Criterion criterion, Property<?>... properties) {
+            Criterion criterion, Property<?>... properties) {
         return fetchFirstItem(modelClass, Query.select(properties).where(criterion));
     }
 
@@ -1849,7 +1851,7 @@ public abstract class SquidDatabase {
     }
 
     private void accumulateUrisToNotify(List<UriNotifier> notifiers, Set<Uri> accumulatorSet, UriNotifier.DBOperation op,
-                                        AbstractModel modelValues, SqlTable<?> table, long rowId) {
+            AbstractModel modelValues, SqlTable<?> table, long rowId) {
         if (notifiers != null) {
             for (UriNotifier notifier : notifiers) {
                 notifier.addUrisToNotify(accumulatorSet, table, getName(), op, modelValues, rowId);
