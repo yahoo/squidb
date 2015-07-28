@@ -43,7 +43,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testRawQuery() {
-        insertBasicTestModel();
+        badDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
         Cursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
@@ -192,7 +192,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected String getName() {
+        public String getName() {
             return "badDb";
         }
 

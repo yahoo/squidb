@@ -26,7 +26,7 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "testDb";
     }
 

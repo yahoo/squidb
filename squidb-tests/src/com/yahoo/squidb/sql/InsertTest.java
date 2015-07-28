@@ -32,20 +32,20 @@ public class InsertTest extends DatabaseTestCase {
                 .setBaz(DateUtils.WEEK_IN_MILLIS)
                 .setQux(5.5)
                 .setIsAlive(true);
-        dao.persist(thingOne);
+        database.persist(thingOne);
         thingTwo = new Thing()
                 .setFoo("Thing2")
                 .setBar(456)
                 .setBaz(System.currentTimeMillis())
                 .setQux(17.4)
                 .setIsAlive(false);
-        dao.persist(thingTwo);
+        database.persist(thingTwo);
 
         sam = new TestModel()
                 .setFirstName("Sam")
                 .setLastName("Bosley")
                 .setBirthday(System.currentTimeMillis());
-        dao.persist(sam);
+        database.persist(sam);
     }
 
     public void testInsertWithValues() {
@@ -55,7 +55,7 @@ public class InsertTest extends DatabaseTestCase {
         // check preconditions
         // last name is unique
         Criterion lastNameSparrow = TestModel.LAST_NAME.eqCaseInsensitive(lname);
-        TestModel shouldBeNull = dao.fetchByCriterion(TestModel.class, lastNameSparrow, TestModel.PROPERTIES);
+        TestModel shouldBeNull = database.fetchByCriterion(TestModel.class, lastNameSparrow, TestModel.PROPERTIES);
         assertNull(shouldBeNull);
 
         // insert into testModels (firstName, lastName) values ('Jack', 'Sparrow');
@@ -65,9 +65,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 2, fname, lname);
 
-        assertEquals(2, dao.insert(insert));
+        assertEquals(2, database.insert(insert));
 
-        TestModel shouldNotBeNull = dao.fetchByCriterion(TestModel.class, lastNameSparrow, TestModel.PROPERTIES);
+        TestModel shouldNotBeNull = database.fetchByCriterion(TestModel.class, lastNameSparrow, TestModel.PROPERTIES);
         assertNotNull(shouldNotBeNull);
         assertEquals(fname, shouldNotBeNull.getFirstName());
         assertEquals(lname, shouldNotBeNull.getLastName());
@@ -120,7 +120,7 @@ public class InsertTest extends DatabaseTestCase {
         double pi = Math.PI;
 
         Criterion criterion = Thing.QUX.gt(pi);
-        int numThingsMatching = dao.count(Thing.class, criterion);
+        int numThingsMatching = database.count(Thing.class, criterion);
 
         // insert into testModels select foo, bar, isAlive from things where qux > 3.1415...;
         Query query = Query.select(Thing.FOO, Thing.BAR, Thing.IS_ALIVE).from(Thing.TABLE).where(criterion);
@@ -130,9 +130,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 1, pi);
 
-        int testModelsBeforeInsert = dao.count(TestModel.class, Criterion.all);
-        assertEquals(3, dao.insert(insert));
-        int testModelsAfterInsert = dao.count(TestModel.class, Criterion.all);
+        int testModelsBeforeInsert = database.count(TestModel.class, Criterion.all);
+        assertEquals(3, database.insert(insert));
+        int testModelsAfterInsert = database.count(TestModel.class, Criterion.all);
         assertEquals(testModelsBeforeInsert + numThingsMatching, testModelsAfterInsert);
     }
 
@@ -143,9 +143,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 0);
 
-        int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertEquals(3, dao.insert(insert));
-        int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        assertEquals(3, database.insert(insert));
+        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert + 1, rowsAfterInsert);
 
@@ -153,7 +153,7 @@ public class InsertTest extends DatabaseTestCase {
         Thing newThing = null;
         SquidCursor<Thing> cursor = null;
         try {
-            cursor = dao.query(Thing.class, Query.select(Thing.PROPERTIES).orderBy(Order.desc(Thing.ID)).limit(1));
+            cursor = database.query(Thing.class, Query.select(Thing.PROPERTIES).orderBy(Order.desc(Thing.ID)).limit(1));
             if (cursor.moveToFirst()) {
                 newThing = new Thing(cursor);
             }
@@ -173,7 +173,7 @@ public class InsertTest extends DatabaseTestCase {
         final String lname = sam.getLastName();
         // check preconditions
         // last name is unique
-        TestModel shouldNotBeNull = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel shouldNotBeNull = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
         assertNotNull(shouldNotBeNull);
 
@@ -190,13 +190,13 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
-        int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertEquals(-1, dao.insert(insert)); // Expect conflict
-        int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        assertEquals(-1, database.insert(insert)); // Expect conflict
+        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 
-        TestModel withSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel withSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
         assertEquals(sam.getFirstName(), withSamLastName.getFirstName());
         assertEquals(sam.getLastName(), withSamLastName.getLastName());
@@ -208,7 +208,7 @@ public class InsertTest extends DatabaseTestCase {
         final String lname = sam.getLastName();
         // check preconditions
         // last name is unique
-        TestModel shouldNotBeNull = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel shouldNotBeNull = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
         assertNotNull(shouldNotBeNull);
 
@@ -225,13 +225,13 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
-        int rowsBeforeInsert = dao.count(Thing.class, Criterion.all);
-        assertEquals(rowsBeforeInsert, dao.insert(insert)); // Expect replace
-        int rowsAfterInsert = dao.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        assertEquals(rowsBeforeInsert, database.insert(insert)); // Expect replace
+        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 
-        TestModel modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
         assertEquals(fname, modelWithSamLastName.getFirstName());
         assertEquals(lname, modelWithSamLastName.getLastName());

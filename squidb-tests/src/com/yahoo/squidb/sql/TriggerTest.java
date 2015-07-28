@@ -33,25 +33,25 @@ public class TriggerTest extends DatabaseTestCase {
                 .setFirstName("Sam")
                 .setLastName("Bosley")
                 .setBirthday(now);
-        dao.persist(sam);
+        database.persist(sam);
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
                 .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
                 .setLuckyNumber(314);
-        dao.persist(kevin);
+        database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
                 .setBirthday(now + DateUtils.HOUR_IN_MILLIS)
                 .setLuckyNumber(3);
-        dao.persist(jonathan);
+        database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
                 .setBirthday(now - DateUtils.DAY_IN_MILLIS * 2)
                 .setLuckyNumber(-5);
-        dao.persist(scott);
+        database.persist(scott);
     }
 
     public void testMissingTriggerEventThrowsIllegalStateException() {
@@ -90,8 +90,8 @@ public class TriggerTest extends DatabaseTestCase {
         final int terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
-        dao.persist(test1);
-        dao.persist(test2);
+        database.persist(test1);
+        database.persist(test2);
         final long idTest1 = test1.getId();
         final long idTest2 = test2.getId();
 
@@ -111,7 +111,7 @@ public class TriggerTest extends DatabaseTestCase {
 
         // update test1 with dao
         test1.setValue1(terminalValue);
-        assertTrue(dao.persist(test1));
+        assertTrue(database.persist(test1));
 
         // update test2 with compiled statement
         Update update = Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_1, terminalValue)
@@ -119,11 +119,11 @@ public class TriggerTest extends DatabaseTestCase {
         CompiledStatement compiledUpdate = update.compile();
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
-        test1 = dao.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
+        test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test1.getValue1().intValue());
         assertEquals(initialValue, test1.getValue2().intValue());
 
-        test2 = dao.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
+        test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test2.getValue1().intValue());
         assertEquals(initialValue, test2.getValue2().intValue());
     }
@@ -133,8 +133,8 @@ public class TriggerTest extends DatabaseTestCase {
         final int terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
-        dao.persist(test1);
-        dao.persist(test2);
+        database.persist(test1);
+        database.persist(test2);
         final long idTest1 = test1.getId();
         final long idTest2 = test2.getId();
 
@@ -154,7 +154,7 @@ public class TriggerTest extends DatabaseTestCase {
 
         // update test1 with dao
         test1.setValue1(terminalValue);
-        assertTrue(dao.persist(test1));
+        assertTrue(database.persist(test1));
 
         // update test2 with compiled statement
         Update update = Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_1, terminalValue)
@@ -162,11 +162,11 @@ public class TriggerTest extends DatabaseTestCase {
         CompiledStatement compiledUpdate = update.compile();
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
-        test1 = dao.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
+        test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test1.getValue1().intValue());
         assertEquals(terminalValue, test1.getValue2().intValue());
 
-        test2 = dao.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
+        test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test2.getValue1().intValue());
         assertEquals(terminalValue, test2.getValue2().intValue());
     }
@@ -196,13 +196,13 @@ public class TriggerTest extends DatabaseTestCase {
 
         // persist new model instances
         Thing thing1 = new Thing().setFoo("small thing").setBar(5);
-        assertTrue(dao.persist(thing1)); // should not trigger
+        assertTrue(database.persist(thing1)); // should not trigger
         Thing thing2 = new Thing().setFoo("big thing").setBar(9001);
-        assertTrue(dao.persist(thing2)); // should trigger
+        assertTrue(database.persist(thing2)); // should trigger
         Thing thing3 = new Thing().setFoo("bigger thing").setBar(20000);
-        assertTrue(dao.persist(thing3)); // should trigger
+        assertTrue(database.persist(thing3)); // should trigger
 
-        SquidCursor<TriggerTester> cursor = dao.query(TriggerTester.class, Query.select());
+        SquidCursor<TriggerTester> cursor = database.query(TriggerTester.class, Query.select());
         assertTrue(cursor.getCount() > 0);
         try {
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -264,15 +264,15 @@ public class TriggerTest extends DatabaseTestCase {
                 .setFirstName("Chester")
                 .setLastName("Cheetah")
                 .setLuckyNumber(randomLuckyNumber);
-        assertTrue(dao.persist(chesterCheetah)); // +1 trigger
+        assertTrue(database.persist(chesterCheetah)); // +1 trigger
 
         // delete
         expectedBefore.add(randomLuckyNumber);
         expectedAfter.add(0);
-        assertTrue(dao.delete(TestModel.class, chesterCheetah.getId())); // +1 trigger
+        assertTrue(database.delete(TestModel.class, chesterCheetah.getId())); // +1 trigger
 
         // update
-        SquidCursor<TestModel> modelCursor = dao.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER)
+        SquidCursor<TestModel> modelCursor = database.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER)
                 .orderBy(TestModel.ID.asc()));
         int numTestModels = modelCursor.getCount();
         try {
@@ -294,7 +294,7 @@ public class TriggerTest extends DatabaseTestCase {
         int expectedTriggers = numTestModels + 2;
 
         // verify
-        SquidCursor<TriggerTester> triggerCursor = dao.query(TriggerTester.class, Query.select().orderBy(
+        SquidCursor<TriggerTester> triggerCursor = database.query(TriggerTester.class, Query.select().orderBy(
                 TriggerTester.ID.asc()));
         try {
             assertEquals(expectedTriggers, triggerCursor.getCount());

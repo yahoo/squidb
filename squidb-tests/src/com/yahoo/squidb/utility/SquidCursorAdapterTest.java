@@ -63,7 +63,7 @@ public class SquidCursorAdapterTest extends DatabaseTestCase {
         if (idColumn != null) {
             query.selectMore(idColumn);
         }
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, query);
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
         try {
             SquidCursorAdapter<TestModel> adapter = new SquidCursorAdapter<TestModel>(getContext(), new TestModel(),
                     idColumn) {

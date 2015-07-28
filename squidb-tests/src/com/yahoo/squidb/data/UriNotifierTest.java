@@ -40,7 +40,7 @@ public class UriNotifierTest extends DatabaseTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        dao.unregisterAllUriNotifiers();
+        database.unregisterAllUriNotifiers();
         for (ContentObserver observer : observers) {
             getContext().getContentResolver().unregisterContentObserver(observer);
         }
@@ -72,14 +72,14 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
 
         };
-        dao.registerUriNotifier(notifier);
+        database.registerUriNotifier(notifier);
 
         TestModel t1 = insertBasicTestModel();
         assertTrue(wasCalled.get());
 
         wasCalled.set(false);
-        dao.unregisterUriNotifier(notifier);
-        dao.delete(TestModel.class, t1.getId());
+        database.unregisterUriNotifier(notifier);
+        database.delete(TestModel.class, t1.getId());
         assertFalse(wasCalled.get());
     }
 
@@ -87,7 +87,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean notified = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
-        dao.registerUriNotifier(new TestUriNotifier());
+        database.registerUriNotifier(new TestUriNotifier());
         insertBasicTestModel();
         waitForResolver();
         assertTrue(notified.get());
@@ -101,7 +101,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         Runnable toRun = new Runnable() {
             @Override
             public void run() {
-                dao.createNew(t1);
+                database.createNew(t1);
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, t1, 1L);
@@ -109,14 +109,14 @@ public class UriNotifierTest extends DatabaseTestCase {
         toRun = new Runnable() {
             @Override
             public void run() {
-                dao.createNew(t2);
+                database.createNew(t2);
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, t2, 2L);
 
         toRun = new Runnable() {
             public void run() {
-                dao.insert(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                database.insert(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                         .values("Some", "Guy"));
             }
         };
@@ -130,7 +130,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             @Override
             public void run() {
                 t1.setLastName("Boss");
-                dao.persist(t1);
+                database.persist(t1);
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.UPDATE, t1, t1.getId());
@@ -140,7 +140,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         toRun = new Runnable() {
             @Override
             public void run() {
-                dao.update(TestModel.LAST_NAME.like("Bos%"), template);
+                database.update(TestModel.LAST_NAME.like("Bos%"), template);
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.UPDATE, template, 0);
@@ -148,7 +148,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         toRun = new Runnable() {
             @Override
             public void run() {
-                dao.update(Update.table(TestModel.TABLE).fromTemplate(new TestModel().setFirstName("Guy"))
+                database.update(Update.table(TestModel.TABLE).fromTemplate(new TestModel().setFirstName("Guy"))
                         .where(TestModel.LAST_NAME.like("Bos%")));
             }
         };
@@ -160,7 +160,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         Runnable toRun = new Runnable() {
             @Override
             public void run() {
-                dao.delete(TestModel.class, t1.getId());
+                database.delete(TestModel.class, t1.getId());
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, t1.getId());
@@ -169,7 +169,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         toRun = new Runnable() {
             @Override
             public void run() {
-                dao.deleteWhere(TestModel.class, TestModel.LAST_NAME.like("Bos%"));
+                database.deleteWhere(TestModel.class, TestModel.LAST_NAME.like("Bos%"));
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, 0);
@@ -178,7 +178,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         toRun = new Runnable() {
             @Override
             public void run() {
-                dao.delete(Delete.from(TestModel.TABLE).where(TestModel.LAST_NAME.like("Bos%")));
+                database.delete(Delete.from(TestModel.TABLE).where(TestModel.LAST_NAME.like("Bos%")));
             }
         };
         testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, 0);
@@ -197,9 +197,9 @@ public class UriNotifierTest extends DatabaseTestCase {
                 super.addUrisToNotify(uris, table, databaseName, operation, modelValues, rowId);
             }
         };
-        dao.registerUriNotifier(notifier);
+        database.registerUriNotifier(notifier);
         execute.run();
-        dao.unregisterUriNotifier(notifier);
+        database.unregisterUriNotifier(notifier);
     }
 
     public void testMultipleNotifiersCanBeRegistered() {
@@ -222,8 +222,8 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         };
 
-        dao.registerUriNotifier(n1);
-        dao.registerUriNotifier(n2);
+        database.registerUriNotifier(n1);
+        database.registerUriNotifier(n2);
 
         insertBasicTestModel();
         waitForResolver();
@@ -242,10 +242,10 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         };
 
-        dao.registerUriNotifier(globalNotifier);
+        database.registerUriNotifier(globalNotifier);
 
         insertBasicTestModel();
-        dao.persist(new Employee().setName("Elmo"));
+        database.persist(new Employee().setName("Elmo"));
 
         waitForResolver();
         assertTrue(calledForTables.contains(TestModel.TABLE));
@@ -254,20 +254,20 @@ public class UriNotifierTest extends DatabaseTestCase {
 
     public void testEnableAndDisableNotifications() {
         UriNotifier notifier = new TestUriNotifier();
-        dao.registerUriNotifier(notifier);
+        database.registerUriNotifier(notifier);
         AtomicBoolean notifiedUri = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
-        dao.beginTransaction();
+        database.beginTransaction();
         try {
-            dao.disableUriNotifications();
+            database.disableUriNotifications();
 
             insertBasicTestModel("Tech Sergeant", "Chen", System.currentTimeMillis() - 1);
-            dao.setTransactionSuccessful();
+            database.setTransactionSuccessful();
         } finally {
-            dao.endTransaction();
+            database.endTransaction();
             assertFalse(notifiedUri.get());
-            dao.enableUriNotifications();
+            database.enableUriNotifications();
             assertFalse(notifiedUri.get());
         }
 
@@ -306,7 +306,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         };
 
-        dao.registerUriNotifier(idNotifier);
+        database.registerUriNotifier(idNotifier);
 
         AtomicBoolean uri1 = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "1"), false);
         AtomicBoolean uri2 = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "2"), false);
@@ -314,7 +314,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean uri4 = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "4"), false);
         waitForResolver();
 
-        dao.beginTransaction();
+        database.beginTransaction();
         try {
             insertBasicTestModel("Peter", "Quincy Taggart", System.currentTimeMillis() - 5);
             insertBasicTestModel("Guy", "Fleegman", System.currentTimeMillis() - 4);
@@ -322,16 +322,16 @@ public class UriNotifierTest extends DatabaseTestCase {
             assertFalse(uri2.get());
 
             if (addNestedTransaction) {
-                dao.beginTransaction();
+                database.beginTransaction();
                 try {
                     insertBasicTestModel("Young", "Laredo", System.currentTimeMillis() - 3);
                     insertBasicTestModel("Doctor", "Lazarus", System.currentTimeMillis() - 2);
 
                     if (nestedSuccessful) {
-                        dao.setTransactionSuccessful();
+                        database.setTransactionSuccessful();
                     }
                 } finally {
-                    dao.endTransaction();
+                    database.endTransaction();
                     assertFalse(uri1.get());
                     assertFalse(uri2.get());
                     assertFalse(uri3.get());
@@ -340,10 +340,10 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
 
             if (setSuccessful) {
-                dao.setTransactionSuccessful();
+                database.setTransactionSuccessful();
             }
         } finally {
-            dao.endTransaction();
+            database.endTransaction();
         }
         waitForResolver();
         assertEquals(setSuccessful && nestedSuccessful, uri1.get());

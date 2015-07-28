@@ -16,39 +16,39 @@ public class VirtualModelTest extends DatabaseTestCase {
         TestVirtualModel model = new TestVirtualModel()
                 .setTitle("Charlie")
                 .setBody("Charlie and the Chocolate Factory");
-        assertTrue(dao.createNew(model));
-        assertEquals(1, dao.count(TestVirtualModel.class, Criterion.all));
+        assertTrue(database.createNew(model));
+        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
 
         // query
         final long id = model.getId();
-        TestVirtualModel fetched = dao.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
+        TestVirtualModel fetched = database.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
         assertEquals(model, fetched);
 
         // update
         model.setTitle("Charlie Brown").setBody("It's the Easter Beagle, Charlie Brown");
-        assertTrue(dao.saveExisting(model));
-        assertEquals(1, dao.count(TestVirtualModel.class, Criterion.all));
-        assertEquals(1, dao.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown")));
+        assertTrue(database.saveExisting(model));
+        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown")));
 
         // update using setId on a template
         TestVirtualModel model2 = new TestVirtualModel().setTitle("Charlie Brown 2").setId(model.getId());
-        assertTrue(dao.saveExisting(model2));
-        assertEquals(1, dao.count(TestVirtualModel.class, Criterion.all));
-        assertEquals(1, dao.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown 2")));
+        assertTrue(database.saveExisting(model2));
+        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown 2")));
 
         // delete
-        assertTrue(dao.delete(TestVirtualModel.class, id));
-        assertEquals(0, dao.count(TestVirtualModel.class, Criterion.all));
+        assertTrue(database.delete(TestVirtualModel.class, id));
+        assertEquals(0, database.count(TestVirtualModel.class, Criterion.all));
     }
 
     public void testNonStringPropertyInVirtualTableModel() {
         final Long testNum = 7L;
         TestVirtualModel model = new TestVirtualModel()
                 .setTestNumber(testNum);
-        assertTrue(dao.createNew(model));
+        assertTrue(database.createNew(model));
 
         final long id = model.getId();
-        TestVirtualModel fetched = dao.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
+        TestVirtualModel fetched = database.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
         assertEquals(id, fetched.getId());
         assertEquals(testNum, fetched.getTestNumber());
     }
