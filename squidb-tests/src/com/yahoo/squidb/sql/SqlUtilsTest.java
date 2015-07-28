@@ -5,9 +5,10 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.test.SquidTestCase;
+import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.TestModel;
 
-public class SqlUtilsTest extends SquidTestCase {
+public class SqlUtilsTest extends DatabaseTestCase {
 
     public void testEscapeLikePattern() {
         assertEquals("", SqlUtils.escapeLikePattern(null, '^'));
@@ -43,5 +44,31 @@ public class SqlUtilsTest extends SquidTestCase {
                 SqlUtils.escapeLikePattern("bar", '_');
             }
         }, IllegalArgumentException.class);
+    }
+
+    public void testSanitizeString() {
+        assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's"));
+        assertEquals("CAST(x'00' AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0ABC"));
+        assertEquals("CAST(x'00' AS TEXT) || 'A' || CAST(x'00' AS TEXT) || 'B''C'",
+                SqlUtils.toSanitizedString("\0A\0B'C"));
+        assertEquals("CAST(x'00' AS TEXT) || 'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("\0ABC\0"));
+        assertEquals("'A' || CAST(x'00' AS TEXT) || 'BC' || CAST(x'00' AS TEXT)",
+                SqlUtils.toSanitizedString("A\0BC\0"));
+        assertEquals("'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("ABC\0"));
+    }
+
+    public void testDatabaseWriteWithNullCharactersWorks() {
+        String badString = "Sam\0B";
+        assertEquals(5, badString.length());
+        TestModel model = new TestModel().setFirstName(badString).setLastName("Bosley").setBirthday(testDate);
+        dao.persist(model);
+
+        model = dao.fetch(TestModel.class, model.getId());
+        assertEquals(badString, model.getFirstName());
+
+        dao.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
+
+        model = dao.fetch(TestModel.class, model.getId());
+        assertEquals("Sam", model.getFirstName());
     }
 }
