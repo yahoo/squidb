@@ -5,8 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 
-import com.yahoo.squidb.data.SqlValidatorFactory.SqlValidator;
-
 /*package*/ class SqlValidatorFactory {
 
     interface SqlValidator {
@@ -35,23 +33,24 @@ import com.yahoo.squidb.data.SqlValidatorFactory.SqlValidator;
     static SqlValidator getValidator() {
         return INSTANCE;
     }
-}
 
-/*package*/ class DefaultSqlValidator implements SqlValidator {
+    private static class DefaultSqlValidator implements SqlValidator {
 
-    @Override
-    public void compileStatement(SQLiteDatabase db, String sql) {
-        db.compileStatement(sql);
+        @Override
+        public void compileStatement(SQLiteDatabase db, String sql) {
+            db.compileStatement(sql);
+        }
     }
-}
 
-/*package*/ class IcsSqlValidator implements SqlValidator {
+    private static class IcsSqlValidator implements SqlValidator {
 
-    @Override
-    public void compileStatement(SQLiteDatabase db, String sql) {
-        Cursor c = db.rawQuery(sql, null);
-        if (c != null) {
-            c.close();
+        @Override
+        public void compileStatement(SQLiteDatabase db, String sql) {
+            Cursor c = db.rawQuery(sql, null);
+            if (c != null) {
+                c.close();
+            }
         }
     }
 }
+
