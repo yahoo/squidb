@@ -272,12 +272,12 @@ public abstract class SquidDatabase {
     /**
      * Return the {@link SqlTable} corresponding to the specified model type
      *
-     * @param modelType the model class
-     * @return the corresponding table for the model
+     * @param modelClass the model class
+     * @return the corresponding data source for the model. May be a table, view, or subquery
      * @throws UnsupportedOperationException if the model class is unknown to this database
      */
-    public final SqlTable<?> getTable(Class<? extends AbstractModel> modelType) {
-        Class<?> type = modelType;
+    protected final SqlTable<?> getSqlTable(Class<? extends AbstractModel> modelClass) {
+        Class<?> type = modelClass;
         SqlTable<?> table;
         //noinspection SuspiciousMethodCalls
         while ((table = tableMap.get(type)) == null && type != AbstractModel.class && type != Object.class) {
@@ -286,7 +286,18 @@ public abstract class SquidDatabase {
         if (table != null) {
             return table;
         }
-        throw new UnsupportedOperationException("Unknown model class " + modelType);
+        throw new UnsupportedOperationException("Unknown model class " + modelClass);
+    }
+
+    /**
+     * Return the {@link Table} corresponding to the specified TableModel class
+     *
+     * @param modelClass the model class
+     * @return the corresponding table for the model
+     * @throws UnsupportedOperationException if the model class is unknown to this database
+     */
+    protected final Table getTable(Class<? extends TableModel> modelClass) {
+        return (Table) getSqlTable(modelClass);
     }
 
     /**
@@ -1259,7 +1270,7 @@ public abstract class SquidDatabase {
      */
     public <TYPE extends AbstractModel> SquidCursor<TYPE> query(Class<TYPE> modelClass, Query query) {
         if (!query.hasTable() && modelClass != null) {
-            SqlTable<?> table = getTable(modelClass);
+            SqlTable<?> table = getSqlTable(modelClass);
             if (table == null) {
                 throw new IllegalArgumentException("Query has no FROM clause and model class "
                         + modelClass.getSimpleName() + " has no associated table");
@@ -1346,7 +1357,7 @@ public abstract class SquidDatabase {
      * @return true if delete was successful
      */
     public boolean delete(Class<? extends TableModel> modelClass, long id) {
-        Table table = (Table) getTable(modelClass);
+        Table table = getTable(modelClass);
         int rowsUpdated = delete(table.getExpression(), table.getIdProperty().eq(id).toRawSql(), null);
         if (rowsUpdated > 0) {
             notifyForTable(UriNotifier.DBOperation.DELETE, null, table, id);
@@ -1361,7 +1372,7 @@ public abstract class SquidDatabase {
      * @return the number of deleted rows
      */
     public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
-        SqlTable<?> table = getTable(modelClass);
+        Table table = getTable(modelClass);
         int rowsUpdated = delete(table.getExpression(), where.toRawSql(), null);
         if (rowsUpdated > 0) {
             notifyForTable(UriNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
@@ -1417,7 +1428,7 @@ public abstract class SquidDatabase {
      */
     public int updateWithOnConflict(Criterion where, TableModel template, TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = template.getClass();
-        SqlTable<?> table = getTable(modelClass);
+        Table table = getTable(modelClass);
         int rowsUpdated;
         if (conflictAlgorithm == null) {
             rowsUpdated = update(table.getExpression(), template.getSetValues(),
@@ -1531,7 +1542,7 @@ public abstract class SquidDatabase {
      */
     protected final boolean insertRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = item.getClass();
-        SqlTable<?> table = getTable(modelClass);
+        Table table = getTable(modelClass);
         long newRow;
         ContentValues mergedValues = item.getMergedValues();
         if (mergedValues.size() == 0) {
@@ -1580,7 +1591,7 @@ public abstract class SquidDatabase {
         }
 
         Class<? extends TableModel> modelClass = item.getClass();
-        Table table = (Table) getTable(modelClass);
+        Table table = getTable(modelClass);
         boolean result;
         if (conflictAlgorithm == null) {
             result = update(table.getExpression(), item.getSetValues(),
@@ -1657,7 +1668,7 @@ public abstract class SquidDatabase {
 
     protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
                                                                         Property<?>... properties) {
-        Table table = (Table) getTable(modelClass);
+        Table table = getTable(modelClass);
         return fetchFirstItem(modelClass, table.getIdProperty().eq(id), properties);
     }
 
