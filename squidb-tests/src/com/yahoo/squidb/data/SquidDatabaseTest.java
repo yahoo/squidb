@@ -19,7 +19,7 @@ import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 
-public class AbstractDatabaseTest extends DatabaseTestCase {
+public class SquidDatabaseTest extends DatabaseTestCase {
 
     private BadDatabase badDatabase;
 
@@ -109,8 +109,8 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
     }
 
     /**
-     * {@link AbstractDatabase} does not automatically recreate the database when a migration fails. This is really to
-     * test that {@link com.yahoo.squidb.data.AbstractDatabase#recreate()} can safely be called during onUpgrade or
+     * {@link SquidDatabase} does not automatically recreate the database when a migration fails. This is really to
+     * test that {@link SquidDatabase#recreate()} can safely be called during onUpgrade or
      * onDowngrade as an exemplar for client developers.
      */
     public void testRecreateOnUpgradeFailure() {

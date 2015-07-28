@@ -54,7 +54,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * AbstractDatabase is a database abstraction which wraps a SQLite database.
+ * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a {@link SQLiteOpenHelper}.
  * Call {@link #getDatabase()} to open the database and {@link #close()} to close the database. Direct querying is not
@@ -80,7 +80,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * contain workarounds for this behavior, so all users are encouraged to use those methods for these
  * operations. If you choose to expose/call the protected String[] versions of the methods, you have been warned!
  */
-public abstract class AbstractDatabase {
+public abstract class SquidDatabase {
 
     /**
      * @return the database name
@@ -212,7 +212,7 @@ public abstract class AbstractDatabase {
 
     private final Context context;
 
-    private AbstractDatabase attachedTo = null;
+    private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
@@ -234,13 +234,13 @@ public abstract class AbstractDatabase {
     private boolean isInMigration;
 
     /**
-     * Create a new AbstractDatabase
+     * Create a new SquidDatabase
      *
      * @param context the Context, must not be null
      */
-    public AbstractDatabase(Context context) {
+    public SquidDatabase(Context context) {
         if (context == null) {
-            throw new NullPointerException("Null context creating AbstractDatabase");
+            throw new NullPointerException("Null context creating SquidDatabase");
         }
         this.context = context.getApplicationContext();
         initializeTableMap();
@@ -301,7 +301,7 @@ public abstract class AbstractDatabase {
 
     /**
      * Attaches another database to this database using the SQLite ATTACH command. This locks the other database
-     * exclusively; you must call {@link #detachDatabase(AbstractDatabase)} when you are done, otherwise the attached
+     * exclusively; you must call {@link #detachDatabase(SquidDatabase)} when you are done, otherwise the attached
      * database will not be unlocked.
      * <p>
      * This method will throw an exception if either database is already attached to another database, or if either
@@ -322,7 +322,7 @@ public abstract class AbstractDatabase {
      */
     @Beta
     @TargetApi(VERSION_CODES.JELLY_BEAN)
-    public final String attachDatabase(AbstractDatabase other) {
+    public final String attachDatabase(SquidDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
@@ -346,12 +346,12 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Detaches a database previously attached with {@link #attachDatabase(AbstractDatabase)}
+     * Detaches a database previously attached with {@link #attachDatabase(SquidDatabase)}
      *
      * @return true if the other database was successfully detached
      */
     @Beta
-    public final boolean detachDatabase(AbstractDatabase other) {
+    public final boolean detachDatabase(SquidDatabase other) {
         if (other.attachedTo != this) {
             throw new IllegalArgumentException("Database " + other.getName() + " is not attached to " + getName());
         }
@@ -359,7 +359,7 @@ public abstract class AbstractDatabase {
         return other.detachFrom(this);
     }
 
-    private String attachTo(AbstractDatabase attachTo) {
+    private String attachTo(SquidDatabase attachTo) {
         if (attachedTo != null) {
             throw new IllegalArgumentException(
                     "Database " + getName() + " is already attached to " + attachedTo.getName());
@@ -382,7 +382,7 @@ public abstract class AbstractDatabase {
         }
     }
 
-    private boolean detachFrom(AbstractDatabase detachFrom) {
+    private boolean detachFrom(SquidDatabase detachFrom) {
         if (detachFrom.tryExecSql("DETACH '" + getAttachedName() + "'")) {
             attachedTo = null;
             releaseExclusiveLock();
@@ -866,7 +866,7 @@ public abstract class AbstractDatabase {
             Throwable thrown = null;
             isInMigration = true;
             try {
-                success = AbstractDatabase.this.onUpgrade(db, oldVersion, newVersion);
+                success = SquidDatabase.this.onUpgrade(db, oldVersion, newVersion);
             } catch (Throwable t) {
                 thrown = t;
                 success = false;
@@ -893,7 +893,7 @@ public abstract class AbstractDatabase {
             Throwable thrown = null;
             isInMigration = true;
             try {
-                success = AbstractDatabase.this.onDowngrade(db, oldVersion, newVersion);
+                success = SquidDatabase.this.onDowngrade(db, oldVersion, newVersion);
             } catch (Throwable t) {
                 thrown = t;
                 success = false;
@@ -913,13 +913,13 @@ public abstract class AbstractDatabase {
         @Override
         public void onConfigure(SQLiteDatabase db) {
             database = db;
-            AbstractDatabase.this.onConfigure(db);
+            SquidDatabase.this.onConfigure(db);
         }
 
         @Override
         public void onOpen(SQLiteDatabase db) {
             database = db;
-            AbstractDatabase.this.onOpen(db);
+            SquidDatabase.this.onOpen(db);
         }
     }
 

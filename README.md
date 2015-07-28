@@ -28,7 +28,7 @@ public class PersonSpec {
 }
 
 // This is how you'd set up a database instance
-public class MyDatabase extends AbstractDatabase {
+public class MyDatabase extends SquidDatabase {
 
     private static final int VERSION = 1;
 

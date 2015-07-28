@@ -8,17 +8,17 @@ package com.yahoo.squidb.sample.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 
 /**
- * Implementation of AbstractDatabase for this tasks app. Remember--instances of your AbstractDatabase
+ * Implementation of SquidDatabase for this tasks app. Remember--instances of your SquidDatabase
  * subclass should always be singletons!
  */
-public class TasksDatabase extends AbstractDatabase {
+public class TasksDatabase extends SquidDatabase {
 
     private static final int VERSION = 2;
 

@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.DatabaseDao;
 
 import java.util.Calendar;
@@ -13,7 +13,7 @@ import java.util.Calendar;
 
 public class DatabaseTestCase extends SquidTestCase {
 
-    protected AbstractDatabase database;
+    protected SquidDatabase database;
     protected DatabaseDao dao;
 
     protected final long testDate;
