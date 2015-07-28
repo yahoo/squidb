@@ -541,7 +541,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             if (value instanceof Boolean) {
                 dst.put(property.getName(), (Boolean) value);
             } else if (value instanceof Integer) {
-                dst.put(property.getName(), ((Integer) value).intValue() != 0);
+                dst.put(property.getName(), ((Integer) value) != 0);
             }
             return null;
         }

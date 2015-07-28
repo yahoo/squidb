@@ -97,8 +97,6 @@ public class SquidUtilities {
         FileOutputStream fos = new FileOutputStream(out);
         try {
             copyStream(fis, fos);
-        } catch (Exception e) {
-            throw e;
         } finally {
             fis.close();
             fos.close();
