@@ -48,12 +48,15 @@ public class SqlUtilsTest extends DatabaseTestCase {
 
     public void testSanitizeString() {
         assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's"));
+        assertEquals("CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("\0"));
         assertEquals("CAST(x'00' AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0ABC"));
         assertEquals("CAST(x'00' AS TEXT) || 'A' || CAST(x'00' AS TEXT) || 'B''C'",
                 SqlUtils.toSanitizedString("\0A\0B'C"));
         assertEquals("CAST(x'00' AS TEXT) || 'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("\0ABC\0"));
         assertEquals("'A' || CAST(x'00' AS TEXT) || 'BC' || CAST(x'00' AS TEXT)",
                 SqlUtils.toSanitizedString("A\0BC\0"));
+        assertEquals("'A' || CAST(x'00' AS TEXT) || 'B' || CAST(x'00' AS TEXT) || 'C'",
+                SqlUtils.toSanitizedString("A\0B\0C"));
         assertEquals("'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("ABC\0"));
     }
 
