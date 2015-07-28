@@ -115,7 +115,11 @@ public abstract class Criterion extends CompilableWithArguments {
             @Override
             protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
                 sql.append(selection);
-                if (selectionArgs != null && selectionArgsBuilder != null) {
+                if (selectionArgs != null && selectionArgs.length > 0) {
+                    if (selectionArgsBuilder == null) {
+                        throw new UnsupportedOperationException("Raw selection cannot be used in this context--"
+                            + "it cannot converted to raw SQL without bound arguments.");
+                    }
                     Collections.addAll(selectionArgsBuilder, selectionArgs);
                 }
             }

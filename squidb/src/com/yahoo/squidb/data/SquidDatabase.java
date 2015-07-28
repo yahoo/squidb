@@ -68,18 +68,32 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>
  * Methods that use String arrays for where clause arguments ({@link #update(String, ContentValues, String, String[])
  * update}, {@link #updateWithOnConflict(String, ContentValues, String, String[], int) updateWithOnConflict}, and
- * {@link #delete(String, String, String[]) delete}) are wrappers around Android's {@link SQLiteDatabase} methods, and
- * so are left intact as protected methods. However, Android's default behavior of binding all arguments as strings can
- * have unexpected bugs, particularly when working with SQLite functions. For example:
+ * {@link #delete(String, String, String[]) delete}) are wrappers around Android's {@link SQLiteDatabase} methods.
+ * However, Android's default behavior of binding all arguments as strings can have unexpected bugs, particularly when
+ * working with SQLite functions. For example:
  *
  * <pre>
  * select * from t where _id = '1'; // Returns the first row
  * select * from t where abs(_id) = '1'; // Always returns empty set
  * </pre>
  *
- * The model based methods such as {@link #update(Criterion, TableModel)} or {@link #deleteWhere(Class, Criterion)}
- * contain workarounds for this behavior, so all users are encouraged to use those methods for these
- * operations. If you choose to expose/call the protected String[] versions of the methods, you have been warned!
+ * For this reason, these methods are protected rather than public. You can choose to expose them in your database
+ * subclass if you wish, but we recommend that you instead use the typesafe, public, model-bases methods, such as
+ * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel, TableStatement.ConflictAlgorithm)},
+ * {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
+ * <p>
+ * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
+ * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
+ * from will be inferred from the provided <code>modelClass</code> argument (if possible). This allows for invocations
+ * where {@link Query#from(com.yahoo.squidb.sql.SqlTable) Query.from} is never explicitly called:
+ *
+ * <pre>
+ * SquidCursor&lt;Person&gt; cursor =
+ *         db.query(Person.class, Query.select().orderBy(Person.NAME.asc()));
+ * </pre>
+ *
+ * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
+ * found, or null if no records are found for that particular form of fetch.
  */
 public abstract class SquidDatabase {
 
@@ -302,7 +316,26 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Gets the underlying SQLiteDatabase instances. Most users should not need to call this. If you call this
+     * from your AbstractDatabase subclass with the intention of executing SQL, you should wrap the calls with a lock,
+     * probably the non-exclusive one:
+     *
+     * <pre>
+     * public void execSql(String sql) {
+     *     aquireNonExclusiveLock();
+     *     try {
+     *         getDatabase().execSQL(sql);
+     *     } finally {
+     *         releaseNonExclusiveLock();
+     *     }
+     * }
+     * </pre>
+     *
+     * You only need to acquire the exclusive lock if you truly need exclusive access to the database connection.
+     *
      * @return the underlying {@link SQLiteDatabase}, which will be opened if it is not yet opened
+     * @see #acquireExclusiveLock()
+     * @see #acquireNonExclusiveLock()
      */
     protected synchronized final SQLiteDatabase getDatabase() {
         if (database == null) {
@@ -1359,7 +1392,7 @@ public abstract class SquidDatabase {
      */
     public boolean delete(Class<? extends TableModel> modelClass, long id) {
         Table table = getTable(modelClass);
-        int rowsUpdated = delete(table.getExpression(), table.getIdProperty().eq(id).toRawSql(), null);
+        int rowsUpdated = deleteInternal(Delete.from(table).where(table.getIdProperty().eq(id)));
         if (rowsUpdated > 0) {
             notifyForTable(UriNotifier.DBOperation.DELETE, null, table, id);
         }
@@ -1374,7 +1407,11 @@ public abstract class SquidDatabase {
      */
     public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
         Table table = getTable(modelClass);
-        int rowsUpdated = delete(table.getExpression(), where.toRawSql(), null);
+        Delete delete = Delete.from(table);
+        if (where != null) {
+            delete.where(where);
+        }
+        int rowsUpdated = deleteInternal(delete);
         if (rowsUpdated > 0) {
             notifyForTable(UriNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
         }
@@ -1430,14 +1467,15 @@ public abstract class SquidDatabase {
     public int updateWithOnConflict(Criterion where, TableModel template, TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = template.getClass();
         Table table = getTable(modelClass);
-        int rowsUpdated;
-        if (conflictAlgorithm == null) {
-            rowsUpdated = update(table.getExpression(), template.getSetValues(),
-                    where.toRawSql(), null);
-        } else {
-            rowsUpdated = updateWithOnConflict(table.getExpression(),
-                    template.getSetValues(), where.toRawSql(), null, conflictAlgorithm.getAndroidValue());
+        Update update = Update.table(table).fromTemplate(template);
+        if (where != null) {
+            update.where(where);
         }
+        if (conflictAlgorithm != null) {
+            update.onConflict(conflictAlgorithm);
+        }
+
+        int rowsUpdated = updateInternal(update);
         if (rowsUpdated > 0) {
             notifyForTable(UriNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
         }
@@ -1593,14 +1631,11 @@ public abstract class SquidDatabase {
 
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        boolean result;
-        if (conflictAlgorithm == null) {
-            result = update(table.getExpression(), item.getSetValues(),
-                    table.getIdProperty().eq(item.getId()).toRawSql(), null) > 0;
-        } else {
-            result = updateWithOnConflict(table.getExpression(), item.getSetValues(),
-                    table.getIdProperty().eq(item.getId()).toRawSql(), null, conflictAlgorithm.getAndroidValue()) > 0;
+        Update update = Update.table(table).fromTemplate(item).where(table.getIdProperty().eq(item.getId()));
+        if (conflictAlgorithm != null) {
+            update.onConflict(conflictAlgorithm);
         }
+        boolean result = updateInternal(update) > 0;
         if (result) {
             notifyForTable(UriNotifier.DBOperation.UPDATE, item, table, item.getId());
             item.markSaved();
