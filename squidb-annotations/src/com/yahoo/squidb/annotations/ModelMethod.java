@@ -9,17 +9,17 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * Public static methods in model specs annotated with {@literal @}ModelMethod will be added to the model definition.
+ * Public static methods in model specs annotated with &#064;ModelMethod will be added to the model definition.
  * Model methods should take as their first parameter an instance of the model:
  * <pre>
- *     {@literal @}TableModelSpec(className = "Person", tableName = "people")
- *     public class MetadataSpec {
+ *     &#064;TableModelSpec(className = "Person", tableName = "people")
+ *     public class PersonSpec {
  *
  *          String firstName;
  *
  *          String lastName;
  *
- *          {@literal @}ModelMethod
+ *          &#064;ModelMethod
  *          public static String getFullName(Person instance) {
  *              return instance.getFirstName() + " " + instance.getLastName();
  *          }

@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * {@link com.yahoo.squidb.annotations.ViewModelSpec}. For example:
  *
  * <pre>
- *     {@literal @}Alias("myAlias")
+ *     &#064;Alias("myAlias")
  *     LongProperty ALIASED_ID = Model.ID;
  * </pre>
  * in a view model spec would yield:

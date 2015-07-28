@@ -25,7 +25,7 @@ public class SquidbJacksonSupport {
     @SuppressWarnings("unchecked")
     /**
      * Get a Jackson-serialized string property as its real java type. Right now,
-     * only {@link List} and {@link Map} are supported for serialized types.
+     * only {@link java.util.List} and {@link java.util.Map} are supported for serialized types.
      */
     public static <T> T getObjectValue(AbstractModel model, StringProperty property, JavaType type) {
         if (!model.hasTransitory(property.getName())) {
@@ -48,7 +48,6 @@ public class SquidbJacksonSupport {
      * Sets the given Jackson-serialized property to the given value
      *
      * @return true if the value object was successfully serialized, false otherwise
-     * @see #getObjectValue(AbstractModel, StringProperty, JavaType)
      */
     public static boolean setObjectProperty(AbstractModel model, StringProperty property, Object data) {
         try {
