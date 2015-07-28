@@ -99,10 +99,10 @@ public class SqlUtils {
      */
     private static String sanitizeStringAsLiteral(String literal) {
         String sanitizedLiteral = literal.replace("'", "''");
-        if (sanitizedLiteral.contains("\0")) {
+        int nullIndex = sanitizedLiteral.indexOf('\0');
+        if (nullIndex >= 0) {
             StringBuilder builder = new StringBuilder();
             int start = 0;
-            int nullIndex = sanitizedLiteral.indexOf('\0');
             while (nullIndex >= 0) {
                 String substr = sanitizedLiteral.substring(start, nullIndex);
                 if (substr.length() > 0) { // Append sanitized component before the null
