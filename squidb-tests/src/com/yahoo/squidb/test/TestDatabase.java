@@ -10,12 +10,16 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.yahoo.squidb.data.AbstractDatabase;
 import com.yahoo.squidb.sql.AttachDetachTest;
+import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
 public class TestDatabase extends AbstractDatabase {
 
     public boolean caughtCustomMigrationException;
+
+    private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
+            .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
     public TestDatabase(Context context) {
         super(context);
@@ -36,6 +40,11 @@ public class TestDatabase extends AbstractDatabase {
                 BasicData.TABLE,
                 TestVirtualModel.TABLE
         };
+    }
+
+    @Override
+    protected Index[] getIndexes() {
+        return new Index[]{INDEX_TESTMODELS_LUCKYNUMBER};
     }
 
     @Override

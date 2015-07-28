@@ -499,10 +499,10 @@ public abstract class AbstractDatabase {
     }
 
     // For use only by DatabaseDao when validating queries
-    SQLiteStatement compileStatement(String sql) {
+    void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
-            return getDatabase().compileStatement(sql);
+            SqlValidatorFactory.getValidator().compileStatement(getDatabase(), sql);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -799,6 +799,7 @@ public abstract class AbstractDatabase {
          */
         @Override
         public void onCreate(SQLiteDatabase db) {
+            database = db;
             StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
 
@@ -829,7 +830,6 @@ public abstract class AbstractDatabase {
             }
 
             // post-table-creation
-            database = db;
             onTablesCreated(db);
         }
 
@@ -1122,7 +1122,7 @@ public abstract class AbstractDatabase {
      * @return the current SQLite version as a {@link VersionCode}
      * @throws RuntimeException if the version could not be read
      */
-    protected VersionCode getSqliteVersion() {
+    public VersionCode getSqliteVersion() {
         acquireNonExclusiveLock();
         SQLiteStatement stmt = null;
         try {
