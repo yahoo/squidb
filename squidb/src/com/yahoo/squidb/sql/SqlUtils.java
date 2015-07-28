@@ -108,7 +108,13 @@ public class SqlUtils {
                 if (substr.length() > 0) { // Append sanitized component before the null
                     builder.append("'").append(substr).append("' || ");
                 }
-                builder.append("CAST(x'00' AS TEXT)"); // Append escaped null character
+                builder.append("CAST(x'00");
+                while (nullIndex + 1 < sanitizedLiteral.length() &&
+                        sanitizedLiteral.charAt(nullIndex + 1) == '\0') { // If there are many adjacent nulls, combine
+                    builder.append("00");
+                    nullIndex++;
+                }
+                builder.append("' AS TEXT)"); // Close the cast
                 start = nullIndex + 1;
                 if (start < sanitizedLiteral.length()) { // If there's more left, continue concatenating
                     builder.append(" || ");

@@ -49,20 +49,31 @@ public class SqlUtilsTest extends DatabaseTestCase {
     public void testSanitizeString() {
         assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's"));
         assertEquals("CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("\0"));
+        assertEquals("CAST(x'0000' AS TEXT)", SqlUtils.toSanitizedString("\0\0"));
         assertEquals("CAST(x'00' AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0ABC"));
+        assertEquals("CAST(x'0000' AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0\0ABC"));
         assertEquals("CAST(x'00' AS TEXT) || 'A' || CAST(x'00' AS TEXT) || 'B''C'",
                 SqlUtils.toSanitizedString("\0A\0B'C"));
         assertEquals("CAST(x'00' AS TEXT) || 'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("\0ABC\0"));
+        assertEquals("CAST(x'00' AS TEXT) || 'ABC' || CAST(x'0000' AS TEXT)", SqlUtils.toSanitizedString("\0ABC\0\0"));
         assertEquals("'A' || CAST(x'00' AS TEXT) || 'BC' || CAST(x'00' AS TEXT)",
                 SqlUtils.toSanitizedString("A\0BC\0"));
+        assertEquals("'A' || CAST(x'0000' AS TEXT) || 'BC' || CAST(x'00' AS TEXT)",
+                SqlUtils.toSanitizedString("A\0\0BC\0"));
         assertEquals("'A' || CAST(x'00' AS TEXT) || 'B' || CAST(x'00' AS TEXT) || 'C'",
                 SqlUtils.toSanitizedString("A\0B\0C"));
         assertEquals("'ABC' || CAST(x'00' AS TEXT)", SqlUtils.toSanitizedString("ABC\0"));
     }
 
     public void testDatabaseWriteWithNullCharactersWorks() {
-        String badString = "Sam\0B";
-        assertEquals(5, badString.length());
+        testBadString("Sam\0B", 5);
+        testBadString("Sam\0\0B", 6);
+        testBadString("\0Sam\0B", 6);
+        testBadString("\0Sam\0B\0", 7);
+    }
+
+    private void testBadString(String badString, int expectedLength) {
+        assertEquals(expectedLength, badString.length());
         TestModel model = new TestModel().setFirstName(badString).setLastName("Bosley").setBirthday(testDate);
         dao.persist(model);
 
@@ -73,5 +84,6 @@ public class SqlUtilsTest extends DatabaseTestCase {
 
         model = dao.fetch(TestModel.class, model.getId());
         assertEquals("Sam", model.getFirstName());
+        dao.delete(TestModel.class, model.getId());
     }
 }
