@@ -12,12 +12,12 @@ import java.lang.annotation.Target;
  * This annotation can be used to declare that a generated model class should implement the listed interfaces. This
  * only affects the <code>implements X, Y, Z</code> declaration of the generated class--you will still have to ensure
  * that the generated class implements any required methods yourself using {@link ModelMethod}
- * <br><br>
+ * <p>
  * Interfaces with no type arguments can be specified with a Class object in the {@link #interfaceClasses()} field
  * of this annotation. Interfaces that do have type arguments can use {@link #interfaceDefinitions()} with instances of
  * {@link com.yahoo.squidb.annotations.Implements.InterfaceSpec} to declare an interface class along with its type
  * arguments. At this time, model objects do not support generics, so all type arguments must be concrete classes.
- * <br><br>
+ * <p>
  * Example:
  * <pre>
  *     &#064;TableModelSpec(className = "Person", tableName = "people")
