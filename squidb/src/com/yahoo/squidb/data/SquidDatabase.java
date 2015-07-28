@@ -85,7 +85,7 @@ public abstract class SquidDatabase {
     /**
      * @return the database name
      */
-    protected abstract String getName();
+    public abstract String getName();
 
     /**
      * @return the database version
