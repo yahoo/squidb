@@ -26,7 +26,7 @@ import java.util.Set;
  * automatically). If you want your UriNotifier instance to be notified of all database operations regardless of table,
  * use the no-argument constructor.
  * <p>
- * When an instance of UriNotifier is registered with a SquidDatabase, the dao will call {@link #addUrisToNotify(Set,
+ * When an instance of UriNotifier is registered with a SquidDatabase, the db will call {@link #addUrisToNotify(Set,
  * SqlTable, String, DBOperation, AbstractModel, long) addUrisToNotify} on the notifier whenever one of the
  * notifier's relevant tables was modified. Subclasses should override this method to construct a Uri to notify based
  * on the parameters passed to the method.
@@ -71,12 +71,12 @@ public abstract class UriNotifier {
     }
 
     /**
-     * By overriding this method, subclasses of UriNotifier can create Uris for the dao to notify when various kinds of
-     * database operations have completed successfully. Whenever a database change occurs, the dao will call this
-     * method on UriNotifiers registered to the relevant table. The UriNotifier should construct a Uri to notify
-     * based on the method parameters and add it to the set. Multiple Uris can be added if desired. A notification
-     * will then be sent to the Uris in the set via the {@link ContentResolver} when the current transaction
-     * completes successfully, or immediately if no transaction is ongoing.
+     * By overriding this method, subclasses of UriNotifier can create Uris for the database to notify when various
+     * kinds of database operations have completed successfully. Whenever a database change occurs, the database will
+     * call this method on UriNotifiers registered to the relevant table. The UriNotifier should construct a Uri to
+     * notify based on the method parameters and add it to the set. Multiple Uris can be added if desired. A
+     * notification will then be sent to the Uris in the set via the {@link ContentResolver} when the current
+     * transaction completes successfully, or immediately if no transaction is ongoing.
      * <p>
      * Most UriNotifiers will probably not need all these parameters. For example:
      *
@@ -94,7 +94,7 @@ public abstract class UriNotifier {
      * @param table the affected table.
      * @param databaseName the name of the database
      * @param operation the type of database write that occurred
-     * @param modelValues the model values that triggered this database update. This parameter may be null; the dao
+     * @param modelValues the model values that triggered this database update. This parameter may be null; the database
      * will provide it when possible, but it is not always present. If you only need a row id, check the rowId
      * parameter. This parameter will be null for delete operations, and will contain only the changed columns and
      * their new values for updates.

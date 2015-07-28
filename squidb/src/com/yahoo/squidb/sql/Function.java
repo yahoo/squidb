@@ -18,7 +18,7 @@ import java.util.List;
  * Function&lt;Long&gt; maxFunc = Function.max(Model.TIMESTAMP);
  * LongProperty maxTimestamp = LongProperty.fromFunction(maxFunc, "maxTimestamp");
  * Query query = Query.select(Model.TYPE, maxTimestamp).groupBy(Model.TYPE);
- * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * </pre>
  *
  * This allows the value to be read directly from the cursor using {@link SquidCursor#get(Property) get(Property)}, or

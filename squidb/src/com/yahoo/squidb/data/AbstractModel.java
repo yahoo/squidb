@@ -51,7 +51,7 @@ import java.util.Set;
  * MyDatabase db = ...
  * Model model = db.fetch(Model.class, id, Model.PROPERTIES);
  * // or
- * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * cursor.moveToFirst();
  * Model model = new Model(cursor);
  * </pre>

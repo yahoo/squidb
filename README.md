@@ -83,7 +83,7 @@ Query peopleWhoCanVote = Query.select().where(Person.BIRTHDAY.lt(ageCutoff));
 
 // This becomes select * from people where people.birthday < ?
 // where ? is the age cutoff arg
-SquidCursor<Person> voters = dao.query(Person.class, peopleWhoCanVote);
+SquidCursor<Person> voters = db.query(Person.class, peopleWhoCanVote);
 ```
 
 The example is simple, but SquiDB's query object supports almost the entire SQL grammar. It is much cleaner and easier to maintain, particularly for complex queries:
@@ -118,15 +118,15 @@ public Query queryForPeopleWithName(String name, boolean includeLastName) {
 SquidDatabase can return either single rows of data represented by model objects, or a SquidCursor parametrized by a model type:
 ```java
 // Fetch the person with _id = 1
-Person person1 = dao.fetch(Person.class, 1);
+Person person1 = db.fetch(Person.class, 1);
 
 // Cursor containing all rows in the people table
-SquidCursor<Person> personCursor = dao.query(Person.class, Query.select());
+SquidCursor<Person> personCursor = db.query(Person.class, Query.select());
 ```
 
 Model objects are designed to be reusable, so iterating through the cursor and inflating model objects to work with is cheap if you don't need the row data to live outside of the loop:
 ```java
-SquidCursor<Person> personCursor = dao.query(Person.class, Query.select());
+SquidCursor<Person> personCursor = db.query(Person.class, Query.select());
 try {
     Person person = new Person();
     while (personCursor.moveToNext()) {

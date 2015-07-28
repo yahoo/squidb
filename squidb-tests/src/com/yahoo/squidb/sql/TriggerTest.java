@@ -109,7 +109,7 @@ public class TriggerTest extends DatabaseTestCase {
         // create trigger
         database.tryExecSql(compiledTrigger.sql, compiledTrigger.sqlArgs);
 
-        // update test1 with dao
+        // update test1 with db
         test1.setValue1(terminalValue);
         assertTrue(database.persist(test1));
 
@@ -152,7 +152,7 @@ public class TriggerTest extends DatabaseTestCase {
         // create trigger
         database.tryExecSql(compiledTrigger.sql, compiledTrigger.sqlArgs);
 
-        // update test1 with dao
+        // update test1 with db
         test1.setValue1(terminalValue);
         assertTrue(database.persist(test1));
 

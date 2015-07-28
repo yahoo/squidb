@@ -48,9 +48,9 @@ public class DatabaseTestCase extends SquidTestCase {
     }
 
     /**
-     * Called during {@link #setUp()} to initialize the database and DAO. The base implementation creates a new
-     * {@link TestDatabase}. Subclasses that want to insert test data should
-     * override and call super, then perform its operations.
+     * Called during {@link #setUp()} to initialize the database. The base implementation creates a new
+     * {@link TestDatabase}. Subclasses that want to insert test data should override and call super, then perform its
+     * operations.
      */
     protected void setupDatabase() {
         database = new TestDatabase(getContext());

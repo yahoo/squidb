@@ -754,7 +754,7 @@ public class QueryTest extends DatabaseTestCase {
         assertEquals(base.getTable(), fork.getTable());
     }
 
-    public void testFrozenQueryWorksWithDao() {
+    public void testFrozenQueryWorksWithDatabase() {
         Query query = Query.select().limit(2).freeze();
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
