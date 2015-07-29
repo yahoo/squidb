@@ -99,7 +99,38 @@ public class SqlUtils {
      */
     private static String sanitizeStringAsLiteral(String literal) {
         String sanitizedLiteral = literal.replace("'", "''");
-        return "'" + sanitizedLiteral + "'";
+        int nullIndex = sanitizedLiteral.indexOf('\0');
+        if (nullIndex >= 0) {
+            StringBuilder builder = new StringBuilder();
+            int start = 0;
+            while (nullIndex >= 0) {
+                String substr = sanitizedLiteral.substring(start, nullIndex);
+                if (substr.length() > 0) { // Append sanitized component before the null
+                    builder.append("'").append(substr).append("' || ");
+                }
+                builder.append("CAST(x'00");
+                while (nullIndex + 1 < sanitizedLiteral.length() &&
+                        sanitizedLiteral.charAt(nullIndex + 1) == '\0') { // If there are many adjacent nulls, combine
+                    builder.append("00");
+                    nullIndex++;
+                }
+                builder.append("' AS TEXT)"); // Close the cast
+                start = nullIndex + 1;
+                if (start < sanitizedLiteral.length()) { // If there's more left, continue concatenating
+                    builder.append(" || ");
+                }
+                nullIndex = sanitizedLiteral.indexOf('\0', start);
+            }
+            if (start < sanitizedLiteral.length()) { // Append final sanitized component
+                String substr = sanitizedLiteral.substring(start);
+                if (substr.length() > 0) {
+                    builder.append("'").append(substr).append("'");
+                }
+            }
+            return builder.toString();
+        } else {
+            return "'" + sanitizedLiteral + "'";
+        }
     }
 
     private static String sanitizeObject(Object value) {
