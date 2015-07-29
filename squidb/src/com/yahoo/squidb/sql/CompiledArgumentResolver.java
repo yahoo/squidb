@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -98,6 +100,10 @@ class CompiledArgumentResolver {
             String resultSql = result.toString();
             if (!largeArgMode) {
                 compiledSqlCache.put(cacheKey, resultSql);
+            } else {
+                Log.w("squidb", "The SQL statement \"" + resultSql.substring(0, Math.min(200, resultSql.length()))
+                        + " ...\" had too many arguments to bind, so arguments were inlined into the SQL instead."
+                        + " Consider revising your statement to have fewer arguments.");
             }
             return resultSql;
         } else {
