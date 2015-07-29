@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,15 +65,22 @@ public class Insert extends TableStatement {
 
     /**
      * Specify a set of values to insert. The number of values must equal the number of columns specified and the order
-     * must match the order of the columns. You can call this method multiple times to insert multiple rows.
+     * must match the order of the columns.
+     * <p>
+     * On Android JellyBean (API 16) and later, you can call this method multiple times to insert multiple rows.
+     * Otherwise, calling this method more than once will throw an exception.
      *
      * @param values the values to insert
      * @return this Insert object, to allow chaining method calls
+     * @throws UnsupportedOperationException if called multiple times on Android versions lower than 16 (JellyBean)
      */
     public Insert values(Object... values) {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN && !valuesToInsert.isEmpty()) {
+            throw new UnsupportedOperationException("Can't insert with multiple sets of values below API 16");
+        }
+        valuesToInsert.add(Arrays.asList(values));
         query = null;
         defaultValues = false;
-        valuesToInsert.add(Arrays.asList(values));
         invalidateCompileCache();
         return this;
     }
