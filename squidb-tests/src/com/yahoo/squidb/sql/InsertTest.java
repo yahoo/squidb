@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.text.format.DateUtils;
 
 import com.yahoo.squidb.data.SquidCursor;
@@ -69,6 +71,49 @@ public class InsertTest extends DatabaseTestCase {
         assertNotNull(shouldNotBeNull);
         assertEquals(fname, shouldNotBeNull.getFirstName());
         assertEquals(lname, shouldNotBeNull.getLastName());
+    }
+
+    public void testInsertMultipleValues() {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
+            // see testInsertMultipleValuesPreJellybeanThrowsException
+            return;
+        }
+
+        final String fname1 = "Alan";
+        final String lname1 = "Turing";
+        final String fname2 = "Linus";
+        final String lname2 = "Torvalds";
+        Insert insert = Insert.into(TestModel.TABLE)
+                .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                .values(fname1, lname1)
+                .values(fname2, lname2);
+
+        CompiledStatement compiled = insert.compile();
+        verifyCompiledSqlArgs(compiled, 4, fname1, lname1, fname2, lname2);
+
+        assertEquals(3, dao.insert(insert));
+
+        Criterion where = TestModel.FIRST_NAME.eq(fname1).and(TestModel.LAST_NAME.eq(lname1));
+        assertNotNull(dao.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+        where = TestModel.FIRST_NAME.eq(fname2).and(TestModel.LAST_NAME.eq(lname2));
+        assertNotNull(dao.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+    }
+
+    public void testInsertMultipleValuesPreJellybeanThrowsException() {
+        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+            // see testInsertMultipleValues
+            return;
+        }
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Insert insert = Insert.into(TestModel.TABLE)
+                        .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                        .values("Alan", "Turing")
+                        .values("Linus", "Torvalds");
+                dao.insert(insert);
+            }
+        }, UnsupportedOperationException.class);
     }
 
     public void testInsertWithQuery() {
@@ -218,6 +263,10 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testSetsOfValuesOfUnequalSizeThrowsIllegalStateException() {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
+            // see testInsertMultipleValuesPreJellybeanThrowsException
+            return;
+        }
         testThrowsException(new Runnable() {
 
             @Override
