@@ -1,7 +1,7 @@
 language: android
 env:
-    - ANDROID_TARGET=android-15
-    - ANDROID_TARGET=android-19
+  - ANDROID_TARGET=android-15 ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-19 ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
 android:
   components:
     - build-tools-22.0.1
