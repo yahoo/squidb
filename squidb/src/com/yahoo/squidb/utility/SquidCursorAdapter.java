@@ -49,10 +49,11 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
             TableModel.DEFAULT_ID_COLUMN, null);
 
     /**
-     * Equivalent to SquidCursorAdapter(context, model, null). Should be used for TableModel cursors where the _id
-     * column is present.
+     * Constructs a SquidCursorAdapter that will use the model class's default id property to implement
+     * {@link #getItemId(int)}.
      *
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
+     * @see #SquidCursorAdapter(Context, AbstractModel, Property)
      */
     public SquidCursorAdapter(Context context, T model) {
         this(context, model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : ID_PROPERTY);
