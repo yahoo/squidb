@@ -354,28 +354,6 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
-    public void testReusableQueryWithAtomicBoolean() {
-        AtomicBoolean bool = new AtomicBoolean(false);
-        Query query = Query.select().where(Employee.IS_HAPPY.eq(bool));
-
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
-        try {
-            assertEquals(1, cursor.getCount());
-            cursor.moveToFirst();
-            assertEquals(oscar.getId(), cursor.get(Employee.ID).longValue());
-        } finally {
-            cursor.close();
-        }
-
-        bool.set(true);
-        cursor = dao.query(Employee.class, query);
-        try {
-            assertEquals(5, cursor.getCount());
-        } finally {
-            cursor.close();
-        }
-    }
-
     public void testAtomicIntegers() {
         AtomicInteger id = new AtomicInteger(1);
         Query query = Query.select(Employee.ID).where(Employee.ID.eq(id));
