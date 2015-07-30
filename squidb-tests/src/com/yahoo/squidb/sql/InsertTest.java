@@ -91,12 +91,12 @@ public class InsertTest extends DatabaseTestCase {
         CompiledStatement compiled = insert.compile();
         verifyCompiledSqlArgs(compiled, 4, fname1, lname1, fname2, lname2);
 
-        assertEquals(3, dao.insert(insert));
+        assertEquals(3, database.insert(insert));
 
         Criterion where = TestModel.FIRST_NAME.eq(fname1).and(TestModel.LAST_NAME.eq(lname1));
-        assertNotNull(dao.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+        assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
         where = TestModel.FIRST_NAME.eq(fname2).and(TestModel.LAST_NAME.eq(lname2));
-        assertNotNull(dao.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+        assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
     }
 
     public void testInsertMultipleValuesPreJellybeanThrowsException() {
@@ -111,7 +111,7 @@ public class InsertTest extends DatabaseTestCase {
                         .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                         .values("Alan", "Turing")
                         .values("Linus", "Torvalds");
-                dao.insert(insert);
+                database.insert(insert);
             }
         }, UnsupportedOperationException.class);
     }
