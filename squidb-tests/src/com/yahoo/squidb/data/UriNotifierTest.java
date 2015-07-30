@@ -4,7 +4,7 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.text.format.DateUtils;
 
-import com.yahoo.squidb.data.UriNotifier.DBOperation;
+import com.yahoo.squidb.data.DataChangedNotifier.DBOperation;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.SqlTable;
@@ -29,9 +29,10 @@ public class UriNotifierTest extends DatabaseTestCase {
         }
 
         @Override
-        public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
-                AbstractModel modelValues, long rowId) {
-            uris.add(TestModel.CONTENT_URI);
+        protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+            accumulatorSet.add(TestModel.CONTENT_URI);
+            return true;
         }
     }
 
@@ -40,7 +41,7 @@ public class UriNotifierTest extends DatabaseTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        database.unregisterAllUriNotifiers();
+        database.unregisterAllDataChangedNotifiers();
         for (ContentObserver observer : observers) {
             getContext().getContentResolver().unregisterContentObserver(observer);
         }
@@ -65,20 +66,21 @@ public class UriNotifierTest extends DatabaseTestCase {
 
         UriNotifier notifier = new TestUriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
-                    AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 wasCalled.set(true);
-                super.addUrisToNotify(uris, table, databaseName, operation, modelValues, rowId);
+                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
+                        modelValues, rowId);
             }
 
         };
-        database.registerUriNotifier(notifier);
+        database.registerDataChangedNotifier(notifier);
 
         TestModel t1 = insertBasicTestModel();
         assertTrue(wasCalled.get());
 
         wasCalled.set(false);
-        database.unregisterUriNotifier(notifier);
+        database.unregisterDataChangedNotifier(notifier);
         database.delete(TestModel.class, t1.getId());
         assertFalse(wasCalled.get());
     }
@@ -87,7 +89,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean notified = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
-        database.registerUriNotifier(new TestUriNotifier());
+        database.registerDataChangedNotifier(new TestUriNotifier());
         insertBasicTestModel();
         waitForResolver();
         assertTrue(notified.get());
@@ -188,18 +190,19 @@ public class UriNotifierTest extends DatabaseTestCase {
             final AbstractModel expectedModel, final long expectedRowId) {
         UriNotifier notifier = new TestUriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
-                    AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 assertEquals(expectedTable, table);
                 assertEquals(expectedOp, operation);
                 assertEquals(expectedModel, modelValues);
                 assertEquals(expectedRowId, rowId);
-                super.addUrisToNotify(uris, table, databaseName, operation, modelValues, rowId);
+                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
+                        modelValues, rowId);
             }
         };
-        database.registerUriNotifier(notifier);
+        database.registerDataChangedNotifier(notifier);
         execute.run();
-        database.unregisterUriNotifier(notifier);
+        database.unregisterDataChangedNotifier(notifier);
     }
 
     public void testMultipleNotifiersCanBeRegistered() {
@@ -207,23 +210,25 @@ public class UriNotifierTest extends DatabaseTestCase {
         final AtomicBoolean n2Called = new AtomicBoolean(false);
         UriNotifier n1 = new TestUriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
-                    AbstractModel modelValues, long rowId) {
-                super.addUrisToNotify(uris, table, databaseName, operation, modelValues, rowId);
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 n1Called.set(true);
+                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
+                        modelValues, rowId);
             }
         };
         UriNotifier n2 = new TestUriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName, DBOperation operation,
-                    AbstractModel modelValues, long rowId) {
-                super.addUrisToNotify(uris, table, databaseName, operation, modelValues, rowId);
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 n2Called.set(true);
+                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
+                        modelValues, rowId);
             }
         };
 
-        database.registerUriNotifier(n1);
-        database.registerUriNotifier(n2);
+        database.registerDataChangedNotifier(n1);
+        database.registerDataChangedNotifier(n2);
 
         insertBasicTestModel();
         waitForResolver();
@@ -235,14 +240,15 @@ public class UriNotifierTest extends DatabaseTestCase {
         final Set<SqlTable<?>> calledForTables = new HashSet<SqlTable<?>>();
         UriNotifier globalNotifier = new UriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName,
-                    DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 calledForTables.add(table);
-                uris.add(Uri.parse("content://com.yahoo.squidb/"));
+                accumulatorSet.add(Uri.parse("content://com.yahoo.squidb/"));
+                return true;
             }
         };
 
-        database.registerUriNotifier(globalNotifier);
+        database.registerDataChangedNotifier(globalNotifier);
 
         insertBasicTestModel();
         database.persist(new Employee().setName("Elmo"));
@@ -254,20 +260,20 @@ public class UriNotifierTest extends DatabaseTestCase {
 
     public void testEnableAndDisableNotifications() {
         UriNotifier notifier = new TestUriNotifier();
-        database.registerUriNotifier(notifier);
+        database.registerDataChangedNotifier(notifier);
         AtomicBoolean notifiedUri = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
         database.beginTransaction();
         try {
-            database.disableUriNotifications();
+            database.setDataChangedNotificationsEnabled(false);
 
             insertBasicTestModel("Tech Sergeant", "Chen", System.currentTimeMillis() - 1);
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
             assertFalse(notifiedUri.get());
-            database.enableUriNotifications();
+            database.setDataChangedNotificationsEnabled(true);
             assertFalse(notifiedUri.get());
         }
 
@@ -296,17 +302,18 @@ public class UriNotifierTest extends DatabaseTestCase {
             boolean nestedSuccessful) {
         UriNotifier idNotifier = new TestUriNotifier() {
             @Override
-            public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName,
-                    DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 Uri uri = TestModel.CONTENT_URI;
                 if (rowId > 0) {
                     uri = uri.buildUpon().appendPath(Long.toString(rowId)).build();
                 }
-                uris.add(uri);
+                accumulatorSet.add(uri);
+                return true;
             }
         };
 
-        database.registerUriNotifier(idNotifier);
+        database.registerDataChangedNotifier(idNotifier);
 
         AtomicBoolean uri1 = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "1"), false);
         AtomicBoolean uri2 = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "2"), false);
