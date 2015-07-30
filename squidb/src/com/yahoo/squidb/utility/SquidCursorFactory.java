@@ -16,6 +16,8 @@ import android.database.sqlite.SQLiteProgram;
 import android.database.sqlite.SQLiteQuery;
 import android.os.Build;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
  * {@link com.yahoo.squidb.data.AbstractDatabase AbstractDatabase} documentation notes why this is important.
@@ -50,6 +52,9 @@ public class SquidCursorFactory implements CursorFactory {
         }
         for (int i = 1; i <= sqlArgs.length; i++) {
             Object arg = sqlArgs[i - 1];
+            if (arg instanceof AtomicBoolean) { // Not a subclass of Number so DatabaseUtils won't handle it
+                arg = ((AtomicBoolean) arg).get() ? 1 : 0;
+            }
             DatabaseUtils.bindObjectToProgram(program, i, arg);
         }
     }
