@@ -174,12 +174,7 @@ class CompiledArgumentResolver {
                     }
                 }
             } else {
-                if (arg instanceof AtomicBoolean) { // Not a subclass of number so needs special handling
-                    foundReferenceArgument = true;
-                    compiledArgs[i] = ((AtomicBoolean) arg).get() ? 1 : 0;
-                } else {
-                    compiledArgs[i] = arg;
-                }
+                compiledArgs[i] = arg;
                 i++;
             }
         }
