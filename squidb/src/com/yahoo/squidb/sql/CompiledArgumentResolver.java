@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,12 +21,9 @@ class CompiledArgumentResolver {
             Pattern.compile(SqlStatement.REPLACEABLE_ARRAY_PARAMETER_REGEX);
 
     private final String compiledSql;
-    private final List<Object> argsOrReferences;
+    private final List<Object> sqlArgs;
 
-    private final boolean hasCollectionArgs;
-
-    private boolean hasImmutableArgs = false;
-    private List<Collection<?>> collectionArgs = new ArrayList<Collection<?>>();
+    private List<Collection<?>> collectionArgs;
 
     private static final int CACHE_SIZE = 5;
     private SimpleLruCache<String, String> compiledSqlCache;
@@ -36,19 +31,23 @@ class CompiledArgumentResolver {
 
     private Object[] compiledArgs = null;
 
-    public CompiledArgumentResolver(String compiledSql, List<Object> argsOrReferences) {
+    public CompiledArgumentResolver(String compiledSql, List<Object> sqlArgs) {
         this.compiledSql = compiledSql;
-        this.argsOrReferences = argsOrReferences;
-        this.hasCollectionArgs = compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
-        if (hasCollectionArgs) {
+        this.sqlArgs = sqlArgs;
+        if (compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER)) {
+            collectionArgs = new ArrayList<Collection<?>>();
             findCollectionArgs();
             compiledSqlCache = new SimpleLruCache<String, String>(CACHE_SIZE);
             argArrayCache = new SimpleLruCache<String, Object[]>(CACHE_SIZE);
         }
     }
 
+    private boolean hasCollectionArgs() {
+        return collectionArgs != null;
+    }
+
     private void findCollectionArgs() {
-        for (Object arg : argsOrReferences) {
+        for (Object arg : sqlArgs) {
             if (arg instanceof Collection<?>) {
                 collectionArgs.add((Collection<?>) arg);
             }
@@ -56,7 +55,7 @@ class CompiledArgumentResolver {
     }
 
     public CompiledStatement resolveToCompiledStatement() {
-        String cacheKey = hasCollectionArgs ? getCacheKey() : null;
+        String cacheKey = hasCollectionArgs() ? getCacheKey() : null;
         int totalArgSize = calculateArgsSizeWithCollectionArgs();
         boolean largeArgMode = totalArgSize > SqlStatement.MAX_VARIABLE_NUMBER;
         return new CompiledStatement(resolveSqlString(cacheKey, largeArgMode),
@@ -65,14 +64,16 @@ class CompiledArgumentResolver {
 
     private String getCacheKey() {
         StringBuilder cacheKey = new StringBuilder();
-        for (Collection<?> collection : collectionArgs) {
-            cacheKey.append(collection.size()).append(":");
+        if (hasCollectionArgs()) {
+            for (Collection<?> collection : collectionArgs) {
+                cacheKey.append(collection.size()).append(":");
+            }
         }
         return cacheKey.toString();
     }
 
     private String resolveSqlString(String cacheKey, boolean largeArgMode) {
-        if (hasCollectionArgs) {
+        if (hasCollectionArgs()) {
             if (!largeArgMode) {
                 String cachedResult = compiledSqlCache.get(cacheKey);
                 if (cachedResult != null) {
@@ -121,64 +122,55 @@ class CompiledArgumentResolver {
     }
 
     private Object[] resolveSqlArguments(String cacheKey, int totalArgSize, boolean largeArgMode) {
-        if (!hasImmutableArgs) {
-            if (hasCollectionArgs) {
-                Object[] cachedResult = argArrayCache.get(cacheKey);
-                if (cachedResult == null) {
-                    int size = largeArgMode ? calculateArgsSizeWithoutCollectionArgs() : totalArgSize;
-                    if (compiledArgs == null || compiledArgs.length != size) {
-                        cachedResult = new Object[size];
-                    } else {
-                        cachedResult = compiledArgs;
-                    }
-                    argArrayCache.put(cacheKey, cachedResult);
+        if (hasCollectionArgs()) {
+            Object[] cachedResult = argArrayCache.get(cacheKey);
+            if (cachedResult == null) {
+                int size = largeArgMode ? calculateArgsSizeWithoutCollectionArgs() : totalArgSize;
+                if (compiledArgs == null || compiledArgs.length != size) {
+                    cachedResult = new Object[size];
+                } else {
+                    cachedResult = compiledArgs;
                 }
-                compiledArgs = cachedResult;
-            } else {
-                if (compiledArgs == null) {
-                    compiledArgs = new Object[argsOrReferences.size()];
-                }
+                argArrayCache.put(cacheKey, cachedResult);
             }
+            compiledArgs = cachedResult;
             populateCompiledArgs(largeArgMode);
+        } else {
+            if (compiledArgs == null) {
+                compiledArgs = sqlArgs.toArray(new Object[sqlArgs.size()]);
+            }
         }
         return compiledArgs;
     }
 
     private int calculateArgsSizeWithCollectionArgs() {
-        int startSize = argsOrReferences.size();
-        for (Collection<?> collection : collectionArgs) {
-            startSize += (collection.size() - 1);
+        int startSize = sqlArgs.size();
+        if (hasCollectionArgs()) {
+            for (Collection<?> collection : collectionArgs) {
+                startSize += (collection.size() - 1);
+            }
         }
         return startSize;
     }
 
     private int calculateArgsSizeWithoutCollectionArgs() {
-        return argsOrReferences.size() - collectionArgs.size();
+        return sqlArgs.size() - (hasCollectionArgs() ? collectionArgs.size() : 0);
     }
 
     private void populateCompiledArgs(boolean largeArgMode) {
-        boolean foundReferenceArgument = false;
         int i = 0;
-        for (Object arg : argsOrReferences) {
-            if (arg instanceof AtomicReference<?>) {
-                foundReferenceArgument = true;
-                compiledArgs[i] = ((AtomicReference<?>) arg).get();
-                i++;
-            } else if (arg instanceof Collection<?>) {
-                foundReferenceArgument = true;
+        for (Object arg : sqlArgs) {
+            if (arg instanceof Collection<?>) {
                 if (!largeArgMode) {
                     Collection<?> values = (Collection<?>) arg;
                     for (Object obj : values) {
-                        compiledArgs[i] = obj;
-                        i++;
+                        compiledArgs[i++] = obj;
                     }
                 }
             } else {
-                compiledArgs[i] = arg;
-                i++;
+                compiledArgs[i++] = arg;
             }
         }
-        hasImmutableArgs = !foundReferenceArgument;
     }
 
     @SuppressWarnings("serial")
