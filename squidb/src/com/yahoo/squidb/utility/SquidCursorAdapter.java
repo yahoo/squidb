@@ -31,7 +31,7 @@ import com.yahoo.squidb.sql.SqlTable;
  * using {@link AbstractModel#readPropertiesFromCursor(SquidCursor) readPropertiesFromCursor}, or read values from the
  * backing cursor directly.
  *
- * By default, {@link #hasStableIds()} returns false. You should override it to return true if your adapter will have
+ * By default, {@link #hasStableIds()} returns true. You should override it to return true if your adapter will not have
  * stable ids.
  *
  * @param <T> the model type of the SquidCursor backing this adapter
@@ -141,6 +141,11 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
             return cursor.get(columnForId);
         }
         return 0;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
     }
 
     /**
