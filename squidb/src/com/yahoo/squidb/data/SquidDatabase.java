@@ -1046,11 +1046,7 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     protected boolean tryDropTable(Table table) {
-        return tryDropTable(table.getExpression());
-    }
-
-    private boolean tryDropTable(String tableName) {
-        return tryExecSql("DROP TABLE IF EXISTS " + tableName);
+        return tryExecSql("DROP TABLE IF EXISTS " + table.getExpression());
     }
 
     /**
@@ -1503,7 +1499,8 @@ public abstract class SquidDatabase {
      * @return the number of updated rows
      * @see #update(Criterion, TableModel)
      */
-    public int updateWithOnConflict(Criterion where, TableModel template, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    public int updateWithOnConflict(Criterion where, TableModel template,
+            TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = template.getClass();
         Table table = getTable(modelClass);
         Update update = Update.table(table).fromTemplate(template);
@@ -1850,8 +1847,8 @@ public abstract class SquidDatabase {
         }
     }
 
-    private void accumulateUrisToNotify(List<UriNotifier> notifiers, Set<Uri> accumulatorSet, UriNotifier.DBOperation op,
-            AbstractModel modelValues, SqlTable<?> table, long rowId) {
+    private void accumulateUrisToNotify(List<UriNotifier> notifiers, Set<Uri> accumulatorSet,
+            UriNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table, long rowId) {
         if (notifiers != null) {
             for (UriNotifier notifier : notifiers) {
                 notifier.addUrisToNotify(accumulatorSet, table, getName(), op, modelValues, rowId);
