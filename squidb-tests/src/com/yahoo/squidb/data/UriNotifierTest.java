@@ -31,8 +31,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         @Override
         protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                 SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-            accumulatorSet.add(TestModel.CONTENT_URI);
-            return true;
+            return accumulatorSet.add(TestModel.CONTENT_URI);
         }
     }
 
@@ -243,8 +242,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 calledForTables.add(table);
-                accumulatorSet.add(Uri.parse("content://com.yahoo.squidb/"));
-                return true;
+                return accumulatorSet.add(Uri.parse("content://com.yahoo.squidb/"));
             }
         };
 
@@ -308,8 +306,7 @@ public class UriNotifierTest extends DatabaseTestCase {
                 if (rowId > 0) {
                     uri = uri.buildUpon().appendPath(Long.toString(rowId)).build();
                 }
-                accumulatorSet.add(uri);
-                return true;
+                return accumulatorSet.add(uri);
             }
         };
 
