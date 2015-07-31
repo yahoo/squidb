@@ -127,9 +127,9 @@ public abstract class DataChangedNotifier<T> {
 
     // Called by SquidDatabase when a transaction or statement has finished and any accumulated notifications should be
     // flushed/sent
-    final void flushAccumulatedNotifications(SquidDatabase database, boolean transactionSuccess) {
+    final void flushAccumulatedNotifications(SquidDatabase database, boolean shouldSendNotifications) {
         Set<T> accumulatedNotifications = notifyObjectAccumulator.get();
-        if (!enabled || !transactionSuccess) {
+        if (!enabled || !shouldSendNotifications) {
             accumulatedNotifications.clear();
             return;
         }

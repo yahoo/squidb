@@ -1857,10 +1857,8 @@ public abstract class SquidDatabase {
     private void flushAccumulatedNotifications(boolean transactionSuccess) {
         Set<DataChangedNotifier<?>> accumulatedNotifiers = notifierAccumulator.get();
         if (!accumulatedNotifiers.isEmpty()) {
-            if (transactionSuccess && dataChangedNotificationsEnabled) {
-                for (DataChangedNotifier<?> notifier : accumulatedNotifiers) {
-                    notifier.flushAccumulatedNotifications(this, transactionSuccess);
-                }
+            for (DataChangedNotifier<?> notifier : accumulatedNotifiers) {
+                notifier.flushAccumulatedNotifications(this, transactionSuccess && dataChangedNotificationsEnabled);
             }
             accumulatedNotifiers.clear();
         }
