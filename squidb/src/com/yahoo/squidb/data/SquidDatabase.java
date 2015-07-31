@@ -1742,7 +1742,7 @@ public abstract class SquidDatabase {
         }
     }
 
-    // --- Uri notification
+    // --- Data change notifications
 
     private final Object notifiersLock = new Object();
     private boolean dataChangedNotificationsEnabled = true;
