@@ -553,7 +553,7 @@ public abstract class SquidDatabase {
         }
     }
 
-    // For use only whenvalidating queries
+    // For use only when validating queries
     private void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
