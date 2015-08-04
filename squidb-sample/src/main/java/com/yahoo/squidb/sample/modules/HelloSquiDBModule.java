@@ -48,7 +48,7 @@ public class HelloSquiDBModule {
         database.registerUriNotifier(new UriNotifier(Task.TABLE, Tag.TABLE) {
             @Override
             public void addUrisToNotify(Set<Uri> uris, SqlTable<?> table, String databaseName,
-                                        DBOperation operation, AbstractModel modelValues, long rowId) {
+                    DBOperation operation, AbstractModel modelValues, long rowId) {
                 uris.add(Task.CONTENT_URI);
             }
         });
