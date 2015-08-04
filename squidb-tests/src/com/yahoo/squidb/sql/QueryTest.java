@@ -1012,4 +1012,23 @@ public class QueryTest extends DatabaseTestCase {
         assertEquals(6, dao.count(Employee.class, f));
         assertEquals(0, dao.count(Employee.class, f.negate()));
     }
+
+    public void testQueryAsFunction() {
+        Table qualifiedTable = Employee.TABLE.as("e1");
+        Query subquery = Query.select(Function.add(qualifiedTable.qualifyField(Employee.ID), 1))
+                .from(qualifiedTable).where(Employee.ID.eq(qualifiedTable.qualifyField(Employee.ID)));
+        Function<Long> fromQuery = subquery.asFunction();
+        LongProperty idPlus1 = LongProperty.fromFunction(fromQuery, "idPlus1");
+        Query baseQuery = Query.select(Employee.ID, idPlus1);
+
+        SquidCursor<Employee> cursor = dao.query(Employee.class, baseQuery);
+        try {
+            assertEquals(dao.count(Employee.class, Criterion.all), cursor.getCount());
+            while (cursor.moveToNext()) {
+                assertEquals(cursor.get(Employee.ID) + 1, cursor.get(idPlus1).longValue());
+            }
+        } finally {
+            cursor.close();
+        }
+    }
 }
