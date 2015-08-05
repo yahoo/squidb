@@ -100,4 +100,20 @@ public class ProjectionMapTest extends SquidTestCase {
         List<Field<?>> fields = map.getDefaultProjection();
         assertTrue(fields.equals(columns));
     }
+
+    public void testConstructFromMap() {
+        ProjectionMap base = new ProjectionMap();
+        base.put(TestModel.FIRST_NAME);
+        base.put(TestModel.LAST_NAME);
+        base.put("blah");
+
+        ProjectionMap copy = new ProjectionMap(base);
+        copy.put("blah2");
+
+        assertEquals(TestModel.FIRST_NAME, copy.get(TestModel.FIRST_NAME.getName()));
+        assertEquals(TestModel.LAST_NAME, copy.get(TestModel.LAST_NAME.getName()));
+        assertNotNull(copy.get("blah"));
+        assertNotNull(copy.get("blah2"));
+        assertNull(base.get("blah2"));
+    }
 }

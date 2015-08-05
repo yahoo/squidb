@@ -22,8 +22,19 @@ public class ProjectionMap {
 
     private Map<String, Field<?>> map;
 
+    /**
+     * Construct an empty ProjectionMap
+     */
     public ProjectionMap() {
         map = new LinkedHashMap<String, Field<?>>();
+    }
+
+    /**
+     * Construct a ProjectionMap that is a copy of another.
+     * @param other the other ProjectionMap to copy
+     */
+    public ProjectionMap(ProjectionMap other) {
+        map = new LinkedHashMap<String, Field<?>>(other.map);
     }
 
     /**

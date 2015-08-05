@@ -78,6 +78,14 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
+     * Create a Function representing the result of a subquery. Note: the query must have exactly one column in its
+     * result set (i.e. one field in the SELECT clause) for this to be valid SQL.
+     */
+    public static <T> Function<T> fromQuery(Query query) {
+        return new QueryFunction<T>(query);
+    }
+
+    /**
      * Create a Function that transforms all ASCII characters of an input string to uppercase
      */
     public static Function<String> upper(Field<String> field) {
