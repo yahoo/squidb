@@ -1021,9 +1021,9 @@ public class QueryTest extends DatabaseTestCase {
         LongProperty idPlus1 = LongProperty.fromFunction(fromQuery, "idPlus1");
         Query baseQuery = Query.select(Employee.ID, idPlus1);
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, baseQuery);
+        SquidCursor<Employee> cursor = database.query(Employee.class, baseQuery);
         try {
-            assertEquals(dao.count(Employee.class, Criterion.all), cursor.getCount());
+            assertEquals(database.count(Employee.class, Criterion.all), cursor.getCount());
             while (cursor.moveToNext()) {
                 assertEquals(cursor.get(Employee.ID) + 1, cursor.get(idPlus1).longValue());
             }
