@@ -10,8 +10,6 @@ import android.text.TextUtils;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 
-import java.util.List;
-
 /**
  * Property represents a typed column in a database.
  * <p>
@@ -79,11 +77,11 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     }
 
     @Override
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
         if (function != null) {
-            function.appendQualifiedExpression(sql, selectionArgsBuilder);
+            function.appendToSqlBuilder(builder, forSqlValidation);
         } else {
-            super.appendQualifiedExpression(sql, selectionArgsBuilder);
+            super.appendQualifiedExpression(builder, forSqlValidation);
         }
     }
 

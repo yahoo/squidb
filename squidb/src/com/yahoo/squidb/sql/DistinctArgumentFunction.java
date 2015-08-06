@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class DistinctArgumentFunction<TYPE> extends ArgumentFunction<TYPE> {
 
     /**
@@ -17,8 +15,8 @@ class DistinctArgumentFunction<TYPE> extends ArgumentFunction<TYPE> {
     }
 
     @Override
-    protected void appendArgumentList(StringBuilder sql, List<Object> selectionArgsBuilder, Object[] arguments) {
-        sql.append("DISTINCT ");
-        super.appendArgumentList(sql, selectionArgsBuilder, arguments);
+    protected void appendArgumentList(SqlBuilder builder, Object[] arguments, boolean forSqlValidation) {
+        builder.sql.append("DISTINCT ");
+        super.appendArgumentList(builder, arguments, forSqlValidation);
     }
 }

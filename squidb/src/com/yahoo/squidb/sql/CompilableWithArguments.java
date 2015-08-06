@@ -1,10 +1,11 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 abstract class CompilableWithArguments {
-
-    protected static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
     @Override
     public String toString() {
@@ -12,15 +13,15 @@ abstract class CompilableWithArguments {
     }
 
     public final String toRawSql() {
-        return toStringWithSelectionArgs(null);
+        return buildSql(false, false).getSqlString();
     }
 
-    protected final String toStringWithSelectionArgs(List<Object> args) {
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        appendCompiledStringWithArguments(sql, args);
-        return sql.toString();
+    protected final SqlBuilder buildSql(boolean withBoundArguments, boolean forSqlValidation) {
+        SqlBuilder builder = new SqlBuilder(withBoundArguments);
+        appendToSqlBuilder(builder, forSqlValidation);
+        return builder;
     }
 
-    abstract void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder);
+    abstract void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation);
 
 }

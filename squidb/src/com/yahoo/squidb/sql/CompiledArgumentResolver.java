@@ -22,6 +22,7 @@ class CompiledArgumentResolver {
 
     private final String compiledSql;
     private final List<Object> sqlArgs;
+    private final boolean needsValidation;
 
     private List<Collection<?>> collectionArgs;
 
@@ -31,9 +32,10 @@ class CompiledArgumentResolver {
 
     private Object[] compiledArgs = null;
 
-    public CompiledArgumentResolver(String compiledSql, List<Object> sqlArgs) {
-        this.compiledSql = compiledSql;
-        this.sqlArgs = sqlArgs;
+    public CompiledArgumentResolver(SqlBuilder builder) {
+        this.compiledSql = builder.getSqlString();
+        this.sqlArgs = builder.getBoundArguments();
+        this.needsValidation = builder.needsValidation();
         if (compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER)) {
             collectionArgs = new ArrayList<Collection<?>>();
             findCollectionArgs();
@@ -59,7 +61,7 @@ class CompiledArgumentResolver {
         int totalArgSize = calculateArgsSizeWithCollectionArgs();
         boolean largeArgMode = totalArgSize > SqlStatement.MAX_VARIABLE_NUMBER;
         return new CompiledStatement(resolveSqlString(cacheKey, largeArgMode),
-                resolveSqlArguments(cacheKey, totalArgSize, largeArgMode));
+                resolveSqlArguments(cacheKey, totalArgSize, largeArgMode), needsValidation);
     }
 
     private String getCacheKey() {

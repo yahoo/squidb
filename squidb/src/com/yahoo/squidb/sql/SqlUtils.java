@@ -26,42 +26,39 @@ public class SqlUtils {
      * SQL string and the value added to {@code sqlArgs} instead. This method properly handles {@link Field},
      * {@link Property}, {@link Query}, and other database objects.
      *
-     * @param sql The SQL string being built
-     * @param sqlArgs Holds arguments that should bind to '?' characters appended to {@code sql}
+     * @param builder The {@link SqlBuilder} for building the SQL statement
      * @param value The value to be appended
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
-    static void addToSqlString(StringBuilder sql, List<Object> sqlArgs, Object value) {
+    static void addToSqlString(SqlBuilder builder, Object value, boolean forSqlValidation) {
         if (value instanceof DBObject<?>) {
-            ((DBObject<?>) value).appendQualifiedExpression(sql, sqlArgs);
+            ((DBObject<?>) value).appendQualifiedExpression(builder, forSqlValidation);
         } else if (value instanceof Query) {
-            sql.append("(");
-            ((Query) value).appendCompiledStringWithArguments(sql, sqlArgs);
-            sql.append(")");
+            Query query = (Query) value;
+            builder.sql.append("(");
+            query.appendToSqlBuilder(builder, forSqlValidation);
+            builder.sql.append(")");
         } else if (value instanceof CompilableWithArguments) {
-            ((CompilableWithArguments) value).appendCompiledStringWithArguments(sql, sqlArgs);
-        } else if (sqlArgs == null) {
-            sql.append(toSanitizedString(value));
+            ((CompilableWithArguments) value).appendToSqlBuilder(builder, forSqlValidation);
+        } else if (builder.args == null) {
+            builder.sql.append(toSanitizedString(value));
         } else {
             if (value != null) {
-                sql.append(SqlStatement.REPLACEABLE_PARAMETER);
-                sqlArgs.add(value);
+                builder.sql.append(SqlStatement.REPLACEABLE_PARAMETER);
+                builder.args.add(value);
             } else {
-                sql.append("NULL");
+                builder.sql.append("NULL");
             }
         }
     }
 
-    static void addToSqlString(StringBuilder sql, Object value) {
-        addToSqlString(sql, null, value);
-    }
-
-    static void addCollectionArgToSqlString(StringBuilder sql, List<Object> sqlArgs, Collection<?> value) {
+    static void addCollectionArgToSqlString(SqlBuilder builder, Collection<?> value) {
         if (value != null) {
-            if (sqlArgs == null) {
-                addInlineCollectionToSqlString(sql, value);
+            if (builder.args == null) {
+                addInlineCollectionToSqlString(builder.sql, value);
             } else {
-                sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
-                sqlArgs.add(value);
+                builder.sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
+                builder.args.add(value);
             }
         }
     }
@@ -69,7 +66,7 @@ public class SqlUtils {
     static void addInlineCollectionToSqlString(StringBuilder sql, Collection<?> values) {
         if (values != null && !values.isEmpty()) {
             for (Object t : values) {
-                addToSqlString(sql, t);
+                sql.append(toSanitizedString(t));
                 sql.append(",");
             }
             sql.deleteCharAt(sql.length() - 1);
@@ -150,30 +147,16 @@ public class SqlUtils {
         }
     }
 
-    static void appendConcatenatedCompilables(List<? extends CompilableWithArguments> compilables, StringBuilder sql,
-            List<Object> selectionArgsBuilder, String separator) {
+    static void appendConcatenatedCompilables(List<? extends CompilableWithArguments> compilables, SqlBuilder builder,
+            String separator, boolean forSqlValidation) {
         if (compilables != null && !compilables.isEmpty()) {
             boolean needSeparator = false;
             for (CompilableWithArguments compilable : compilables) {
                 if (needSeparator) {
-                    sql.append(separator);
+                    builder.sql.append(separator);
                 }
                 needSeparator = true;
-                compilable.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
-            }
-        }
-    }
-
-    static void appendConcatenatedValidatables(List<? extends Validatable> validatables, StringBuilder sql,
-            List<Object> selectionArgsBuilder, String separator, boolean withValidation) {
-        if (validatables != null && !validatables.isEmpty()) {
-            boolean needSeparator = false;
-            for (Validatable compilable : validatables) {
-                if (needSeparator) {
-                    sql.append(separator);
-                }
-                needSeparator = true;
-                compilable.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
+                compilable.appendToSqlBuilder(builder, forSqlValidation);
             }
         }
     }

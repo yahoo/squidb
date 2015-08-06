@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class QueryFunction<T> extends Function<T> {
 
     private final Query query;
@@ -16,7 +14,7 @@ class QueryFunction<T> extends Function<T> {
     }
 
     @Override
-    protected void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        SqlUtils.addToSqlString(sql, selectionArgsBuilder, query);
+    protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+        SqlUtils.addToSqlString(builder, query, forSqlValidation);
     }
 }

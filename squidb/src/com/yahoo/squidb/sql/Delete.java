@@ -54,16 +54,16 @@ public class Delete extends TableStatement {
     }
 
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> deleteArgsBuilder) {
-        sql.append("DELETE FROM ").append(table.getExpression());
-        visitWhere(sql, deleteArgsBuilder);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("DELETE FROM ").append(table.getExpression());
+        visitWhere(builder, forSqlValidation);
     }
 
-    private void visitWhere(StringBuilder sql, List<Object> deleteArgsBuilder) {
+    private void visitWhere(SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
-        sql.append(" WHERE ");
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, deleteArgsBuilder, " AND ");
+        builder.sql.append(" WHERE ");
+        SqlUtils.appendConcatenatedCompilables(criterions, builder, " AND ", forSqlValidation);
     }
 }

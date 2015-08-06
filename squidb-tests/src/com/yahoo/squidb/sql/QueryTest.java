@@ -917,8 +917,8 @@ public class QueryTest extends DatabaseTestCase {
         final Semaphore blockThread = new Semaphore(0);
         Criterion weirdCriterion = new BinaryCriterion(Thing.BAR, Operator.eq, 0) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                super.populate(sql, selectionArgsBuilder);
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                super.populate(builder, forSqlValidation);
                 if (compiledOnce.compareAndSet(false, true)) {
                     try {
                         blockThread.release();
@@ -972,11 +972,11 @@ public class QueryTest extends DatabaseTestCase {
         assertFalse(baseTestQuery.needsValidation());
 
         Query testQuery = baseTestQuery.from(subquery.as("t1"));
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
         testQuery = baseTestQuery.innerJoin(subquery.as("t2"), Criterion.all);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
         testQuery = baseTestQuery.union(subquery);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
     }
 
     public void testLiteralCriterions() {

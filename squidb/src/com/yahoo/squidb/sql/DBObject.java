@@ -7,8 +7,6 @@ package com.yahoo.squidb.sql;
 
 import android.text.TextUtils;
 
-import java.util.List;
-
 /**
  * A SQLite database object
  */
@@ -137,20 +135,20 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     /**
      * Appends an expression used in a SELECT statement to represent this object
      *
-     * @param sql StringBuilder to append to
-     * @param selectionArgsBuilder list to contain values that bind to the replaceable character '?'
+     * @param builder the {@link SqlBuilder} to append to
+     * @param forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendQualifiedExpression(sql, selectionArgsBuilder);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        appendQualifiedExpression(builder, forSqlValidation);
         if (hasAlias()) {
-            sql.append(" AS ").append(alias);
+            builder.sql.append(" AS ").append(alias);
         } else if (hasQualifier()) {
-            sql.append(" AS ").append(expression);
+            builder.sql.append(" AS ").append(expression);
         }
     }
 
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append(getQualifiedExpression());
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(getQualifiedExpression());
     }
 }

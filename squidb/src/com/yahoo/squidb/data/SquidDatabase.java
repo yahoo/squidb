@@ -1346,11 +1346,11 @@ public abstract class SquidDatabase {
             }
             query = query.from(table); // If argument was frozen, we may get a new object
         }
-        if (query.needsValidation()) {
-            String compiled = query.sqlForValidation();
-            compileStatement(compiled); // throws if the statement fails to compile
-        }
         CompiledStatement compiled = query.compile();
+        if (compiled.needsValidation) {
+            String validateSql = query.sqlForValidation();
+            compileStatement(validateSql); // throws if the statement fails to compile
+        }
         Cursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
         return new SquidCursor<TYPE>(cursor, query.getFields());
     }
