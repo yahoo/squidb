@@ -25,32 +25,42 @@ import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.sql.CompiledStatement;
+import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlStatement;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
 import com.yahoo.squidb.utility.SquidCursorFactory;
 import com.yahoo.squidb.utility.VersionCode;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * AbstractDatabase is a database abstraction which wraps a SQLite database.
+ * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a {@link SQLiteOpenHelper}.
- * Call {@link #getDatabase()} to open the database and {@link #close()} to close the database. Direct querying is not
- * recommended for type safety reasons. Instead, use an instance of {@link DatabaseDao} to issue the request and return
- * a {@link SquidCursor}.
+ * The first call to a read or write operation will open the database. You can close it again using {@link #close()}.
+ * <p>
+ * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
+ * get a Cursor, use {@link #query(Class, Query)}.
  * <p>
  * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(Table) tryCreateTable}) return true
  * if the operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
@@ -58,24 +68,39 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>
  * Methods that use String arrays for where clause arguments ({@link #update(String, ContentValues, String, String[])
  * update}, {@link #updateWithOnConflict(String, ContentValues, String, String[], int) updateWithOnConflict}, and
- * {@link #delete(String, String, String[]) delete}) are wrappers around Android's {@link SQLiteDatabase} methods, and
- * so are left intact. However, Android's default behavior of binding all arguments as strings can have unexpected
- * bugs, particularly when working with SQLite functions. For example:
+ * {@link #delete(String, String, String[]) delete}) are wrappers around Android's {@link SQLiteDatabase} methods.
+ * However, Android's default behavior of binding all arguments as strings can have unexpected bugs, particularly when
+ * working with SQLite functions. For example:
  *
  * <pre>
  * select * from t where _id = '1'; // Returns the first row
  * select * from t where abs(_id) = '1'; // Always returns empty set
  * </pre>
  *
- * {@link DatabaseDao} contains workarounds for this behavior, so all users are encouraged to use DatabaseDao for these
- * operations. If you choose to call these methods directly on AbstractDatabase instead, you have been warned!
+ * For this reason, these methods are protected rather than public. You can choose to expose them in your database
+ * subclass if you wish, but we recommend that you instead use the typesafe, public, model-bases methods, such as
+ * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel, TableStatement.ConflictAlgorithm)},
+ * {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
+ * <p>
+ * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
+ * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
+ * from will be inferred from the provided <code>modelClass</code> argument (if possible). This allows for invocations
+ * where {@link Query#from(com.yahoo.squidb.sql.SqlTable) Query.from} is never explicitly called:
+ *
+ * <pre>
+ * SquidCursor&lt;Person&gt; cursor =
+ *         db.query(Person.class, Query.select().orderBy(Person.NAME.asc()));
+ * </pre>
+ *
+ * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
+ * found, or null if no records are found for that particular form of fetch.
  */
-public abstract class AbstractDatabase {
+public abstract class SquidDatabase {
 
     /**
      * @return the database name
      */
-    protected abstract String getName();
+    public abstract String getName();
 
     /**
      * @return the database version
@@ -202,7 +227,7 @@ public abstract class AbstractDatabase {
 
     private final Context context;
 
-    private AbstractDatabase attachedTo = null;
+    private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
@@ -224,13 +249,13 @@ public abstract class AbstractDatabase {
     private boolean isInMigration;
 
     /**
-     * Create a new AbstractDatabase
+     * Create a new SquidDatabase
      *
      * @param context the Context, must not be null
      */
-    public AbstractDatabase(Context context) {
+    public SquidDatabase(Context context) {
         if (context == null) {
-            throw new NullPointerException("Null context creating AbstractDatabase");
+            throw new NullPointerException("Null context creating SquidDatabase");
         }
         this.context = context.getApplicationContext();
         initializeTableMap();
@@ -262,12 +287,12 @@ public abstract class AbstractDatabase {
     /**
      * Return the {@link SqlTable} corresponding to the specified model type
      *
-     * @param modelType the model class
-     * @return the corresponding table for the model
+     * @param modelClass the model class
+     * @return the corresponding data source for the model. May be a table, view, or subquery
      * @throws UnsupportedOperationException if the model class is unknown to this database
      */
-    public final SqlTable<?> getTable(Class<? extends AbstractModel> modelType) {
-        Class<?> type = modelType;
+    protected final SqlTable<?> getSqlTable(Class<? extends AbstractModel> modelClass) {
+        Class<?> type = modelClass;
         SqlTable<?> table;
         //noinspection SuspiciousMethodCalls
         while ((table = tableMap.get(type)) == null && type != AbstractModel.class && type != Object.class) {
@@ -276,11 +301,41 @@ public abstract class AbstractDatabase {
         if (table != null) {
             return table;
         }
-        throw new UnsupportedOperationException("Unknown model class " + modelType);
+        throw new UnsupportedOperationException("Unknown model class " + modelClass);
     }
 
     /**
+     * Return the {@link Table} corresponding to the specified TableModel class
+     *
+     * @param modelClass the model class
+     * @return the corresponding table for the model
+     * @throws UnsupportedOperationException if the model class is unknown to this database
+     */
+    protected final Table getTable(Class<? extends TableModel> modelClass) {
+        return (Table) getSqlTable(modelClass);
+    }
+
+    /**
+     * Gets the underlying SQLiteDatabase instances. Most users should not need to call this. If you call this
+     * from your AbstractDatabase subclass with the intention of executing SQL, you should wrap the calls with a lock,
+     * probably the non-exclusive one:
+     *
+     * <pre>
+     * public void execSql(String sql) {
+     *     aquireNonExclusiveLock();
+     *     try {
+     *         getDatabase().execSQL(sql);
+     *     } finally {
+     *         releaseNonExclusiveLock();
+     *     }
+     * }
+     * </pre>
+     *
+     * You only need to acquire the exclusive lock if you truly need exclusive access to the database connection.
+     *
      * @return the underlying {@link SQLiteDatabase}, which will be opened if it is not yet opened
+     * @see #acquireExclusiveLock()
+     * @see #acquireNonExclusiveLock()
      */
     protected synchronized final SQLiteDatabase getDatabase() {
         if (database == null) {
@@ -291,7 +346,7 @@ public abstract class AbstractDatabase {
 
     /**
      * Attaches another database to this database using the SQLite ATTACH command. This locks the other database
-     * exclusively; you must call {@link #detachDatabase(AbstractDatabase)} when you are done, otherwise the attached
+     * exclusively; you must call {@link #detachDatabase(SquidDatabase)} when you are done, otherwise the attached
      * database will not be unlocked.
      * <p>
      * This method will throw an exception if either database is already attached to another database, or if either
@@ -312,7 +367,7 @@ public abstract class AbstractDatabase {
      */
     @Beta
     @TargetApi(VERSION_CODES.JELLY_BEAN)
-    public final String attachDatabase(AbstractDatabase other) {
+    public final String attachDatabase(SquidDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
@@ -336,12 +391,12 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Detaches a database previously attached with {@link #attachDatabase(AbstractDatabase)}
+     * Detaches a database previously attached with {@link #attachDatabase(SquidDatabase)}
      *
      * @return true if the other database was successfully detached
      */
     @Beta
-    public final boolean detachDatabase(AbstractDatabase other) {
+    public final boolean detachDatabase(SquidDatabase other) {
         if (other.attachedTo != this) {
             throw new IllegalArgumentException("Database " + other.getName() + " is not attached to " + getName());
         }
@@ -349,7 +404,7 @@ public abstract class AbstractDatabase {
         return other.detachFrom(this);
     }
 
-    private String attachTo(AbstractDatabase attachTo) {
+    private String attachTo(SquidDatabase attachTo) {
         if (attachedTo != null) {
             throw new IllegalArgumentException(
                     "Database " + getName() + " is already attached to " + attachedTo.getName());
@@ -372,7 +427,7 @@ public abstract class AbstractDatabase {
         }
     }
 
-    private boolean detachFrom(AbstractDatabase detachFrom) {
+    private boolean detachFrom(SquidDatabase detachFrom) {
         if (detachFrom.tryExecSql("DETACH '" + getAttachedName() + "'")) {
             attachedTo = null;
             releaseExclusiveLock();
@@ -498,8 +553,8 @@ public abstract class AbstractDatabase {
         }
     }
 
-    // For use only by DatabaseDao when validating queries
-    void compileStatement(String sql) {
+    // For use only when validating queries
+    private void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
             SqlValidatorFactory.getValidator().compileStatement(getDatabase(), sql);
@@ -511,7 +566,7 @@ public abstract class AbstractDatabase {
     /**
      * @see SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
      */
-    public long insert(String table, String nullColumnHack, ContentValues values) {
+    protected long insert(String table, String nullColumnHack, ContentValues values) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().insertOrThrow(table, nullColumnHack, values);
@@ -523,7 +578,8 @@ public abstract class AbstractDatabase {
     /**
      * @see SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues, int)
      */
-    public long insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
+    protected long insertWithOnConflict(String table, String nullColumnHack, ContentValues values,
+            int conflictAlgorithm) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
@@ -533,11 +589,11 @@ public abstract class AbstractDatabase {
     }
 
     /**
-     * Execute a SQL {@link com.yahoo.squidb.sql.Update} statement
+     * Execute a SQL {@link com.yahoo.squidb.sql.Insert} statement
      *
      * @return the row id of the last row inserted on success, -1 on failure
      */
-    public long insert(Insert insert) {
+    private long insertInternal(Insert insert) {
         CompiledStatement compiled = insert.compile();
         acquireNonExclusiveLock();
         try {
@@ -554,7 +610,7 @@ public abstract class AbstractDatabase {
      *
      * @see SQLiteDatabase#delete(String, String, String[])
      */
-    public int delete(String table, String whereClause, String[] whereArgs) {
+    protected int delete(String table, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().delete(table, whereClause, whereArgs);
@@ -568,7 +624,7 @@ public abstract class AbstractDatabase {
      *
      * @return the number of rows deleted on success, -1 on failure
      */
-    public int delete(Delete delete) {
+    private int deleteInternal(Delete delete) {
         CompiledStatement compiled = delete.compile();
         acquireNonExclusiveLock();
         try {
@@ -585,7 +641,7 @@ public abstract class AbstractDatabase {
      *
      * @see SQLiteDatabase#update(String table, ContentValues values, String whereClause, String[] whereArgs)
      */
-    public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+    protected int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().update(table, values, whereClause, whereArgs);
@@ -600,7 +656,7 @@ public abstract class AbstractDatabase {
      * @see SQLiteDatabase#updateWithOnConflict(String table, ContentValues values, String whereClause, String[]
      * whereArgs, int conflictAlgorithm)
      */
-    public int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
+    protected int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
             int conflictAlgorithm) {
         acquireNonExclusiveLock();
         try {
@@ -615,7 +671,7 @@ public abstract class AbstractDatabase {
      *
      * @return the number of rows updated on success, -1 on failure
      */
-    public int update(Update update) {
+    private int updateInternal(Update update) {
         CompiledStatement compiled = update.compile();
         acquireNonExclusiveLock();
         try {
@@ -627,6 +683,8 @@ public abstract class AbstractDatabase {
         }
     }
 
+    // --- transaction management
+
     /**
      * Begin a transaction. This acquires a non-exclusive lock.
      *
@@ -636,6 +694,7 @@ public abstract class AbstractDatabase {
     public void beginTransaction() {
         acquireNonExclusiveLock();
         getDatabase().beginTransaction();
+        transactionSuccessState.get().beginTransaction();
     }
 
     /**
@@ -647,6 +706,7 @@ public abstract class AbstractDatabase {
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
         getDatabase().beginTransactionNonExclusive();
+        transactionSuccessState.get().beginTransaction();
     }
 
     /**
@@ -659,6 +719,7 @@ public abstract class AbstractDatabase {
     public void beginTransactionWithListener(SQLiteTransactionListener listener) {
         acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListener(listener);
+        transactionSuccessState.get().beginTransaction();
     }
 
     /**
@@ -671,6 +732,7 @@ public abstract class AbstractDatabase {
     public void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener listener) {
         acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListenerNonExclusive(listener);
+        transactionSuccessState.get().beginTransaction();
     }
 
     /**
@@ -680,6 +742,7 @@ public abstract class AbstractDatabase {
      */
     public void setTransactionSuccessful() {
         getDatabase().setTransactionSuccessful();
+        transactionSuccessState.get().setTransactionSuccessful();
     }
 
     /**
@@ -698,7 +761,51 @@ public abstract class AbstractDatabase {
     public void endTransaction() {
         getDatabase().endTransaction();
         releaseNonExclusiveLock();
+
+        TransactionSuccessState successState = transactionSuccessState.get();
+        successState.endTransaction();
+
+        if (!inTransaction()) {
+            flushAccumulatedUris(uriAccumulator.get(), successState.outerTransactionSuccess);
+            successState.reset();
+        }
     }
+
+    // Tracks nested transaction success or failure state. If any
+    // nested transaction fails, the entire outer transaction
+    // is also considered to have failed.
+    private static class TransactionSuccessState {
+
+        Deque<Boolean> nestedSuccessStack = new LinkedList<Boolean>();
+        boolean outerTransactionSuccess = true;
+
+        private void beginTransaction() {
+            nestedSuccessStack.push(false);
+        }
+
+        private void setTransactionSuccessful() {
+            nestedSuccessStack.pop();
+            nestedSuccessStack.push(true);
+        }
+
+        private void endTransaction() {
+            Boolean mostRecentTransactionSuccess = nestedSuccessStack.pop();
+            if (!mostRecentTransactionSuccess) {
+                outerTransactionSuccess = false;
+            }
+        }
+
+        private void reset() {
+            nestedSuccessStack.clear();
+            outerTransactionSuccess = true;
+        }
+    }
+
+    private ThreadLocal<TransactionSuccessState> transactionSuccessState = new ThreadLocal<TransactionSuccessState>() {
+        protected TransactionSuccessState initialValue() {
+            return new TransactionSuccessState();
+        }
+    };
 
     /**
      * Yield the current transaction
@@ -843,7 +950,7 @@ public abstract class AbstractDatabase {
             Throwable thrown = null;
             isInMigration = true;
             try {
-                success = AbstractDatabase.this.onUpgrade(db, oldVersion, newVersion);
+                success = SquidDatabase.this.onUpgrade(db, oldVersion, newVersion);
             } catch (Throwable t) {
                 thrown = t;
                 success = false;
@@ -870,7 +977,7 @@ public abstract class AbstractDatabase {
             Throwable thrown = null;
             isInMigration = true;
             try {
-                success = AbstractDatabase.this.onDowngrade(db, oldVersion, newVersion);
+                success = SquidDatabase.this.onDowngrade(db, oldVersion, newVersion);
             } catch (Throwable t) {
                 thrown = t;
                 success = false;
@@ -890,13 +997,13 @@ public abstract class AbstractDatabase {
         @Override
         public void onConfigure(SQLiteDatabase db) {
             database = db;
-            AbstractDatabase.this.onConfigure(db);
+            SquidDatabase.this.onConfigure(db);
         }
 
         @Override
         public void onOpen(SQLiteDatabase db) {
             database = db;
-            AbstractDatabase.this.onOpen(db);
+            SquidDatabase.this.onOpen(db);
         }
     }
 
@@ -939,11 +1046,7 @@ public abstract class AbstractDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     protected boolean tryDropTable(Table table) {
-        return tryDropTable(table.getExpression());
-    }
-
-    private boolean tryDropTable(String tableName) {
-        return tryExecSql("DROP TABLE IF EXISTS " + tableName);
+        return tryExecSql("DROP TABLE IF EXISTS " + table.getExpression());
     }
 
     /**
@@ -1222,6 +1325,543 @@ public abstract class AbstractDatabase {
         public String getMessage() {
             return String.format("Failed to migrate db \"%s\" from version %d to %d", dbName, oldVersion, newVersion);
         }
+    }
 
+    // --- higher level dao methods
+
+    /**
+     * Query the database
+     *
+     * @param modelClass the type to parameterize the cursor by. If the query does not contain a FROM clause, the table
+     * or view corresponding to this model class will be used.
+     * @param query the query to execute
+     * @return a {@link SquidCursor} containing the query results
+     */
+    public <TYPE extends AbstractModel> SquidCursor<TYPE> query(Class<TYPE> modelClass, Query query) {
+        if (!query.hasTable() && modelClass != null) {
+            SqlTable<?> table = getSqlTable(modelClass);
+            if (table == null) {
+                throw new IllegalArgumentException("Query has no FROM clause and model class "
+                        + modelClass.getSimpleName() + " has no associated table");
+            }
+            query = query.from(table); // If argument was frozen, we may get a new object
+        }
+        if (query.needsValidation()) {
+            String compiled = query.sqlForValidation();
+            compileStatement(compiled); // throws if the statement fails to compile
+        }
+        CompiledStatement compiled = query.compile();
+        Cursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
+        return new SquidCursor<TYPE>(cursor, query.getFields());
+    }
+
+
+    /**
+     * Fetch the specified model object with the given row ID
+     *
+     * @param modelClass the model class to fetch
+     * @param id the row ID of the item
+     * @param properties the {@link Property properties} to read
+     * @return an instance of the model with the given ID, or null if no record was found
+     */
+    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, Property<?>... properties) {
+        SquidCursor<TYPE> cursor = fetchItemById(modelClass, id, properties);
+        return returnFetchResult(modelClass, cursor);
+    }
+
+    /**
+     * Fetch the first model matching the given {@link Criterion}. This is useful if you expect uniqueness of models
+     * with respect to the given criterion.
+     *
+     * @param modelClass the model class to fetch
+     * @param properties the {@link Property properties} to read
+     * @param criterion the criterion to match
+     * @return an instance of the model matching the given criterion, or null if no record was found
+     */
+    public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
+            Property<?>... properties) {
+        SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, criterion, properties);
+        return returnFetchResult(modelClass, cursor);
+    }
+
+    /**
+     * Fetch the first model matching the query. This is useful if you expect uniqueness of models with respect to the
+     * given query.
+     *
+     * @param modelClass the model class to fetch
+     * @param query the query to execute
+     * @return an instance of the model returned by the given query, or null if no record was found
+     */
+    public <TYPE extends AbstractModel> TYPE fetchByQuery(Class<TYPE> modelClass, Query query) {
+        SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, query);
+        return returnFetchResult(modelClass, cursor);
+    }
+
+    protected <TYPE extends AbstractModel> TYPE returnFetchResult(Class<TYPE> modelClass, SquidCursor<TYPE> cursor) {
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+            TYPE toReturn = modelClass.newInstance();
+            toReturn.readPropertiesFromCursor(cursor);
+            return toReturn;
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    /**
+     * Delete the row with the given row ID
+     *
+     * @param modelClass the model class corresponding to the table to delete from
+     * @param id the row ID of the record
+     * @return true if delete was successful
+     */
+    public boolean delete(Class<? extends TableModel> modelClass, long id) {
+        Table table = getTable(modelClass);
+        int rowsUpdated = deleteInternal(Delete.from(table).where(table.getIdProperty().eq(id)));
+        if (rowsUpdated > 0) {
+            notifyForTable(UriNotifier.DBOperation.DELETE, null, table, id);
+        }
+        return rowsUpdated > 0;
+    }
+
+    /**
+     * Delete all rows matching the given {@link Criterion}
+     *
+     * @param where the Criterion to match
+     * @return the number of deleted rows
+     */
+    public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
+        Table table = getTable(modelClass);
+        Delete delete = Delete.from(table);
+        if (where != null) {
+            delete.where(where);
+        }
+        int rowsUpdated = deleteInternal(delete);
+        if (rowsUpdated > 0) {
+            notifyForTable(UriNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
+        }
+        return rowsUpdated;
+    }
+
+    /**
+     * Executes a {@link Delete} statement.
+     * <p>
+     * Note: Generally speaking, you should prefer to use {@link #delete(Class, long) delete} or
+     * {@link #deleteWhere(Class, Criterion) deleteWhere} for deleting database rows. This is provided as a convenience
+     * in case there exists a non-ORM case where a more traditional SQL delete statement is required.
+     *
+     * @param delete the statement to execute
+     * @return the number of rows deleted on success, -1 on failure
+     */
+    public int delete(Delete delete) {
+        int result = deleteInternal(delete);
+        if (result > 0) {
+            notifyForTable(UriNotifier.DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
+        }
+        return result;
+    }
+
+    /**
+     * Update all rows matching the given {@link Criterion}, setting values based on the provided template model. For
+     * example, this code would change all persons' names from "joe" to "bob":
+     *
+     * <pre>
+     * Person template = new Person();
+     * template.setName(&quot;bob&quot;);
+     * update(Person.NAME.eq(&quot;joe&quot;), template);
+     * </pre>
+     *
+     * @param where the criterion to match
+     * @param template a model containing new values for the properties (columns) that should be updated
+     * @return the number of updated rows
+     */
+    public int update(Criterion where, TableModel template) {
+        return updateWithOnConflict(where, template, null);
+    }
+
+    /**
+     * Update all rows matching the given {@link Criterion}, setting values based on the provided template model. Any
+     * constraint violations will be resolved using the specified {@link TableStatement.ConflictAlgorithm}.
+     *
+     * @param where the criterion to match
+     * @param template a model containing new values for the properties (columns) that should be updated
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return the number of updated rows
+     * @see #update(Criterion, TableModel)
+     */
+    public int updateWithOnConflict(Criterion where, TableModel template,
+            TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        Class<? extends TableModel> modelClass = template.getClass();
+        Table table = getTable(modelClass);
+        Update update = Update.table(table).fromTemplate(template);
+        if (where != null) {
+            update.where(where);
+        }
+        if (conflictAlgorithm != null) {
+            update.onConflict(conflictAlgorithm);
+        }
+
+        int rowsUpdated = updateInternal(update);
+        if (rowsUpdated > 0) {
+            notifyForTable(UriNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
+        }
+        return rowsUpdated;
+    }
+
+    /**
+     * Executes an {@link Update} statement.
+     * <p>
+     * Note: Generally speaking, you should prefer to use {@link #update(Criterion, TableModel)}
+     * or {@link #updateWithOnConflict(Criterion, TableModel, com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm)}
+     * for bulk database updates. This is provided as a convenience in case there exists a non-ORM case where a more
+     * traditional SQL update statement is required for some reason.
+     *
+     * @param update statement to execute
+     * @return the number of rows updated on success, -1 on failure
+     */
+    public int update(Update update) {
+        int result = updateInternal(update);
+        if (result > 0) {
+            notifyForTable(UriNotifier.DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
+        }
+        return result;
+    }
+
+    /**
+     * Save a model to the database. Creates a new row if the model does not have an ID, otherwise updates the row with
+     * the corresponding row ID. If a new row is inserted, the model will have its ID set to the corresponding row ID.
+     *
+     * @param item the model to save
+     * @return true if current the model data is stored in the database
+     */
+    public boolean persist(TableModel item) {
+        return persistWithOnConflict(item, null);
+    }
+
+    /**
+     * Save a model to the database. Creates a new row if the model does not have an ID, otherwise updates the row with
+     * the corresponding row ID. If a new row is inserted, the model will have its ID set to the corresponding row ID.
+     * Any constraint violations will be resolved using the specified {@link TableStatement.ConflictAlgorithm}.
+     *
+     * @param item the model to save
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return true if current the model data is stored in the database
+     * @see #persist(TableModel)
+     */
+    public boolean persistWithOnConflict(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        if (!item.isSaved()) {
+            return insertRow(item, conflictAlgorithm);
+        }
+        if (!item.isModified()) {
+            return true;
+        }
+        return updateRow(item, conflictAlgorithm);
+    }
+
+    /**
+     * Save a model to the database. This method always inserts a new row and sets the ID of the model to the
+     * corresponding row ID.
+     *
+     * @param item the model to save
+     * @return true if current the model data is stored in the database
+     */
+    public boolean createNew(TableModel item) {
+        item.setId(TableModel.NO_ID);
+        return insertRow(item, null);
+    }
+
+    /**
+     * Save a model to the database. This method always updates an existing row with a row ID corresponding to the
+     * model's ID. If the model doesn't have an ID, or the corresponding row no longer exists in the database, this
+     * will return false.
+     *
+     * @param item the model to save
+     * @return true if current the model data is stored in the database
+     */
+    public boolean saveExisting(TableModel item) {
+        return updateRow(item, null);
+    }
+
+    /**
+     * Inserts a new row using the item's merged values into the DB.
+     * <p>
+     * Note: unlike {@link #createNew(TableModel)}, which will always create a new row even if an id is set on the
+     * model, this method will blindly attempt to insert the primary key id value if it is provided. This may cause
+     * conflicts, throw exceptions, etc. if the row id already exists, so be sure to check for such cases if you
+     * expect they may happen.
+     *
+     * @param item the model to insert
+     * @return true if success, false otherwise
+     */
+    protected final boolean insertRow(TableModel item) {
+        return insertRow(item, null);
+    }
+
+    /**
+     * Same as {@link #insertRow(TableModel)} with the ability to specify a ConflictAlgorithm for handling constraint
+     * violations
+     *
+     * @param item the model to insert
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return true if success, false otherwise
+     */
+    protected final boolean insertRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        Class<? extends TableModel> modelClass = item.getClass();
+        Table table = getTable(modelClass);
+        long newRow;
+        ContentValues mergedValues = item.getMergedValues();
+        if (mergedValues.size() == 0) {
+            return false;
+        }
+        if (conflictAlgorithm == null) {
+            newRow = insert(table.getExpression(), null, mergedValues);
+        } else {
+            newRow = insertWithOnConflict(table.getExpression(), null, mergedValues,
+                    conflictAlgorithm.getAndroidValue());
+        }
+        boolean result = newRow > 0;
+        if (result) {
+            notifyForTable(UriNotifier.DBOperation.INSERT, item, table, newRow);
+            item.setId(newRow);
+            item.markSaved();
+        }
+        return result;
+    }
+
+    /**
+     * Update an existing row in the database using the item's setValues. The item must have the primary key id set;
+     * if it does not, the method will return false.
+     *
+     * @param item the model to save
+     * @return true if success, false otherwise
+     */
+    protected final boolean updateRow(TableModel item) {
+        return updateRow(item, null);
+    }
+
+    /**
+     * Same as {@link #updateRow(TableModel)} with the ability to specify a ConflictAlgorithm for handling constraint
+     * violations
+     *
+     * @param item the model to save
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return true if success, false otherwise
+     */
+    protected final boolean updateRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        if (!item.isModified()) { // nothing changed
+            return true;
+        }
+        if (!item.isSaved()) {
+            return false;
+        }
+
+        Class<? extends TableModel> modelClass = item.getClass();
+        Table table = getTable(modelClass);
+        Update update = Update.table(table).fromTemplate(item).where(table.getIdProperty().eq(item.getId()));
+        if (conflictAlgorithm != null) {
+            update.onConflict(conflictAlgorithm);
+        }
+        boolean result = updateInternal(update) > 0;
+        if (result) {
+            notifyForTable(UriNotifier.DBOperation.UPDATE, item, table, item.getId());
+            item.markSaved();
+        }
+        return result;
+    }
+
+    /**
+     * Executes an {@link Insert} statement.
+     * <p>
+     * Note: Generally speaking, you should prefer to use {@link #persist(TableModel) persist} or
+     * {@link #createNew(TableModel) createNew} for inserting database rows. This is provided as a convenience in case
+     * there exists a non-ORM case where a more traditional SQL insert statement is required.
+     *
+     * @param insert the statement to execute
+     * @return the row id of the last row inserted on success, 0 on failure
+     */
+    public long insert(Insert insert) {
+        long result = insertInternal(insert);
+        if (result > TableModel.NO_ID) {
+            int numInserted = insert.getNumRows();
+            notifyForTable(UriNotifier.DBOperation.INSERT, null, insert.getTable(),
+                    numInserted == 1 ? result : TableModel.NO_ID);
+        }
+        return result;
+    }
+
+    // --- helper methods
+
+    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
+            Property<?>... properties) {
+        Table table = getTable(modelClass);
+        return fetchFirstItem(modelClass, table.getIdProperty().eq(id), properties);
+    }
+
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
+            Criterion criterion, Property<?>... properties) {
+        return fetchFirstItem(modelClass, Query.select(properties).where(criterion));
+    }
+
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass, Query query) {
+        int beforeLimit = query.getLimit();
+        SqlTable<?> beforeTable = query.getTable();
+        query = query.limit(1); // If argument was frozen, we may get a new object
+        SquidCursor<TYPE> cursor = query(modelClass, query);
+        query.limit(beforeLimit); // Reset for user
+        query.from(beforeTable); // Reset for user
+        cursor.moveToFirst();
+        return cursor;
+    }
+
+    /**
+     * Count the number of rows matching a given {@link Criterion}. Use {@link Criterion#all} to count all rows.
+     *
+     * @param modelClass the model class corresponding to the table
+     * @param criterion the criterion to match
+     * @return the number of rows matching the given criterion
+     */
+    public int count(Class<? extends AbstractModel> modelClass, Criterion criterion) {
+        Property.IntegerProperty countProperty = Property.IntegerProperty.countProperty();
+        Query query = Query.select(countProperty).where(criterion);
+        SquidCursor<?> cursor = query(modelClass, query);
+        try {
+            cursor.moveToFirst();
+            return cursor.get(countProperty);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // --- Uri notification
+
+    private final Object uriNotifiersLock = new Object();
+    private boolean uriNotificationsDisabled = false;
+    private List<UriNotifier> globalNotifiers = new ArrayList<UriNotifier>();
+    private Map<SqlTable<?>, List<UriNotifier>> tableNotifiers = new HashMap<SqlTable<?>, List<UriNotifier>>();
+
+    // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
+    // transactions are also associated with the thread they run on
+    private ThreadLocal<Set<Uri>> uriAccumulator = new ThreadLocal<Set<Uri>>() {
+        protected Set<Uri> initialValue() {
+            return new HashSet<Uri>();
+        }
+    };
+
+    /**
+     * Register a {@link UriNotifier} to listen for database changes. The UriNotifier object will be asked to return a
+     * Uri to notify whenever a table it is interested is modified.
+     *
+     * @param notifier the UriNotifier to register
+     */
+    public void registerUriNotifier(UriNotifier notifier) {
+        if (notifier == null) {
+            return;
+        }
+        synchronized (uriNotifiersLock) {
+            List<SqlTable<?>> tables = notifier.whichTables();
+            if (tables == null || tables.isEmpty()) {
+                globalNotifiers.add(notifier);
+            } else {
+                for (SqlTable<?> table : tables) {
+                    List<UriNotifier> notifiersForTable = tableNotifiers.get(table);
+                    if (notifiersForTable == null) {
+                        notifiersForTable = new ArrayList<UriNotifier>();
+                        tableNotifiers.put(table, notifiersForTable);
+                    }
+                    notifiersForTable.add(notifier);
+                }
+            }
+        }
+    }
+
+    /**
+     * Unregister a {@link UriNotifier} previously registered by {@link #registerUriNotifier(UriNotifier)}
+     *
+     * @param notifier the UriNotifier to unregister
+     */
+    public void unregisterUriNotifier(UriNotifier notifier) {
+        if (notifier == null) {
+            return;
+        }
+        synchronized (uriNotifiersLock) {
+            List<SqlTable<?>> tables = notifier.whichTables();
+            if (tables == null || tables.isEmpty()) {
+                globalNotifiers.remove(notifier);
+            } else {
+                for (SqlTable<?> table : tables) {
+                    List<UriNotifier> notifiersForTable = tableNotifiers.get(table);
+                    if (notifiersForTable != null) {
+                        notifiersForTable.remove(notifier);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Unregister all {@link UriNotifier}s previously registered by {@link #registerUriNotifier(UriNotifier)}
+     */
+    public void unregisterAllUriNotifiers() {
+        synchronized (uriNotifiersLock) {
+            globalNotifiers.clear();
+            tableNotifiers.clear();
+        }
+    }
+
+    /**
+     * Set a flag to disable Uri notifications. No Uris will be notified (or accumulated during transactions) after
+     * this method is called, until {@link #enableUriNotifications()} is called to re-enable notifications.
+     */
+    public void disableUriNotifications() {
+        uriNotificationsDisabled = true;
+    }
+
+    /**
+     * Re-enables Uri notifications after a call to {@link #disableUriNotifications()}
+     */
+    public void enableUriNotifications() {
+        uriNotificationsDisabled = false;
+    }
+
+    private void notifyForTable(UriNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table, long rowId) {
+        if (uriNotificationsDisabled) {
+            return;
+        }
+        Set<Uri> accumulatorSet = uriAccumulator.get();
+        synchronized (uriNotifiersLock) {
+            accumulateUrisToNotify(globalNotifiers, accumulatorSet, op, modelValues, table, rowId);
+            accumulateUrisToNotify(tableNotifiers.get(table), accumulatorSet, op, modelValues, table, rowId);
+        }
+        if (!inTransaction()) {
+            flushAccumulatedUris(accumulatorSet, true);
+        }
+    }
+
+    private void accumulateUrisToNotify(List<UriNotifier> notifiers, Set<Uri> accumulatorSet,
+            UriNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table, long rowId) {
+        if (notifiers != null) {
+            for (UriNotifier notifier : notifiers) {
+                notifier.addUrisToNotify(accumulatorSet, table, getName(), op, modelValues, rowId);
+            }
+        }
+    }
+
+    private void flushAccumulatedUris(Set<Uri> urisToNotify, boolean transactionSuccess) {
+        if (!urisToNotify.isEmpty()) {
+            if (transactionSuccess && !uriNotificationsDisabled) {
+                notifyChange(urisToNotify);
+            }
+            urisToNotify.clear();
+        }
     }
 }

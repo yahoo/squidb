@@ -44,7 +44,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
 
         final String name;
 
-        private TriggerType(String name) {
+        TriggerType(String name) {
             this.name = name;
         }
     }

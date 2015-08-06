@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Order extends CompilableWithArguments {
 
-    private static enum OrderType {
+    private enum OrderType {
         DESC, ASC, RAW
     }
 

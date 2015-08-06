@@ -40,9 +40,9 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         model1 = new TestModel().setFirstName("Sam").setLastName("Bosley").setLuckyNumber(21);
         model2 = new TestModel().setFirstName("Jonathan").setLastName("Koren").setLuckyNumber(99);
         model3 = new TestModel().setFirstName("Jack").setLastName("Sparrow").setLuckyNumber(0);
-        dao.persist(model1);
-        dao.persist(model2);
-        dao.persist(model3);
+        database.persist(model1);
+        database.persist(model2);
+        database.persist(model3);
     }
 
     private ContentProviderQueryBuilder getBuilder() {
@@ -128,7 +128,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
         SquidCursor<TestModel> cursor = null;
         try {
-            cursor = dao.query(TestModel.class, query);
+            cursor = database.query(TestModel.class, query);
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
             assertEquals(model2, buildModelFromCursor(cursor));
@@ -148,7 +148,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
         SquidCursor<TestModel> cursor = null;
         try {
-            cursor = dao.query(TestModel.class, query);
+            cursor = database.query(TestModel.class, query);
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
             assertEquals(model3, buildModelFromCursor(cursor));
@@ -172,7 +172,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
         SquidCursor<TestModel> cursor = null;
         try {
-            cursor = dao.query(TestModel.class, query);
+            cursor = database.query(TestModel.class, query);
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
             assertEquals(model2, buildModelFromCursor(cursor));
@@ -230,7 +230,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                dao.query(TestModel.class, query);
+                database.query(TestModel.class, query);
             }
         }, SQLiteException.class);
     }
@@ -247,8 +247,8 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
     public void testQueryUsingSubqueryModel() {
         Employee employee1 = new Employee().setName("Big bird");
         Employee employee2 = new Employee().setName("Elmo");
-        dao.persist(employee1);
-        dao.persist(employee2);
+        database.persist(employee1);
+        database.persist(employee2);
 
         ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.PROPERTIES,
                 TestSubqueryModel.SUBQUERY);
@@ -256,7 +256,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
         SquidCursor<TestSubqueryModel> cursor = null;
         try {
-            cursor = dao.query(TestSubqueryModel.class, query);
+            cursor = database.query(TestSubqueryModel.class, query);
             assertEquals(2, cursor.getCount());
 
             cursor.moveToFirst();

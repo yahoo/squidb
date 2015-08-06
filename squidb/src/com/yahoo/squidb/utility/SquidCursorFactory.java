@@ -18,12 +18,13 @@ import android.os.Build;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import com.yahoo.squidb.data.SquidDatabase;
 
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
- * {@link com.yahoo.squidb.data.AbstractDatabase AbstractDatabase} documentation notes why this is important.
+ * {@link SquidDatabase SquidDatabase} documentation notes why this is important.
  *
- * @see com.yahoo.squidb.data.AbstractDatabase
+ * @see SquidDatabase
  */
 public class SquidCursorFactory implements CursorFactory {
 

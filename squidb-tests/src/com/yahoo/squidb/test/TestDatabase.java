@@ -8,13 +8,13 @@ package com.yahoo.squidb.test;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
-public class TestDatabase extends AbstractDatabase {
+public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
 
@@ -26,7 +26,7 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "testDb";
     }
 

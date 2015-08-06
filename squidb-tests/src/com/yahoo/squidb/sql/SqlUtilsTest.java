@@ -77,15 +77,15 @@ public class SqlUtilsTest extends DatabaseTestCase {
     private void testBadString(String badString, int expectedLength) {
         assertEquals(expectedLength, badString.length());
         TestModel model = new TestModel().setFirstName(badString).setLastName("Bosley").setBirthday(testDate);
-        dao.persist(model);
+        database.persist(model);
 
-        model = dao.fetch(TestModel.class, model.getId());
+        model = database.fetch(TestModel.class, model.getId());
         assertEquals(badString, model.getFirstName());
 
-        dao.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
+        database.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
 
-        model = dao.fetch(TestModel.class, model.getId());
+        model = database.fetch(TestModel.class, model.getId());
         assertEquals("Sam", model.getFirstName());
-        dao.delete(TestModel.class, model.getId());
+        database.delete(TestModel.class, model.getId());
     }
 }

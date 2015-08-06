@@ -7,42 +7,47 @@ package com.yahoo.squidb.data;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
+import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 
-public class AbstractDatabaseTest extends DatabaseTestCase {
+import java.util.Arrays;
+import java.util.List;
+
+public class SquidDatabaseTest extends DatabaseTestCase {
 
     private BadDatabase badDatabase;
 
     @Override
     protected void setupDatabase() {
-        // don't call super, we'll set up our own database instead
+        super.setupDatabase();
         badDatabase = new BadDatabase(getContext());
         badDatabase.getDatabase(); // init
-        dao = new DatabaseDao(badDatabase);
     }
 
     @Override
     protected void tearDownDatabase() {
-        // don't call super, we'll clean it up ourselves
+        super.tearDownDatabase();
         badDatabase.clear();
     }
 
     public void testRawQuery() {
-        insertBasicTestModel();
+        badDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
         Cursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
-            assertEquals(1, dao.count(TestModel.class, Criterion.all));
+            assertEquals(1, badDatabase.count(TestModel.class, Criterion.all));
 
             // Test that raw query binds arguments correctly--if the argument
             // is bound as a String, the result will be empty
@@ -109,8 +114,8 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
     }
 
     /**
-     * {@link AbstractDatabase} does not automatically recreate the database when a migration fails. This is really to
-     * test that {@link com.yahoo.squidb.data.AbstractDatabase#recreate()} can safely be called during onUpgrade or
+     * {@link SquidDatabase} does not automatically recreate the database when a migration fails. This is really to
+     * test that {@link SquidDatabase#recreate()} can safely be called during onUpgrade or
      * onDowngrade as an exemplar for client developers.
      */
     public void testRecreateOnUpgradeFailure() {
@@ -123,17 +128,17 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
 
     private void testRecreateDuringMigration(boolean upgrade) {
         // insert some data to check for later
-        dao.persist(new Employee().setName("Alice"));
-        dao.persist(new Employee().setName("Bob"));
-        dao.persist(new Employee().setName("Cindy"));
-        assertEquals(3, dao.count(Employee.class, Criterion.all));
+        badDatabase.persist(new Employee().setName("Alice"));
+        badDatabase.persist(new Employee().setName("Bob"));
+        badDatabase.persist(new Employee().setName("Cindy"));
+        assertEquals(3, badDatabase.count(Employee.class, Criterion.all));
 
         testMigrationFailureCalled(upgrade, false, true);
 
         // verify the db was recreated with the appropriate version and no previous data
         SQLiteDatabase db = badDatabase.getDatabase();
         assertEquals(badDatabase.getVersion(), db.getVersion());
-        assertEquals(0, dao.count(Employee.class, Criterion.all));
+        assertEquals(0, badDatabase.count(Employee.class, Criterion.all));
     }
 
     public void testAcquireExclusiveLockFailsWhenInTransaction() {
@@ -187,7 +192,7 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected String getName() {
+        public String getName() {
             return "badDb";
         }
 
@@ -242,5 +247,137 @@ public class AbstractDatabaseTest extends DatabaseTestCase {
         protected boolean tryAddColumn(Property<?> property) {
             return super.tryAddColumn(property);
         }
+    }
+
+    public void testBasicInsertAndFetch() {
+        TestModel model = insertBasicTestModel();
+
+        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        assertEquals("Sam", fetch.getFirstName());
+        assertEquals("Bosley", fetch.getLastName());
+        assertEquals(testDate, fetch.getBirthday().longValue());
+    }
+
+    public void testPropertiesAreNullable() {
+        TestModel model = insertBasicTestModel();
+        model.setFirstName(null);
+        model.setLastName(null);
+
+        assertNull(model.getFirstName());
+        assertNull(model.getLastName());
+        database.persist(model);
+
+        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        assertNull(fetch.getFirstName());
+        assertNull(fetch.getLastName());
+    }
+
+    public void testBooleanProperties() {
+        TestModel model = insertBasicTestModel();
+        assertTrue(model.isHappy());
+
+        model.setIsHappy(false);
+        assertFalse(model.isHappy());
+        database.persist(model);
+        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        assertFalse(fetch.isHappy());
+    }
+
+    public void testQueriesWithBooleanPropertiesWork() {
+        insertBasicTestModel();
+
+        SquidCursor<TestModel> result = database
+                .query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isTrue()));
+        assertEquals(1, result.getCount());
+        result.moveToFirst();
+        TestModel model = new TestModel(result);
+        assertTrue(model.isHappy());
+
+        model.setIsHappy(false);
+        database.persist(model);
+        result.close();
+
+        result = database.query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
+        assertEquals(1, result.getCount());
+        result.moveToFirst();
+        model = new TestModel(result);
+        assertFalse(model.isHappy());
+    }
+
+    public void testConflict() {
+        insertBasicTestModel();
+
+        TestModel conflict = new TestModel();
+        conflict.setFirstName("Dave");
+        conflict.setLastName("Bosley");
+
+        boolean result = database.persistWithOnConflict(conflict, TableStatement.ConflictAlgorithm.IGNORE);
+        assertFalse(result);
+        TestModel shouldntExist = database.fetchByCriterion(TestModel.class,
+                TestModel.FIRST_NAME.eq("Dave").and(TestModel.LAST_NAME.eq("Bosley")),
+                TestModel.PROPERTIES);
+        assertNull(shouldntExist);
+        SQLiteConstraintException expected = null;
+        try {
+            conflict.clearValue(TestModel.ID);
+            database.persistWithOnConflict(conflict, TableStatement.ConflictAlgorithm.FAIL);
+        } catch (SQLiteConstraintException e) {
+            expected = e;
+        }
+        assertNotNull(expected);
+    }
+
+    public void testListProperty() {
+        TestModel model = insertBasicTestModel();
+        List<String> numbers = Arrays.asList("0", "1", "2", "3");
+        model.setSomeList(numbers);
+
+        database.persist(model);
+
+        model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        List<String> readNumbers = model.getSomeList();
+        assertEquals(numbers.size(), readNumbers.size());
+        for (int i = 0; i < numbers.size(); i++) {
+            assertEquals(numbers.get(i), readNumbers.get(i));
+        }
+    }
+
+    public void testFetchByQueryResetsLimitAndTable() {
+        TestModel model1 = new TestModel().setFirstName("Sam1").setLastName("Bosley1");
+        TestModel model2 = new TestModel().setFirstName("Sam2").setLastName("Bosley2");
+        TestModel model3 = new TestModel().setFirstName("Sam3").setLastName("Bosley3");
+        database.persist(model1);
+        database.persist(model2);
+        database.persist(model3);
+
+        Query query = Query.select().limit(2, 1);
+        TestModel fetched = database.fetchByQuery(TestModel.class, query);
+        assertEquals(model2.getId(), fetched.getId());
+        assertEquals(2, query.getLimit());
+        assertEquals(1, query.getOffset());
+        assertEquals(null, query.getTable());
+    }
+
+    public void testEqCaseInsensitive() {
+        insertBasicTestModel();
+
+        TestModel fetch = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eqCaseInsensitive("BOSLEY"),
+                TestModel.PROPERTIES);
+        assertNotNull(fetch);
+    }
+
+    public void testInsertRow() {
+        TestModel model = insertBasicTestModel();
+        assertNotNull(database.fetch(TestModel.class, model.getId()));
+
+        database.delete(TestModel.class, model.getId());
+        assertNull(database.fetch(TestModel.class, model.getId()));
+
+        long modelId = model.getId();
+        database.insertRow(model); // Should reinsert the row with the same id
+
+        assertEquals(modelId, model.getId());
+        assertNotNull(database.fetch(TestModel.class, model.getId()));
+        assertEquals(1, database.count(TestModel.class, Criterion.all));
     }
 }

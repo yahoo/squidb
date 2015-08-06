@@ -31,7 +31,7 @@ import java.util.Set;
  * <ol>
  * <li>values explicitly set using set(Property, Object) or a generated setter, found in the set returned by
  * {@link #getSetValues()}</li>
- * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
+ * <li>values written to the model as a result of fetching it using a {@link SquidDatabase} or constructing it from a
  * {@link SquidCursor}, found in the set returned by {@link #getDatabaseValues()}</li>
  * <li>default values, found in the set returned by {@link #getDefaultValues()}</li>
  * </ol>
@@ -48,10 +48,10 @@ import java.util.Set;
  * database.
  *
  * <pre>
- * DatabaseDao dao = ...
- * Model model = dao.fetch(Model.class, id, Model.PROPERTIES);
+ * MyDatabase db = ...
+ * Model model = db.fetch(Model.class, id, Model.PROPERTIES);
  * // or
- * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * cursor.moveToFirst();
  * Model model = new Model(cursor);
  * </pre>
@@ -261,8 +261,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * Return the value of the specified {@link Property}. The model prioritizes values as follows:
      * <ol>
      * <li>values explicitly set using {@link #set(Property, Object)} or a generated setter</li>
-     * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
-     * {@link SquidCursor}</li>
+     * <li>values written to the model as a result of fetching it using a {@link SquidDatabase} or constructing it from
+     * a {@link SquidCursor}</li>
      * <li>the set of default values as specified by {@link #getDefaultValues()}</li>
      * </ol>
      * If a value is not found in any of those places, an exception is thrown.
@@ -541,7 +541,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             if (value instanceof Boolean) {
                 dst.put(property.getName(), (Boolean) value);
             } else if (value instanceof Integer) {
-                dst.put(property.getName(), ((Integer) value).intValue() != 0);
+                dst.put(property.getName(), ((Integer) value) != 0);
             }
             return null;
         }

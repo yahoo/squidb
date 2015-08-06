@@ -24,30 +24,30 @@ public class FtsQueryTest extends DatabaseTestCase {
         model1 = new TestVirtualModel()
                 .setTitle("Programmer")
                 .setBody("(n.) a person who converts caffeine and pizza into sometimes-working code.");
-        dao.persist(model1);
+        database.persist(model1);
 
         model2 = new TestVirtualModel()
                 .setTitle("Java code")
                 .setBody("A programmer had a problem, so he decided to use Java. Now he has a ProblemFactory.");
-        dao.persist(model2);
+        database.persist(model2);
 
         model3 = new TestVirtualModel()
                 .setTitle("How programmers think")
                 .setBody("A programmer is at work when his wife calls and asks him to go to the store. She says "
                         + "she needs a gallon of milk, and if they have fresh eggs, buy a dozen. He comes home with "
                         + "12 gallons of milk.");
-        dao.persist(model3);
+        database.persist(model3);
 
         model4 = new TestVirtualModel()
                 .setTitle("Support")
                 .setBody("Programming is like sex: One mistake and you have to support it for the rest of your life.");
-        dao.persist(model4);
+        database.persist(model4);
 
         model5 = new TestVirtualModel()
                 .setTitle("Smooth operator")
                 .setBody("A SQL query walks into a bar, strolls up to a couple of tables and asks, "
                         + "\"May I join you?\"");
-        dao.persist(model5);
+        database.persist(model5);
     }
 
     public void testQueryUsingIdProperty() {
@@ -85,7 +85,7 @@ public class FtsQueryTest extends DatabaseTestCase {
 
     private void testQueryResults(Criterion criterion, TestVirtualModel... expectedResults) {
         Query query = Query.select(TestVirtualModel.PROPERTIES).where(criterion);
-        SquidCursor<TestVirtualModel> cursor = dao.query(TestVirtualModel.class, query);
+        SquidCursor<TestVirtualModel> cursor = database.query(TestVirtualModel.class, query);
         try {
             int expectedCount = expectedResults == null ? 0 : expectedResults.length;
             assertEquals(expectedCount, cursor.getCount());
