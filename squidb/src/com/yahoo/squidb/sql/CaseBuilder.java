@@ -39,7 +39,7 @@ public class CaseBuilder {
             throw new IllegalStateException("Can't call when() after calling end()");
         }
         if (whens == null) {
-            // always intialized together
+            // always initialized together
             whens = new ArrayList<Object>();
             thens = new ArrayList<Object>();
         }

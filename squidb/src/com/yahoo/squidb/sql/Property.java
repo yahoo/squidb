@@ -195,17 +195,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyVisitor<RETURN, PARAMETER> {
 
-        public RETURN visitInteger(Property<Integer> property, PARAMETER data);
+        RETURN visitInteger(Property<Integer> property, PARAMETER data);
 
-        public RETURN visitLong(Property<Long> property, PARAMETER data);
+        RETURN visitLong(Property<Long> property, PARAMETER data);
 
-        public RETURN visitDouble(Property<Double> property, PARAMETER data);
+        RETURN visitDouble(Property<Double> property, PARAMETER data);
 
-        public RETURN visitString(Property<String> property, PARAMETER data);
+        RETURN visitString(Property<String> property, PARAMETER data);
 
-        public RETURN visitBoolean(Property<Boolean> property, PARAMETER data);
+        RETURN visitBoolean(Property<Boolean> property, PARAMETER data);
 
-        public RETURN visitBlob(Property<byte[]> property, PARAMETER data);
+        RETURN visitBlob(Property<byte[]> property, PARAMETER data);
     }
 
     /**
@@ -213,17 +213,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyWritingVisitor<RETURN, DST, PARAMETER> {
 
-        public RETURN visitInteger(Property<Integer> property, DST dst, PARAMETER data);
+        RETURN visitInteger(Property<Integer> property, DST dst, PARAMETER data);
 
-        public RETURN visitLong(Property<Long> property, DST dst, PARAMETER data);
+        RETURN visitLong(Property<Long> property, DST dst, PARAMETER data);
 
-        public RETURN visitDouble(Property<Double> property, DST dst, PARAMETER data);
+        RETURN visitDouble(Property<Double> property, DST dst, PARAMETER data);
 
-        public RETURN visitString(Property<String> property, DST dst, PARAMETER data);
+        RETURN visitString(Property<String> property, DST dst, PARAMETER data);
 
-        public RETURN visitBoolean(Property<Boolean> property, DST dst, PARAMETER data);
+        RETURN visitBoolean(Property<Boolean> property, DST dst, PARAMETER data);
 
-        public RETURN visitBlob(Property<byte[]> property, DST dst, PARAMETER data);
+        RETURN visitBlob(Property<byte[]> property, DST dst, PARAMETER data);
     }
 
     // --- children
