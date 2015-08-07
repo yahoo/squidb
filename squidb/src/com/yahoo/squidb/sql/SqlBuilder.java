@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class SqlBuilder {
+public final class SqlBuilder {
 
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
-    final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+    public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
     final List<Object> args;
     private boolean needsValidation = false;
 
@@ -21,31 +21,48 @@ class SqlBuilder {
         args = withBoundArguments ? new ArrayList<Object>() : null;
     }
 
+    /**
+     * @return the compiled SQL string
+     */
     public String getSqlString() {
         return sql.toString();
     }
 
+    /**
+     * @return a List of objects to bind as arguments to the SQL statement, or null if bound arguments were disabled
+     */
     public List<Object> getBoundArguments() {
         return args;
     }
 
+    /**
+     * @return true if the statement has been flagged as needing validation (only relevant for Query objects)
+     */
     public boolean needsValidation() {
         return needsValidation;
     }
 
-    void setNeedsValidation() {
+    /**
+     * Sets a flag indicating that the statement being built by this SqlBuilder needs to be validated
+     */
+    public void setNeedsValidation() {
         needsValidation = true;
     }
 
     /**
      * Append a value to a SQL string being built. If the SqlBuilder has bound arguments enabled, a '?' may be placed
-     * in the SQL string and the value added to {@link #args} instead. This method properly handles {@link Field},
-     * {@link Property}, {@link Query}, and other database objects.
+     * in the SQL string and the value added to the bound arguments list instead. This method properly handles
+     * {@link Field}, {@link Property}, {@link Query}, and other database objects.
+     * <p>
+     * This method is intended for adding things like {@link Field} objects or values that serve as arguments to
+     * {@link Criterion}s to the SQL string. String objects will be escaped and surrounded by quotes, or bound as an
+     * argument to the SQL. If you want to append something directly to the SQL string (like a parentheses or a
+     * syntactic string like SELECT), you can access the {@link #sql} StringBuilder directly.
      *
      * @param value The value to be appended
      * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
-    void addValueToSql(Object value, boolean forSqlValidation) {
+    public void addValueToSql(Object value, boolean forSqlValidation) {
         if (value instanceof DBObject<?>) {
             ((DBObject<?>) value).appendQualifiedExpression(this, forSqlValidation);
         } else if (value instanceof Query) {
@@ -55,6 +72,8 @@ class SqlBuilder {
             sql.append(")");
         } else if (value instanceof CompilableWithArguments) {
             ((CompilableWithArguments) value).appendToSqlBuilder(this, forSqlValidation);
+        } else if (value instanceof Collection<?>) {
+            addCollectionArg((Collection<?>) value);
         } else if (args == null) {
             sql.append(SqlUtils.toSanitizedString(value));
         } else {
