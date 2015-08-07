@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class RawFunction<TYPE> extends Function<TYPE> {
 
     public RawFunction(String expression) {
@@ -14,8 +12,8 @@ class RawFunction<TYPE> extends Function<TYPE> {
     }
 
     @Override
-    protected void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append(expression);
+    protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(expression);
     }
 
     @Override

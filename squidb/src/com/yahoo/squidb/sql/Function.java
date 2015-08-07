@@ -7,8 +7,6 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
 
-import java.util.List;
-
 /**
  * A {@link Field} defined as a SQLite function.
  * <p>
@@ -49,16 +47,16 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     @Override
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendFunctionExpression(sql, selectionArgsBuilder);
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+        appendFunctionExpression(builder, forSqlValidation);
     }
 
-    protected abstract void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder);
+    protected abstract void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation);
 
     @Override
     public String getExpression() {
-        StringBuilder sql = new StringBuilder();
-        appendQualifiedExpression(sql, null);
+        SqlBuilder sql = new SqlBuilder(false);
+        appendQualifiedExpression(sql, false);
         return sql.toString();
     }
 
@@ -265,10 +263,9 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     public static <T, R> Function<R> cast(final Field<T> field, final String newType) {
         return new ArgumentFunction<R>("CAST") {
             @Override
-            protected void appendArgumentList(StringBuilder sql, List<Object> selectionArgsBuilder,
-                    Object[] arguments) {
-                SqlUtils.addToSqlString(sql, selectionArgsBuilder, field);
-                sql.append(" AS ").append(newType);
+            protected void appendArgumentList(SqlBuilder builder, Object[] arguments, boolean forSqlValidation) {
+                builder.addValueToSql(field, forSqlValidation);
+                builder.sql.append(" AS ").append(newType);
             }
         };
     }

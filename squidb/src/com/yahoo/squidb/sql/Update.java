@@ -146,14 +146,14 @@ public class Update extends TableStatement {
     }
 
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> updateArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         assertValues();
 
-        sql.append("UPDATE ");
-        visitConflictAlgorithm(sql);
-        sql.append(table.getExpression()).append(" SET ");
-        visitValues(sql, updateArgsBuilder);
-        visitWhere(sql, updateArgsBuilder);
+        builder.sql.append("UPDATE ");
+        visitConflictAlgorithm(builder.sql);
+        builder.sql.append(table.getExpression()).append(" SET ");
+        visitValues(builder, forSqlValidation);
+        visitWhere(builder, forSqlValidation);
     }
 
     private void assertValues() {
@@ -168,25 +168,25 @@ public class Update extends TableStatement {
         }
     }
 
-    protected void visitValues(StringBuilder sql, List<Object> updateArgsBuilder) {
+    protected void visitValues(SqlBuilder builder, boolean forSqlValidation) {
         boolean appendComma = false;
         for (String column : valuesToUpdate.keySet()) {
             if (appendComma) {
-                sql.append(",");
+                builder.sql.append(",");
             }
             appendComma = true;
 
-            sql.append(column).append(" = ");
+            builder.sql.append(column).append(" = ");
             Object value = valuesToUpdate.get(column);
-            SqlUtils.addToSqlString(sql, updateArgsBuilder, value);
+            builder.addValueToSql(value, forSqlValidation);
         }
     }
 
-    private void visitWhere(StringBuilder sql, List<Object> updateArgsBuilder) {
+    private void visitWhere(SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
-        sql.append(" WHERE ");
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, updateArgsBuilder, " AND ");
+        builder.sql.append(" WHERE ");
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
     }
 }

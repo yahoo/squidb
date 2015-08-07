@@ -5,14 +5,12 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 /**
  * A compound operator used in SELECT statements
  *
  * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
  */
-public final class CompoundSelect extends Validatable {
+public final class CompoundSelect extends CompilableWithArguments {
 
     private enum CompoundSelectOperator {
         UNION("UNION"),
@@ -73,9 +71,8 @@ public final class CompoundSelect extends Validatable {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
-            boolean withValidation) {
-        sql.append(operator.toString()).append(" ");
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(operator.toString()).append(" ");
+        query.appendToSqlBuilder(builder, forSqlValidation);
     }
 }

@@ -917,8 +917,8 @@ public class QueryTest extends DatabaseTestCase {
         final Semaphore blockThread = new Semaphore(0);
         Criterion weirdCriterion = new BinaryCriterion(Thing.BAR, Operator.eq, 0) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                super.populate(sql, selectionArgsBuilder);
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                super.populate(builder, forSqlValidation);
                 if (compiledOnce.compareAndSet(false, true)) {
                     try {
                         blockThread.release();
@@ -964,19 +964,36 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
-    public void testNeedsValidationUpdatedByMutation() {
-        Query subquery = Query.select(Thing.PROPERTIES).from(Thing.TABLE);
+    public void testNeedsValidationUpdatedBySubqueryTable() {
+        Query subquery = Query.select(Thing.PROPERTIES).from(Thing.TABLE).where(Criterion.literal(123));
         subquery.requestValidation();
+        assertTrue(subquery.compile().sql.contains("WHERE (?)"));
 
         Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
         assertFalse(baseTestQuery.needsValidation());
 
         Query testQuery = baseTestQuery.from(subquery.as("t1"));
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
+        assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
         testQuery = baseTestQuery.innerJoin(subquery.as("t2"), Criterion.all);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
+        assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
         testQuery = baseTestQuery.union(subquery);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile().needsValidation);
+        assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
+    }
+
+    public void testNeedsValidationUpdatedByQueryFunction() {
+        Query subquery = Query.select(Function.max(Thing.ID)).from(Thing.TABLE).where(Criterion.literal(123));
+        subquery.requestValidation();
+        assertTrue(subquery.compile().sql.contains("WHERE (?)"));
+
+        Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
+        assertFalse(baseTestQuery.needsValidation());
+
+        Query testQuery = baseTestQuery.selectMore(subquery.asFunction());
+        assertTrue(testQuery.compile().needsValidation);
+        assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
     }
 
     public void testLiteralCriterions() {

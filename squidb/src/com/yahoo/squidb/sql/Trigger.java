@@ -11,8 +11,6 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.yahoo.squidb.sql.SqlUtils.EMPTY_ARGS;
-
 /**
  * Triggers are database operations that are automatically performed when a specified database event occurs.
  * <p>
@@ -284,19 +282,19 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     @Override
     public CompiledStatement compile() {
         // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-        return new CompiledStatement(toRawSql(), EMPTY_ARGS);
+        return new CompiledStatement(toRawSql(), EMPTY_ARGS, false);
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         assertTriggerEvent();
         assertStatements();
 
-        visitCreateTrigger(sql);
-        visitTriggerType(sql);
-        visitTriggerEvent(sql);
-        visitWhen(sql);
-        visitStatements(sql);
+        visitCreateTrigger(builder.sql);
+        visitTriggerType(builder.sql);
+        visitTriggerEvent(builder.sql);
+        visitWhen(builder, forSqlValidation);
+        visitStatements(builder.sql);
     }
 
     private void assertTriggerEvent() {
@@ -338,13 +336,13 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         sql.append(" ON ").append(table.getExpression()).append(" ");
     }
 
-    private void visitWhen(StringBuilder sql) {
+    private void visitWhen(SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
-        sql.append("WHEN ");
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, null, " AND ");
-        sql.append(" ");
+        builder.sql.append("WHEN ");
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
+        builder.sql.append(" ");
     }
 
     private void visitStatements(StringBuilder sql) {

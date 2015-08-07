@@ -10,6 +10,8 @@ package com.yahoo.squidb.sql;
  */
 public interface SqlStatement {
 
+    Object[] EMPTY_ARGS = new Object[0];
+
     /** Character substituted by values when used in SQL statements */
     String REPLACEABLE_PARAMETER = "?";
     String REPLACEABLE_ARRAY_PARAMETER = "[?]";

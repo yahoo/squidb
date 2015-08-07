@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class ArgumentFunction<TYPE> extends Function<TYPE> {
 
     private final String functionName;
@@ -19,18 +17,18 @@ class ArgumentFunction<TYPE> extends Function<TYPE> {
     }
 
     @Override
-    protected void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append(functionName).append("(");
-        appendArgumentList(sql, selectionArgsBuilder, arguments);
-        sql.append(")");
+    protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(functionName).append("(");
+        appendArgumentList(builder, arguments, forSqlValidation);
+        builder.sql.append(")");
     }
 
-    protected void appendArgumentList(StringBuilder sql, List<Object> selectionArgsBuilder, Object[] arguments) {
+    protected void appendArgumentList(SqlBuilder builder, Object[] arguments, boolean forSqlValidation) {
         for (int i = 0; i < arguments.length; i++) {
             if (i > 0) {
-                sql.append(separator());
+                builder.sql.append(separator());
             }
-            SqlUtils.addToSqlString(sql, selectionArgsBuilder, arguments[i]);
+            builder.addValueToSql(arguments[i], forSqlValidation);
         }
     }
 

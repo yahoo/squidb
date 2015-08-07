@@ -176,7 +176,6 @@ public final class Query extends TableStatement {
         }
         if (this.table != table) {
             this.table = table;
-            updateNeedsValidationFromTable(table);
             if (selectAllCache != null) {
                 selectAllCache.clear();
             }
@@ -199,9 +198,6 @@ public final class Query extends TableStatement {
             this.joins = new ArrayList<Join>();
         }
         SquidUtilities.addAll(this.joins, joins);
-        for (Join join : joins) {
-            updateNeedsValidationFromTable(join.joinTable);
-        }
         if (selectAllCache != null) {
             selectAllCache.clear();
         }
@@ -375,9 +371,6 @@ public final class Query extends TableStatement {
         }
         this.compoundSelects.add(compoundSelect);
         invalidateCompileCache();
-        if (compoundSelect.query.needsValidation()) {
-            requestValidation();
-        }
     }
 
     /**
@@ -464,14 +457,6 @@ public final class Query extends TableStatement {
         return needsValidation;
     }
 
-    private void updateNeedsValidationFromTable(SqlTable<?> sqlTable) {
-        if (sqlTable instanceof SubqueryTable) {
-            if (((SubqueryTable) sqlTable).query.needsValidation()) {
-                requestValidation();
-            }
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         return this == o || !(o == null || getClass() != o.getClass()) && this.toString().equals(o.toString());
@@ -482,118 +467,104 @@ public final class Query extends TableStatement {
         return toString().hashCode();
     }
 
-    public final String sqlForValidation() {
-        List<Object> argsOrReferences = new ArrayList<Object>();
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        appendCompiledStringWithArguments(sql, argsOrReferences, true);
-        return new CompiledArgumentResolver(sql.toString(), argsOrReferences).resolveToCompiledStatement().sql;
-    }
-
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendCompiledStringWithArguments(sql, selectionArgsBuilder, false);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        visitSelectClause(builder, forSqlValidation);
+        visitFromClause(builder, forSqlValidation);
+        visitJoinClause(builder, forSqlValidation);
+        visitWhereClause(builder, forSqlValidation);
+        visitGroupByClause(builder, forSqlValidation);
+        visitCompoundSelectClauses(builder, forSqlValidation);
+        visitOrderByClause(builder, forSqlValidation);
+        visitLimitClause(builder);
+
+        if (needsValidation) {
+            builder.setNeedsValidation();
+        }
     }
 
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
-            boolean withValidation) {
-        visitSelectClause(sql, selectionArgsBuilder);
-        visitFromClause(sql, selectionArgsBuilder, withValidation);
-        visitJoinClause(sql, selectionArgsBuilder, withValidation);
-        visitWhereClause(sql, selectionArgsBuilder, withValidation);
-        visitGroupByClause(sql, selectionArgsBuilder);
-        visitCompoundSelectClauses(sql, selectionArgsBuilder, withValidation);
-        visitOrderByClause(sql, selectionArgsBuilder);
-        visitLimitClause(sql);
-    }
-
-    private void visitSelectClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append("SELECT ");
+    private void visitSelectClause(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("SELECT ");
         if (distinct) {
-            sql.append("DISTINCT ");
+            builder.sql.append("DISTINCT ");
         }
 
         if (isEmpty(fields)) {
-            sql.append("*");
+            builder.sql.append("*");
             return;
         }
-        SqlUtils.appendConcatenatedCompilables(fields, sql, selectionArgsBuilder, ", ");
+        builder.appendConcatenatedCompilables(fields, ", ", forSqlValidation);
     }
 
-    private void visitFromClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
+    private void visitFromClause(SqlBuilder builder, boolean forSqlValidation) {
         if (table == null) {
             return;
         }
-        sql.append(" FROM ");
-        if (table instanceof SubqueryTable) {
-            ((SubqueryTable) table)
-                    .appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
-        } else {
-            table.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
-        }
+        builder.sql.append(" FROM ");
+        table.appendToSqlBuilder(builder, forSqlValidation);
     }
 
-    private void visitJoinClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
+    private void visitJoinClause(SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(joins)) {
             return;
         }
-        sql.append(" ");
-        SqlUtils.appendConcatenatedValidatables(joins, sql, selectionArgsBuilder, " ", withValidation);
+        builder.sql.append(" ");
+        builder.appendConcatenatedCompilables(joins, " ", forSqlValidation);
     }
 
-    private void visitWhereClause(StringBuilder sql, List<Object> selectionArgsBuilder, boolean withValidation) {
+    private void visitWhereClause(SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(criterions)) {
             return;
         }
-        sql.append(" WHERE ");
-        if (withValidation) {
-            sql.append("(");
+        builder.sql.append(" WHERE ");
+        if (forSqlValidation) {
+            builder.sql.append("(");
         }
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, selectionArgsBuilder, " AND ");
-        if (withValidation) {
-            sql.append(")");
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
+        if (forSqlValidation) {
+            builder.sql.append(")");
         }
     }
 
-    private void visitGroupByClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitGroupByClause(SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(groupBies)) {
             return;
         }
-        sql.append(" GROUP BY");
+        builder.sql.append(" GROUP BY");
         for (Field<?> groupBy : groupBies) {
-            sql.append(" ");
-            groupBy.appendQualifiedExpression(sql, selectionArgsBuilder);
-            sql.append(",");
+            builder.sql.append(" ");
+            groupBy.appendQualifiedExpression(builder, forSqlValidation);
+            builder.sql.append(",");
         }
-        sql.deleteCharAt(sql.length() - 1);
+        builder.sql.deleteCharAt(builder.sql.length() - 1);
         if (isEmpty(havings)) {
             return;
         }
-        sql.append(" HAVING ");
-        SqlUtils.appendConcatenatedCompilables(havings, sql, selectionArgsBuilder, " AND ");
+        builder.sql.append(" HAVING ");
+        builder.appendConcatenatedCompilables(havings, " AND ", forSqlValidation);
     }
 
-    private void visitCompoundSelectClauses(StringBuilder sql, List<Object> selectionArgsBuilder,
-            boolean withValidation) {
+    private void visitCompoundSelectClauses(SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(compoundSelects)) {
             return;
         }
-        sql.append(" ");
-        SqlUtils.appendConcatenatedValidatables(compoundSelects, sql, selectionArgsBuilder, " ", withValidation);
+        builder.sql.append(" ");
+        builder.appendConcatenatedCompilables(compoundSelects, " ", forSqlValidation);
     }
 
-    private void visitOrderByClause(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    private void visitOrderByClause(SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(orders)) {
             return;
         }
-        sql.append(" ORDER BY ");
-        SqlUtils.appendConcatenatedCompilables(orders, sql, selectionArgsBuilder, ", ");
+        builder.sql.append(" ORDER BY ");
+        builder.appendConcatenatedCompilables(orders, ", ", forSqlValidation);
     }
 
-    private void visitLimitClause(StringBuilder sql) {
+    private void visitLimitClause(SqlBuilder builder) {
         if (limit > NO_LIMIT || offset > NO_OFFSET) {
-            sql.append(" LIMIT ").append(limit);
+            builder.sql.append(" LIMIT ").append(limit);
             if (offset > NO_OFFSET) {
-                sql.append(" OFFSET ").append(offset);
+                builder.sql.append(" OFFSET ").append(offset);
             }
         }
     }

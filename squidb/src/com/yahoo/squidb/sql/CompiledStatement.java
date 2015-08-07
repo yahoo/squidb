@@ -14,9 +14,13 @@ public class CompiledStatement {
     public final String sql;
     /** Arguments that will bind to replaceable characters in the statement. */
     public final Object[] sqlArgs;
+    /** Flag that will be set to true if the statement should be compiled again with additional parentheses to guard
+     * against malicious SQL */
+    public final boolean needsValidation;
 
-    public CompiledStatement(String sql, Object[] args) {
+    public CompiledStatement(String sql, Object[] args, boolean needsValidation) {
         this.sql = sql;
         this.sqlArgs = args;
+        this.needsValidation = needsValidation;
     }
 }

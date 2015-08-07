@@ -133,20 +133,20 @@ public class Insert extends TableStatement {
     }
 
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> insertArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         assertValues();
 
-        sql.append("INSERT ");
-        visitConflictAlgorithm(sql);
-        sql.append("INTO ").append(table.getExpression()).append(" ");
-        visitColumns(sql);
+        builder.sql.append("INSERT ");
+        visitConflictAlgorithm(builder.sql);
+        builder.sql.append("INTO ").append(table.getExpression()).append(" ");
+        visitColumns(builder.sql);
 
         if (!valuesToInsert.isEmpty()) {
-            visitValues(sql, insertArgsBuilder);
+            visitValues(builder, forSqlValidation);
         } else if (query != null) {
-            visitQuery(sql, insertArgsBuilder);
+            visitQuery(builder, forSqlValidation);
         } else {
-            sql.append("DEFAULT VALUES");
+            builder.sql.append("DEFAULT VALUES");
         }
     }
 
@@ -193,25 +193,25 @@ public class Insert extends TableStatement {
         sql.append(") ");
     }
 
-    private void visitQuery(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+    private void visitQuery(SqlBuilder builder, boolean forSqlValidation) {
+        query.appendToSqlBuilder(builder, forSqlValidation);
     }
 
-    private void visitValues(StringBuilder sql, List<Object> insertArgsBuilder) {
-        sql.append("VALUES ");
+    private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("VALUES ");
         for (List<Object> valuesList : valuesToInsert) {
             if (valuesList.isEmpty()) {
                 continue;
             }
 
-            sql.append("(");
+            builder.sql.append("(");
             for (Object value : valuesList) {
-                SqlUtils.addToSqlString(sql, insertArgsBuilder, value);
-                sql.append(",");
+                builder.addValueToSql(value, forSqlValidation);
+                builder.sql.append(",");
             }
-            sql.deleteCharAt(sql.length() - 1);
-            sql.append("),");
+            builder.sql.deleteCharAt(builder.sql.length() - 1);
+            builder.sql.append("),");
         }
-        sql.deleteCharAt(sql.length() - 1);
+        builder.sql.deleteCharAt(builder.sql.length() - 1);
     }
 }
