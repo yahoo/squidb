@@ -31,7 +31,7 @@ public final class SqlBuilder {
     /**
      * @return a List of objects to bind as arguments to the SQL statement, or null if bound arguments were disabled
      */
-    public List<Object> getBoundArguments() {
+    List<Object> getBoundArguments() {
         return args;
     }
 
