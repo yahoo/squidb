@@ -28,7 +28,7 @@ class ArgumentFunction<TYPE> extends Function<TYPE> {
             if (i > 0) {
                 builder.sql.append(separator());
             }
-            SqlUtils.addToSqlBuilder(builder, arguments[i], forSqlValidation);
+            builder.addValueToSql(arguments[i], forSqlValidation);
         }
     }
 

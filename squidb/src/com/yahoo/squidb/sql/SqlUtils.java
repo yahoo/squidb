@@ -9,7 +9,6 @@ import android.text.TextUtils;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,50 +16,6 @@ public class SqlUtils {
 
     private SqlUtils() {
         /* no instantiation */
-    }
-
-    static final Object[] EMPTY_ARGS = new Object[0];
-
-    /**
-     * Append a literal value to a SQL string being built. If {@code sqlArgs} is provided, a '?' may be placed in the
-     * SQL string and the value added to {@code sqlArgs} instead. This method properly handles {@link Field},
-     * {@link Property}, {@link Query}, and other database objects.
-     *
-     * @param builder The {@link SqlBuilder} for building the SQL statement
-     * @param value The value to be appended
-     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
-     */
-    static void addToSqlBuilder(SqlBuilder builder, Object value, boolean forSqlValidation) {
-        if (value instanceof DBObject<?>) {
-            ((DBObject<?>) value).appendQualifiedExpression(builder, forSqlValidation);
-        } else if (value instanceof Query) {
-            Query query = (Query) value;
-            builder.sql.append("(");
-            query.appendToSqlBuilder(builder, forSqlValidation);
-            builder.sql.append(")");
-        } else if (value instanceof CompilableWithArguments) {
-            ((CompilableWithArguments) value).appendToSqlBuilder(builder, forSqlValidation);
-        } else if (builder.args == null) {
-            builder.sql.append(toSanitizedString(value));
-        } else {
-            if (value != null) {
-                builder.sql.append(SqlStatement.REPLACEABLE_PARAMETER);
-                builder.args.add(value);
-            } else {
-                builder.sql.append("NULL");
-            }
-        }
-    }
-
-    static void addCollectionArgToSqlBuilder(SqlBuilder builder, Collection<?> value) {
-        if (value != null) {
-            if (builder.args == null) {
-                addInlineCollectionToSqlString(builder.sql, value);
-            } else {
-                builder.sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
-                builder.args.add(value);
-            }
-        }
     }
 
     static void addInlineCollectionToSqlString(StringBuilder sql, Collection<?> values) {
@@ -144,20 +99,6 @@ public class SqlUtils {
             return ((AtomicBoolean) value).get() ? "1" : "0";
         } else {
             return sanitizeStringAsLiteral(String.valueOf(value));
-        }
-    }
-
-    static void appendConcatenatedCompilables(List<? extends CompilableWithArguments> compilables, SqlBuilder builder,
-            String separator, boolean forSqlValidation) {
-        if (compilables != null && !compilables.isEmpty()) {
-            boolean needSeparator = false;
-            for (CompilableWithArguments compilable : compilables) {
-                if (needSeparator) {
-                    builder.sql.append(separator);
-                }
-                needSeparator = true;
-                compilable.appendToSqlBuilder(builder, forSqlValidation);
-            }
         }
     }
 

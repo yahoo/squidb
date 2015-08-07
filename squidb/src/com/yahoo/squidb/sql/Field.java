@@ -154,9 +154,9 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
         return new BinaryCriterion(this, Operator.between, null) {
             @Override
             protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-                SqlUtils.addToSqlBuilder(builder, lower, forSqlValidation);
+                builder.addValueToSql(lower, forSqlValidation);
                 builder.sql.append(" AND ");
-                SqlUtils.addToSqlBuilder(builder, upper, forSqlValidation);
+                builder.addValueToSql(upper, forSqlValidation);
             }
         };
     }
@@ -212,7 +212,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
             @Override
             protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
                 builder.sql.append("(");
-                SqlUtils.addCollectionArgToSqlBuilder(builder, values);
+                builder.addCollectionArg(values);
                 builder.sql.append(")");
             }
         };

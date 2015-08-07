@@ -264,7 +264,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
         return new ArgumentFunction<R>("CAST") {
             @Override
             protected void appendArgumentList(SqlBuilder builder, Object[] arguments, boolean forSqlValidation) {
-                SqlUtils.addToSqlBuilder(builder, field, forSqlValidation);
+                builder.addValueToSql(field, forSqlValidation);
                 builder.sql.append(" AS ").append(newType);
             }
         };

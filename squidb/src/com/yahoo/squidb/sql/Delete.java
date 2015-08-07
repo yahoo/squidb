@@ -64,6 +64,6 @@ public class Delete extends TableStatement {
             return;
         }
         builder.sql.append(" WHERE ");
-        SqlUtils.appendConcatenatedCompilables(criterions, builder, " AND ", forSqlValidation);
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
     }
 }

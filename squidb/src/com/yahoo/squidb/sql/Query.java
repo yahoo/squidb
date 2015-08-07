@@ -493,7 +493,7 @@ public final class Query extends TableStatement {
             builder.sql.append("*");
             return;
         }
-        SqlUtils.appendConcatenatedCompilables(fields, builder, ", ", forSqlValidation);
+        builder.appendConcatenatedCompilables(fields, ", ", forSqlValidation);
     }
 
     private void visitFromClause(SqlBuilder builder, boolean forSqlValidation) {
@@ -509,7 +509,7 @@ public final class Query extends TableStatement {
             return;
         }
         builder.sql.append(" ");
-        SqlUtils.appendConcatenatedCompilables(joins, builder, " ", forSqlValidation);
+        builder.appendConcatenatedCompilables(joins, " ", forSqlValidation);
     }
 
     private void visitWhereClause(SqlBuilder builder, boolean forSqlValidation) {
@@ -520,7 +520,7 @@ public final class Query extends TableStatement {
         if (forSqlValidation) {
             builder.sql.append("(");
         }
-        SqlUtils.appendConcatenatedCompilables(criterions, builder, " AND ", forSqlValidation);
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
         if (forSqlValidation) {
             builder.sql.append(")");
         }
@@ -541,7 +541,7 @@ public final class Query extends TableStatement {
             return;
         }
         builder.sql.append(" HAVING ");
-        SqlUtils.appendConcatenatedCompilables(havings, builder, " AND ", forSqlValidation);
+        builder.appendConcatenatedCompilables(havings, " AND ", forSqlValidation);
     }
 
     private void visitCompoundSelectClauses(SqlBuilder builder, boolean forSqlValidation) {
@@ -549,7 +549,7 @@ public final class Query extends TableStatement {
             return;
         }
         builder.sql.append(" ");
-        SqlUtils.appendConcatenatedCompilables(compoundSelects, builder, " ", forSqlValidation);
+        builder.appendConcatenatedCompilables(compoundSelects, " ", forSqlValidation);
     }
 
     private void visitOrderByClause(SqlBuilder builder, boolean forSqlValidation) {
@@ -557,7 +557,7 @@ public final class Query extends TableStatement {
             return;
         }
         builder.sql.append(" ORDER BY ");
-        SqlUtils.appendConcatenatedCompilables(orders, builder, ", ", forSqlValidation);
+        builder.appendConcatenatedCompilables(orders, ", ", forSqlValidation);
     }
 
     private void visitLimitClause(SqlBuilder builder) {

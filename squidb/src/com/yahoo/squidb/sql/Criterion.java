@@ -135,7 +135,7 @@ public abstract class Criterion extends CompilableWithArguments {
         return new Criterion(null) {
             @Override
             protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-                SqlUtils.addToSqlBuilder(builder, value, forSqlValidation);
+                builder.addValueToSql(value, forSqlValidation);
             }
         };
     }
@@ -144,7 +144,7 @@ public abstract class Criterion extends CompilableWithArguments {
      * Convert this object's contents to valid SQL and append it to the SQL string being built. If
      * <code>selectionArgsBuilder</code> is provided, then use the '?' character in place of literal values and add
      * those values to <code>selectionArgsBuilder</code> instead. In most cases, use
-     * {@link SqlUtils#addToSqlBuilder(SqlBuilder, Object, boolean)} to handle this properly.
+     * {@link SqlBuilder#addValueToSql(Object, boolean)} to handle this properly.
      *
      * @param builder The {@link SqlBuilder} for building the SQL statement
      * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL

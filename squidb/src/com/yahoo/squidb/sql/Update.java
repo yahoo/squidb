@@ -178,7 +178,7 @@ public class Update extends TableStatement {
 
             builder.sql.append(column).append(" = ");
             Object value = valuesToUpdate.get(column);
-            SqlUtils.addToSqlBuilder(builder, value, forSqlValidation);
+            builder.addValueToSql(value, forSqlValidation);
         }
     }
 
@@ -187,6 +187,6 @@ public class Update extends TableStatement {
             return;
         }
         builder.sql.append(" WHERE ");
-        SqlUtils.appendConcatenatedCompilables(criterions, builder, " AND ", forSqlValidation);
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
     }
 }

@@ -69,7 +69,7 @@ public class Order extends CompilableWithArguments {
         if (orderType == OrderType.RAW) {
             builder.sql.append(expression);
         } else {
-            SqlUtils.addToSqlBuilder(builder, expression, forSqlValidation);
+            builder.addValueToSql(expression, forSqlValidation);
             builder.sql.append(" ").append(orderType.toString());
         }
     }

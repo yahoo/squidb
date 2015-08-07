@@ -11,8 +11,6 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.yahoo.squidb.sql.SqlUtils.EMPTY_ARGS;
-
 /**
  * Triggers are database operations that are automatically performed when a specified database event occurs.
  * <p>
@@ -343,7 +341,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
             return;
         }
         builder.sql.append("WHEN ");
-        SqlUtils.appendConcatenatedCompilables(criterions, builder, " AND ", forSqlValidation);
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
         builder.sql.append(" ");
     }
 
