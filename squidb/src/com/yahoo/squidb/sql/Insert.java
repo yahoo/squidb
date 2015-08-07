@@ -206,7 +206,7 @@ public class Insert extends TableStatement {
 
             builder.sql.append("(");
             for (Object value : valuesList) {
-                SqlUtils.addToSqlString(builder, value, forSqlValidation);
+                SqlUtils.addToSqlBuilder(builder, value, forSqlValidation);
                 builder.sql.append(",");
             }
             builder.sql.deleteCharAt(builder.sql.length() - 1);

@@ -32,7 +32,7 @@ class BinaryCriterion extends Criterion {
     }
 
     protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-        SqlUtils.addToSqlString(builder, value, forSqlValidation);
+        SqlUtils.addToSqlBuilder(builder, value, forSqlValidation);
     }
 
     @Override

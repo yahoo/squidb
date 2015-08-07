@@ -30,7 +30,7 @@ public class SqlUtils {
      * @param value The value to be appended
      * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
-    static void addToSqlString(SqlBuilder builder, Object value, boolean forSqlValidation) {
+    static void addToSqlBuilder(SqlBuilder builder, Object value, boolean forSqlValidation) {
         if (value instanceof DBObject<?>) {
             ((DBObject<?>) value).appendQualifiedExpression(builder, forSqlValidation);
         } else if (value instanceof Query) {
@@ -52,7 +52,7 @@ public class SqlUtils {
         }
     }
 
-    static void addCollectionArgToSqlString(SqlBuilder builder, Collection<?> value) {
+    static void addCollectionArgToSqlBuilder(SqlBuilder builder, Collection<?> value) {
         if (value != null) {
             if (builder.args == null) {
                 addInlineCollectionToSqlString(builder.sql, value);

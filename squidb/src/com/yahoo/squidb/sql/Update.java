@@ -178,7 +178,7 @@ public class Update extends TableStatement {
 
             builder.sql.append(column).append(" = ");
             Object value = valuesToUpdate.get(column);
-            SqlUtils.addToSqlString(builder, value, forSqlValidation);
+            SqlUtils.addToSqlBuilder(builder, value, forSqlValidation);
         }
     }
 

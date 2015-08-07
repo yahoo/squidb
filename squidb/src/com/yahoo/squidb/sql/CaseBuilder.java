@@ -80,18 +80,18 @@ public class CaseBuilder {
                 builder.sql.append("(CASE");
                 if (baseExpression != null) {
                     builder.sql.append(' ');
-                    SqlUtils.addToSqlString(builder, baseExpression, forSqlValidation);
+                    SqlUtils.addToSqlBuilder(builder, baseExpression, forSqlValidation);
                 }
                 int size = whens.size();
                 for (int i = 0; i < size; i++) {
                     builder.sql.append(" WHEN ");
-                    SqlUtils.addToSqlString(builder, whens.get(i), forSqlValidation);
+                    SqlUtils.addToSqlBuilder(builder, whens.get(i), forSqlValidation);
                     builder.sql.append(" THEN ");
-                    SqlUtils.addToSqlString(builder, thens.get(i), forSqlValidation);
+                    SqlUtils.addToSqlBuilder(builder, thens.get(i), forSqlValidation);
                 }
                 if (elseValue != null) {
                     builder.sql.append(" ELSE ");
-                    SqlUtils.addToSqlString(builder, elseValue, forSqlValidation);
+                    SqlUtils.addToSqlBuilder(builder, elseValue, forSqlValidation);
                 }
                 builder.sql.append(" END)");
             }

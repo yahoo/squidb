@@ -15,6 +15,6 @@ class QueryFunction<T> extends Function<T> {
 
     @Override
     protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
-        SqlUtils.addToSqlString(builder, query, forSqlValidation);
+        SqlUtils.addToSqlBuilder(builder, query, forSqlValidation);
     }
 }
