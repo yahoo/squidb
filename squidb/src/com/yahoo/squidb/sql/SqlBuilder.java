@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 class SqlBuilder {
 
@@ -15,7 +14,7 @@ class SqlBuilder {
 
     final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
     final List<Object> args;
-    final AtomicBoolean needsValidation = new AtomicBoolean(false);
+    private boolean needsValidation = false;
 
     SqlBuilder(boolean withBoundArguments) {
         args = withBoundArguments ? new ArrayList<Object>() : null;
@@ -30,7 +29,11 @@ class SqlBuilder {
     }
 
     public boolean needsValidation() {
-        return needsValidation.get();
+        return needsValidation;
+    }
+
+    void setNeedsValidation() {
+        needsValidation = true;
     }
 
 }

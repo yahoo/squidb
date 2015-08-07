@@ -479,7 +479,7 @@ public final class Query extends TableStatement {
         visitLimitClause(builder);
 
         if (needsValidation) {
-            builder.needsValidation.set(true);
+            builder.setNeedsValidation();
         }
     }
 
