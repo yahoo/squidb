@@ -23,10 +23,10 @@ import java.util.Set;
  * automatically). If you want your UriNotifier instance to be notified of all database operations regardless of table,
  * use the no-argument constructor.
  * <p>
- * When an instance of UriNotifier is registered with a SquidDatabase, the db will call {@link #addUrisToNotify(Set,
- * SqlTable, String, DBOperation, AbstractModel, long) addUrisToNotify} on the notifier whenever one of the
- * notifier's relevant tables was modified. Subclasses should override this method to construct a Uri to notify based
- * on the parameters passed to the method.
+ * When an instance of UriNotifier is registered with a SquidDatabase, the db will call {@link
+ * #accumulateNotificationObjects(Set, SqlTable, SquidDatabase, DBOperation, AbstractModel, long)}  on the
+ * notifier whenever one of the notifier's relevant tables was modified. Subclasses should override this method to
+ * construct a Uri to notify based on the parameters passed to the method.
  *
  * @see DataChangedNotifier
  * @see SquidDatabase#registerDataChangedNotifier(DataChangedNotifier)
@@ -41,7 +41,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     }
 
     /**
-     * For constructing a UriNotifier that will be notified of changes to the given tables
+     * Construct a UriNotifier that will be notified of changes to the given tables
      */
     public UriNotifier(SqlTable<?>... tables) {
         super(tables);
@@ -58,12 +58,13 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
      * Most UriNotifiers will probably not need all these parameters. For example:
      *
      * <pre>
-     * public void addUrisToNotify(Set&lt;Uri&gt; uris, SqlTable&lt;?&gt; table, String databaseName, DBOperation operation,
-     *     AbstractModel modelValues, long rowId) {
+     * protected boolean accumulateNotificationObjects(Set&lt;Uri&gtl accumulatorSet, SqlTable&lt;?&gt; table,
+     *     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
      *     // Notifies some constant Uri for any update on the students table
      *     if (Student.TABLE.equals(table)) {
-     *         uris.add(Student.CONTENT_URI);
+     *         return uris.add(Student.CONTENT_URI);
      *     }
+     *     return false;
      * }
      * </pre>
      *
