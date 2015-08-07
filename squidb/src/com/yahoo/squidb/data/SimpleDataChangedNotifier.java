@@ -35,8 +35,8 @@ public abstract class SimpleDataChangedNotifier extends DataChangedNotifier<Simp
     }
 
     @Override
-    protected final boolean accumulateNotificationObjects(Set<SimpleDataChangedNotifier> accumulatorSet, SqlTable<?> table,
-            SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+    protected final boolean accumulateNotificationObjects(Set<SimpleDataChangedNotifier> accumulatorSet,
+            SqlTable<?> table, SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
         return accumulatorSet.add(this);
     }
 

@@ -147,7 +147,8 @@ public abstract class Criterion extends CompilableWithArguments {
      * {@link SqlBuilder#addValueToSql(Object, boolean)} to handle this properly.
      *
      * @param builder The {@link SqlBuilder} for building the SQL statement
-     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
+     * SQL
      */
     protected abstract void populate(SqlBuilder builder, boolean forSqlValidation);
 
@@ -155,7 +156,8 @@ public abstract class Criterion extends CompilableWithArguments {
      * Append a string representation of this Criterion
      *
      * @param builder The {@link SqlBuilder} for building the SQL statement
-     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
+     * SQL
      */
     @Override
     void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {

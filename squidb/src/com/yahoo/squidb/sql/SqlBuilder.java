@@ -60,7 +60,8 @@ public final class SqlBuilder {
      * syntactic string like SELECT), you can access the {@link #sql} StringBuilder directly.
      *
      * @param value The value to be appended
-     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious SQL
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
+     * SQL
      */
     public void addValueToSql(Object value, boolean forSqlValidation) {
         if (value instanceof DBObject<?>) {

@@ -79,8 +79,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * For this reason, these methods are protected rather than public. You can choose to expose them in your database
  * subclass if you wish, but we recommend that you instead use the typesafe, public, model-bases methods, such as
- * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel, TableStatement.ConflictAlgorithm)},
- * {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
+ * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel,
+ * TableStatement.ConflictAlgorithm)}, {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
  * <p>
  * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
  * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
@@ -1788,7 +1788,8 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Unregister a {@link DataChangedNotifier} previously registered by {@link #registerDataChangedNotifier(DataChangedNotifier)}
+     * Unregister a {@link DataChangedNotifier} previously registered by
+     * {@link #registerDataChangedNotifier(DataChangedNotifier)}
      *
      * @param notifier the DataChangedNotifier to unregister
      */
@@ -1812,7 +1813,8 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Unregister all {@link DataChangedNotifier}s previously registered by {@link #registerDataChangedNotifier(DataChangedNotifier)}
+     * Unregister all {@link DataChangedNotifier}s previously registered by
+     * {@link #registerDataChangedNotifier(DataChangedNotifier)}
      */
     public void unregisterAllDataChangedNotifiers() {
         synchronized (notifiersLock) {
