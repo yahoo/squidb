@@ -129,14 +129,12 @@ public abstract class DataChangedNotifier<T> {
     // flushed/sent
     final void flushAccumulatedNotifications(SquidDatabase database, boolean shouldSendNotifications) {
         Set<T> accumulatedNotifications = notifyObjectAccumulator.get();
-        if (!enabled || !shouldSendNotifications) {
-            accumulatedNotifications.clear();
-            return;
+        if (enabled && shouldSendNotifications) {
+            for (T notifyObject : accumulatedNotifications) {
+                sendNotification(database, notifyObject);
+            }
         }
-
-        for (T notifyObject : accumulatedNotifications) {
-            sendNotification(database, notifyObject);
-        }
+        accumulatedNotifications.clear();
     }
 
     /**
