@@ -24,7 +24,7 @@ import java.util.Set;
  * use the no-argument constructor.
  * <p>
  * When an instance of UriNotifier is registered with a SquidDatabase, the db will call {@link
- * #accumulateNotificationObjects(Set, SqlTable, SquidDatabase, DBOperation, AbstractModel, long)}  on the
+ * #accumulateNotificationObjects(Set, SqlTable, SquidDatabase, DBOperation, AbstractModel, long)} on the
  * notifier whenever one of the notifier's relevant tables was modified. Subclasses should override this method to
  * construct a Uri to notify based on the parameters passed to the method.
  *
@@ -58,7 +58,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
      * Most UriNotifiers will probably not need all these parameters. For example:
      *
      * <pre>
-     * protected boolean accumulateNotificationObjects(Set&lt;Uri&gtl accumulatorSet, SqlTable&lt;?&gt; table,
+     * protected boolean accumulateNotificationObjects(Set&lt;Uri&gt; accumulatorSet, SqlTable&lt;?&gt; table,
      *     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
      *     // Notifies some constant Uri for any update on the students table
      *     if (Student.TABLE.equals(table)) {

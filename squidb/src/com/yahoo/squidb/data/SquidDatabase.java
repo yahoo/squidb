@@ -1812,7 +1812,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Unregister all {@link DataChangedNotifier}s previously registered by {@link #registerDataChangedNotifierNotifier(DataChangedNotifier)}
+     * Unregister all {@link DataChangedNotifier}s previously registered by {@link #registerDataChangedNotifier(DataChangedNotifier)}
      */
     public void unregisterAllDataChangedNotifiers() {
         synchronized (notifiersLock) {

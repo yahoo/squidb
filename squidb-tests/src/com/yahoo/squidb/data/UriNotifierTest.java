@@ -2,19 +2,12 @@ package com.yahoo.squidb.data;
 
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.text.format.DateUtils;
 
-import com.yahoo.squidb.data.DataChangedNotifier.DBOperation;
-import com.yahoo.squidb.sql.Delete;
-import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.SqlTable;
-import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.test.DatabaseTestCase;
-import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,31 +53,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         return gotUriNotification;
     }
 
-    public void testRegisterAndUnregister() {
-        final AtomicBoolean wasCalled = new AtomicBoolean(false);
-
-        UriNotifier notifier = new TestUriNotifier() {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                wasCalled.set(true);
-                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
-                        modelValues, rowId);
-            }
-
-        };
-        database.registerDataChangedNotifier(notifier);
-
-        TestModel t1 = insertBasicTestModel();
-        assertTrue(wasCalled.get());
-
-        wasCalled.set(false);
-        database.unregisterDataChangedNotifier(notifier);
-        database.delete(TestModel.class, t1.getId());
-        assertFalse(wasCalled.get());
-    }
-
-    public void testNotificationOccurs() {
+    public void testUriNotificationOccurs() {
         AtomicBoolean notified = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
@@ -92,192 +61,6 @@ public class UriNotifierTest extends DatabaseTestCase {
         insertBasicTestModel();
         waitForResolver();
         assertTrue(notified.get());
-    }
-
-    public void testInsert() {
-        final TestModel t1 = new TestModel().setFirstName("Sam").setLastName("Bosley")
-                .setBirthday(System.currentTimeMillis() - 1);
-        final TestModel t2 = new TestModel().setFirstName("Jon").setLastName("Koren")
-                .setBirthday(System.currentTimeMillis());
-        Runnable toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.createNew(t1);
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, t1, 1L);
-
-        toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.createNew(t2);
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, t2, 2L);
-
-        toRun = new Runnable() {
-            public void run() {
-                database.insert(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
-                        .values("Some", "Guy"));
-            }
-        };
-
-        testForParameters(toRun, TestModel.TABLE, DBOperation.INSERT, null, 3);
-    }
-
-    public void testUpdate() {
-        final TestModel t1 = insertBasicTestModel();
-        Runnable toRun = new Runnable() {
-            @Override
-            public void run() {
-                t1.setLastName("Boss");
-                database.persist(t1);
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.UPDATE, t1, t1.getId());
-
-        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis());
-        final TestModel template = new TestModel().setFirstName("The");
-        toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.update(TestModel.LAST_NAME.like("Bos%"), template);
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.UPDATE, template, 0);
-
-        toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.update(Update.table(TestModel.TABLE).fromTemplate(new TestModel().setFirstName("Guy"))
-                        .where(TestModel.LAST_NAME.like("Bos%")));
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.UPDATE, null, 0);
-    }
-
-    public void testDelete() {
-        final TestModel t1 = insertBasicTestModel();
-        Runnable toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.delete(TestModel.class, t1.getId());
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, t1.getId());
-
-        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis());
-        toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.deleteWhere(TestModel.class, TestModel.LAST_NAME.like("Bos%"));
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, 0);
-
-        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
-        toRun = new Runnable() {
-            @Override
-            public void run() {
-                database.delete(Delete.from(TestModel.TABLE).where(TestModel.LAST_NAME.like("Bos%")));
-            }
-        };
-        testForParameters(toRun, TestModel.TABLE, DBOperation.DELETE, null, 0);
-    }
-
-    private void testForParameters(Runnable execute, final SqlTable<?> expectedTable, final DBOperation expectedOp,
-            final AbstractModel expectedModel, final long expectedRowId) {
-        UriNotifier notifier = new TestUriNotifier() {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                assertEquals(expectedTable, table);
-                assertEquals(expectedOp, operation);
-                assertEquals(expectedModel, modelValues);
-                assertEquals(expectedRowId, rowId);
-                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
-                        modelValues, rowId);
-            }
-        };
-        database.registerDataChangedNotifier(notifier);
-        execute.run();
-        database.unregisterDataChangedNotifier(notifier);
-    }
-
-    public void testMultipleNotifiersCanBeRegistered() {
-        final AtomicBoolean n1Called = new AtomicBoolean(false);
-        final AtomicBoolean n2Called = new AtomicBoolean(false);
-        UriNotifier n1 = new TestUriNotifier() {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                n1Called.set(true);
-                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
-                        modelValues, rowId);
-            }
-        };
-        UriNotifier n2 = new TestUriNotifier() {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                n2Called.set(true);
-                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
-                        modelValues, rowId);
-            }
-        };
-
-        database.registerDataChangedNotifier(n1);
-        database.registerDataChangedNotifier(n2);
-
-        insertBasicTestModel();
-        waitForResolver();
-        assertTrue(n1Called.get());
-        assertTrue(n2Called.get());
-    }
-
-    public void testGlobalNotifiersNotifiedForAllTables() {
-        final Set<SqlTable<?>> calledForTables = new HashSet<SqlTable<?>>();
-        UriNotifier globalNotifier = new UriNotifier() {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                calledForTables.add(table);
-                return accumulatorSet.add(Uri.parse("content://com.yahoo.squidb/"));
-            }
-        };
-
-        database.registerDataChangedNotifier(globalNotifier);
-
-        insertBasicTestModel();
-        database.persist(new Employee().setName("Elmo"));
-
-        waitForResolver();
-        assertTrue(calledForTables.contains(TestModel.TABLE));
-        assertTrue(calledForTables.contains(Employee.TABLE));
-    }
-
-    public void testEnableAndDisableNotifications() {
-        UriNotifier notifier = new TestUriNotifier();
-        database.registerDataChangedNotifier(notifier);
-        AtomicBoolean notifiedUri = listenTo(TestModel.CONTENT_URI, false);
-        waitForResolver();
-
-        database.beginTransaction();
-        try {
-            database.setDataChangedNotificationsEnabled(false);
-
-            insertBasicTestModel("Tech Sergeant", "Chen", System.currentTimeMillis() - 1);
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-            assertFalse(notifiedUri.get());
-            database.setDataChangedNotificationsEnabled(true);
-            assertFalse(notifiedUri.get());
-        }
-
-        insertBasicTestModel();
-        waitForResolver();
-        assertTrue(notifiedUri.get());
     }
 
     public void testUrisNotifiedAtEndOfSuccessfulTransaction() {
