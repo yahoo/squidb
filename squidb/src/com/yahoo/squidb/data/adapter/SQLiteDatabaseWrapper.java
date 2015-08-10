@@ -39,9 +39,9 @@ public interface SQLiteDatabaseWrapper {
 
     void endTransaction();
 
-    void execSQL(String sql);
+    void execSQL(String sql) throws SQLExceptionWrapper;
 
-    void execSQL(String sql, Object[] bindArgs);
+    void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper;
 
     List<Pair<String, String>> getAttachedDbs();
 
