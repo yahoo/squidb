@@ -15,8 +15,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
-import android.database.sqlite.SQLiteTransactionListener;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
@@ -24,6 +22,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yahoo.squidb.Beta;
+import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
@@ -39,7 +39,6 @@ import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
-import com.yahoo.squidb.utility.SquidCursorFactory;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
@@ -239,7 +238,7 @@ public abstract class SquidDatabase {
      * Internal pointer to open database. Hides the fact that there is a database and a wrapper by making a single
      * monolithic interface
      */
-    private SQLiteDatabase database = null;
+    private SQLiteDatabaseWrapper database = null;
 
     /**
      * Map of class objects to corresponding tables
@@ -337,7 +336,7 @@ public abstract class SquidDatabase {
      * @see #acquireExclusiveLock()
      * @see #acquireNonExclusiveLock()
      */
-    protected synchronized final SQLiteDatabase getDatabase() {
+    protected synchronized final SQLiteDatabaseWrapper getDatabase() {
         if (database == null) {
             openForWriting();
         }
@@ -547,7 +546,7 @@ public abstract class SquidDatabase {
     public Cursor rawQuery(String sql, Object[] sqlArgs) {
         acquireNonExclusiveLock();
         try {
-            return getDatabase().rawQueryWithFactory(new SquidCursorFactory(sqlArgs), sql, null, null);
+            return getDatabase().rawQuery(sql, sqlArgs);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -557,7 +556,7 @@ public abstract class SquidDatabase {
     private void compileStatement(String sql) {
         acquireNonExclusiveLock();
         try {
-            SqlValidatorFactory.getValidator().compileStatement(getDatabase(), sql);
+            getDatabase().ensureSqlCompiles(sql);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -597,9 +596,7 @@ public abstract class SquidDatabase {
         CompiledStatement compiled = insert.compile();
         acquireNonExclusiveLock();
         try {
-            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
-            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
-            return statement.executeInsert();
+            return getDatabase().executeInsert(compiled.sql, compiled.sqlArgs);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -628,9 +625,7 @@ public abstract class SquidDatabase {
         CompiledStatement compiled = delete.compile();
         acquireNonExclusiveLock();
         try {
-            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
-            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
-            return statement.executeUpdateDelete();
+            return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -675,9 +670,7 @@ public abstract class SquidDatabase {
         CompiledStatement compiled = update.compile();
         acquireNonExclusiveLock();
         try {
-            SQLiteStatement statement = getDatabase().compileStatement(compiled.sql);
-            SquidCursorFactory.bindArgumentsToProgram(statement, compiled.sqlArgs);
-            return statement.executeUpdateDelete();
+            return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -716,7 +709,7 @@ public abstract class SquidDatabase {
      * @see #acquireNonExclusiveLock()
      * @see SQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener)
      */
-    public void beginTransactionWithListener(SQLiteTransactionListener listener) {
+    public void beginTransactionWithListener(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListener(listener);
         transactionSuccessState.get().beginTransaction();
@@ -729,7 +722,7 @@ public abstract class SquidDatabase {
      * @see #acquireNonExclusiveLock()
      * @see SQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener)
      */
-    public void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener listener) {
+    public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
         getDatabase().beginTransactionWithListenerNonExclusive(listener);
         transactionSuccessState.get().beginTransaction();
@@ -937,7 +930,7 @@ public abstract class SquidDatabase {
             }
 
             // post-table-creation
-            onTablesCreated(db);
+            SquidDatabase.this.onTablesCreated(db);
         }
 
         /**
@@ -1227,18 +1220,13 @@ public abstract class SquidDatabase {
      */
     public VersionCode getSqliteVersion() {
         acquireNonExclusiveLock();
-        SQLiteStatement stmt = null;
         try {
-            stmt = getDatabase().compileStatement("select sqlite_version()");
-            String versionString = stmt.simpleQueryForString();
+            String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
             throw new RuntimeException("Failed to read sqlite version", e);
         } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
             releaseNonExclusiveLock();
         }
     }
