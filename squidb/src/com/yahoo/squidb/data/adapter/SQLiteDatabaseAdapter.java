@@ -58,7 +58,6 @@ public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper<SQLiteDataba
         }
     }
 
-
     @Override
     public void beginTransaction() {
         db.beginTransaction();
