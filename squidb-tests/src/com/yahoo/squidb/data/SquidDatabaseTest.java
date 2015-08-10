@@ -8,9 +8,9 @@ package com.yahoo.squidb.data;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
+import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
@@ -94,7 +94,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.setShouldRecreate(shouldRecreate);
 
         // set version manually
-        SQLiteDatabase db = badDatabase.getDatabase();
+        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
         final int version = db.getVersion();
         final int previousVersion = upgrade ? version - 1 : version + 1;
         db.setVersion(previousVersion);
@@ -136,7 +136,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testMigrationFailureCalled(upgrade, false, true);
 
         // verify the db was recreated with the appropriate version and no previous data
-        SQLiteDatabase db = badDatabase.getDatabase();
+        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
         assertEquals(badDatabase.getVersion(), db.getVersion());
         assertEquals(0, badDatabase.count(Employee.class, Criterion.all));
     }
@@ -157,7 +157,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testCustomMigrationException() {
         TestDatabase database = new TestDatabase(getContext());
-        SQLiteDatabase db = database.getDatabase();
+        SQLiteDatabaseWrapper db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
         final int previousVersion = version + 1;
@@ -202,12 +202,12 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onTablesCreated(SQLiteDatabase db) {
+        protected void onTablesCreated(SQLiteDatabaseWrapper db) {
             onTablesCreatedCalled = true;
         }
 
         @Override
-        protected final boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        protected final boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
@@ -218,7 +218,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
@@ -297,7 +297,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         database.persist(model);
         result.close();
 
-        result = database.query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
+        result = database
+                .query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
         assertEquals(1, result.getCount());
         result.moveToFirst();
         model = new TestModel(result);
