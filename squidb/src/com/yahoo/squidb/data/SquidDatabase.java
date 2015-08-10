@@ -13,8 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
@@ -22,6 +20,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yahoo.squidb.Beta;
+import com.yahoo.squidb.data.adapter.DatabaseOpenHelper;
+import com.yahoo.squidb.data.adapter.DefaultDatabaseOpenHelper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 import com.yahoo.squidb.sql.CompiledStatement;
@@ -55,8 +55,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
- * Use this class to control the lifecycle of your database where you would normally use a {@link SQLiteOpenHelper}.
- * The first call to a read or write operation will open the database. You can close it again using {@link #close()}.
+ * Use this class to control the lifecycle of your database where you would normally use a
+ * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the database.
+ * You can close it again using {@link #close()}.
  * <p>
  * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
  * get a Cursor, use {@link #query(Class, Query)}.
@@ -134,9 +135,9 @@ public abstract class SquidDatabase {
      * and all {@link Index Indexes} from {@link #getIndexes()} will have been created. Any additional database setup
      * should be done here, e.g. creating other views, indexes, triggers, or inserting data.
      *
-     * @param db the {@link SQLiteDatabase} being created
+     * @param db the {@link SQLiteDatabaseWrapper} being created
      */
-    protected void onTablesCreated(SQLiteDatabase db) {
+    protected void onTablesCreated(SQLiteDatabaseWrapper db) {
     }
 
     /**
@@ -151,30 +152,30 @@ public abstract class SquidDatabase {
      *     tryCreateTable(MyNewModel.TABLE);
      * </pre>
      *
-     * @param db the {@link SQLiteDatabase} being upgraded
+     * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
      */
-    protected abstract boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
+    protected abstract boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion);
 
     /**
      * Called when the database should be downgraded from one version to another
      *
-     * @param db the {@link SQLiteDatabase} being upgraded
+     * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
      */
-    protected boolean onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
     }
 
     /**
-     * Called to notify of a failure in {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade()} or
-     * {@link #onDowngrade(SQLiteDatabase, int, int) onDowngrade()}, either because it returned false or because an
-     * unexpected exception occurred. Subclasses can take drastic corrective action here, e.g. recreating the database
-     * with {@link #recreate()}. The default implementation throws an exception.
+     * Called to notify of a failure in {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade()} or
+     * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade()}, either because it returned false or because
+     * an unexpected exception occurred. Subclasses can take drastic corrective action here, e.g. recreating the
+     * database with {@link #recreate()}. The default implementation throws an exception.
      * <p>
      * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
      * can result in unexpected errors if callers are allowed to invoke further operations on the database.
@@ -187,26 +188,26 @@ public abstract class SquidDatabase {
 
     /**
      * Called when the database connection is being configured, to enable features such as write-ahead logging or
-     * foreign key support. This method is called before {@link #onTablesCreated(SQLiteDatabase) onTablesCreated},
-     * {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade}, {@link #onDowngrade(SQLiteDatabase, int, int)
-     * onDowngrade}, and {@link #onOpen(SQLiteDatabase) onOpen}.
+     * foreign key support. This method is called before {@link #onTablesCreated(SQLiteDatabaseWrapper) onTablesCreated},
+     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade}, {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)
+     * onDowngrade}, and {@link #onOpen(SQLiteDatabaseWrapper) onOpen}.
      * <p>
      * This method should only call methods that configure the parameters of the database connection, such as
-     * {@link SQLiteDatabase#enableWriteAheadLogging}, {@link SQLiteDatabase#setForeignKeyConstraintsEnabled},
-     * {@link SQLiteDatabase#setLocale}, {@link SQLiteDatabase#setMaximumSize}, or executing PRAGMA statements.
+     * {@link SQLiteDatabaseWrapper#enableWriteAheadLogging}, {@link SQLiteDatabaseWrapper#setForeignKeyConstraintsEnabled},
+     * {@link SQLiteDatabaseWrapper#setLocale}, {@link SQLiteDatabaseWrapper#setMaximumSize}, or executing PRAGMA statements.
      *
-     * @param db the {@link SQLiteDatabase} being configured
+     * @param db the {@link SQLiteDatabaseWrapper} being configured
      */
-    protected void onConfigure(SQLiteDatabase db) {
+    protected void onConfigure(SQLiteDatabaseWrapper db) {
     }
 
     /**
      * Called when the database has been opened. This method is called after the database connection has been
      * configured and after the database schema has been created, upgraded, or downgraded as necessary.
      *
-     * @param db the {@link SQLiteDatabase} being opened
+     * @param db the {@link SQLiteDatabaseWrapper} being opened
      */
-    protected void onOpen(SQLiteDatabase db) {
+    protected void onOpen(SQLiteDatabaseWrapper db) {
     }
 
     /**
@@ -230,9 +231,9 @@ public abstract class SquidDatabase {
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
-     * SQLiteOpenHelper that takes care of database operations
+     * DatabaseOpenHelper that takes care of database operations
      */
-    private SQLiteOpenHelper helper = null;
+    private DatabaseOpenHelper helper = null;
 
     /**
      * Internal pointer to open database. Hides the fact that there is a database and a wrapper by making a single
@@ -315,7 +316,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Gets the underlying SQLiteDatabase instances. Most users should not need to call this. If you call this
+     * Gets the underlying SQLiteDatabaseWrapper instance. Most users should not need to call this. If you call this
      * from your AbstractDatabase subclass with the intention of executing SQL, you should wrap the calls with a lock,
      * probably the non-exclusive one:
      *
@@ -332,7 +333,7 @@ public abstract class SquidDatabase {
      *
      * You only need to acquire the exclusive lock if you truly need exclusive access to the database connection.
      *
-     * @return the underlying {@link SQLiteDatabase}, which will be opened if it is not yet opened
+     * @return the underlying {@link SQLiteDatabaseWrapper}, which will be opened if it is not yet opened
      * @see #acquireExclusiveLock()
      * @see #acquireNonExclusiveLock()
      */
@@ -447,7 +448,7 @@ public abstract class SquidDatabase {
 
         boolean performRecreate = false;
         try {
-            database = helper.getWritableDatabase();
+            database = helper.openForWriting();
         } catch (RecreateDuringMigrationException recreate) {
             performRecreate = true;
         } catch (MigrationFailedException fail) {
@@ -465,8 +466,12 @@ public abstract class SquidDatabase {
 
     private void initializeHelper() {
         if (helper == null) {
-            helper = new DatabaseHelper(context, getName(), null, getVersion());
+            helper = getDatabaseOpenHelper(new DatabaseOpenHelperDelegate());
         }
+    }
+
+    protected DatabaseOpenHelper getDatabaseOpenHelper(DatabaseOpenHelperDelegate delegate) {
+        return new DefaultDatabaseOpenHelper(context, getName(), delegate, getVersion());
     }
 
     /**
@@ -884,21 +889,16 @@ public abstract class SquidDatabase {
 
     // --- helper classes
 
-    /**
-     * SQLiteOpenHelper implementation that takes care of creating tables and views on database creation. Also handles
-     * upgrades by calling into abstract upgrade hooks implemented by concrete database class.
-     */
-    private class DatabaseHelper extends SQLiteOpenHelper {
+    public final class DatabaseOpenHelperDelegate {
 
-        public DatabaseHelper(Context context, String name, CursorFactory factory, int version) {
-            super(context, name, factory, version);
+        private DatabaseOpenHelperDelegate() {
+            // No instantiation
         }
 
         /**
          * Called to create the database tables
          */
-        @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(SQLiteDatabaseWrapper db) {
             database = db;
             StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
@@ -936,8 +936,7 @@ public abstract class SquidDatabase {
         /**
          * Called to upgrade the database to a new version
          */
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             database = db;
             boolean success = false;
             Throwable thrown = null;
@@ -963,9 +962,7 @@ public abstract class SquidDatabase {
         /**
          * Called to downgrade the database to an older version
          */
-        @Override
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            database = db;
+        public void onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             boolean success = false;
             Throwable thrown = null;
             isInMigration = true;
@@ -987,17 +984,14 @@ public abstract class SquidDatabase {
             }
         }
 
-        @Override
-        public void onConfigure(SQLiteDatabase db) {
-            database = db;
+        public void onConfigure(SQLiteDatabaseWrapper db) {
             SquidDatabase.this.onConfigure(db);
         }
 
-        @Override
-        public void onOpen(SQLiteDatabase db) {
-            database = db;
+        public void onOpen(SQLiteDatabaseWrapper db) {
             SquidDatabase.this.onOpen(db);
         }
+
     }
 
     // --- utility methods
@@ -1284,9 +1278,9 @@ public abstract class SquidDatabase {
     /**
      * Exception thrown when an upgrade or downgrade fails for any reason. Clients that want to provide more
      * information about why an upgrade or downgrade failed can subclass this class and throw it intentionally in
-     * {@link #onUpgrade(SQLiteDatabase, int, int) onUpgrade()} or {@link #onDowngrade(SQLiteDatabase, int, int)
-     * onDowngrade()}, and it will be forwarded to {@link #onMigrationFailed(MigrationFailedException)
-     * onMigrationFailed()}.
+     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade()} or
+     * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade()}, and it will be forwarded to
+     * {@link #onMigrationFailed(MigrationFailedException) onMigrationFailed()}.
      */
     public static class MigrationFailedException extends RuntimeException {
 

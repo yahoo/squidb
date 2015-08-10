@@ -12,6 +12,12 @@ import android.util.Pair;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * This interface declares all the public methods of {@link android.database.sqlite.SQLiteDatabase} so that wrapper
+ * classes can implement a common interface. For example, by default SquiDB can wrap the Android SQLiteDatabase, but
+ * for custom SQLite builds, it will wrap the SQLite Android binding's version of the same class. Both wrappers will
+ * implement this interface so they can be used interchangeably.
+ */
 public interface SQLiteDatabaseWrapper {
 
     void beginTransaction();

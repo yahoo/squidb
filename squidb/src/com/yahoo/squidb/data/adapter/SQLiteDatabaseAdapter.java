@@ -18,6 +18,10 @@ import com.yahoo.squidb.utility.SquidCursorFactory;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Wrapper class for the default Android {@link SQLiteDatabase} that implements the common {@link SQLiteDatabaseWrapper}
+ * interface.
+ */
 public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
 
     private final SQLiteDatabase db;
