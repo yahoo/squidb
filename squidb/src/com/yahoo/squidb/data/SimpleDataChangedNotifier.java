@@ -47,7 +47,7 @@ public abstract class SimpleDataChangedNotifier extends DataChangedNotifier<Simp
 
     /**
      * By overriding this method, subclasses of SimpleDataChangedNotifier can run arbitrary code after statements or
-     * transactions that modify the tables the notifier listens to have changed.
+     * transactions that modify the tables the notifier listens to.
      */
     protected abstract void onDataChanged();
 
