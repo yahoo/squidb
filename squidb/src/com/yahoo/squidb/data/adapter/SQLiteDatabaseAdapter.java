@@ -23,7 +23,7 @@ import java.util.Locale;
  * Wrapper class for the default Android {@link SQLiteDatabase} that implements the common {@link SQLiteDatabaseWrapper}
  * interface.
  */
-public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
+public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper<SQLiteDatabase> {
 
     private final SQLiteDatabase db;
 
@@ -77,11 +77,6 @@ public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
     @Override
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         db.beginTransactionWithListenerNonExclusive(new SQLiteTransactionListenerAdapter(listener));
-    }
-
-    @Override
-    public void compileStatement(String sql) {
-        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -273,6 +268,11 @@ public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
     }
 
     @Override
+    public String toString() {
+        return db.toString();
+    }
+
+    @Override
     public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         return db.update(table, values, whereClause, whereArgs);
     }
@@ -373,5 +373,10 @@ public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
                 c.close();
             }
         }
+    }
+
+    @Override
+    public SQLiteDatabase getWrappedDatabase() {
+        return db;
     }
 }
