@@ -7,6 +7,7 @@ package com.yahoo.squidb.data.adapter;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteTransactionListener;
@@ -108,13 +109,21 @@ public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String sql) {
-        db.execSQL(sql);
+    public void execSQL(String sql) throws SQLExceptionWrapper {
+        try {
+            db.execSQL(sql);
+        } catch (SQLException e) {
+            throw new SQLExceptionWrapper(e);
+        }
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) {
-        db.execSQL(sql, bindArgs);
+    public void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
+        try {
+            db.execSQL(sql, bindArgs);
+        } catch (SQLException e) {
+            throw new SQLExceptionWrapper(e);
+        }
     }
 
     @Override

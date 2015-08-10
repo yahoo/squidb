@@ -11,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build.VERSION;
@@ -22,6 +21,7 @@ import android.util.Log;
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.data.adapter.DatabaseOpenHelper;
 import com.yahoo.squidb.data.adapter.DefaultDatabaseOpenHelper;
+import com.yahoo.squidb.data.adapter.SQLExceptionWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 import com.yahoo.squidb.sql.CompiledStatement;
@@ -1144,7 +1144,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql);
             return true;
-        } catch (SQLException e) {
+        } catch (SQLExceptionWrapper e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1156,10 +1156,10 @@ public abstract class SquidDatabase {
      * Execute a raw SQL statement
      *
      * @param sql the statement to execute
-     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see SQLiteDatabase#execSQL(String)
      */
-    public void execSqlOrThrow(String sql) throws SQLException {
+    public void execSqlOrThrow(String sql) throws SQLExceptionWrapper {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
@@ -1182,7 +1182,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql, bindArgs);
             return true;
-        } catch (SQLException e) {
+        } catch (SQLExceptionWrapper e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1196,10 +1196,10 @@ public abstract class SquidDatabase {
      *
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
-     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see SQLiteDatabase#execSQL(String, Object[])
      */
-    public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLException {
+    public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);
