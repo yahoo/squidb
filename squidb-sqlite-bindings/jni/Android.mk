@@ -1,4 +1,3 @@
 
 LOCAL_PATH:= $(call my-dir)
 include $(LOCAL_PATH)/sqlite/Android.mk
-# LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS

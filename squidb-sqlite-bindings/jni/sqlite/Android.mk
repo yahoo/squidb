@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 
 # If using SEE, uncomment the following:
 # LOCAL_CFLAGS += -DSQLITE_HAS_CODEC
+LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS
 
 # This is important - it causes SQLite to use memory for temp files. Since 
 # Android has no globally writable temp directory, if this is not defined the
