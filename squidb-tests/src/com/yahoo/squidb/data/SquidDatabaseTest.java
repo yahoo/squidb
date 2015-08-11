@@ -7,7 +7,6 @@ package com.yahoo.squidb.data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
@@ -317,11 +316,11 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         TestModel shouldntExist = database.fetchByCriterion(TestModel.class,
                 TestModel.FIRST_NAME.eq("Dave").and(TestModel.LAST_NAME.eq("Bosley")), TestModel.PROPERTIES);
         assertNull(shouldntExist);
-        SQLiteConstraintException expected = null;
+        RuntimeException expected = null;
         try {
             conflict.clearValue(TestModel.ID);
             database.persistWithOnConflict(conflict, TableStatement.ConflictAlgorithm.FAIL);
-        } catch (SQLiteConstraintException e) {
+        } catch (RuntimeException e) {
             expected = e;
         }
         assertNotNull(expected);

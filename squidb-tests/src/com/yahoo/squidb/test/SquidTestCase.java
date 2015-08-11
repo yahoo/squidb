@@ -45,4 +45,13 @@ public class SquidTestCase extends AndroidTestCase {
             assertEquals(expectedException, e.getClass());
         }
     }
+
+    protected void testThrowsRuntimeException(Runnable toTest) {
+        try {
+            toTest.run();
+            fail("No runtime exception was thrown");
+        } catch (RuntimeException e) {
+            // Success
+        }
+    }
 }
