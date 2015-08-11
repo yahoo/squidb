@@ -41,6 +41,10 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+
+    defaultConfig {
+        testInstrumentationRunner "com.yahoo.squidb.test.SquidInstrumentationTestRunner"
+    }
 }
 
 dependencies {
