@@ -26,6 +26,8 @@ import android.util.Log;
 import org.sqlite.database.DatabaseErrorHandler;
 import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 
+import java.io.File;
+
 /**
  * A helper class to manage database creation and version management.
  *
@@ -227,10 +229,16 @@ public abstract class SQLiteOpenHelper {
                         db = SQLiteDatabase.openDatabase(path, mFactory,
                                 SQLiteDatabase.OPEN_READONLY, mErrorHandler);
                     } else {
-                        final String path = mContext.getDatabasePath(mName).getPath();
-                        db = SQLiteDatabase.openOrCreateDatabase(
-                                path, mFactory, mErrorHandler
-                        );
+                        File databasePath = mContext.getDatabasePath(mName);
+                        File databaseParent = databasePath.getParentFile();
+                        if (databaseParent.mkdirs() || databaseParent.isDirectory()) {
+                            final String path = mContext.getDatabasePath(mName).getPath();
+                            db = SQLiteDatabase.openOrCreateDatabase(
+                                    path, mFactory, mErrorHandler
+                            );
+                        } else {
+                            throw new SQLiteCantOpenDatabaseException("Failed to create database parent directory");
+                        }
                     }
                 } catch (SQLiteException ex) {
                     if (writable) {
