@@ -14,8 +14,6 @@ import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.util.Pair;
 
-import com.yahoo.squidb.utility.SquidCursorFactory;
-
 import java.util.List;
 import java.util.Locale;
 

@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.utility;
+package com.yahoo.squidb.data.adapter;
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
