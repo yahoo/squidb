@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.text.format.DateUtils;
 
 import com.yahoo.squidb.data.SquidCursor;
@@ -14,6 +12,7 @@ import com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
+import com.yahoo.squidb.utility.VersionCode;
 
 public class InsertTest extends DatabaseTestCase {
 
@@ -61,7 +60,7 @@ public class InsertTest extends DatabaseTestCase {
         // insert into testModels (firstName, lastName) values ('Jack', 'Sparrow');
         Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME).values(fname,
                 lname);
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 2, fname, lname);
 
@@ -74,7 +73,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValues() {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
+        if (database.getSqliteVersion().isLessThan(VersionCode.V3_7_11)) {
             // see testInsertMultipleValuesPreJellybeanThrowsException
             return;
         }
@@ -88,7 +87,7 @@ public class InsertTest extends DatabaseTestCase {
                 .values(fname1, lname1)
                 .values(fname2, lname2);
 
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 4, fname1, lname1, fname2, lname2);
 
         assertEquals(3, database.insert(insert));
@@ -100,7 +99,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValuesPreJellybeanThrowsException() {
-        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
+        if (database.getSqliteVersion().isAtLeast(VersionCode.V3_7_11)) {
             // see testInsertMultipleValues
             return;
         }
@@ -126,7 +125,7 @@ public class InsertTest extends DatabaseTestCase {
         Query query = Query.select(Thing.FOO, Thing.BAR, Thing.IS_ALIVE).from(Thing.TABLE).where(criterion);
         Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.LAST_NAME, TestModel.LUCKY_NUMBER,
                 TestModel.IS_HAPPY).select(query);
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 1, pi);
 
@@ -139,7 +138,7 @@ public class InsertTest extends DatabaseTestCase {
     public void testInsertWithDefaultValues() {
         // insert into things default values;
         Insert insert = Insert.into(Thing.TABLE).defaultValues();
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 0);
 
@@ -186,7 +185,7 @@ public class InsertTest extends DatabaseTestCase {
                 .onConflict(ConflictAlgorithm.IGNORE)
                 .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME, TestModel.IS_HAPPY, TestModel.LUCKY_NUMBER)
                 .values(fname, lname, isHappy, luckyNumber);
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
@@ -221,7 +220,7 @@ public class InsertTest extends DatabaseTestCase {
                 .onConflict(ConflictAlgorithm.REPLACE)
                 .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME, TestModel.IS_HAPPY, TestModel.LUCKY_NUMBER)
                 .values(fname, lname, isHappy, luckyNumber);
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
@@ -246,7 +245,7 @@ public class InsertTest extends DatabaseTestCase {
             public void run() {
                 Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME,
                         TestModel.BIRTHDAY);
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -257,13 +256,13 @@ public class InsertTest extends DatabaseTestCase {
             @Override
             public void run() {
                 Insert insert = Insert.into(TestModel.TABLE).values(Integer.valueOf(0xF00), "bar");
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
 
     public void testSetsOfValuesOfUnequalSizeThrowsIllegalStateException() {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
+        if (database.getSqliteVersion().isLessThan(VersionCode.V3_7_11)) {
             // see testInsertMultipleValuesPreJellybeanThrowsException
             return;
         }
@@ -278,7 +277,7 @@ public class InsertTest extends DatabaseTestCase {
                 Object[] values3 = new Object[]{"Bugs", "Bunny"};
                 Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                         .values(values1).values(values2).values(values3);
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -293,7 +292,7 @@ public class InsertTest extends DatabaseTestCase {
                         .from(TestModel.TABLE)
                         .where(TestModel.LUCKY_NUMBER.eq(9));
                 Insert insert = Insert.into(TestModel.TABLE).select(query);
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -310,7 +309,7 @@ public class InsertTest extends DatabaseTestCase {
                         .where(TestModel.LUCKY_NUMBER.eq(9));
                 Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                         .select(query);
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -322,7 +321,7 @@ public class InsertTest extends DatabaseTestCase {
             public void run() {
                 // insert into testModels;
                 Insert insert = Insert.into(TestModel.TABLE);
-                insert.compile();
+                insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }

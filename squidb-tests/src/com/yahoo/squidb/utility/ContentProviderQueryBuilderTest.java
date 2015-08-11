@@ -122,7 +122,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         String[] selectionArgs = new String[]{"50", "0"};
         ContentProviderQueryBuilder builder = getBuilder();
         Query query = builder.setDataSource(TestModel.TABLE).build(null, selection, selectionArgs, null);
-        CompiledStatement compiled = query.compile();
+        CompiledStatement compiled = query.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 2, "50", "0");
 
         SquidCursor<TestModel> cursor = null;
@@ -142,7 +142,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         String sortOrder = COL_GIVEN_NAME + " ASC";
         ContentProviderQueryBuilder builder = getBuilder();
         Query query = builder.setDataSource(TestModel.TABLE).build(null, null, null, sortOrder);
-        CompiledStatement compiled = query.compile();
+        CompiledStatement compiled = query.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 0);
 
         SquidCursor<TestModel> cursor = null;
@@ -166,7 +166,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         ContentProviderQueryBuilder builder = getBuilder();
         builder.setDefaultOrder(TestModel.LUCKY_NUMBER.desc());
         Query query = builder.setDataSource(TestModel.TABLE).build(null, null, null, null);
-        CompiledStatement compiled = query.compile();
+        CompiledStatement compiled = query.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 0);
 
         SquidCursor<TestModel> cursor = null;

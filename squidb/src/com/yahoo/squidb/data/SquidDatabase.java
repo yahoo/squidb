@@ -604,7 +604,7 @@ public abstract class SquidDatabase {
      * @return the row id of the last row inserted on success, -1 on failure
      */
     private long insertInternal(Insert insert) {
-        CompiledStatement compiled = insert.compile();
+        CompiledStatement compiled = insert.compile(getSqliteVersion());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeInsert(compiled.sql, compiled.sqlArgs);
@@ -633,7 +633,7 @@ public abstract class SquidDatabase {
      * @return the number of rows deleted on success, -1 on failure
      */
     private int deleteInternal(Delete delete) {
-        CompiledStatement compiled = delete.compile();
+        CompiledStatement compiled = delete.compile(getSqliteVersion());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
@@ -678,7 +678,7 @@ public abstract class SquidDatabase {
      * @return the number of rows updated on success, -1 on failure
      */
     private int updateInternal(Update update) {
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(getSqliteVersion());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
@@ -922,7 +922,7 @@ public abstract class SquidDatabase {
             View[] views = getViews();
             if (views != null) {
                 for (View view : views) {
-                    view.createViewSql(sql);
+                    view.createViewSql(getSqliteVersion(), sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1064,7 +1064,7 @@ public abstract class SquidDatabase {
      */
     public boolean tryCreateView(View view) {
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        view.createViewSql(sql);
+        view.createViewSql(getSqliteVersion(), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1146,7 +1146,7 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     public boolean tryExecStatement(SqlStatement statement) {
-        CompiledStatement compiled = statement.compile();
+        CompiledStatement compiled = statement.compile(getSqliteVersion());
         return tryExecSql(compiled.sql, compiled.sqlArgs);
     }
 
@@ -1357,9 +1357,9 @@ public abstract class SquidDatabase {
             }
             query = query.from(table); // If argument was frozen, we may get a new object
         }
-        CompiledStatement compiled = query.compile();
+        CompiledStatement compiled = query.compile(getSqliteVersion());
         if (compiled.needsValidation) {
-            String validateSql = query.sqlForValidation();
+            String validateSql = query.sqlForValidation(getSqliteVersion());
             compileStatement(validateSql); // throws if the statement fails to compile
         }
         Cursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
