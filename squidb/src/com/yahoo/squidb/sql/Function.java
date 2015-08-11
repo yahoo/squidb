@@ -6,6 +6,7 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A {@link Field} defined as a SQLite function.
@@ -52,6 +53,21 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     protected abstract void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation);
+
+    @Override
+    public String getExpression() {
+        throw new UnsupportedOperationException("Function expressions cannot be converted to a String without a "
+                + "VersionCode for context. Instead use getExpression(VersionCode)");
+    }
+
+    /**
+     * Return the expression for the function as it would be compiled for the given SQLite version
+     */
+    public String getExpression(VersionCode forSqliteVersion) {
+        SqlBuilder builder = new SqlBuilder(forSqliteVersion, false);
+        appendQualifiedExpression(builder, false);
+        return builder.getSqlString();
+    }
 
     /**
      * Create a Function call with the given name and list of arguments. Returns
