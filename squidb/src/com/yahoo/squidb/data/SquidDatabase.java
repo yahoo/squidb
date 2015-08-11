@@ -242,6 +242,11 @@ public abstract class SquidDatabase {
     private SQLiteDatabaseWrapper database = null;
 
     /**
+     * Cached version code
+     */
+    private VersionCode sqliteVersion = null;
+
+    /**
      * Map of class objects to corresponding tables
      */
     private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap;
@@ -448,7 +453,7 @@ public abstract class SquidDatabase {
 
         boolean performRecreate = false;
         try {
-            database = helper.openForWriting();
+            setDatabase(helper.openForWriting());
         } catch (RecreateDuringMigrationException recreate) {
             performRecreate = true;
         } catch (MigrationFailedException fail) {
@@ -490,7 +495,7 @@ public abstract class SquidDatabase {
             database.close();
         }
         helper = null;
-        database = null;
+        setDatabase(null);
     }
 
     /**
@@ -900,7 +905,7 @@ public abstract class SquidDatabase {
          * Called to create the database tables
          */
         public void onCreate(SQLiteDatabaseWrapper db) {
-            database = db;
+            setDatabase(db);
             StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
 
@@ -938,7 +943,7 @@ public abstract class SquidDatabase {
          * Called to upgrade the database to a new version
          */
         public void onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
-            database = db;
+            setDatabase(db);
             boolean success = false;
             Throwable thrown = null;
             isInMigration = true;
@@ -964,6 +969,7 @@ public abstract class SquidDatabase {
          * Called to downgrade the database to an older version
          */
         public void onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+            setDatabase(db);
             boolean success = false;
             Throwable thrown = null;
             isInMigration = true;
@@ -986,13 +992,24 @@ public abstract class SquidDatabase {
         }
 
         public void onConfigure(SQLiteDatabaseWrapper db) {
+            setDatabase(db);
             SquidDatabase.this.onConfigure(db);
         }
 
         public void onOpen(SQLiteDatabaseWrapper db) {
+            setDatabase(db);
             SquidDatabase.this.onOpen(db);
         }
+    }
 
+    private void setDatabase(SQLiteDatabaseWrapper db) {
+        // If we're already holding a reference to the same object, don't need to update or recalculate the version
+        if (database != null && db != null
+                && db.getWrappedDatabase() == database.getWrappedDatabase()) {
+            return;
+        }
+        database = db;
+        sqliteVersion = database != null ? getSqliteVersion() : null;
     }
 
     // --- utility methods
@@ -1216,6 +1233,9 @@ public abstract class SquidDatabase {
     public VersionCode getSqliteVersion() {
         acquireNonExclusiveLock();
         try {
+            if (sqliteVersion != null) {
+                return sqliteVersion;
+            }
             String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
