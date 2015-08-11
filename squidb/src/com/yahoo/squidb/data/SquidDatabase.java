@@ -466,12 +466,13 @@ public abstract class SquidDatabase {
 
     private void initializeHelper() {
         if (helper == null) {
-            helper = getDatabaseOpenHelper(new DatabaseOpenHelperDelegate());
+            helper = getDatabaseOpenHelper(context, getName(), new DatabaseOpenHelperDelegate(), getVersion());
         }
     }
 
-    protected DatabaseOpenHelper getDatabaseOpenHelper(DatabaseOpenHelperDelegate delegate) {
-        return new DefaultDatabaseOpenHelper(context, getName(), delegate, getVersion());
+    protected DatabaseOpenHelper getDatabaseOpenHelper(Context context, String databaseName,
+            DatabaseOpenHelperDelegate delegate, int version) {
+        return new DefaultDatabaseOpenHelper(context, databaseName, delegate, version);
     }
 
     /**
