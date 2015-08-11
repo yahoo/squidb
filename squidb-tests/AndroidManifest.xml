@@ -17,7 +17,7 @@
         tools:overrideLibrary="com.yahoo.squidb.sqlitebindings" />
 
     <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
+        android:name="com.yahoo.squidb.test.SquidInstrumentationTestRunner"
         android:targetPackage="com.yahoo.squidb.test" />
 
     <application

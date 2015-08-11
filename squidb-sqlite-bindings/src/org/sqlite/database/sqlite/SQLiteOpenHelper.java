@@ -232,7 +232,7 @@ public abstract class SQLiteOpenHelper {
                         File databasePath = mContext.getDatabasePath(mName);
                         File databaseParent = databasePath.getParentFile();
                         if (databaseParent.mkdirs() || databaseParent.isDirectory()) {
-                            final String path = mContext.getDatabasePath(mName).getPath();
+                            final String path = databasePath.getPath();
                             db = SQLiteDatabase.openOrCreateDatabase(
                                     path, mFactory, mErrorHandler
                             );
