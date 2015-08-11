@@ -75,7 +75,7 @@ public class Insert extends TableStatement {
      * @throws UnsupportedOperationException if called multiple times on Android versions lower than 16 (JellyBean)
      */
     public Insert values(Object... values) {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN && !valuesToInsert.isEmpty()) {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN && !valuesToInsert.isEmpty()) { // TODO: Requires SQLite 3.7.11
             throw new UnsupportedOperationException("Can't insert with multiple sets of values below API 16");
         }
         valuesToInsert.add(Arrays.asList(values));
