@@ -5,11 +5,10 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.os.Build;
-
 import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
@@ -73,9 +72,10 @@ public class VirtualTable extends Table {
      * call this method and instead let {@link SquidDatabase} build tables automatically.
      */
     @Override
-    public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
+            PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE ");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
+        if (sqliteVersion != null && sqliteVersion.isAtLeast(VersionCode.V3_7_11)) {
             sql.append("IF NOT EXISTS ");
         }
         sql.append(getExpression()).append(" USING ").append(moduleName).append('(');

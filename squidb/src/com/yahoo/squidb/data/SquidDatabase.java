@@ -913,7 +913,7 @@ public abstract class SquidDatabase {
             Table[] tables = getTables();
             if (tables != null) {
                 for (Table table : tables) {
-                    table.appendCreateTableSql(sql, sqlVisitor);
+                    table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1040,7 +1040,7 @@ public abstract class SquidDatabase {
     protected boolean tryCreateTable(Table table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        table.appendCreateTableSql(sql, sqlVisitor);
+        table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
         return tryExecSql(sql.toString());
     }
 
