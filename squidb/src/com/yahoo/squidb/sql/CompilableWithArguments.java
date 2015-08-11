@@ -5,19 +5,22 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.utility.VersionCode;
+
 abstract class CompilableWithArguments {
 
     @Override
     public String toString() {
-        return toRawSql();
+        return toRawSql(VersionCode.LATEST);
     }
 
-    public final String toRawSql() {
-        return buildSql(false, false).getSqlString();
+    public final String toRawSql(VersionCode sqliteVersion) {
+        return buildSql(sqliteVersion, false, false).getSqlString();
     }
 
-    protected final SqlBuilder buildSql(boolean withBoundArguments, boolean forSqlValidation) {
-        SqlBuilder builder = new SqlBuilder(withBoundArguments);
+    protected final SqlBuilder buildSql(VersionCode sqliteVersion, boolean withBoundArguments,
+            boolean forSqlValidation) {
+        SqlBuilder builder = new SqlBuilder(sqliteVersion, withBoundArguments);
         appendToSqlBuilder(builder, forSqlValidation);
         return builder;
     }

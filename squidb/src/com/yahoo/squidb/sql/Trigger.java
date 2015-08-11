@@ -7,6 +7,7 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     private boolean isTemp;
     private final List<Property<?>> columns = new ArrayList<Property<?>>();
     private final List<Criterion> criterions = new ArrayList<Criterion>();
-    private final List<String> statements = new ArrayList<String>();
+    private final List<TableStatement> statements = new ArrayList<TableStatement>();
 
     private enum TriggerType {
         BEFORE("BEFORE"), AFTER("AFTER"), INSTEAD("INSTEAD OF");
@@ -249,7 +250,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     public Trigger perform(TableStatement... statements) {
         for (TableStatement statement : statements) {
             // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-            this.statements.add(statement.toRawSql());
+            this.statements.add(statement);
         }
         return this;
     }
@@ -280,9 +281,9 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     }
 
     @Override
-    public CompiledStatement compile() {
+    public CompiledStatement compile(VersionCode sqliteVersion) {
         // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-        return new CompiledStatement(toRawSql(), EMPTY_ARGS, false);
+        return new CompiledStatement(toRawSql(sqliteVersion), EMPTY_ARGS, false);
     }
 
     @Override
@@ -294,7 +295,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         visitTriggerType(builder.sql);
         visitTriggerEvent(builder.sql);
         visitWhen(builder, forSqlValidation);
-        visitStatements(builder.sql);
+        visitStatements(builder);
     }
 
     private void assertTriggerEvent() {
@@ -345,11 +346,11 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         builder.sql.append(" ");
     }
 
-    private void visitStatements(StringBuilder sql) {
-        sql.append("BEGIN ");
+    private void visitStatements(SqlBuilder builder) {
+        builder.sql.append("BEGIN ");
         for (int i = 0; i < statements.size(); i++) {
-            sql.append(statements.get(i)).append("; ");
+            builder.sql.append(statements.get(i).toRawSql(builder.sqliteVersion)).append("; ");
         }
-        sql.append("END");
+        builder.sql.append("END");
     }
 }

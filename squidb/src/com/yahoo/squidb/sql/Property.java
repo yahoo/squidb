@@ -88,7 +88,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     @Override
     public String getExpression() {
         if (function != null) {
-            return function.getExpression();
+            throw new UnsupportedOperationException("Can't call getExpression() on a Property that wraps a Function");
         }
         return super.getExpression();
     }
@@ -358,7 +358,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param selectAs the alias to use. May be null.
          */
         public static StringProperty literal(String literal, String selectAs) {
-            return new StringProperty(null, SqlUtils.toSanitizedString(literal), selectAs, null);
+            return new StringProperty(null, SqlUtils.sanitizeStringAsLiteral(literal), selectAs, null);
         }
 
         @Override

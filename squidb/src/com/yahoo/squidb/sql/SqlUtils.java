@@ -29,18 +29,13 @@ public class SqlUtils {
     }
 
     /**
-     * Convert an arbitrary object to a string. If the argument is a {@link DBObject}, the qualified name is returned
-     * instead. If the object is a {@link String}, it will be sanitized.
+     * Convert an arbitrary object to a string. If the object itself is a {@link String}, it will be sanitized.
      */
     static String toSanitizedString(Object value) {
-        if (value instanceof DBObject<?>) {
-            return ((DBObject<?>) value).getQualifiedExpression();
-        } else if (value instanceof String) {
+        if (value instanceof String) {
             return sanitizeStringAsLiteral((String) value);
         } else if (value instanceof AtomicReference<?>) {
             return toSanitizedString(((AtomicReference<?>) value).get());
-        } else if (value instanceof Query) {
-            return "(" + ((Query) value).toRawSql() + ")";
         } else {
             return sanitizeObject(value);
         }
@@ -49,7 +44,7 @@ public class SqlUtils {
     /**
      * Sanitize a {@link String} for use in a SQL statement
      */
-    private static String sanitizeStringAsLiteral(String literal) {
+    static String sanitizeStringAsLiteral(String literal) {
         String sanitizedLiteral = literal.replace("'", "''");
         int nullIndex = sanitizedLiteral.indexOf('\0');
         if (nullIndex >= 0) {

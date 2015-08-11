@@ -53,13 +53,6 @@ public abstract class Function<TYPE> extends Field<TYPE> {
 
     protected abstract void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation);
 
-    @Override
-    public String getExpression() {
-        SqlBuilder sql = new SqlBuilder(false);
-        appendQualifiedExpression(sql, false);
-        return sql.toString();
-    }
-
     /**
      * Create a Function call with the given name and list of arguments. Returns
      * a function equivalent to "functionName(arg1, arg2, ...)"

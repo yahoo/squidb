@@ -608,6 +608,7 @@ public final class Query extends TableStatement {
      * Return this query wrapped in a Function object, making it suitable for inclusion in another SELECT clause as a
      * subquery or for constructing {@link Criterion}s. Note: the query must have exactly one column in its
      * result set (i.e. one field in the SELECT clause) for this to be valid SQL.
+     *
      * @return a {@link Function} from this query
      */
     public <T> Function<T> asFunction() {
