@@ -1002,14 +1002,14 @@ public abstract class SquidDatabase {
         }
     }
 
-    private void setDatabase(SQLiteDatabaseWrapper db) {
+    private synchronized void setDatabase(SQLiteDatabaseWrapper db) {
         // If we're already holding a reference to the same object, don't need to update or recalculate the version
         if (database != null && db != null
                 && db.getWrappedDatabase() == database.getWrappedDatabase()) {
             return;
         }
         database = db;
-        sqliteVersion = database != null ? getSqliteVersion() : null;
+        sqliteVersion = database != null ? readSqliteVersion() : null;
     }
 
     // --- utility methods
@@ -1231,11 +1231,19 @@ public abstract class SquidDatabase {
      * @throws RuntimeException if the version could not be read
      */
     public VersionCode getSqliteVersion() {
+        if (sqliteVersion == null) {
+            synchronized (this) {
+                if (sqliteVersion == null) {
+                    sqliteVersion = readSqliteVersion();
+                }
+            }
+        }
+        return sqliteVersion;
+    }
+
+    private VersionCode readSqliteVersion() {
         acquireNonExclusiveLock();
         try {
-            if (sqliteVersion != null) {
-                return sqliteVersion;
-            }
             String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
