@@ -74,7 +74,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValues() {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
             // see testInsertMultipleValuesPreJellybeanThrowsException
             return;
         }
@@ -100,7 +100,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValuesPreJellybeanThrowsException() {
-        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
             // see testInsertMultipleValues
             return;
         }
@@ -263,7 +263,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testSetsOfValuesOfUnequalSizeThrowsIllegalStateException() {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
+        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) { // TODO: Requires SQLite 3.7.11
             // see testInsertMultipleValuesPreJellybeanThrowsException
             return;
         }
