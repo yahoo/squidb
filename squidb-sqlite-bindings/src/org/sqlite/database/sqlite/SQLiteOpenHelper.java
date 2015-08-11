@@ -21,10 +21,10 @@
 package org.sqlite.database.sqlite;
 
 import android.content.Context;
-import org.sqlite.database.DatabaseErrorHandler;
-import org.sqlite.database.DefaultDatabaseErrorHandler;
-import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.util.Log;
+
+import org.sqlite.database.DatabaseErrorHandler;
+import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 
 /**
  * A helper class to manage database creation and version management.
@@ -45,6 +45,7 @@ import android.util.Log;
  * monotonically increasing version numbers for upgrades.</p>
  */
 public abstract class SQLiteOpenHelper {
+
     private static final String TAG = SQLiteOpenHelper.class.getSimpleName();
 
     // When true, getReadableDatabase returns a read-only database if it is just being opened.
@@ -75,8 +76,8 @@ public abstract class SQLiteOpenHelper {
      * @param name of the database file, or null for an in-memory database
      * @param factory to use for creating cursor objects, or null for the default
      * @param version number of the database (starting at 1); if the database is older,
-     *     {@link #onUpgrade} will be used to upgrade the database; if the database is
-     *     newer, {@link #onDowngrade} will be used to downgrade the database
+     * {@link #onUpgrade} will be used to upgrade the database; if the database is
+     * newer, {@link #onDowngrade} will be used to downgrade the database
      */
     public SQLiteOpenHelper(Context context, String name, CursorFactory factory, int version) {
         this(context, name, factory, version, null);
@@ -94,14 +95,16 @@ public abstract class SQLiteOpenHelper {
      * @param name of the database file, or null for an in-memory database
      * @param factory to use for creating cursor objects, or null for the default
      * @param version number of the database (starting at 1); if the database is older,
-     *     {@link #onUpgrade} will be used to upgrade the database; if the database is
-     *     newer, {@link #onDowngrade} will be used to downgrade the database
+     * {@link #onUpgrade} will be used to upgrade the database; if the database is
+     * newer, {@link #onDowngrade} will be used to downgrade the database
      * @param errorHandler the {@link DatabaseErrorHandler} to be used when sqlite reports database
      * corruption, or null to use the default error handler.
      */
     public SQLiteOpenHelper(Context context, String name, CursorFactory factory, int version,
             DatabaseErrorHandler errorHandler) {
-        if (version < 1) throw new IllegalArgumentException("Version must be >= 1, was " + version);
+        if (version < 1) {
+            throw new IllegalArgumentException("Version must be >= 1, was " + version);
+        }
 
         mContext = context;
         mName = name;
@@ -126,7 +129,6 @@ public abstract class SQLiteOpenHelper {
      *
      * @param enabled True if write-ahead logging should be enabled, false if it
      * should be disabled.
-     *
      * @see SQLiteDatabase#enableWriteAheadLogging()
      */
     public void setWriteAheadLoggingEnabled(boolean enabled) {
@@ -160,8 +162,8 @@ public abstract class SQLiteOpenHelper {
      * should not call this method from the application main thread, including
      * from {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
      *
-     * @throws SQLiteException if the database cannot be opened for writing
      * @return a read/write database object valid until {@link #close} is called
+     * @throws SQLiteException if the database cannot be opened for writing
      */
     public SQLiteDatabase getWritableDatabase() {
         synchronized (this) {
@@ -183,9 +185,9 @@ public abstract class SQLiteOpenHelper {
      * application main thread, including from
      * {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
      *
-     * @throws SQLiteException if the database cannot be opened
      * @return a database object valid until {@link #getWritableDatabase}
-     *     or {@link #close} is called.
+     * or {@link #close} is called.
+     * @throws SQLiteException if the database cannot be opened
      */
     public SQLiteDatabase getReadableDatabase() {
         synchronized (this) {
@@ -225,8 +227,9 @@ public abstract class SQLiteOpenHelper {
                         db = SQLiteDatabase.openDatabase(path, mFactory,
                                 SQLiteDatabase.OPEN_READONLY, mErrorHandler);
                     } else {
+                        final String path = mContext.getDatabasePath(mName).getPath();
                         db = SQLiteDatabase.openOrCreateDatabase(
-                                mName, mFactory, mErrorHandler
+                                path, mFactory, mErrorHandler
                         );
                     }
                 } catch (SQLiteException ex) {
@@ -288,7 +291,9 @@ public abstract class SQLiteOpenHelper {
      * Close any open database object.
      */
     public synchronized void close() {
-        if (mIsInitializing) throw new IllegalStateException("Closed during initialization");
+        if (mIsInitializing) {
+            throw new IllegalStateException("Closed during initialization");
+        }
 
         if (mDatabase != null && mDatabase.isOpen()) {
             mDatabase.close();
@@ -313,7 +318,8 @@ public abstract class SQLiteOpenHelper {
      *
      * @param db The database.
      */
-    public void onConfigure(SQLiteDatabase db) {}
+    public void onConfigure(SQLiteDatabase db) {
+    }
 
     /**
      * Called when the database is created for the first time. This is where the
@@ -379,5 +385,6 @@ public abstract class SQLiteOpenHelper {
      *
      * @param db The database.
      */
-    public void onOpen(SQLiteDatabase db) {}
+    public void onOpen(SQLiteDatabase db) {
+    }
 }
