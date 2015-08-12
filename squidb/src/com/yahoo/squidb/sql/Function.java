@@ -129,10 +129,10 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
-     * Create a Function that counts all rows
+     * Create a Function that counts all rows (i.e. count(*))
      */
     public static Function<Integer> count() {
-        return new ArgumentFunction<Integer>("COUNT", 1);
+        return new RawFunction<Integer>("COUNT(*)");
     }
 
     /**

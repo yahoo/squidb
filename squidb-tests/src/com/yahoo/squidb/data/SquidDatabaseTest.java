@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -47,7 +46,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         Cursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
-            assertEquals(1, badDatabase.count(TestModel.class, Criterion.all));
+            assertEquals(1, badDatabase.countAll(TestModel.class));
 
             // Test that raw query binds arguments correctly--if the argument
             // is bound as a String, the result will be empty
@@ -131,14 +130,14 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.persist(new Employee().setName("Alice"));
         badDatabase.persist(new Employee().setName("Bob"));
         badDatabase.persist(new Employee().setName("Cindy"));
-        assertEquals(3, badDatabase.count(Employee.class, Criterion.all));
+        assertEquals(3, badDatabase.countAll(Employee.class));
 
         testMigrationFailureCalled(upgrade, false, true);
 
         // verify the db was recreated with the appropriate version and no previous data
         SQLiteDatabase db = badDatabase.getDatabase();
         assertEquals(badDatabase.getVersion(), db.getVersion());
-        assertEquals(0, badDatabase.count(Employee.class, Criterion.all));
+        assertEquals(0, badDatabase.countAll(Employee.class));
     }
 
     public void testAcquireExclusiveLockFailsWhenInTransaction() {
@@ -297,7 +296,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         database.persist(model);
         result.close();
 
-        result = database.query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
+        result = database
+                .query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
         assertEquals(1, result.getCount());
         result.moveToFirst();
         model = new TestModel(result);
@@ -378,6 +378,6 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
         assertEquals(modelId, model.getId());
         assertNotNull(database.fetch(TestModel.class, model.getId()));
-        assertEquals(1, database.count(TestModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestModel.class));
     }
 }

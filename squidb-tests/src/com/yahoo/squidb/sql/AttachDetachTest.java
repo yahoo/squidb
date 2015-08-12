@@ -35,7 +35,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         database.persist(virtualModel);
 
         database2.clear();
-        assertEquals(0, database2.count(TestModel.class, Criterion.all));
+        assertEquals(0, database2.countAll(TestModel.class));
     }
 
     public void testAttachDetach() {
@@ -177,8 +177,8 @@ public class AttachDetachTest extends DatabaseTestCase {
         if (threadFailed.get() != null) {
             throw threadFailed.get();
         }
-        assertEquals(4, database.count(TestModel.class, Criterion.all));
-        assertEquals(3 + (transactionBeforeAttach ? 1 : 0), database2.count(TestModel.class, Criterion.all));
+        assertEquals(4, database.countAll(TestModel.class));
+        assertEquals(3 + (transactionBeforeAttach ? 1 : 0), database2.countAll(TestModel.class));
     }
 
     /*
@@ -230,7 +230,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         if (threadFailed.get() != null) {
             throw threadFailed.get();
         }
-        assertEquals(4, database2.count(TestModel.class, Criterion.all));
+        assertEquals(4, database2.countAll(TestModel.class));
     }
 
 }

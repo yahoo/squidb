@@ -39,36 +39,6 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * All rows match this criterion
-     */
-    public static final Criterion all = new Criterion(null) {
-        @Override
-        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-            builder.sql.append(1);
-        }
-
-        @Override
-        public Criterion negate() {
-            return none;
-        }
-    };
-
-    /**
-     * No rows match this criterion
-     */
-    public static final Criterion none = new Criterion(null) {
-        @Override
-        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-            builder.sql.append(0);
-        }
-
-        @Override
-        public Criterion negate() {
-            return all;
-        }
-    };
-
-    /**
      * @return a {@link Criterion} that combines the given criterions with AND
      */
     public static Criterion and(final Criterion criterion, final Criterion... criterions) {
@@ -104,11 +74,12 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * @return a {@link Criterion} that evaluates the raw selection and selection args
+     * @return a {@link Criterion} that evaluates the raw selection and selection args. If the selection string is
+     * empty, this will return null.
      */
     public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
         if (TextUtils.isEmpty(selection)) {
-            return Criterion.all;
+            return null;
         }
         return new Criterion(null) {
             @Override
@@ -117,7 +88,7 @@ public abstract class Criterion extends CompilableWithArguments {
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
                         throw new UnsupportedOperationException("Raw selection cannot be used in this context--"
-                            + "it cannot converted to raw SQL without bound arguments.");
+                                + "it cannot converted to raw SQL without bound arguments.");
                     }
                     Collections.addAll(builder.args, selectionArgs);
                 }

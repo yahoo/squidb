@@ -76,7 +76,7 @@ public class UpdateTest extends DatabaseTestCase {
         final int newLuckyNumber = 99;
 
         // check preconditions
-        int numRows = database.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertTrue(numRows > 0);
         int shouldBeZero = database.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
         assertEquals(0, shouldBeZero);

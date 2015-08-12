@@ -454,7 +454,7 @@ public class QueryTest extends DatabaseTestCase {
             database.endTransaction();
         }
         assertTrue(rowIds.size() > SqlStatement.MAX_VARIABLE_NUMBER);
-        assertTrue(database.count(TestModel.class, Criterion.all) > SqlStatement.MAX_VARIABLE_NUMBER);
+        assertTrue(database.countAll(TestModel.class) > SqlStatement.MAX_VARIABLE_NUMBER);
 
         Query query = Query.select(TestModel.ID).where(TestModel.ID.in(rowIds));
         testMaxSqlArgRowIds(query, rowIds.size());
@@ -585,7 +585,7 @@ public class QueryTest extends DatabaseTestCase {
         database.persist(modelOne);
         database.persist(modelTwo);
         database.persist(modelThree);
-        assertEquals(3, database.count(TestModel.class, Criterion.all));
+        assertEquals(3, database.countAll(TestModel.class));
 
         database.deleteWhere(TestModel.class,
                 TestModel.ID.lt(Query.select(Function.max(TestModel.ID)).from(TestModel.TABLE)));
@@ -727,7 +727,7 @@ public class QueryTest extends DatabaseTestCase {
         Query q = Query.select().where(Employee.NAME.eq("'Sam'); drop table " + Employee.TABLE.getName() + ";"));
         SquidCursor<Employee> cursor = database.query(Employee.class, q);
         try {
-            assertFalse(database.count(Employee.class, Criterion.all) == 0);
+            assertFalse(database.countAll(Employee.class) == 0);
         } finally {
             cursor.close();
         }
@@ -900,7 +900,7 @@ public class QueryTest extends DatabaseTestCase {
 
         SubqueryTable subqueryTable = subquery.as("t1");
         SubqueryTable joinTable = joinSubquery.as("t2");
-        Query query = Query.select().from(subqueryTable).innerJoin(joinTable, Criterion.all)
+        Query query = Query.select().from(subqueryTable).innerJoin(joinTable, (Criterion[]) null)
                 .union(compoundSubquery);
 
         final int queryLength = query.compile().sql.length();
@@ -941,7 +941,7 @@ public class QueryTest extends DatabaseTestCase {
                 try {
                     blockThread.acquire();
 
-                    Query query2 = Query.select().from(subqueryTable).where(Criterion.all);
+                    Query query2 = Query.select().from(subqueryTable);
                     query2.requestValidation();
 
                     SquidCursor<Thing> cursor = database.query(Thing.class, query2);
@@ -975,7 +975,7 @@ public class QueryTest extends DatabaseTestCase {
         Query testQuery = baseTestQuery.from(subquery.as("t1"));
         assertTrue(testQuery.compile().needsValidation);
         assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
-        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), Criterion.all);
+        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), (Criterion[]) null);
         assertTrue(testQuery.compile().needsValidation);
         assertTrue(testQuery.sqlForValidation().contains("WHERE ((?))"));
         testQuery = baseTestQuery.union(subquery);
@@ -1040,7 +1040,7 @@ public class QueryTest extends DatabaseTestCase {
 
         SquidCursor<Employee> cursor = database.query(Employee.class, baseQuery);
         try {
-            assertEquals(database.count(Employee.class, Criterion.all), cursor.getCount());
+            assertEquals(database.countAll(Employee.class), cursor.getCount());
             while (cursor.moveToNext()) {
                 assertEquals(cursor.get(Employee.ID) + 1, cursor.get(idPlus1).longValue());
             }

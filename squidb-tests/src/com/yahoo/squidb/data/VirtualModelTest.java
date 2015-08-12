@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestVirtualModel;
 
@@ -17,7 +16,7 @@ public class VirtualModelTest extends DatabaseTestCase {
                 .setTitle("Charlie")
                 .setBody("Charlie and the Chocolate Factory");
         assertTrue(database.createNew(model));
-        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestVirtualModel.class));
 
         // query
         final long id = model.getId();
@@ -27,18 +26,18 @@ public class VirtualModelTest extends DatabaseTestCase {
         // update
         model.setTitle("Charlie Brown").setBody("It's the Easter Beagle, Charlie Brown");
         assertTrue(database.saveExisting(model));
-        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestVirtualModel.class));
         assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown")));
 
         // update using setId on a template
         TestVirtualModel model2 = new TestVirtualModel().setTitle("Charlie Brown 2").setId(model.getId());
         assertTrue(database.saveExisting(model2));
-        assertEquals(1, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestVirtualModel.class));
         assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown 2")));
 
         // delete
         assertTrue(database.delete(TestVirtualModel.class, id));
-        assertEquals(0, database.count(TestVirtualModel.class, Criterion.all));
+        assertEquals(0, database.countAll(TestVirtualModel.class));
     }
 
     public void testNonStringPropertyInVirtualTableModel() {
