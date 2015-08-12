@@ -52,4 +52,34 @@ public class CriterionTest extends SquidTestCase {
         assertNull(Criterion.fromRawSelection(null, null));
         assertNull(Criterion.fromRawSelection("", null));
     }
+
+    public void testNullCriterionsInBadPlacesThrowExceptions() {
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.and(null, TestModel.ID.eq(1));
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.or(null, TestModel.ID.eq(1));
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Function.caseWhen(null, 1);
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.not(null);
+            }
+        }, IllegalArgumentException.class);
+    }
 }

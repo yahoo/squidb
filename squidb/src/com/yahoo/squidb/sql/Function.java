@@ -246,6 +246,9 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      * Begins a CASE statement, populating it with the first WHEN ... THEN branch
      */
     public static CaseBuilder caseWhen(Criterion when, Object then) {
+        if (when == null) {
+            throw new IllegalArgumentException("Can't construct a CASE WHEN statement with a null criterion");
+        }
         return new CaseBuilder(null).when(when, then);
     }
 

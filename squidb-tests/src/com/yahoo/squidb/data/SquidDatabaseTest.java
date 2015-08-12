@@ -285,8 +285,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     public void testQueriesWithBooleanPropertiesWork() {
         insertBasicTestModel();
 
-        SquidCursor<TestModel> result = database
-                .query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isTrue()));
+        SquidCursor<TestModel> result = database.query(TestModel.class,
+                Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isTrue()));
         assertEquals(1, result.getCount());
         result.moveToFirst();
         TestModel model = new TestModel(result);
@@ -296,8 +296,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         database.persist(model);
         result.close();
 
-        result = database
-                .query(TestModel.class, Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
+        result = database.query(TestModel.class,
+                Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
         assertEquals(1, result.getCount());
         result.moveToFirst();
         model = new TestModel(result);
@@ -314,8 +314,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         boolean result = database.persistWithOnConflict(conflict, TableStatement.ConflictAlgorithm.IGNORE);
         assertFalse(result);
         TestModel shouldntExist = database.fetchByCriterion(TestModel.class,
-                TestModel.FIRST_NAME.eq("Dave").and(TestModel.LAST_NAME.eq("Bosley")),
-                TestModel.PROPERTIES);
+                TestModel.FIRST_NAME.eq("Dave").and(TestModel.LAST_NAME.eq("Bosley")), TestModel.PROPERTIES);
         assertNull(shouldntExist);
         SQLiteConstraintException expected = null;
         try {

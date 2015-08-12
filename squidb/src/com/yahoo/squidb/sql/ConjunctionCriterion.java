@@ -12,6 +12,13 @@ class ConjunctionCriterion extends Criterion {
 
     ConjunctionCriterion(Operator operator, Criterion criterion, Criterion... additionalCriterions) {
         super(operator);
+        if (criterion == null) {
+            throw new IllegalArgumentException("Base criterion of a ConjunctionCriterion cannot be null");
+        }
+        if (additionalCriterions == null) {
+            throw new IllegalArgumentException(
+                    "Can't pass a null array for additional criterions in a ConjunctionCriterion");
+        }
         this.baseCriterion = criterion;
         this.additionalCriterions = additionalCriterions;
     }
@@ -31,8 +38,10 @@ class ConjunctionCriterion extends Criterion {
     protected void populate(SqlBuilder builder, boolean forSqlValidation) {
         baseCriterion.appendToSqlBuilder(builder, forSqlValidation);
         for (Criterion c : additionalCriterions) {
-            builder.sql.append(operator);
-            c.appendToSqlBuilder(builder, forSqlValidation);
+            if (c != null) {
+                builder.sql.append(operator);
+                c.appendToSqlBuilder(builder, forSqlValidation);
+            }
         }
     }
 

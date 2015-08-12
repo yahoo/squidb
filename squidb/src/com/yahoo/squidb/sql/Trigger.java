@@ -235,7 +235,9 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return this Trigger instance, for chaining method calls
      */
     public Trigger when(Criterion criterion) {
-        criterions.add(criterion);
+        if (criterion != null) {
+            criterions.add(criterion);
+        }
         return this;
     }
 

@@ -41,14 +41,14 @@ public abstract class Criterion extends CompilableWithArguments {
     /**
      * @return a {@link Criterion} that combines the given criterions with AND
      */
-    public static Criterion and(final Criterion criterion, final Criterion... criterions) {
+    public static Criterion and(Criterion criterion, Criterion... criterions) {
         return new ConjunctionCriterion(Operator.and, criterion, criterions);
     }
 
     /**
      * @return a {@link Criterion} that combines the given criterions with OR
      */
-    public static Criterion or(final Criterion criterion, final Criterion... criterions) {
+    public static Criterion or(Criterion criterion, Criterion... criterions) {
         return new ConjunctionCriterion(Operator.or, criterion, criterions);
     }
 
@@ -148,18 +148,24 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * @param criterion another criterion to be appended with AND
+     * @param criterion another criterion to be appended with AND. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this AND criterion)
      */
     public Criterion and(Criterion criterion) {
+        if (criterion == null) {
+            return this;
+        }
         return and(this, criterion);
     }
 
     /**
-     * @param criterion another criterion to be appended with OR
+     * @param criterion another criterion to be appended with OR. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this OR criterion)
      */
     public Criterion or(Criterion criterion) {
+        if (criterion == null) {
+            return this;
+        }
         return or(this, criterion);
     }
 

@@ -48,11 +48,10 @@ public class Delete extends TableStatement {
      * @return this Delete object, to allow chaining method calls
      */
     public Delete where(Criterion criterion) {
-        if (criterion == null) {
-            return this;
+        if (criterion != null) {
+            this.criterions.add(criterion);
+            invalidateCompileCache();
         }
-        this.criterions.add(criterion);
-        invalidateCompileCache();
         return this;
     }
 
