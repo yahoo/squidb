@@ -41,6 +41,10 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+
+    defaultConfig {
+        testInstrumentationRunner "com.yahoo.squidb.test.SquidInstrumentationTestRunner"
+    }
 }
 
 dependencies {
@@ -48,6 +52,7 @@ dependencies {
     compile project(':squidb-annotations')
     compile project(':squidb-jackson-plugin')
     compile project(':squidb-jackson-annotations')
+    compile project(':squidb-sqlite-bindings')
     apt project(':squidb-jackson-compiler')
     apt project(':squidb-processor')
 }

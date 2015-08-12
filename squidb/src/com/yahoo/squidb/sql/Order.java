@@ -5,15 +5,13 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 /**
  * Ordering term for a SELECT statement. In addition to the {@link #asc(Object) asc} and {@link #desc(Object) desc}
  * static methods, you can create an ordering term from a Field using {@link Field#asc()} and {@link Field#desc()}.
  */
 public class Order extends CompilableWithArguments {
 
-    private static enum OrderType {
+    private enum OrderType {
         DESC, ASC, RAW
     }
 
@@ -54,15 +52,12 @@ public class Order extends CompilableWithArguments {
             return Order.asc("0");
         }
 
-        StringBuilder orderCase = new StringBuilder();
-        orderCase.append("(CASE ").append(field.getName()).append(" ");
+        CaseBuilder caseBuilder = Function.caseExpr(field);
         for (int i = 0; i < order.length; i++) {
-            orderCase.append("WHEN ");
-            SqlUtils.addToSqlString(orderCase, order[i]);
-            orderCase.append(" THEN ").append(Integer.toString(i)).append(" ");
+            caseBuilder.when(order[i], i);
         }
-        orderCase.append(" ELSE ").append(Integer.toString(order.length)).append(" END)");
-        return fromExpression(orderCase.toString());
+        caseBuilder.elseExpr(order.length);
+        return Order.asc(caseBuilder.end());
     }
 
     public static Order fromExpression(String expression) {
@@ -70,12 +65,12 @@ public class Order extends CompilableWithArguments {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         if (orderType == OrderType.RAW) {
-            sql.append(expression);
+            builder.sql.append(expression);
         } else {
-            SqlUtils.addToSqlString(sql, selectionArgsBuilder, expression);
-            sql.append(" ").append(orderType.toString());
+            builder.addValueToSql(expression, forSqlValidation);
+            builder.sql.append(" ").append(orderType.toString());
         }
     }
 

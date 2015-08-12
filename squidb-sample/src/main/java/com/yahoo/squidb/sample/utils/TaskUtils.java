@@ -7,7 +7,7 @@ package com.yahoo.squidb.sample.utils;
 
 import android.text.TextUtils;
 
-import com.yahoo.squidb.data.DatabaseDao;
+import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.Criterion;
@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 @Singleton
 public class TaskUtils {
 
-    @Inject DatabaseDao mDatabaseDao;
+    @Inject TasksDatabase mTasksDatabase;
 
     public static final StringProperty TAGS_CONCAT = StringProperty.fromFunction(
             Function.groupConcat(Tag.TAG, " | "), "tags_concat");
@@ -41,36 +41,36 @@ public class TaskUtils {
     }
 
     public boolean insertNewTask(String title, int priority, long dueDate, String... tags) {
-        mDatabaseDao.beginTransaction();
+        mTasksDatabase.beginTransaction();
         try {
             Task task = new Task()
                     .setTitle(title)
                     .setPriority(priority)
                     .setDueDate(dueDate);
-            if (mDatabaseDao.persist(task)) {
+            if (mTasksDatabase.persist(task)) {
                 for (String tag : tags) {
                     if (!TextUtils.isEmpty(tag)) {
-                        if (!mDatabaseDao.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
+                        if (!mTasksDatabase.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
                             return false;
                         }
                     }
                 }
-                mDatabaseDao.setTransactionSuccessful();
+                mTasksDatabase.setTransactionSuccessful();
                 return true;
             }
         } finally {
-            mDatabaseDao.endTransaction();
+            mTasksDatabase.endTransaction();
         }
         return false;
     }
 
     public boolean completeTask(Task task) {
         task.setCompletionDate(System.currentTimeMillis());
-        return mDatabaseDao.persist(task);
+        return mTasksDatabase.persist(task);
     }
 
     public boolean deleteTask(Task task) {
-        return mDatabaseDao.delete(Task.class, task.getId());
+        return mTasksDatabase.delete(Task.class, task.getId());
     }
 
 }

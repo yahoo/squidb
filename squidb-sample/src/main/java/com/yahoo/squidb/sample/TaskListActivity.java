@@ -19,9 +19,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sample.adapter.TaskListAdapter;
+import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sample.modules.HelloSquiDBInjector;
 import com.yahoo.squidb.sample.utils.TaskUtils;
@@ -36,7 +36,7 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
     private static final int LOADER_ID_TASKS = 1;
 
     @Inject TaskUtils mTaskUtils;
-    @Inject DatabaseDao mDatabaseDao;
+    @Inject TasksDatabase mTasksDatabase;
 
     private ListView mTaskListView;
     private TaskListAdapter mTaskListAdapter;
@@ -133,7 +133,7 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
                 .or(sinceCompletion.lt(DateUtils.MINUTE_IN_MILLIS * 5)))
                 .orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
 
-        SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mDatabaseDao, Task.class, query);
+        SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mTasksDatabase, Task.class, query);
         loader.setNotificationUri(Task.CONTENT_URI);
         return loader;
     }

@@ -8,7 +8,6 @@ package com.yahoo.squidb.sql;
 import android.text.TextUtils;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Criterions are primarily used to construct the WHERE clause of a SQL statement. Most criterion objects can be
@@ -44,8 +43,8 @@ public abstract class Criterion extends CompilableWithArguments {
      */
     public static final Criterion all = new Criterion(null) {
         @Override
-        protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-            sql.append(1);
+        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            builder.sql.append(1);
         }
 
         @Override
@@ -59,8 +58,8 @@ public abstract class Criterion extends CompilableWithArguments {
      */
     public static final Criterion none = new Criterion(null) {
         @Override
-        protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-            sql.append(0);
+        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            builder.sql.append(0);
         }
 
         @Override
@@ -96,10 +95,10 @@ public abstract class Criterion extends CompilableWithArguments {
     public static Criterion exists(final Query query) {
         return new Criterion(Operator.exists) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                sql.append(operator).append("(");
-                query.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
-                sql.append(")");
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                builder.sql.append(operator).append("(");
+                query.appendToSqlBuilder(builder, forSqlValidation);
+                builder.sql.append(")");
             }
         };
     }
@@ -113,10 +112,14 @@ public abstract class Criterion extends CompilableWithArguments {
         }
         return new Criterion(null) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                sql.append(selection);
-                if (selectionArgs != null && selectionArgsBuilder != null) {
-                    Collections.addAll(selectionArgsBuilder, selectionArgs);
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                builder.sql.append(selection);
+                if (selectionArgs != null && selectionArgs.length > 0) {
+                    if (builder.args == null) {
+                        throw new UnsupportedOperationException("Raw selection cannot be used in this context--"
+                            + "it cannot converted to raw SQL without bound arguments.");
+                    }
+                    Collections.addAll(builder.args, selectionArgs);
                 }
             }
         };
@@ -131,8 +134,8 @@ public abstract class Criterion extends CompilableWithArguments {
     public static Criterion literal(final Object value) {
         return new Criterion(null) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                SqlUtils.addToSqlString(sql, selectionArgsBuilder, value);
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                builder.addValueToSql(value, forSqlValidation);
             }
         };
     }
@@ -141,24 +144,26 @@ public abstract class Criterion extends CompilableWithArguments {
      * Convert this object's contents to valid SQL and append it to the SQL string being built. If
      * <code>selectionArgsBuilder</code> is provided, then use the '?' character in place of literal values and add
      * those values to <code>selectionArgsBuilder</code> instead. In most cases, use
-     * {@link SqlUtils#addToSqlString(StringBuilder, List, Object)} to handle this properly.
+     * {@link SqlBuilder#addValueToSql(Object, boolean)} to handle this properly.
      *
-     * @param sql the SQL string being built
-     * @param selectionArgsBuilder holds arguments that should bind to '?' characters appended to sql
+     * @param builder The {@link SqlBuilder} for building the SQL statement
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
+     * SQL
      */
-    protected abstract void populate(StringBuilder sql, List<Object> selectionArgsBuilder);
+    protected abstract void populate(SqlBuilder builder, boolean forSqlValidation);
 
     /**
      * Append a string representation of this Criterion
      *
-     * @param sql StringBuilder to append to
-     * @param selectionArgsBuilder list to contain values that bind to the replaceable character '?'
+     * @param builder The {@link SqlBuilder} for building the SQL statement
+     * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
+     * SQL
      */
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append("(");
-        populate(sql, selectionArgsBuilder);
-        sql.append(")");
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("(");
+        populate(builder, forSqlValidation);
+        builder.sql.append(")");
     }
 
     /**

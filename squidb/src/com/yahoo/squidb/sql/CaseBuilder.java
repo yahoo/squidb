@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Builder class for creating CASE statements. CASE statements may optionally have a base expression (CASE
@@ -40,7 +39,7 @@ public class CaseBuilder {
             throw new IllegalStateException("Can't call when() after calling end()");
         }
         if (whens == null) {
-            // always intialized together
+            // always initialized together
             whens = new ArrayList<Object>();
             thens = new ArrayList<Object>();
         }
@@ -77,24 +76,24 @@ public class CaseBuilder {
 
         return new Function<T>() {
             @Override
-            protected void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                sql.append("(CASE");
+            protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+                builder.sql.append("(CASE");
                 if (baseExpression != null) {
-                    sql.append(' ');
-                    SqlUtils.addToSqlString(sql, selectionArgsBuilder, baseExpression);
+                    builder.sql.append(' ');
+                    builder.addValueToSql(baseExpression, forSqlValidation);
                 }
                 int size = whens.size();
                 for (int i = 0; i < size; i++) {
-                    sql.append(" WHEN ");
-                    SqlUtils.addToSqlString(sql, selectionArgsBuilder, whens.get(i));
-                    sql.append(" THEN ");
-                    SqlUtils.addToSqlString(sql, selectionArgsBuilder, thens.get(i));
+                    builder.sql.append(" WHEN ");
+                    builder.addValueToSql(whens.get(i), forSqlValidation);
+                    builder.sql.append(" THEN ");
+                    builder.addValueToSql(thens.get(i), forSqlValidation);
                 }
                 if (elseValue != null) {
-                    sql.append(" ELSE ");
-                    SqlUtils.addToSqlString(sql, selectionArgsBuilder, elseValue);
+                    builder.sql.append(" ELSE ");
+                    builder.addValueToSql(elseValue, forSqlValidation);
                 }
-                sql.append(" END)");
+                builder.sql.append(" END)");
             }
         };
     }

@@ -5,35 +5,32 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.net.Uri;
-import android.os.Build;
 
 import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.Query;
 
 /**
- * A {@link CursorLoader} that queries a {@link DatabaseDao}
+ * A {@link CursorLoader} that queries a {@link SquidDatabase}
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<SquidCursor<T>> {
 
     private final Query query;
-    private final DatabaseDao dao;
+    private final SquidDatabase database;
     private Uri notificationUri = null;
     private SquidCursor<T> cursor = null;
     private final Class<T> modelClass;
 
     private final ForceLoadContentObserver observer = new ForceLoadContentObserver();
 
-    public SquidCursorLoader(Context context, DatabaseDao dao, Class<T> modelClass, Query query) {
+    public SquidCursorLoader(Context context, SquidDatabase database, Class<T> modelClass, Query query) {
         super(context);
-        this.dao = dao;
+        this.database = database;
         this.query = query;
         this.modelClass = modelClass;
     }
@@ -47,7 +44,7 @@ public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<
 
     @Override
     public SquidCursor<T> loadInBackground() {
-        SquidCursor<T> result = dao.query(modelClass, query);
+        SquidCursor<T> result = database.query(modelClass, query);
         if (result != null) {
             result.getCount(); // Make sure the window is filled
             result.registerContentObserver(observer);

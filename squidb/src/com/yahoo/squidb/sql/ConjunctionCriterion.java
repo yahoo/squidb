@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class ConjunctionCriterion extends Criterion {
 
     private final Criterion baseCriterion;
@@ -30,11 +28,11 @@ class ConjunctionCriterion extends Criterion {
     }
 
     @Override
-    protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        baseCriterion.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+    protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+        baseCriterion.appendToSqlBuilder(builder, forSqlValidation);
         for (Criterion c : additionalCriterions) {
-            sql.append(operator);
-            c.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+            builder.sql.append(operator);
+            c.appendToSqlBuilder(builder, forSqlValidation);
         }
     }
 

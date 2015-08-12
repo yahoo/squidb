@@ -5,17 +5,19 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  *-->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yahoo.squidb.test"
+<manifest package="com.yahoo.squidb.test"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="1"
     android:versionName="1.0">
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19"
+        tools:overrideLibrary="com.yahoo.squidb.sqlitebindings" />
 
     <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
+        android:name="com.yahoo.squidb.test.SquidInstrumentationTestRunner"
         android:targetPackage="com.yahoo.squidb.test" />
 
     <application

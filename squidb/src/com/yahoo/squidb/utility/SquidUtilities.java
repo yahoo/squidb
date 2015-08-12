@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Various utility functions for SquiDB
@@ -61,9 +62,7 @@ public class SquidUtilities {
      */
     public static <T> void addAll(Collection<T> collection, T... objects) {
         if (objects != null) {
-            for (T obj : objects) {
-                collection.add(obj);
-            }
+            Collections.addAll(collection, objects);
         }
     }
 
@@ -97,8 +96,6 @@ public class SquidUtilities {
         FileOutputStream fos = new FileOutputStream(out);
         try {
             copyStream(fis, fos);
-        } catch (Exception e) {
-            throw e;
         } finally {
             fis.close();
             fos.close();

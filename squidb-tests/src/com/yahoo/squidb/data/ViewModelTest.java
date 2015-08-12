@@ -39,18 +39,18 @@ public class ViewModelTest extends DatabaseTestCase {
         e1 = new Employee().setName("Big bird");
         e2 = new Employee().setName("Elmo");
 
-        dao.persist(t1);
-        dao.persist(t2);
-        dao.persist(t3);
-        dao.persist(e1);
-        dao.persist(e2);
+        database.persist(t1);
+        database.persist(t2);
+        database.persist(t3);
+        database.persist(e1);
+        database.persist(e2);
     }
 
     @SuppressLint("DefaultLocale")
     public void testBasicSelectFromView() {
         SquidCursor<TestViewModel> cursor = null;
         try {
-            cursor = dao.query(TestViewModel.class, Query.select());
+            cursor = database.query(TestViewModel.class, Query.select());
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestViewModel model = new TestViewModel(cursor);
@@ -79,7 +79,7 @@ public class ViewModelTest extends DatabaseTestCase {
     public void testBasicSelectFromSubquery() {
         SquidCursor<TestSubqueryModel> cursor = null;
         try {
-            cursor = dao.query(TestSubqueryModel.class, Query.select().from(TestSubqueryModel.SUBQUERY));
+            cursor = database.query(TestSubqueryModel.class, Query.select().from(TestSubqueryModel.SUBQUERY));
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
@@ -112,7 +112,7 @@ public class ViewModelTest extends DatabaseTestCase {
 
         SquidCursor<TestSubqueryModel> cursor = null;
         try {
-            cursor = dao.query(TestSubqueryModel.class, Query.select().from(TestSubqueryModel.SUBQUERY));
+            cursor = database.query(TestSubqueryModel.class, Query.select().from(TestSubqueryModel.SUBQUERY));
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
             // queried model should have "uppercase_name"
@@ -136,7 +136,7 @@ public class ViewModelTest extends DatabaseTestCase {
     public void testModelMapping() {
         SquidCursor<TestViewModel> cursor = null;
         try {
-            cursor = dao.query(TestViewModel.class, Query.select());
+            cursor = database.query(TestViewModel.class, Query.select());
             cursor.moveToFirst();
             TestViewModel model = new TestViewModel(cursor);
 
@@ -173,7 +173,7 @@ public class ViewModelTest extends DatabaseTestCase {
     public void testViewlessViewModel() {
         SquidCursor<ViewlessViewModel> cursor = null;
         try {
-            cursor = dao.query(ViewlessViewModel.class, Query.select(ViewlessViewModel.PROPERTIES)
+            cursor = database.query(ViewlessViewModel.class, Query.select(ViewlessViewModel.PROPERTIES)
                     .from(TestModel.TABLE)
                     .join(Join.left(Employee.TABLE, TestModel.ID.eq(Employee.ID)))
                     .where(TestModel.FIRST_NAME.gt("S"))
@@ -207,7 +207,7 @@ public class ViewModelTest extends DatabaseTestCase {
     public void testViewlessViewModelMapping() {
         SquidCursor<ViewlessViewModel> cursor = null;
         try {
-            cursor = dao.query(ViewlessViewModel.class, Query.select(ViewlessViewModel.PROPERTIES)
+            cursor = database.query(ViewlessViewModel.class, Query.select(ViewlessViewModel.PROPERTIES)
                     .from(TestModel.TABLE)
                     .join(Join.left(Employee.TABLE, TestModel.ID.eq(Employee.ID)))
                     .where(TestModel.FIRST_NAME.gt("S"))

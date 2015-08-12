@@ -5,8 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,9 +74,6 @@ public class Insert extends TableStatement {
      * @throws UnsupportedOperationException if called multiple times on Android versions lower than 16 (JellyBean)
      */
     public Insert values(Object... values) {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN && !valuesToInsert.isEmpty()) {
-            throw new UnsupportedOperationException("Can't insert with multiple sets of values below API 16");
-        }
         valuesToInsert.add(Arrays.asList(values));
         query = null;
         defaultValues = false;
@@ -133,20 +129,20 @@ public class Insert extends TableStatement {
     }
 
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> insertArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         assertValues();
 
-        sql.append("INSERT ");
-        visitConflictAlgorithm(sql);
-        sql.append("INTO ").append(table.getExpression()).append(" ");
-        visitColumns(sql);
+        builder.sql.append("INSERT ");
+        visitConflictAlgorithm(builder.sql);
+        builder.sql.append("INTO ").append(table.getExpression()).append(" ");
+        visitColumns(builder.sql);
 
         if (!valuesToInsert.isEmpty()) {
-            visitValues(sql, insertArgsBuilder);
+            visitValues(builder, forSqlValidation);
         } else if (query != null) {
-            visitQuery(sql, insertArgsBuilder);
+            visitQuery(builder, forSqlValidation);
         } else {
-            sql.append("DEFAULT VALUES");
+            builder.sql.append("DEFAULT VALUES");
         }
     }
 
@@ -193,25 +189,29 @@ public class Insert extends TableStatement {
         sql.append(") ");
     }
 
-    private void visitQuery(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+    private void visitQuery(SqlBuilder builder, boolean forSqlValidation) {
+        query.appendToSqlBuilder(builder, forSqlValidation);
     }
 
-    private void visitValues(StringBuilder sql, List<Object> insertArgsBuilder) {
-        sql.append("VALUES ");
+    private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
+        if (builder.sqliteVersion.isLessThan(VersionCode.V3_7_11) && valuesToInsert.size() > 1) {
+            throw new UnsupportedOperationException("Can't insert with multiple sets of values below "
+                    + "SQLite version 3.7.11");
+        }
+        builder.sql.append("VALUES ");
         for (List<Object> valuesList : valuesToInsert) {
             if (valuesList.isEmpty()) {
                 continue;
             }
 
-            sql.append("(");
+            builder.sql.append("(");
             for (Object value : valuesList) {
-                SqlUtils.addToSqlString(sql, insertArgsBuilder, value);
-                sql.append(",");
+                builder.addValueToSql(value, forSqlValidation);
+                builder.sql.append(",");
             }
-            sql.deleteCharAt(sql.length() - 1);
-            sql.append("),");
+            builder.sql.deleteCharAt(builder.sql.length() - 1);
+            builder.sql.append("),");
         }
-        sql.deleteCharAt(sql.length() - 1);
+        builder.sql.deleteCharAt(builder.sql.length() - 1);
     }
 }

@@ -33,59 +33,59 @@ public class SqlFunctionsTest extends DatabaseTestCase {
                 .setLastName("Bosley")
                 .setBirthday(now)
                 .setLuckyNumber(-3);
-        dao.persist(model1);
+        database.persist(model1);
         model2 = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
                 .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
                 .setLuckyNumber(0);
-        dao.persist(model2);
+        database.persist(model2);
         model3 = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
                 .setBirthday(now - DateUtils.HOUR_IN_MILLIS);
-        dao.persist(model3);
+        database.persist(model3);
     }
 
     public void testUpper() {
         StringProperty upper =
                 StringProperty.fromFunction(Function.upper(TestModel.FIRST_NAME), "upper");
-        TestModel fetch = dao.fetch(TestModel.class, model1.getId(), upper);
+        TestModel fetch = database.fetch(TestModel.class, model1.getId(), upper);
         assertEquals("SAM", fetch.get(upper));
     }
 
     public void testLower() {
         StringProperty lower =
                 StringProperty.fromFunction(Function.lower(TestModel.LAST_NAME), "lower");
-        TestModel fetch = dao.fetch(TestModel.class, model3.getId(), lower);
+        TestModel fetch = database.fetch(TestModel.class, model3.getId(), lower);
         assertEquals("koren", fetch.get(lower));
     }
 
     public void testLengthOfString() {
         IntegerProperty length =
                 IntegerProperty.fromFunction(Function.length(TestModel.FIRST_NAME), "length");
-        TestModel fetch = dao.fetch(TestModel.class, model2.getId(), length);
+        TestModel fetch = database.fetch(TestModel.class, model2.getId(), length);
         assertEquals(5, fetch.get(length).intValue());
     }
 
     public void testLengthOfNumeric() {
         IntegerProperty length =
                 IntegerProperty.fromFunction(Function.length(TestModel.BIRTHDAY), "length");
-        TestModel fetch = dao.fetch(TestModel.class, model1.getId(), length);
+        TestModel fetch = database.fetch(TestModel.class, model1.getId(), length);
         assertEquals(Long.toString(model1.getBirthday()).length(), fetch.get(length).intValue());
     }
 
     public void testUpperOfLower() {
         StringProperty upperOfLower =
                 StringProperty.fromFunction(Function.upper(Function.lower(TestModel.LAST_NAME)), "upperOfLower");
-        TestModel fetch = dao.fetch(TestModel.class, model1.getId(), upperOfLower);
+        TestModel fetch = database.fetch(TestModel.class, model1.getId(), upperOfLower);
         assertEquals("BOSLEY", fetch.get(upperOfLower));
     }
 
     public void testLowerOfUpper() {
         StringProperty lowerOfUpper =
                 StringProperty.fromFunction(Function.lower(Function.upper(TestModel.LAST_NAME)), "lowerOfUpper");
-        TestModel fetch = dao.fetch(TestModel.class, model1.getId(), lowerOfUpper);
+        TestModel fetch = database.fetch(TestModel.class, model1.getId(), lowerOfUpper);
         assertEquals("bosley", fetch.get(lowerOfUpper));
     }
 
@@ -95,12 +95,12 @@ public class SqlFunctionsTest extends DatabaseTestCase {
                 .join(Join.inner(Employee.TABLE, Employee.IS_HAPPY.eq(TestModel.IS_HAPPY)));
 
         // just test that the query compiles with the function
-        dao.query(TestModel.class, test);
+        database.query(TestModel.class, test);
     }
 
     public void testSelectFunction() {
         Function<String> upper = Function.upper(TestModel.LAST_NAME);
-        SquidCursor<TestModel> cursor = dao
+        SquidCursor<TestModel> cursor = database
                 .query(TestModel.class, Query.select(TestModel.PROPERTIES).selectMore(upper));
         try {
             cursor.moveToFirst();
@@ -113,7 +113,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     public void testBooleanFunctionPropertyConstants() {
         BooleanProperty alwaysTrue = BooleanProperty.fromFunction(Function.TRUE, "alwaysTrue");
         BooleanProperty alwaysFalse = BooleanProperty.fromFunction(Function.FALSE, "alwaysFalse");
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, Query.select(alwaysTrue, alwaysFalse));
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(alwaysTrue, alwaysFalse));
         try {
             cursor.moveToFirst();
             assertTrue(cursor.get(alwaysTrue));
@@ -126,7 +126,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     public void testBooleanFunctionOnCriterion() {
         BooleanProperty onCriterion = BooleanProperty
                 .fromFunction(Function.caseWhen(TestModel.FIRST_NAME.eq("Sam")), "firstNameSam");
-        SquidCursor<TestModel> cursor = dao
+        SquidCursor<TestModel> cursor = database
                 .query(TestModel.class, Query.select(onCriterion).orderBy(Order.asc(TestModel.ID)));
         try {
             cursor.moveToFirst();
@@ -150,7 +150,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         int trueStart = offset - 1;
         int end = trueStart + length;
 
-        TestModel model = dao.fetch(TestModel.class, model1.getId(), substrProperty);
+        TestModel model = database.fetch(TestModel.class, model1.getId(), substrProperty);
         String substrLastName = model.get(substrProperty);
         String expected = model1.getLastName().substring(trueStart, end);
         assertEquals(expected, substrLastName);
@@ -159,28 +159,28 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     public void testStrConcat() {
         Function<String> concat = Function.strConcat(TestModel.FIRST_NAME, TestModel.LAST_NAME);
         StringProperty concatProperty = StringProperty.fromFunction(concat, "concat");
-        TestModel model = dao.fetch(TestModel.class, model1.getId(), concatProperty);
+        TestModel model = database.fetch(TestModel.class, model1.getId(), concatProperty);
         assertEquals("SamBosley", model.get(concatProperty));
 
         concat = Function.strConcat(TestModel.FIRST_NAME, " ", TestModel.LAST_NAME);
         concatProperty = StringProperty.fromFunction(concat, "concat");
-        model = dao.fetch(TestModel.class, model1.getId(), concatProperty);
+        model = database.fetch(TestModel.class, model1.getId(), concatProperty);
         assertEquals("Sam Bosley", model.get(concatProperty));
     }
 
     public void testCoalesce() {
         model2.setFirstName(null); // coalesce should find last name
-        dao.persist(model2);
+        database.persist(model2);
 
         model3.setFirstName(null).setLastName(null); // coalesce should find fallback name
-        dao.persist(model3);
+        database.persist(model3);
 
         final String FALLBACK_NAME = "Squid";
         Function<String> coalesce = Function.coalesce(TestModel.FIRST_NAME, TestModel.LAST_NAME, FALLBACK_NAME);
         StringProperty modelName = StringProperty.fromFunction(coalesce, "name");
 
         // select *, coalesce(firstName, lastName, 'Squid') as name from testModel order by _id asc;
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, Query.select(TestModel.PROPERTIES)
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(TestModel.PROPERTIES)
                 .selectMore(modelName).orderBy(TestModel.ID.asc()));
 
         assertEquals(3, cursor.getCount());
@@ -202,7 +202,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         BooleanProperty nameMatches = BooleanProperty.fromFunction(caseWhen, "nameMatches");
 
         Query query = Query.select(TestModel.ID, TestModel.FIRST_NAME, nameMatches).where(TestModel.ID.eq(1));
-        TestModel model = dao.fetchByQuery(TestModel.class, query);
+        TestModel model = database.fetchByQuery(TestModel.class, query);
 
         assertNotNull(model);
         assertEquals(name.get(), model.getFirstName());
@@ -210,7 +210,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
 
         name.set("Bob");
 
-        model = dao.fetchByQuery(TestModel.class, query);
+        model = database.fetchByQuery(TestModel.class, query);
         assertNotNull(model);
         assertNotSame(name.get(), model.getFirstName());
         assertFalse(model.get(nameMatches));
@@ -222,7 +222,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         BooleanProperty nameMatches = BooleanProperty.fromFunction(caseWhen, "nameMatches");
 
         Query query = Query.select(TestModel.ID, TestModel.FIRST_NAME, nameMatches).orderBy(nameMatches.asc());
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, query);
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
@@ -240,7 +240,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
 
         name.set("Kevin");
         query = Query.select(TestModel.ID, TestModel.FIRST_NAME, nameMatches).orderBy(nameMatches.desc());
-        cursor = dao.query(TestModel.class, query);
+        cursor = database.query(TestModel.class, query);
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
@@ -288,7 +288,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     }
 
     private <T extends Number> void testMath(Property<T> property, T expectedValue) {
-        SquidCursor<?> cursor = dao.query(null, Query.select(property));
+        SquidCursor<?> cursor = database.query(null, Query.select(property));
         try {
             cursor.moveToFirst();
             T value = cursor.get(property);
@@ -368,7 +368,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
 
     private void assertExpectedValues(Query query, Property<?> property, Object... expectedValues) {
         final int expectedCount = expectedValues == null ? 0 : expectedValues.length;
-        SquidCursor<?> cursor = dao.query(null, query);
+        SquidCursor<?> cursor = database.query(null, query);
         try {
             assertEquals(expectedCount, cursor.getCount());
             for (int i = 0; i < expectedCount; i++) {
@@ -395,7 +395,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
                 Function.groupConcat(TestModel.FIRST_NAME, "|"), "fname_concat");
         StringProperty firstNameDistinct = StringProperty.fromFunction(
                 Function.groupConcatDistinct(TestModel.FIRST_NAME), "fname_distinct");
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class,
+        SquidCursor<TestModel> cursor = database.query(TestModel.class,
                 Query.select(firstNameConcat, firstNameDistinct).groupBy(TestModel.FIRST_NAME));
         try {
             assertEquals(2, cursor.getCount());
@@ -411,7 +411,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
 
         IntegerProperty sumDistinct = IntegerProperty.fromFunction(Function.sumDistinct(TestModel.LUCKY_NUMBER),
                 "sumDistinct");
-        cursor = dao.query(TestModel.class, Query.select(sumDistinct));
+        cursor = database.query(TestModel.class, Query.select(sumDistinct));
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -422,7 +422,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     }
 
     private void peristModelForDistinctAggregates(String firstName, String lastName, long birthday, int luckyNumber) {
-        dao.persist(new TestModel().setFirstName(firstName).setLastName(lastName)
+        database.persist(new TestModel().setFirstName(firstName).setLastName(lastName)
                 .setBirthday(birthday).setLuckyNumber(luckyNumber));
     }
 }

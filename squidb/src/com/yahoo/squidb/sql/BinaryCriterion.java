@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class BinaryCriterion extends Criterion {
 
     protected final Field<?> field;
@@ -19,22 +17,22 @@ class BinaryCriterion extends Criterion {
     }
 
     @Override
-    protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        beforePopulateOperator(sql, selectionArgsBuilder);
-        populateOperator(sql);
-        afterPopulateOperator(sql, selectionArgsBuilder);
+    protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+        beforePopulateOperator(builder, forSqlValidation);
+        populateOperator(builder.sql);
+        afterPopulateOperator(builder, forSqlValidation);
     }
 
-    protected void beforePopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        field.appendQualifiedExpression(sql, selectionArgsBuilder);
+    protected void beforePopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+        field.appendQualifiedExpression(builder, forSqlValidation);
     }
 
     protected void populateOperator(StringBuilder sql) {
         sql.append(operator);
     }
 
-    protected void afterPopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        SqlUtils.addToSqlString(sql, selectionArgsBuilder, value);
+    protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+        builder.addValueToSql(value, forSqlValidation);
     }
 
     @Override

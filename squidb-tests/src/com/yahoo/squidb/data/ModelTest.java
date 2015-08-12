@@ -28,7 +28,7 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals("Bosley", model.getLastName());
         assertTrue(model.isModified());
 
-        dao.persist(model);
+        database.persist(model);
         assertTrue(model.isSaved());
         assertFalse(model.isModified());
     }
@@ -56,40 +56,40 @@ public class ModelTest extends DatabaseTestCase {
     public void testCrudMethods() {
         // insert
         TestModel model = insertBasicTestModel("Sam", "Bosley", testDate);
-        assertEquals(1, dao.count(TestModel.class, Criterion.all));
+        assertEquals(1, database.count(TestModel.class, Criterion.all));
 
         // query
         final long id = model.getId();
-        TestModel fetched = dao.fetch(TestModel.class, id, TestModel.PROPERTIES);
+        TestModel fetched = database.fetch(TestModel.class, id, TestModel.PROPERTIES);
         assertNotNull(fetched);
 
         // update
         model.setFirstName("Jack").setLastName("Sparrow").setBirthday(System.currentTimeMillis());
-        assertTrue(dao.saveExisting(model));
-        assertEquals(1, dao.count(TestModel.class, Criterion.all));
+        assertTrue(database.saveExisting(model));
+        assertEquals(1, database.count(TestModel.class, Criterion.all));
 
         // delete
-        assertTrue(dao.delete(TestModel.class, id));
-        assertEquals(0, dao.count(TestModel.class, Criterion.all));
+        assertTrue(database.delete(TestModel.class, id));
+        assertEquals(0, database.count(TestModel.class, Criterion.all));
     }
 
     public void testCrudMethodsWithNonDefaultPrimaryKey() {
         Thing thing = new Thing();
-        dao.persist(thing);
+        database.persist(thing);
         assertEquals(1, thing.getId());
 
-        Thing fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        Thing fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
         assertNotNull(fetched);
 
         thing.setFoo("new foo");
-        dao.persist(thing);
-        fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        database.persist(thing);
+        fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
         assertEquals("new foo", fetched.getFoo());
-        assertEquals(1, dao.count(Thing.class, Criterion.all));
+        assertEquals(1, database.count(Thing.class, Criterion.all));
 
         // delete
-        assertTrue(dao.delete(Thing.class, thing.getId()));
-        assertEquals(0, dao.count(Thing.class, Criterion.all));
+        assertTrue(database.delete(Thing.class, thing.getId()));
+        assertEquals(0, database.count(Thing.class, Criterion.all));
     }
 
     public void testDeprecatedPropertiesNotIncluded() {

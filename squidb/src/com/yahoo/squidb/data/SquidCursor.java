@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * A wrapper around a {@link Cursor} that allows clients to extract individual {@link Property properties} or read an
  * entire {@link AbstractModel model} from a row in the cursor. After obtaining a cursor (such as from
- * {@link DatabaseDao#query(Class, com.yahoo.squidb.sql.Query) DatabaseDao.query}), as long as it is at a valid
+ * {@link SquidDatabase#query(Class, com.yahoo.squidb.sql.Query) SquidDatabase.query}), as long as it is at a valid
  * position, you can read properties any of the following ways:
  *
  * <pre>

@@ -8,7 +8,6 @@ package com.yahoo.squidb.sql;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Fields represent a selectable attribute, e.g. a column, function, or literal value. Most clients will not use this
@@ -75,9 +74,9 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
         }
         return new BinaryCriterion(this, Operator.eq, value) {
             @Override
-            protected void afterPopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                super.afterPopulateOperator(sql, selectionArgsBuilder);
-                sql.append(" COLLATE NOCASE ");
+            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+                super.afterPopulateOperator(builder, forSqlValidation);
+                builder.sql.append(" COLLATE NOCASE ");
             }
         };
     }
@@ -154,10 +153,10 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     public Criterion between(final Object lower, final Object upper) {
         return new BinaryCriterion(this, Operator.between, null) {
             @Override
-            protected void afterPopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                SqlUtils.addToSqlString(sql, selectionArgsBuilder, lower);
-                sql.append(" AND ");
-                SqlUtils.addToSqlString(sql, selectionArgsBuilder, upper);
+            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+                builder.addValueToSql(lower, forSqlValidation);
+                builder.sql.append(" AND ");
+                builder.addValueToSql(upper, forSqlValidation);
             }
         };
     }
@@ -183,9 +182,9 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     public Criterion like(Object pattern, final char escape) {
         return new BinaryCriterion(this, Operator.like, pattern) {
             @Override
-            protected void afterPopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                super.afterPopulateOperator(sql, selectionArgsBuilder);
-                sql.append(" ESCAPE ").append(SqlUtils.toSanitizedString(Character.toString(escape)));
+            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+                super.afterPopulateOperator(builder, forSqlValidation);
+                builder.sql.append(" ESCAPE ").append(SqlUtils.sanitizeStringAsLiteral(Character.toString(escape)));
             }
         };
     }
@@ -206,15 +205,16 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     }
 
     /**
-     * @return a {@link Criterion} that the field's value is in the collection of values
+     * @return a {@link Criterion} that the field's value is in the collection of values. Values that are not primitive
+     * types will be converted to String literals
      */
     public Criterion in(final Collection<?> values) {
         return new BinaryCriterion(this, Operator.in, values) {
             @Override
-            protected void afterPopulateOperator(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                sql.append("(");
-                SqlUtils.addCollectionArgToSqlString(sql, selectionArgsBuilder, values);
-                sql.append(")");
+            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+                builder.sql.append("(");
+                builder.addCollectionArg(values);
+                builder.sql.append(")");
             }
         };
     }

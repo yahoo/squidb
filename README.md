@@ -8,7 +8,7 @@ SquiDB is a SQLite database layer for Android. It is designed to make it as easy
 Add SquiDB to your existing project by following the instructions in [Adding SquiDB as a dependency](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
 
 ## Model objects
-SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A DatabaseDao object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
+SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A SquidDatabase object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
 
 ```java
 // This is a table schema
@@ -28,7 +28,7 @@ public class PersonSpec {
 }
 
 // This is how you'd set up a database instance
-public class MyDatabase extends AbstractDatabase {
+public class MyDatabase extends SquidDatabase {
 
     private static final int VERSION = 1;
 
@@ -58,14 +58,14 @@ public class MyDatabase extends AbstractDatabase {
     // omitted for brevity
 }
 
-DatabaseDao dao = new DatabaseDao(new MyDatabase(context));
+MyDatabase db = new MyDatabase(context);
 
 // This is how you'd work with the generated model
 Person newPerson = new Person()
     .setFirstName("Sam")
     .setLastName("Bosley")
     .setBirthday(System.currentTimeMillis());
-dao.persist(newPerson);
+db.persist(newPerson);
 
 ...
 
@@ -83,7 +83,7 @@ Query peopleWhoCanVote = Query.select().where(Person.BIRTHDAY.lt(ageCutoff));
 
 // This becomes select * from people where people.birthday < ?
 // where ? is the age cutoff arg
-SquidCursor<Person> voters = dao.query(Person.class, peopleWhoCanVote);
+SquidCursor<Person> voters = db.query(Person.class, peopleWhoCanVote);
 ```
 
 The example is simple, but SquiDB's query object supports almost the entire SQL grammar. It is much cleaner and easier to maintain, particularly for complex queries:
@@ -115,18 +115,18 @@ public Query queryForPeopleWithName(String name, boolean includeLastName) {
 ```
 
 ## Working with query results
-DatabaseDao can return either single rows of data represented by model objects, or a SquidCursor parametrized by a model type:
+SquidDatabase can return either single rows of data represented by model objects, or a SquidCursor parametrized by a model type:
 ```java
 // Fetch the person with _id = 1
-Person person1 = dao.fetch(Person.class, 1);
+Person person1 = db.fetch(Person.class, 1);
 
 // Cursor containing all rows in the people table
-SquidCursor<Person> personCursor = dao.query(Person.class, Query.select());
+SquidCursor<Person> personCursor = db.query(Person.class, Query.select());
 ```
 
 Model objects are designed to be reusable, so iterating through the cursor and inflating model objects to work with is cheap if you don't need the row data to live outside of the loop:
 ```java
-SquidCursor<Person> personCursor = dao.query(Person.class, Query.select());
+SquidCursor<Person> personCursor = db.query(Person.class, Query.select());
 try {
     Person person = new Person();
     while (personCursor.moveToNext()) {
