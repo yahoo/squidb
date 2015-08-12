@@ -79,8 +79,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * For this reason, these methods are protected rather than public. You can choose to expose them in your database
  * subclass if you wish, but we recommend that you instead use the typesafe, public, model-bases methods, such as
- * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel, TableStatement.ConflictAlgorithm)},
- * {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
+ * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel,
+ * TableStatement.ConflictAlgorithm)}, {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
  * <p>
  * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
  * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
@@ -766,7 +766,7 @@ public abstract class SquidDatabase {
         successState.endTransaction();
 
         if (!inTransaction()) {
-            flushAccumulatedUris(uriAccumulator.get(), successState.outerTransactionSuccess);
+            flushAccumulatedNotifications(successState.outerTransactionSuccess);
             successState.reset();
         }
     }
@@ -1429,7 +1429,7 @@ public abstract class SquidDatabase {
         Table table = getTable(modelClass);
         int rowsUpdated = deleteInternal(Delete.from(table).where(table.getIdProperty().eq(id)));
         if (rowsUpdated > 0) {
-            notifyForTable(UriNotifier.DBOperation.DELETE, null, table, id);
+            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, id);
         }
         return rowsUpdated > 0;
     }
@@ -1448,7 +1448,7 @@ public abstract class SquidDatabase {
         }
         int rowsUpdated = deleteInternal(delete);
         if (rowsUpdated > 0) {
-            notifyForTable(UriNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
+            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
         }
         return rowsUpdated;
     }
@@ -1466,7 +1466,7 @@ public abstract class SquidDatabase {
     public int delete(Delete delete) {
         int result = deleteInternal(delete);
         if (result > 0) {
-            notifyForTable(UriNotifier.DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
+            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
         }
         return result;
     }
@@ -1513,7 +1513,7 @@ public abstract class SquidDatabase {
 
         int rowsUpdated = updateInternal(update);
         if (rowsUpdated > 0) {
-            notifyForTable(UriNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
+            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
         }
         return rowsUpdated;
     }
@@ -1532,7 +1532,7 @@ public abstract class SquidDatabase {
     public int update(Update update) {
         int result = updateInternal(update);
         if (result > 0) {
-            notifyForTable(UriNotifier.DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
+            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
         }
         return result;
     }
@@ -1631,7 +1631,7 @@ public abstract class SquidDatabase {
         }
         boolean result = newRow > 0;
         if (result) {
-            notifyForTable(UriNotifier.DBOperation.INSERT, item, table, newRow);
+            notifyForTable(DataChangedNotifier.DBOperation.INSERT, item, table, newRow);
             item.setId(newRow);
             item.markSaved();
         }
@@ -1673,7 +1673,7 @@ public abstract class SquidDatabase {
         }
         boolean result = updateInternal(update) > 0;
         if (result) {
-            notifyForTable(UriNotifier.DBOperation.UPDATE, item, table, item.getId());
+            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, item, table, item.getId());
             item.markSaved();
         }
         return result;
@@ -1693,7 +1693,7 @@ public abstract class SquidDatabase {
         long result = insertInternal(insert);
         if (result > TableModel.NO_ID) {
             int numInserted = insert.getNumRows();
-            notifyForTable(UriNotifier.DBOperation.INSERT, null, insert.getTable(),
+            notifyForTable(DataChangedNotifier.DBOperation.INSERT, null, insert.getTable(),
                     numInserted == 1 ? result : TableModel.NO_ID);
         }
         return result;
@@ -1742,40 +1742,43 @@ public abstract class SquidDatabase {
         }
     }
 
-    // --- Uri notification
+    // --- Data change notifications
 
-    private final Object uriNotifiersLock = new Object();
-    private boolean uriNotificationsDisabled = false;
-    private List<UriNotifier> globalNotifiers = new ArrayList<UriNotifier>();
-    private Map<SqlTable<?>, List<UriNotifier>> tableNotifiers = new HashMap<SqlTable<?>, List<UriNotifier>>();
+    private final Object notifiersLock = new Object();
+    private boolean dataChangedNotificationsEnabled = true;
+    private List<DataChangedNotifier<?>> globalNotifiers = new ArrayList<DataChangedNotifier<?>>();
+    private Map<SqlTable<?>, List<DataChangedNotifier<?>>> tableNotifiers
+            = new HashMap<SqlTable<?>, List<DataChangedNotifier<?>>>();
 
     // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
     // transactions are also associated with the thread they run on
-    private ThreadLocal<Set<Uri>> uriAccumulator = new ThreadLocal<Set<Uri>>() {
-        protected Set<Uri> initialValue() {
-            return new HashSet<Uri>();
+    private ThreadLocal<Set<DataChangedNotifier<?>>> notifierAccumulator
+            = new ThreadLocal<Set<DataChangedNotifier<?>>>() {
+        protected Set<DataChangedNotifier<?>> initialValue() {
+            return new HashSet<DataChangedNotifier<?>>();
         }
     };
 
     /**
-     * Register a {@link UriNotifier} to listen for database changes. The UriNotifier object will be asked to return a
-     * Uri to notify whenever a table it is interested is modified.
+     * Register a {@link DataChangedNotifier} to listen for database changes. The DataChangedNotifier object will be
+     * notified whenever a table it is interested is modified, and can accumulate a set of notifications to send when
+     * the current transaction or statement completes successfully.
      *
-     * @param notifier the UriNotifier to register
+     * @param notifier the DataChangedNotifier to register
      */
-    public void registerUriNotifier(UriNotifier notifier) {
+    public void registerDataChangedNotifier(DataChangedNotifier<?> notifier) {
         if (notifier == null) {
             return;
         }
-        synchronized (uriNotifiersLock) {
+        synchronized (notifiersLock) {
             List<SqlTable<?>> tables = notifier.whichTables();
             if (tables == null || tables.isEmpty()) {
                 globalNotifiers.add(notifier);
             } else {
                 for (SqlTable<?> table : tables) {
-                    List<UriNotifier> notifiersForTable = tableNotifiers.get(table);
+                    List<DataChangedNotifier<?>> notifiersForTable = tableNotifiers.get(table);
                     if (notifiersForTable == null) {
-                        notifiersForTable = new ArrayList<UriNotifier>();
+                        notifiersForTable = new ArrayList<DataChangedNotifier<?>>();
                         tableNotifiers.put(table, notifiersForTable);
                     }
                     notifiersForTable.add(notifier);
@@ -1785,21 +1788,22 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Unregister a {@link UriNotifier} previously registered by {@link #registerUriNotifier(UriNotifier)}
+     * Unregister a {@link DataChangedNotifier} previously registered by
+     * {@link #registerDataChangedNotifier(DataChangedNotifier)}
      *
-     * @param notifier the UriNotifier to unregister
+     * @param notifier the DataChangedNotifier to unregister
      */
-    public void unregisterUriNotifier(UriNotifier notifier) {
+    public void unregisterDataChangedNotifier(DataChangedNotifier<?> notifier) {
         if (notifier == null) {
             return;
         }
-        synchronized (uriNotifiersLock) {
+        synchronized (notifiersLock) {
             List<SqlTable<?>> tables = notifier.whichTables();
             if (tables == null || tables.isEmpty()) {
                 globalNotifiers.remove(notifier);
             } else {
                 for (SqlTable<?> table : tables) {
-                    List<UriNotifier> notifiersForTable = tableNotifiers.get(table);
+                    List<DataChangedNotifier<?>> notifiersForTable = tableNotifiers.get(table);
                     if (notifiersForTable != null) {
                         notifiersForTable.remove(notifier);
                     }
@@ -1809,59 +1813,56 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Unregister all {@link UriNotifier}s previously registered by {@link #registerUriNotifier(UriNotifier)}
+     * Unregister all {@link DataChangedNotifier}s previously registered by
+     * {@link #registerDataChangedNotifier(DataChangedNotifier)}
      */
-    public void unregisterAllUriNotifiers() {
-        synchronized (uriNotifiersLock) {
+    public void unregisterAllDataChangedNotifiers() {
+        synchronized (notifiersLock) {
             globalNotifiers.clear();
             tableNotifiers.clear();
         }
     }
 
     /**
-     * Set a flag to disable Uri notifications. No Uris will be notified (or accumulated during transactions) after
-     * this method is called, until {@link #enableUriNotifications()} is called to re-enable notifications.
+     * Set a flag to enable or disable data change notifications. No {@link DataChangedNotifier}s will be notified
+     * (or accumulated during transactions) while the flag is set to false.
      */
-    public void disableUriNotifications() {
-        uriNotificationsDisabled = true;
+    public void setDataChangedNotificationsEnabled(boolean enabled) {
+        dataChangedNotificationsEnabled = enabled;
     }
 
-    /**
-     * Re-enables Uri notifications after a call to {@link #disableUriNotifications()}
-     */
-    public void enableUriNotifications() {
-        uriNotificationsDisabled = false;
-    }
-
-    private void notifyForTable(UriNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table, long rowId) {
-        if (uriNotificationsDisabled) {
+    private void notifyForTable(DataChangedNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table,
+            long rowId) {
+        if (!dataChangedNotificationsEnabled) {
             return;
         }
-        Set<Uri> accumulatorSet = uriAccumulator.get();
-        synchronized (uriNotifiersLock) {
-            accumulateUrisToNotify(globalNotifiers, accumulatorSet, op, modelValues, table, rowId);
-            accumulateUrisToNotify(tableNotifiers.get(table), accumulatorSet, op, modelValues, table, rowId);
+        synchronized (notifiersLock) {
+            onDataChanged(globalNotifiers, op, modelValues, table, rowId);
+            onDataChanged(tableNotifiers.get(table), op, modelValues, table, rowId);
         }
         if (!inTransaction()) {
-            flushAccumulatedUris(accumulatorSet, true);
+            flushAccumulatedNotifications(true);
         }
     }
 
-    private void accumulateUrisToNotify(List<UriNotifier> notifiers, Set<Uri> accumulatorSet,
-            UriNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table, long rowId) {
+    private void onDataChanged(List<DataChangedNotifier<?>> notifiers, DataChangedNotifier.DBOperation op,
+            AbstractModel modelValues, SqlTable<?> table, long rowId) {
         if (notifiers != null) {
-            for (UriNotifier notifier : notifiers) {
-                notifier.addUrisToNotify(accumulatorSet, table, getName(), op, modelValues, rowId);
+            for (DataChangedNotifier<?> notifier : notifiers) {
+                if (notifier.onDataChanged(table, this, op, modelValues, rowId)) {
+                    notifierAccumulator.get().add(notifier);
+                }
             }
         }
     }
 
-    private void flushAccumulatedUris(Set<Uri> urisToNotify, boolean transactionSuccess) {
-        if (!urisToNotify.isEmpty()) {
-            if (transactionSuccess && !uriNotificationsDisabled) {
-                notifyChange(urisToNotify);
+    private void flushAccumulatedNotifications(boolean transactionSuccess) {
+        Set<DataChangedNotifier<?>> accumulatedNotifiers = notifierAccumulator.get();
+        if (!accumulatedNotifiers.isEmpty()) {
+            for (DataChangedNotifier<?> notifier : accumulatedNotifiers) {
+                notifier.flushAccumulatedNotifications(this, transactionSuccess && dataChangedNotificationsEnabled);
             }
-            urisToNotify.clear();
+            accumulatedNotifiers.clear();
         }
     }
 }
