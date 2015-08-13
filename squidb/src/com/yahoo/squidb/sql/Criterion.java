@@ -84,6 +84,9 @@ public abstract class Criterion extends CompilableWithArguments {
         return new Criterion(null) {
             @Override
             protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                if (forSqlValidation) {
+                    builder.sql.append("(");
+                }
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
@@ -91,6 +94,9 @@ public abstract class Criterion extends CompilableWithArguments {
                                 + "it cannot converted to raw SQL without bound arguments.");
                     }
                     Collections.addAll(builder.args, selectionArgs);
+                }
+                if (forSqlValidation) {
+                    builder.sql.append(")");
                 }
             }
         };
