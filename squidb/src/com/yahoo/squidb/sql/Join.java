@@ -111,7 +111,7 @@ public class Join extends CompilableWithArguments {
         builder.sql.append(joinType).append(" JOIN ");
         joinTable.appendToSqlBuilder(builder, forSqlValidation);
         builder.sql.append(" ");
-        if (criterions != null) {
+        if (criterions != null && criterions.length > 0) {
             builder.sql.append("ON ");
             for (int i = 0; i < criterions.length; i++) {
                 if (i > 0) {
@@ -119,7 +119,7 @@ public class Join extends CompilableWithArguments {
                 }
                 criterions[i].appendToSqlBuilder(builder, forSqlValidation);
             }
-        } else if (usings != null) {
+        } else if (usings != null && usings.length > 0) {
             builder.sql.append("USING (");
             for (int i = 0; i < usings.length; i++) {
                 if (i > 0) {

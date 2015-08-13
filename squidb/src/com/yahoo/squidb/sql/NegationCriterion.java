@@ -11,6 +11,9 @@ class NegationCriterion extends Criterion {
 
     NegationCriterion(Criterion toNegate) {
         super(Operator.not);
+        if (toNegate == null) {
+            throw new IllegalArgumentException("Can't negate a null criterion");
+        }
         this.toNegate = toNegate;
     }
 

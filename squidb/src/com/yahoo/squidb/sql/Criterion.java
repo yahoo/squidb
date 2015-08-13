@@ -39,46 +39,16 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * All rows match this criterion
-     */
-    public static final Criterion all = new Criterion(null) {
-        @Override
-        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-            builder.sql.append(1);
-        }
-
-        @Override
-        public Criterion negate() {
-            return none;
-        }
-    };
-
-    /**
-     * No rows match this criterion
-     */
-    public static final Criterion none = new Criterion(null) {
-        @Override
-        protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-            builder.sql.append(0);
-        }
-
-        @Override
-        public Criterion negate() {
-            return all;
-        }
-    };
-
-    /**
      * @return a {@link Criterion} that combines the given criterions with AND
      */
-    public static Criterion and(final Criterion criterion, final Criterion... criterions) {
+    public static Criterion and(Criterion criterion, Criterion... criterions) {
         return new ConjunctionCriterion(Operator.and, criterion, criterions);
     }
 
     /**
      * @return a {@link Criterion} that combines the given criterions with OR
      */
-    public static Criterion or(final Criterion criterion, final Criterion... criterions) {
+    public static Criterion or(Criterion criterion, Criterion... criterions) {
         return new ConjunctionCriterion(Operator.or, criterion, criterions);
     }
 
@@ -104,22 +74,29 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * @return a {@link Criterion} that evaluates the raw selection and selection args
+     * @return a {@link Criterion} that evaluates the raw selection and selection args. If the selection string is
+     * empty, this will return null.
      */
     public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
         if (TextUtils.isEmpty(selection)) {
-            return Criterion.all;
+            return null;
         }
         return new Criterion(null) {
             @Override
             protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                if (forSqlValidation) {
+                    builder.sql.append("(");
+                }
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
                         throw new UnsupportedOperationException("Raw selection cannot be used in this context--"
-                            + "it cannot converted to raw SQL without bound arguments.");
+                                + "it cannot converted to raw SQL without bound arguments.");
                     }
                     Collections.addAll(builder.args, selectionArgs);
+                }
+                if (forSqlValidation) {
+                    builder.sql.append(")");
                 }
             }
         };
@@ -177,18 +154,24 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
-     * @param criterion another criterion to be appended with AND
+     * @param criterion another criterion to be appended with AND. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this AND criterion)
      */
     public Criterion and(Criterion criterion) {
+        if (criterion == null) {
+            return this;
+        }
         return and(this, criterion);
     }
 
     /**
-     * @param criterion another criterion to be appended with OR
+     * @param criterion another criterion to be appended with OR. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this OR criterion)
      */
     public Criterion or(Criterion criterion) {
+        if (criterion == null) {
+            return this;
+        }
         return or(this, criterion);
     }
 

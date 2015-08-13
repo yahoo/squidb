@@ -61,7 +61,7 @@ public class DeleteTest extends DatabaseTestCase {
 
         assertEquals(1, database.delete(delete));
 
-        int numRows = database.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertEquals(3, numRows);
 
         TestModel shouldNotBeFound = database.fetchByCriterion(TestModel.class, criterion, TestModel.PROPERTIES);
@@ -70,7 +70,7 @@ public class DeleteTest extends DatabaseTestCase {
 
     public void testDeleteAll() {
         // check preconditions
-        int numRows = database.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertTrue(numRows > 0);
 
         // delete from testModels
@@ -80,7 +80,7 @@ public class DeleteTest extends DatabaseTestCase {
 
         assertEquals(numRows, database.delete(delete));
 
-        numRows = database.count(TestModel.class, Criterion.all);
+        numRows = database.countAll(TestModel.class);
         assertEquals(0, numRows);
     }
 }

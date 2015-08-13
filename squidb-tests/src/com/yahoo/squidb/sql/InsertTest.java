@@ -130,9 +130,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 1, pi);
 
-        int testModelsBeforeInsert = database.count(TestModel.class, Criterion.all);
+        int testModelsBeforeInsert = database.countAll(TestModel.class);
         assertEquals(3, database.insert(insert));
-        int testModelsAfterInsert = database.count(TestModel.class, Criterion.all);
+        int testModelsAfterInsert = database.countAll(TestModel.class);
         assertEquals(testModelsBeforeInsert + numThingsMatching, testModelsAfterInsert);
     }
 
@@ -143,9 +143,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 0);
 
-        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.countAll(Thing.class);
         assertEquals(3, database.insert(insert));
-        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
+        int rowsAfterInsert = database.countAll(Thing.class);
 
         assertEquals(rowsBeforeInsert + 1, rowsAfterInsert);
 
@@ -190,9 +190,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
-        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.countAll(Thing.class);
         assertEquals(-1, database.insert(insert)); // Expect conflict
-        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
+        int rowsAfterInsert = database.countAll(Thing.class);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 
@@ -225,9 +225,9 @@ public class InsertTest extends DatabaseTestCase {
 
         verifyCompiledSqlArgs(compiled, 4, fname, lname, isHappy, luckyNumber);
 
-        int rowsBeforeInsert = database.count(Thing.class, Criterion.all);
+        int rowsBeforeInsert = database.countAll(Thing.class);
         assertEquals(rowsBeforeInsert, database.insert(insert)); // Expect replace
-        int rowsAfterInsert = database.count(Thing.class, Criterion.all);
+        int rowsAfterInsert = database.countAll(Thing.class);
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 

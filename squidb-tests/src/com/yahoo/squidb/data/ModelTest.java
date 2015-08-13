@@ -7,7 +7,6 @@ package com.yahoo.squidb.data;
 
 import android.content.ContentValues;
 
-import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
@@ -56,7 +55,7 @@ public class ModelTest extends DatabaseTestCase {
     public void testCrudMethods() {
         // insert
         TestModel model = insertBasicTestModel("Sam", "Bosley", testDate);
-        assertEquals(1, database.count(TestModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestModel.class));
 
         // query
         final long id = model.getId();
@@ -66,11 +65,11 @@ public class ModelTest extends DatabaseTestCase {
         // update
         model.setFirstName("Jack").setLastName("Sparrow").setBirthday(System.currentTimeMillis());
         assertTrue(database.saveExisting(model));
-        assertEquals(1, database.count(TestModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestModel.class));
 
         // delete
         assertTrue(database.delete(TestModel.class, id));
-        assertEquals(0, database.count(TestModel.class, Criterion.all));
+        assertEquals(0, database.countAll(TestModel.class));
     }
 
     public void testCrudMethodsWithNonDefaultPrimaryKey() {
@@ -85,11 +84,11 @@ public class ModelTest extends DatabaseTestCase {
         database.persist(thing);
         fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
         assertEquals("new foo", fetched.getFoo());
-        assertEquals(1, database.count(Thing.class, Criterion.all));
+        assertEquals(1, database.countAll(Thing.class));
 
         // delete
         assertTrue(database.delete(Thing.class, thing.getId()));
-        assertEquals(0, database.count(Thing.class, Criterion.all));
+        assertEquals(0, database.countAll(Thing.class));
     }
 
     public void testDeprecatedPropertiesNotIncluded() {

@@ -1437,7 +1437,8 @@ public abstract class SquidDatabase {
     /**
      * Delete all rows matching the given {@link Criterion}
      *
-     * @param where the Criterion to match
+     * @param modelClass model class for the table to delete from
+     * @param where the Criterion to match. Note: passing null will delete all rows!
      * @return the number of deleted rows
      */
     public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
@@ -1451,6 +1452,16 @@ public abstract class SquidDatabase {
             notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
         }
         return rowsUpdated;
+    }
+
+    /**
+     * Delete all rows for table corresponding to the given model class
+     *
+     * @param modelClass model class for the table to delete from
+     * @return the number of deleted rows
+     */
+    public int deleteAll(Class<? extends TableModel> modelClass) {
+        return deleteWhere(modelClass, null);
     }
 
     /**
@@ -1481,8 +1492,9 @@ public abstract class SquidDatabase {
      * update(Person.NAME.eq(&quot;joe&quot;), template);
      * </pre>
      *
-     * @param where the criterion to match
-     * @param template a model containing new values for the properties (columns) that should be updated
+     * @param where the criterion to match. Note: passing null will update all rows!
+     * @param template a model containing new values for the properties (columns) that should be updated. The template
+     * class implicitly defines the table to be updated.
      * @return the number of updated rows
      */
     public int update(Criterion where, TableModel template) {
@@ -1490,10 +1502,21 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Update all rows in the table corresponding to the class of the given template
+     *
+     * @param template a model containing new values for the properties (columns) that should be updated. The template
+     * class implicitly defines the table to be updated.
+     * @return the number of updated rows
+     */
+    public int updateAll(TableModel template) {
+        return update(null, template);
+    }
+
+    /**
      * Update all rows matching the given {@link Criterion}, setting values based on the provided template model. Any
      * constraint violations will be resolved using the specified {@link TableStatement.ConflictAlgorithm}.
      *
-     * @param where the criterion to match
+     * @param where the criterion to match. Note: passing null will update all rows!
      * @param template a model containing new values for the properties (columns) that should be updated
      * @param conflictAlgorithm the conflict algorithm to use
      * @return the number of updated rows
@@ -1516,6 +1539,18 @@ public abstract class SquidDatabase {
             notifyForTable(DataChangedNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
         }
         return rowsUpdated;
+    }
+
+    /**
+     * Update all rows in the table corresponding to the class of the given template
+     *
+     * @param template a model containing new values for the properties (columns) that should be updated. The template
+     * class implicitly defines the table to be updated.
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return the number of updated rows
+     */
+    public int updateAllWithOnConflict(TableModel template, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        return updateWithOnConflict(null, template, conflictAlgorithm);
     }
 
     /**
@@ -1724,7 +1759,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Count the number of rows matching a given {@link Criterion}. Use {@link Criterion#all} to count all rows.
+     * Count the number of rows matching a given {@link Criterion}. Use null to count all rows.
      *
      * @param modelClass the model class corresponding to the table
      * @param criterion the criterion to match
@@ -1732,7 +1767,10 @@ public abstract class SquidDatabase {
      */
     public int count(Class<? extends AbstractModel> modelClass, Criterion criterion) {
         Property.IntegerProperty countProperty = Property.IntegerProperty.countProperty();
-        Query query = Query.select(countProperty).where(criterion);
+        Query query = Query.select(countProperty);
+        if (criterion != null) {
+            query.where(criterion);
+        }
         SquidCursor<?> cursor = query(modelClass, query);
         try {
             cursor.moveToFirst();
@@ -1740,6 +1778,16 @@ public abstract class SquidDatabase {
         } finally {
             cursor.close();
         }
+    }
+
+    /**
+     * Count the number of rows in the given table.
+     *
+     * @param modelClass the model class corresponding to the table
+     * @return the number of rows in the table
+     */
+    public int countAll(Class<? extends AbstractModel> modelClass) {
+        return count(modelClass, null);
     }
 
     // --- Data change notifications

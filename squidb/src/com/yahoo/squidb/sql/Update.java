@@ -69,8 +69,10 @@ public class Update extends TableStatement {
      * @return this Delete object, to allow chaining method calls
      */
     public Update where(Criterion criterion) {
-        this.criterions.add(criterion);
-        invalidateCompileCache();
+        if (criterion != null) {
+            this.criterions.add(criterion);
+            invalidateCompileCache();
+        }
         return this;
     }
 
