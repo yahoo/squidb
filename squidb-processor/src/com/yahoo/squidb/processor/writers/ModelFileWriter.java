@@ -122,19 +122,20 @@ public abstract class ModelFileWriter<T extends Annotation> {
         }
         if (!modifiers.contains(Modifier.STATIC)) {
             utils.getMessager().printMessage(Kind.WARNING,
-                    "Model spec objects should never be instantiated, so non-static methods are meaningless. Did you mean to make this a static method?",
-                    e);
+                    "Model spec objects should never be instantiated, so non-static methods are meaningless. " +
+                            "Did you mean to make this a static method?", e);
             return;
         }
         ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        // Private static methods may be unannotated if they are called by a public annotated method. Don't assume error if method is private
+        // Private static methods may be unannotated if they are called by a public annotated method.
+        // Don't assume error if method is private
         if (methodAnnotation == null) {
             if (modifiers.contains(Modifier.PUBLIC)) {
                 staticModelMethods.add(e);
             } else if (!modifiers.contains(Modifier.PRIVATE)) {
                 utils.getMessager().printMessage(Kind.WARNING,
-                        "This method will not be added to the model definition. Did you mean to annotate this method with @ModelMethod?",
-                        e);
+                        "This method will not be added to the model definition. " +
+                                "Did you mean to annotate this method with @ModelMethod?", e);
             }
         } else {
             List<? extends VariableElement> params = e.getParameters();

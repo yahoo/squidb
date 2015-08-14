@@ -6,6 +6,7 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
+import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
@@ -513,6 +514,13 @@ public final class Query extends TableStatement {
         }
 
         if (isEmpty(fields)) {
+            // Explicitly add rowid for virtual tables: "select table.rowid as rowid, *"
+            if (table instanceof VirtualTable) {
+                VirtualTable virtualTable = (VirtualTable) table;
+                LongProperty idProperty = virtualTable.getIdProperty();
+                idProperty.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+                sql.append(", ");
+            }
             sql.append("*");
             return;
         }
