@@ -895,10 +895,14 @@ public abstract class SquidDatabase {
 
     // --- helper classes
 
+    /**
+     * Delegate class passed to a {@link DatabaseOpenHelper} instance that allows the DatabaseOpenHelper to call back
+     * into its owning SquidDatabase after the database has been created or opened.
+     */
     public final class DatabaseOpenHelperDelegate {
 
         private DatabaseOpenHelperDelegate() {
-            // No instantiation
+            // No public instantiation
         }
 
         /**
