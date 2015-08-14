@@ -85,10 +85,13 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
             if (e.getAnnotation(PrimaryKey.class) != null) {
                 if (!BasicLongPropertyGenerator.handledColumnTypes().contains(typeName)) {
                     utils.getMessager().printMessage(Kind.ERROR,
-                            "Only long primary key columns are supported at this time.", e);
+                            "Only long primary key columns are supported at this time", e);
                 } else if (idPropertyGenerator != null) {
                     utils.getMessager().printMessage(Kind.ERROR,
-                            "Only a single primary key column is supported at this time.", e);
+                            "Only a single primary key column is supported at this time", e);
+                } else if (isVirtualTable()) {
+                    utils.getMessager().printMessage(Kind.ERROR,
+                            "Virtual tables cannot declare a custom primary key", e);
                 } else {
                     idPropertyGenerator = propertyGeneratorForElement(e);
                 }
