@@ -208,4 +208,26 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
         database.persist(new Employee().setName("DEF").setIsHappy(true).setManagerId(0L));
         assertEquals(2, callCount.get());
     }
+
+    public void testSubscribeDuringTransaction() {
+        AtomicInteger callCount = new AtomicInteger();
+        Observable<AtomicInteger> observable = database.observeTablesForObject(callCount, Employee.TABLE);
+        database.beginTransaction();
+        try {
+            database.persist(new Employee().setName("ABC").setIsHappy(true).setManagerId(0L));
+            observable.subscribe(new Action1<AtomicInteger>() {
+                @Override
+                public void call(AtomicInteger atomicInteger) {
+                    atomicInteger.incrementAndGet();
+                }
+            });
+            assertEquals(1, callCount.get());
+            database.persist(new Employee().setName("DEF").setIsHappy(true).setManagerId(0L));
+            assertEquals(1, callCount.get());
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        assertEquals(2, callCount.get());
+    }
 }

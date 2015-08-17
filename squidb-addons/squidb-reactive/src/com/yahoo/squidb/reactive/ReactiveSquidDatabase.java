@@ -145,9 +145,6 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     }
 
     private <T> Observable<T> observeForObject(final T objectToEmit, Func1<Set<SqlTable<?>>, Boolean> tableFilter) {
-        if (inTransaction()) {
-            throw new IllegalStateException("Can't subscribe to observable in a transaction");
-        }
         return changedTablePublisher
                 .filter(tableFilter)
                 .startWith(INITIAL_TABLE)
