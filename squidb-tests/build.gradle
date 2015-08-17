@@ -47,6 +47,7 @@ dependencies {
     compile project(':squidb-jackson-plugin')
     compile project(':squidb-jackson-annotations')
     compile project(':squidb-sqlite-bindings')
+    compile project(':squidb-reactive')
     apt project(':squidb-jackson-compiler')
     apt project(':squidb-processor')
 }

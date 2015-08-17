@@ -79,7 +79,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * statement or transaction. The Observable will emit the table itself; to emit some other object like a Query, use
      * {@link #observeTableForObject(Object, SqlTable)}
      */
-    public Observable<? extends SqlTable<?>> observeTable(final SqlTable<?> table) {
+    public <T extends SqlTable<?>> Observable<T> observeTable(T table) {
         return observeTableForObject(table, table);
     }
 
@@ -109,7 +109,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * successful statement or transaction. The Observable will emit the object passed in this method; for example, a
      * Query to run.
      */
-    public <T> Observable<T> observeTablesForObject(final T objectToEmit, final SqlTable<?>... tables) {
+    public <T> Observable<T> observeTablesForObject(T objectToEmit, final SqlTable<?>... tables) {
         return observeForObject(objectToEmit, new Func1<Set<SqlTable<?>>, Boolean>() {
             @Override
             public Boolean call(Set<SqlTable<?>> changedTables) {
@@ -130,7 +130,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * successful statement or transaction. The Observable will emit the object passed in this method; for example, a
      * Query to run.
      */
-    public <T> Observable<T> observeTablesForObject(final T objectToEmit, final Collection<SqlTable<?>> tables) {
+    public <T> Observable<T> observeTablesForObject(T objectToEmit, final Collection<SqlTable<?>> tables) {
         return observeForObject(objectToEmit, new Func1<Set<SqlTable<?>>, Boolean>() {
             @Override
             public Boolean call(Set<SqlTable<?>> changedTables) {
