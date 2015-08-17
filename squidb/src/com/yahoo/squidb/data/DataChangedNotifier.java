@@ -13,9 +13,8 @@ import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.utility.SquidUtilities;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -53,7 +52,7 @@ public abstract class DataChangedNotifier<T> {
         DELETE
     }
 
-    private final List<SqlTable<?>> tables = new ArrayList<SqlTable<?>>();
+    private final Set<SqlTable<?>> tables = new HashSet<SqlTable<?>>();
     private boolean enabled = true;
 
     // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
@@ -79,10 +78,17 @@ public abstract class DataChangedNotifier<T> {
     }
 
     /**
+     * For constructing a DataChangedNotifier that will be notified of changes to the given tables
+     */
+    public DataChangedNotifier(Collection<SqlTable<?>> tables) {
+        this.tables.addAll(tables);
+    }
+
+    /**
      * @return a list of {@link SqlTable SqlTables} that this DataChangedNotifier wants to receive notifications about.
      * If this method returns an empty list, it will receive notifications about all database updates.
      */
-    public List<SqlTable<?>> whichTables() {
+    public Set<SqlTable<?>> whichTables() {
         return tables;
     }
 
@@ -130,11 +136,22 @@ public abstract class DataChangedNotifier<T> {
     final void flushAccumulatedNotifications(SquidDatabase database, boolean shouldSendNotifications) {
         Set<T> accumulatedNotifications = notifyObjectAccumulator.get();
         if (enabled && shouldSendNotifications) {
-            for (T notifyObject : accumulatedNotifications) {
-                sendNotification(database, notifyObject);
-            }
+            sendNotificationsToAll(database, accumulatedNotifications);
         }
         accumulatedNotifications.clear();
+    }
+
+    /**
+     * The default implementation of this method iterates over the notifyObjects set and calls
+     * {@link #sendNotification(SquidDatabase, Object)} for each of them. Subclasses may override if they want to
+     * handle notifying the entire set differently.
+     * @param database the SquidDatabase the change occurred in
+     * @param notifyObjects the objects to be used for sending a notification
+     */
+    protected void sendNotificationsToAll(SquidDatabase database, Set<T> notifyObjects) {
+        for (T notifyObject : notifyObjects) {
+            sendNotification(database, notifyObject);
+        }
     }
 
     /**

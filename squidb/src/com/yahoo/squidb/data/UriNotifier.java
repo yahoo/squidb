@@ -12,6 +12,7 @@ import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -44,6 +45,13 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
     public UriNotifier(SqlTable<?>... tables) {
+        super(tables);
+    }
+
+    /**
+     * Construct a UriNotifier that will be notified of changes to the given tables
+     */
+    public UriNotifier(Collection<SqlTable<?>> tables) {
         super(tables);
     }
 
