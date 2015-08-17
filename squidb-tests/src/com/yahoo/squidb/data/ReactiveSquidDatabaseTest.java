@@ -14,6 +14,7 @@ import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestReactiveDatabase;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -84,7 +85,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
     public void testObservableEmitsCustomObject() {
         final AtomicBoolean objectsMatch = new AtomicBoolean(false);
         final Query originalQuery = Query.select().from(TestModel.TABLE);
-        Observable<Query> observable = database.observeTableForObject(originalQuery, TestModel.TABLE);
+        Observable<Query> observable = database.observeTableForObject(TestModel.TABLE, originalQuery);
         observable.subscribe(new Action1<Query>() {
             @Override
             public void call(Query query) {
@@ -149,8 +150,8 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     private void testObserveMultipleTables(boolean useTransaction) {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTablesForObject(callCount,
-                TestModel.TABLE, Employee.TABLE);
+        Observable<AtomicInteger> observable = database.observeTablesForObject(
+                Arrays.asList(TestModel.TABLE, Employee.TABLE), callCount);
         observable.subscribe(new Action1<AtomicInteger>() {
             @Override
             public void call(AtomicInteger callCount) {
@@ -179,7 +180,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     public void testObservableNotCalledForUnobservedTable() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTablesForObject(callCount, TestModel.TABLE);
+        Observable<AtomicInteger> observable = database.observeTableForObject(TestModel.TABLE, callCount);
         observable.subscribe(new Action1<AtomicInteger>() {
             @Override
             public void call(AtomicInteger callCount) {
@@ -193,7 +194,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     public void testUnsubscribeStopsNotifications() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTablesForObject(callCount, Employee.TABLE);
+        Observable<AtomicInteger> observable = database.observeTableForObject(Employee.TABLE, callCount);
         Subscription s = observable.subscribe(new Action1<AtomicInteger>() {
             @Override
             public void call(AtomicInteger callCount) {
@@ -211,7 +212,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     public void testSubscribeDuringTransaction() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTablesForObject(callCount, Employee.TABLE);
+        Observable<AtomicInteger> observable = database.observeTableForObject(Employee.TABLE, callCount);
         database.beginTransaction();
         try {
             database.persist(new Employee().setName("ABC").setIsHappy(true).setManagerId(0L));

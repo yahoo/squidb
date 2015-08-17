@@ -22,12 +22,12 @@ import rx.subjects.PublishSubject;
 
 /**
  * ReactiveSquidDatabase is an extension of SquidDatabase that enables RxJava-style observation of table changes.
- * Users can call {@link #observeTable(SqlTable)}, {@link #observeTableForObject(Object, SqlTable)}, or
- * {@link #observeTablesForObject(Object, SqlTable[])} to create {@link Observable}s that will emit objects to
+ * Users can call {@link #observeTable(SqlTable)}, {@link #observeTableForObject(SqlTable, Object)}, or
+ * {@link #observeTablesForObject(Collection, Object)} to create {@link Observable}s that will emit objects to
  * subscribers whenever the given table(s) are written to successfully.
  * <p>
  * {@link #observeTable(SqlTable)} acts as a simple listener that just emits the table itself, while
- * {@link #observeTableForObject(Object, SqlTable)} and {@link #observeTablesForObject(Object, SqlTable[])} can
+ * {@link #observeTableForObject(SqlTable, Object)} and {@link #observeTablesForObject(Collection, Object)} can
  * pass an object that they would like to be emitted--for example, a SquiDB Query to be run.
  * <p>
  * Note: If data changed notifications are disabled on an instance of ReactiveSquidDatabase using
@@ -77,7 +77,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * @param table the table to observe
      * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
      * statement or transaction. The Observable will emit the table itself; to emit some other object like a Query, use
-     * {@link #observeTableForObject(Object, SqlTable)}
+     * {@link #observeTableForObject(SqlTable, Object)}
      */
     public <T extends SqlTable<?>> Observable<T> observeTable(T table) {
         return observeTableForObject(table, table);
@@ -89,7 +89,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
      * statement or transaction. The Observable will emit the object passed in this method; for example, a Query to run.
      */
-    public <T> Observable<T> observeTableForObject(T objectToEmit, final SqlTable<?> table) {
+    public <T> Observable<T> observeTableForObject(final SqlTable<?> table, T objectToEmit) {
         if (table == null) {
             throw new IllegalArgumentException("Cannot observe a null table");
         }
@@ -109,28 +109,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
      * successful statement or transaction. The Observable will emit the object passed in this method; for example, a
      * Query to run.
      */
-    public <T> Observable<T> observeTablesForObject(T objectToEmit, final SqlTable<?>... tables) {
-        return observeForObject(objectToEmit, new Func1<Set<SqlTable<?>>, Boolean>() {
-            @Override
-            public Boolean call(Set<SqlTable<?>> changedTables) {
-                for (SqlTable<?> table : tables) {
-                    if (changedTables.contains(table)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    /**
-     * @param objectToEmit an object for the created Observable to emit
-     * @param tables the tables to observe
-     * @return a new {@link Observable} that will be called whenever any of the given tables are written to in a
-     * successful statement or transaction. The Observable will emit the object passed in this method; for example, a
-     * Query to run.
-     */
-    public <T> Observable<T> observeTablesForObject(T objectToEmit, final Collection<SqlTable<?>> tables) {
+    public <T> Observable<T> observeTablesForObject(final Collection<? extends SqlTable<?>> tables, T objectToEmit) {
         return observeForObject(objectToEmit, new Func1<Set<SqlTable<?>>, Boolean>() {
             @Override
             public Boolean call(Set<SqlTable<?>> changedTables) {
