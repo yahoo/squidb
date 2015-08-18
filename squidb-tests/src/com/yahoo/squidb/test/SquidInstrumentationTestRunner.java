@@ -5,31 +5,41 @@
  */
 package com.yahoo.squidb.test;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 
+import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
+
 public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
-    private static final String KEY_USE_SQLITE_BINDINGS = "use_sqlite_bindings";
+    /**
+     * Command line option specifying which binding to use for the test database. Argument value is case insensitive
+     * and accepts the following values:
+     * <ul>
+     * <li>android: Use the standard Android SDK bindings (for the standard Android SQLiteDatabase)</li>
+     * <li>sqlite: Use the org.sqlite bindings (for use with packaged SQLite binaries)</li>
+     * </ul>
+     * If not specified, the default is android.
+     */
+    private static final String KEY_SQUIDB_BINDING = "squidb_binding";
 
-    private boolean hadArguments = false;
-    private static final boolean RUN_TESTS_WITH_SQLITE_BINDINGS = false;
-    public static boolean useSqliteBindings = false;
+    private static final String DEFAULT_BINDING = SquidbBinding.ANDROID.name();
+
+    private SquidbBinding binding;
 
     @Override
     public void onCreate(Bundle arguments) {
-        if (arguments != null && arguments.containsKey(KEY_USE_SQLITE_BINDINGS)) {
-            hadArguments = true;
-            useSqliteBindings = Boolean.parseBoolean(arguments.getString(KEY_USE_SQLITE_BINDINGS));
+        String binding = DEFAULT_BINDING;
+        if (arguments != null) {
+            binding = arguments.getString(KEY_SQUIDB_BINDING, binding);
         }
+        this.binding = SquidbBinding.valueOf(binding.toUpperCase());
         super.onCreate(arguments);
     }
 
     @Override
     protected AndroidTestRunner getAndroidTestRunner() {
-        return new SquidTestRunner(RUN_TESTS_WITH_SQLITE_BINDINGS &&
-                !hadArguments && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN);
+        return new SquidTestRunner(binding);
     }
 }
