@@ -8,6 +8,7 @@ package com.yahoo.squidb.sqlitebindings;
 import android.database.Cursor;
 
 import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.data.adapter.SquidCursorFactory;
 
 import org.sqlite.database.sqlite.SQLiteCursor;
 import org.sqlite.database.sqlite.SQLiteCursorDriver;
@@ -15,9 +16,6 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 import org.sqlite.database.sqlite.SQLiteProgram;
 import org.sqlite.database.sqlite.SQLiteQuery;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
@@ -40,20 +38,12 @@ public class SQLiteBindingsCursorFactory implements CursorFactory {
         return new SQLiteCursor(masterQuery, editTable, query);
     }
 
-
     public static void bindArgumentsToProgram(SQLiteProgram program, Object[] sqlArgs) {
         if (sqlArgs == null) {
             return;
         }
         for (int i = 1; i <= sqlArgs.length; i++) {
-            Object arg = sqlArgs[i - 1];
-            if (arg instanceof AtomicBoolean) { // Not a subclass of Number so DatabaseUtils won't handle it
-                arg = ((AtomicBoolean) arg).get() ? 1 : 0;
-            } else {
-                while (arg instanceof AtomicReference) {
-                    arg = ((AtomicReference) arg).get();
-                }
-            }
+            Object arg = SquidCursorFactory.resolveArgReferences(sqlArgs[i - 1]);
             bindObjectToProgram(program, i, arg);
         }
     }

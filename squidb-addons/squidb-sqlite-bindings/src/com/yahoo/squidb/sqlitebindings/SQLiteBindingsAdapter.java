@@ -21,7 +21,7 @@ import org.sqlite.database.sqlite.SQLiteTransactionListener;
 import java.util.List;
 import java.util.Locale;
 
-public class SQLiteBindingsAdapter implements SQLiteDatabaseWrapper<SQLiteDatabase> {
+public class SQLiteBindingsAdapter implements SQLiteDatabaseWrapper {
 
     private final SQLiteDatabase db;
 

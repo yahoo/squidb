@@ -21,7 +21,7 @@ import java.util.Locale;
  * for custom SQLite builds, it will wrap the SQLite Android binding's version of the same class. Both wrappers will
  * implement this interface so they can be used interchangeably.
  */
-public interface SQLiteDatabaseWrapper<T> {
+public interface SQLiteDatabaseWrapper {
 
     /**
      * @see SQLiteDatabase#beginTransaction()
@@ -294,8 +294,9 @@ public interface SQLiteDatabaseWrapper<T> {
     void ensureSqlCompiles(String sql);
 
     /**
-     * @return the wrapped database instance, e.g. an instance of {@link SQLiteDatabase}
+     * @return the wrapped database instance, e.g. an instance of {@link SQLiteDatabase}. Callers will need to check
+     * the type of this object and cast it if they intend to use it directly.
      */
-    T getWrappedDatabase();
+    Object getWrappedDatabase();
 
 }

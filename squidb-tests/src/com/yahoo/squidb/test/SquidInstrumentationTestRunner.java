@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 
-
 public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
     private static final String KEY_USE_SQLITE_BINDINGS = "use_sqlite_bindings";
