@@ -5,12 +5,10 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.annotation.TargetApi;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.net.Uri;
-import android.os.Build;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
@@ -20,7 +18,6 @@ import com.yahoo.squidb.sql.Query;
 /**
  * A {@link CursorLoader} that queries a {@link SquidDatabase}
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<SquidCursor<T>> {
 
     private final Query query;

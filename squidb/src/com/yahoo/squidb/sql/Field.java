@@ -184,7 +184,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
             @Override
             protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
                 super.afterPopulateOperator(builder, forSqlValidation);
-                builder.sql.append(" ESCAPE ").append(SqlUtils.toSanitizedString(Character.toString(escape)));
+                builder.sql.append(" ESCAPE ").append(SqlUtils.sanitizeStringAsLiteral(Character.toString(escape)));
             }
         };
     }
@@ -205,7 +205,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     }
 
     /**
-     * @return a {@link Criterion} that the field's value is in the collection of values
+     * @return a {@link Criterion} that the field's value is in the collection of values. Values that are not primitive
+     * types will be converted to String literals
      */
     public Criterion in(final Collection<?> values) {
         return new BinaryCriterion(this, Operator.in, values) {

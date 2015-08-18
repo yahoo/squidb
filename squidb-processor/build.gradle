@@ -13,12 +13,6 @@ apply plugin: 'maven'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-repositories {
-    maven {
-        url "https://dl.bintray.com/yahoo/maven"
-    }
-}
-
 dependencies {
     compile 'com.yahoo.squidb:apt-utils:1.0.0'
     compile project(':squidb-annotations')

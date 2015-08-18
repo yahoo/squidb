@@ -5,8 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,9 +74,6 @@ public class Insert extends TableStatement {
      * @throws UnsupportedOperationException if called multiple times on Android versions lower than 16 (JellyBean)
      */
     public Insert values(Object... values) {
-        if (VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN && !valuesToInsert.isEmpty()) {
-            throw new UnsupportedOperationException("Can't insert with multiple sets of values below API 16");
-        }
         valuesToInsert.add(Arrays.asList(values));
         query = null;
         defaultValues = false;
@@ -198,6 +194,10 @@ public class Insert extends TableStatement {
     }
 
     private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
+        if (builder.sqliteVersion.isLessThan(VersionCode.V3_7_11) && valuesToInsert.size() > 1) {
+            throw new UnsupportedOperationException("Can't insert with multiple sets of values below "
+                    + "SQLite version 3.7.11");
+        }
         builder.sql.append("VALUES ");
         for (List<Object> valuesList : valuesToInsert) {
             if (valuesList.isEmpty()) {
