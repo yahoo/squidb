@@ -19,8 +19,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yahoo.squidb.Beta;
-import com.yahoo.squidb.data.adapter.DatabaseOpenHelper;
-import com.yahoo.squidb.data.adapter.DefaultDatabaseOpenHelper;
+import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SQLExceptionWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
@@ -231,9 +231,9 @@ public abstract class SquidDatabase {
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     /**
-     * DatabaseOpenHelper that takes care of database operations
+     * SQLiteOpenHelperWrapper that takes care of database operations
      */
-    private DatabaseOpenHelper helper = null;
+    private SQLiteOpenHelperWrapper helper = null;
 
     /**
      * Internal pointer to open database. Hides the fact that there is a database and a wrapper by making a single
@@ -471,13 +471,23 @@ public abstract class SquidDatabase {
 
     private void initializeHelper() {
         if (helper == null) {
-            helper = getDatabaseOpenHelper(context, getName(), new DatabaseOpenHelperDelegate(), getVersion());
+            helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
         }
     }
 
-    protected DatabaseOpenHelper getDatabaseOpenHelper(Context context, String databaseName,
-            DatabaseOpenHelperDelegate delegate, int version) {
-        return new DefaultDatabaseOpenHelper(context, databaseName, delegate, version);
+    /**
+     * Subclasses can override this method to enable connecting to a different version of SQLite than the default
+     * version shipped with Android. For example, the squidb-sqlite-bindings project provides a class
+     * SQLiteBindingsDatabaseOpenHelper to facilitate binding to a custom native build of SQLite. Overriders of this
+     * method could simply <code>return new SQLiteBindingsDatabaseOpenHelper(context, databaseName, delegate, version);</code>
+     * if they wanted to bypass Android's version of SQLite and use the version included with that project.
+     * <p>
+     * If you don't override this method, the stock Android SQLite build will be used. This is generally fine unless you
+     * have a specific reason to prefer some other version of SQLite.
+     */
+    protected SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+            OpenHelperDelegate delegate, int version) {
+        return new DefaultOpenHelperWrapper(context, databaseName, delegate, version);
     }
 
     /**
@@ -896,12 +906,12 @@ public abstract class SquidDatabase {
     // --- helper classes
 
     /**
-     * Delegate class passed to a {@link DatabaseOpenHelper} instance that allows the DatabaseOpenHelper to call back
+     * Delegate class passed to a {@link SQLiteOpenHelperWrapper} instance that allows the SQLiteOpenHelperWrapper to call back
      * into its owning SquidDatabase after the database has been created or opened.
      */
-    public final class DatabaseOpenHelperDelegate {
+    public final class OpenHelperDelegate {
 
-        private DatabaseOpenHelperDelegate() {
+        private OpenHelperDelegate() {
             // No public instantiation
         }
 

@@ -15,11 +15,11 @@ import com.yahoo.squidb.data.SquidDatabase;
  * SQLiteOpenHelper implementation that takes care of creating tables and views on database creation. Also handles
  * upgrades by calling into abstract upgrade hooks implemented by concrete database class.
  */
-public class DefaultDatabaseOpenHelper extends SQLiteOpenHelper implements DatabaseOpenHelper {
+public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
 
-    private final SquidDatabase.DatabaseOpenHelperDelegate delegate;
+    private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public DefaultDatabaseOpenHelper(Context context, String name, SquidDatabase.DatabaseOpenHelperDelegate delegate,
+    public DefaultOpenHelperWrapper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
             int version) {
         super(context, name, null, version);
         this.delegate = delegate;
