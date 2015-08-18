@@ -85,7 +85,7 @@ public abstract class DataChangedNotifier<T> {
     }
 
     /**
-     * @return a list of {@link SqlTable SqlTables} that this DataChangedNotifier wants to receive notifications about.
+     * @return a set of {@link SqlTable SqlTables} that this DataChangedNotifier wants to receive notifications about.
      * If this method returns an empty list, it will receive notifications about all database updates.
      */
     public Set<SqlTable<?>> whichTables() {
