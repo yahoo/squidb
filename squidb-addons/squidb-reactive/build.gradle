@@ -59,7 +59,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'SquiDB SQLite Bindings'
+                name 'SquiDB RxJava Addon'
                 url siteUrl
                 licenses {
                     license {
