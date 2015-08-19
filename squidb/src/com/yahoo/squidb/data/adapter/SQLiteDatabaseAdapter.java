@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Wrapper class for the default Android {@link SQLiteDatabase} that implements the common {@link SQLiteDatabaseWrapper}
+ * Wrapper for the default Android {@link SQLiteDatabase} that implements the common {@link SQLiteDatabaseWrapper}
  * interface.
  */
 public class SQLiteDatabaseAdapter implements SQLiteDatabaseWrapper {

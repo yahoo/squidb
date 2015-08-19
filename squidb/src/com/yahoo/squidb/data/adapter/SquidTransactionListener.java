@@ -9,8 +9,8 @@ import android.database.sqlite.SQLiteTransactionListener;
 
 /**
  * A re-declaration of {@link android.database.sqlite.SQLiteTransactionListener} so that all wrapper/adapter classes
- * for different versions of {@link android.database.sqlite.SQLiteDatabase} can provide a unified interface for
- * transaction methods
+ * for different versions of {@link android.database.sqlite.SQLiteDatabase SQLiteDatabase} can provide a unified
+ * interface for transaction methods.
  */
 public interface SquidTransactionListener {
 
