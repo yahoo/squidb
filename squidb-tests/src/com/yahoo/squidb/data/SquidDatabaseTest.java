@@ -16,9 +16,12 @@ import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.SquidTestRunner;
+import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -378,5 +381,11 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(modelId, model.getId());
         assertNotNull(database.fetch(TestModel.class, model.getId()));
         assertEquals(1, database.countAll(TestModel.class));
+    }
+
+    public void testVersionForCustomBinding() {
+        if (SquidTestRunner.selectedBinding == SquidbBinding.SQLITE) {
+            assertEquals(VersionCode.LATEST, database.getSqliteVersion());
+        }
     }
 }

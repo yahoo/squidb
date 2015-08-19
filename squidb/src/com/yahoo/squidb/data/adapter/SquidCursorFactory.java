@@ -14,16 +14,14 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteProgram;
 import android.database.sqlite.SQLiteQuery;
 
-import com.yahoo.squidb.data.SquidDatabase;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
- * {@link SquidDatabase SquidDatabase} documentation notes why this is important.
+ * {@link com.yahoo.squidb.data.SquidDatabase SquidDatabase} documentation notes why this is important.
  *
- * @see SquidDatabase
+ * @see com.yahoo.squidb.data.SquidDatabase SquidDatabase
  */
 public class SquidCursorFactory implements CursorFactory {
 

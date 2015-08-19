@@ -7,7 +7,6 @@ package com.yahoo.squidb.sqlitebindings;
 
 import android.database.Cursor;
 
-import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.adapter.SquidCursorFactory;
 
 import org.sqlite.database.sqlite.SQLiteCursor;
@@ -19,9 +18,9 @@ import org.sqlite.database.sqlite.SQLiteQuery;
 
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
- * {@link SquidDatabase SquidDatabase} documentation notes why this is important.
+ * {@link com.yahoo.squidb.data.SquidDatabase SquidDatabase} documentation notes why this is important.
  *
- * @see SquidDatabase
+ * @see com.yahoo.squidb.data.SquidDatabase SquidDatabase
  */
 public class SQLiteBindingsCursorFactory implements CursorFactory {
 
@@ -32,7 +31,6 @@ public class SQLiteBindingsCursorFactory implements CursorFactory {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
         bindArgumentsToProgram(query, sqlArgs);
         return new SQLiteCursor(masterQuery, editTable, query);
@@ -48,6 +46,7 @@ public class SQLiteBindingsCursorFactory implements CursorFactory {
         }
     }
 
+    // borrowed from android.database.DatabaseUtils
     public static void bindObjectToProgram(SQLiteProgram prog, int index, Object value) {
         if (value == null) {
             prog.bindNull(index);

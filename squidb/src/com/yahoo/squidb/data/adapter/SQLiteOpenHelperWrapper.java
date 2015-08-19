@@ -6,8 +6,8 @@
 package com.yahoo.squidb.data.adapter;
 
 /**
- * Common interface for helper classes that open the database to implement. E.g. {@link DefaultOpenHelperWrapper}
- * wraps {@link android.database.sqlite.SQLiteOpenHelper} and implements this interface
+ * Common interface for helper classes that open the database to implement, e.g. {@link DefaultOpenHelperWrapper}
+ * wraps {@link android.database.sqlite.SQLiteOpenHelper SQLiteOpenHelper} and implements this interface.
  */
 public interface SQLiteOpenHelperWrapper {
 

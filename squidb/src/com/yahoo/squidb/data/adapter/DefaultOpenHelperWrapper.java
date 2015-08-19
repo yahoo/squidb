@@ -12,8 +12,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 /**
- * SQLiteOpenHelper implementation that takes care of creating tables and views on database creation. Also handles
- * upgrades by calling into abstract upgrade hooks implemented by concrete database class.
+ * SQLiteOpenHelperWrapper implementation for a standard Android SQLiteOpenHelper. By default, SquidDatabase uses
+ * this class to access a standard Android SQLiteDatabase.
  */
 public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
 
