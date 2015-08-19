@@ -14,7 +14,6 @@ import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
-import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelperWrapper;
 
 public class TestReactiveDatabase extends ReactiveSquidDatabase {
 
@@ -57,11 +56,7 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     @Override
     protected SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
             OpenHelperDelegate delegate, int version) {
-        if (SquidInstrumentationTestRunner.useSqliteBindings) {
-            return new SQLiteBindingsOpenHelperWrapper(context, databaseName, delegate, version);
-        } else {
-            return super.getOpenHelper(context, databaseName, delegate, version);
-        }
+        return SquidTestRunner.selectedBinding.getOpenHelper(context, databaseName, delegate, version);
     }
 
     @Override
