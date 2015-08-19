@@ -1,10 +1,10 @@
 language: android
 env:
-  - ANDROID_TARGET=android-15 USE_SQLITE_BINDINGS=false ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-16 USE_SQLITE_BINDINGS=true ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-16 USE_SQLITE_BINDINGS=false ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-19 USE_SQLITE_BINDINGS=true ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-19 USE_SQLITE_BINDINGS=false ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-15 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-16 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-16 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-19 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
 android:
   components:
     - build-tools-22.0.1
@@ -21,4 +21,4 @@ before_script:
     - adb shell input keyevent 82 &
     - ./gradlew squidb-tests:installDebug squidb-tests:installDebugAndroidTest
 script:
-    - adb shell am instrument -w -e use_sqlite_bindings $USE_SQLITE_BINDINGS com.yahoo.squidb.test/com.yahoo.squidb.test.SquidInstrumentationTestRunner
+    - adb shell am instrument -w -e squidb_binding $SQUIDB_BINDING com.yahoo.squidb.test/com.yahoo.squidb.test.SquidInstrumentationTestRunner
