@@ -58,9 +58,9 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
         }
     }
 
-    public void testObservableEmitsInitial() {
+    public void testObservableWithInitialSubscribeFlagEmitsOnFirstSubscribe() {
         final AtomicBoolean called = new AtomicBoolean(false);
-        Observable<Table> observable = database.observeTable(TestModel.TABLE);
+        Observable<Table> observable = database.observeTable(TestModel.TABLE, true);
         observable.subscribe(new Action1<Table>() {
             @Override
             public void call(Table table) {
@@ -72,7 +72,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     public void testSimpleObservableEmitsTable() {
         final AtomicBoolean tablesMatch = new AtomicBoolean(false);
-        Observable<Table> observable = database.observeTable(TestModel.TABLE);
+        Observable<Table> observable = database.observeTable(TestModel.TABLE, true);
         observable.subscribe(new Action1<Table>() {
             @Override
             public void call(Table table) {
@@ -85,7 +85,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
     public void testObservableEmitsCustomObject() {
         final AtomicBoolean objectsMatch = new AtomicBoolean(false);
         final Query originalQuery = Query.select().from(TestModel.TABLE);
-        Observable<Query> observable = database.observeTableForObject(TestModel.TABLE, originalQuery);
+        Observable<Query> observable = database.observeTableAndEmit(TestModel.TABLE, originalQuery, true);
         observable.subscribe(new Action1<Query>() {
             @Override
             public void call(Query query) {
@@ -117,7 +117,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
                 callCount.incrementAndGet();
             }
         });
-        assertEquals(1, callCount.get());
+        assertEquals(0, callCount.get());
         if (useTransaction) {
             database.beginTransaction();
         }
@@ -136,9 +136,9 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
         }
         int expectedCount;
         if (useTransaction) {
-            expectedCount = successfulTransaction ? 2 : 1;
+            expectedCount = successfulTransaction ? 1 : 0;
         } else {
-            expectedCount = 3;
+            expectedCount = 2;
         }
         assertEquals(expectedCount, callCount.get());
     }
@@ -150,7 +150,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
 
     private void testObserveMultipleTables(boolean useTransaction) {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTablesForObject(
+        Observable<AtomicInteger> observable = database.observeTablesAndEmit(
                 Arrays.asList(TestModel.TABLE, Employee.TABLE), callCount);
         observable.subscribe(new Action1<AtomicInteger>() {
             @Override
@@ -158,7 +158,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
                 callCount.incrementAndGet();
             }
         });
-        assertEquals(1, callCount.get());
+        assertEquals(0, callCount.get());
         if (useTransaction) {
             database.beginTransaction();
         }
@@ -174,45 +174,45 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
                 database.endTransaction();
             }
         }
-        assertEquals(useTransaction ? 2 : 3, callCount.get());
+        assertEquals(useTransaction ? 1 : 2, callCount.get());
         database.deleteAll(TestModel.class);
     }
 
     public void testObservableNotCalledForUnobservedTable() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTableForObject(TestModel.TABLE, callCount);
+        Observable<AtomicInteger> observable = database.observeTableAndEmit(TestModel.TABLE, callCount);
         observable.subscribe(new Action1<AtomicInteger>() {
             @Override
             public void call(AtomicInteger callCount) {
                 callCount.incrementAndGet();
             }
         });
-        assertEquals(1, callCount.get());
+        assertEquals(0, callCount.get());
         database.persist(new Employee().setName("ABC").setIsHappy(true).setManagerId(0L));
-        assertEquals(1, callCount.get());
+        assertEquals(0, callCount.get());
     }
 
     public void testUnsubscribeStopsNotifications() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTableForObject(Employee.TABLE, callCount);
+        Observable<AtomicInteger> observable = database.observeTableAndEmit(Employee.TABLE, callCount);
         Subscription s = observable.subscribe(new Action1<AtomicInteger>() {
             @Override
             public void call(AtomicInteger callCount) {
                 callCount.incrementAndGet();
             }
         });
-        assertEquals(1, callCount.get());
+        assertEquals(0, callCount.get());
         database.persist(new Employee().setName("ABC").setIsHappy(true).setManagerId(0L));
-        assertEquals(2, callCount.get());
+        assertEquals(1, callCount.get());
 
         s.unsubscribe();
         database.persist(new Employee().setName("DEF").setIsHappy(true).setManagerId(0L));
-        assertEquals(2, callCount.get());
+        assertEquals(1, callCount.get());
     }
 
     public void testSubscribeDuringTransaction() {
         AtomicInteger callCount = new AtomicInteger();
-        Observable<AtomicInteger> observable = database.observeTableForObject(Employee.TABLE, callCount);
+        Observable<AtomicInteger> observable = database.observeTableAndEmit(Employee.TABLE, callCount);
         database.beginTransaction();
         try {
             database.persist(new Employee().setName("ABC").setIsHappy(true).setManagerId(0L));
@@ -222,13 +222,13 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
                     atomicInteger.incrementAndGet();
                 }
             });
-            assertEquals(1, callCount.get());
+            assertEquals(0, callCount.get());
             database.persist(new Employee().setName("DEF").setIsHappy(true).setManagerId(0L));
-            assertEquals(1, callCount.get());
+            assertEquals(0, callCount.get());
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
-        assertEquals(2, callCount.get());
+        assertEquals(1, callCount.get());
     }
 }
