@@ -89,14 +89,14 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     /**
      * @param table the table to observe
-     * @param emitOnInitialSubscribe use true if you want the first subscriber to the observable to be triggered
+     * @param emitOnFirstSubscribe use true if you want the first subscriber to the observable to be triggered
      * immediately; false otherwise
      * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
      * statement or transaction. The Observable will emit the table itself; to emit some other object like a Query, use
      * {@link #observeTableAndEmit(SqlTable, Object)}
      */
-    public <T extends SqlTable<?>> Observable<T> observeTable(T table, boolean emitOnInitialSubscribe) {
-        return observeTableAndEmit(table, table, emitOnInitialSubscribe);
+    public <T extends SqlTable<?>> Observable<T> observeTable(T table, boolean emitOnFirstSubscribe) {
+        return observeTableAndEmit(table, table, emitOnFirstSubscribe);
     }
 
     /**
