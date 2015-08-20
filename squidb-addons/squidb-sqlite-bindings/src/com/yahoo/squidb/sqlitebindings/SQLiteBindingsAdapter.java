@@ -87,8 +87,8 @@ public class SQLiteBindingsAdapter implements SQLiteDatabaseWrapper {
     }
 
     @Override
-    public void enableWriteAheadLogging() {
-        db.enableWriteAheadLogging();
+    public boolean enableWriteAheadLogging() {
+        return db.enableWriteAheadLogging();
     }
 
     @Override
