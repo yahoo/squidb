@@ -40,7 +40,7 @@ import rx.subjects.PublishSubject;
  * Observable&lt;Query&gt; observable = db.observeTable(Model.TABLE, query, true);
  * observable.subscribe(new Action1&lt;Query&gt;() {
  *
- *     &#064Override
+ *     &#064;Override
  *     public void call(Query query) {
  *         SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  *         // do something with cursor
