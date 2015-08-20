@@ -276,7 +276,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
             return getFromValues(property, values);
-        } else if (getDefaultValues().containsKey(property.getExpression())) {
+        } else if (getDefaultValues().containsKey(property.getName())) {
             return getFromValues(property, getDefaultValues());
         } else {
             throw new UnsupportedOperationException(property.getName()
