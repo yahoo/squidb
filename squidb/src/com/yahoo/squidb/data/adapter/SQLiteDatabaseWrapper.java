@@ -58,7 +58,7 @@ public interface SQLiteDatabaseWrapper {
     /**
      * @see SQLiteDatabase#enableWriteAheadLogging()
      */
-    void enableWriteAheadLogging();
+    boolean enableWriteAheadLogging();
 
     /**
      * @see SQLiteDatabase#endTransaction()
