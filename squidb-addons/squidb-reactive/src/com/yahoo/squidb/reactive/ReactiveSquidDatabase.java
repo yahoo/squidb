@@ -32,10 +32,23 @@ import rx.subjects.PublishSubject;
  * <p>
  * By default, created observables will only emit objects to subscribers registered before table changes. To make the
  * observables immediately emit the requested object on first subscribe, use the alternative version of the "observe"
- * method that takes a boolean argument and pass true for "emitOnInitialSubscribe".
- * <p>
+ * method that takes a boolean argument and pass true for "emitOnFirstSubscribe". This can be used to issue a query
+ * and automatically requery on a change:
+ * <pre>
+ * final ReactiveSquidDatabase db = ...;
+ * Query query = Query.select(...)...;
+ * Observable&lt;Query&gt; observable = db.observeTable(Model.TABLE, query, true);
+ * observable.subscribe(new Action1&lt;Query&gt;() {
+ *
+ *     {@literal@}Override
+ *     public void call(Query query) {
+ *         SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
+ *         // do something with cursor
+ *     }
+ * });
+ * </pre>
  * Note: If data changed notifications are disabled on an instance of ReactiveSquidDatabase using
- * {@link #setDataChangedNotificationsEnabled(boolean)}, the observables created from it won't emit any events either!
+ * {@link #setDataChangedNotificationsEnabled(boolean)}, the observables created from it won't emit any events either.
  */
 public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
@@ -78,22 +91,21 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     }
 
     /**
-     * @param table the table to observe
-     * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
-     * statement or transaction. The Observable will emit the table itself; to emit some other object like a Query, use
-     * {@link #observeTableAndEmit(SqlTable, Object)}
+     * Convenience method for {@link #observeTable(SqlTable, boolean) observeTable(table, false)};
      */
     public <T extends SqlTable<?>> Observable<T> observeTable(T table) {
         return observeTable(table, false);
     }
 
     /**
+     * Create an {@link Observable} that emits the specified table whenever that table is written to in a successful
+     * statement or transaction. To create an Observable that emits some other object, use {@link
+     * #observeTableAndEmit(SqlTable, Object)}.
+     *
      * @param table the table to observe
-     * @param emitOnFirstSubscribe use true if you want the first subscriber to the observable to be triggered
-     * immediately; false otherwise
-     * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
-     * statement or transaction. The Observable will emit the table itself; to emit some other object like a Query, use
-     * {@link #observeTableAndEmit(SqlTable, Object)}
+     * @param emitOnFirstSubscribe pass true if you want the first subscriber to the observable to be triggered
+     * immediately
+     * @return a new Observable
      */
     public <T extends SqlTable<?>> Observable<T> observeTable(T table, boolean emitOnFirstSubscribe) {
         return observeTableAndEmit(table, table, emitOnFirstSubscribe);
@@ -101,19 +113,21 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     /**
      * Convenience method for
-     * {@link #observeTableAndEmit(SqlTable, Object, boolean) observeTableAndEmit}(table, objectToEmit, false);
+     * {@link #observeTableAndEmit(SqlTable, Object, boolean) observeTableAndEmit(table, objectToEmit, false)};
      */
     public <T> Observable<T> observeTableAndEmit(SqlTable<?> table, T objectToEmit) {
         return observeTableAndEmit(table, objectToEmit, false);
     }
 
     /**
+     * Create an {@link Observable} that emits the specified object whenever the specified table is written to in a
+     * successful statement or transaction.
+     *
      * @param objectToEmit an object for the created Observable to emit
      * @param table the table to observe
-     * @param emitOnFirstSubscribe use true if you want the first subscriber to the observable to be triggered
-     * immediately; false otherwise
-     * @return a new {@link Observable} that will be called whenever the given table is written to in a successful
-     * statement or transaction. The Observable will emit the object passed in this method; for example, a Query to run.
+     * @param emitOnFirstSubscribe pass true if you want the first subscriber to the observable to be triggered
+     * immediately
+     * @return a new Observable
      */
     public <T> Observable<T> observeTableAndEmit(final SqlTable<?> table, T objectToEmit,
             boolean emitOnFirstSubscribe) {
@@ -131,20 +145,21 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     /**
      * Convenience method for
-     * {@link #observeTablesAndEmit(Collection, Object, boolean) observeTablesAndEmit}(table, objectToEmit, false);
+     * {@link #observeTablesAndEmit(Collection, Object, boolean) observeTablesAndEmit(table, objectToEmit, false)};
      */
     public <T> Observable<T> observeTablesAndEmit(Collection<? extends SqlTable<?>> tables, T objectToEmit) {
         return observeTablesAndEmit(tables, objectToEmit, false);
     }
 
     /**
+     * Create an {@link Observable} that emits the specified object whenever any of the specified tables is written to
+     * in a successful statement or transaction.
+     *
      * @param objectToEmit an object for the created Observable to emit
      * @param tables the tables to observe
-     * @param emitOnFirstSubscribe use true if you want the first subscriber to the observable to be triggered
-     * immediately; false otherwise
-     * @return a new {@link Observable} that will be called whenever any of the given tables are written to in a
-     * successful statement or transaction. The Observable will emit the object passed in this method; for example, a
-     * Query to run.
+     * @param emitOnFirstSubscribe pass true if you want the first subscriber to the observable to be triggered
+     * immediately
+     * @return a new Observable
      */
     public <T> Observable<T> observeTablesAndEmit(final Collection<? extends SqlTable<?>> tables, T objectToEmit,
             boolean emitOnFirstSubscribe) {
@@ -166,17 +181,16 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     private <T> Observable<T> observeAndEmit(final T objectToEmit, Func1<Set<SqlTable<?>>, Boolean> tableFilter,
             boolean emitOnFirstSubscribe) {
-        Observable<Set<SqlTable<?>>> observable = changedTablePublisher
-                .filter(tableFilter);
+        Observable<Set<SqlTable<?>>> observable = changedTablePublisher.filter(tableFilter);
         if (emitOnFirstSubscribe) {
             observable = observable.startWith(INITIAL_TABLE);
         }
         return observable.map(new Func1<Set<SqlTable<?>>, T>() {
-                    @Override
-                    public T call(Set<SqlTable<?>> sqlTables) {
-                        return objectToEmit;
-                    }
-                });
+            @Override
+            public T call(Set<SqlTable<?>> sqlTables) {
+                return objectToEmit;
+            }
+        });
 
     }
 }
