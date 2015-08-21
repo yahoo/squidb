@@ -61,10 +61,7 @@ public class VirtualTable extends Table {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(" ModelClass=").append(modelClass.getSimpleName())
-                .append(" module=").append(moduleName);
-        return sb.toString();
+        return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " module=" + moduleName;
     }
 
     /**

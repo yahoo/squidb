@@ -211,6 +211,9 @@ public class VersionCode implements Comparable<VersionCode> {
         builder.append(Integer.toString(majorVersion))
                 .append('.').append(Integer.toString(minorVersion))
                 .append('.').append(Integer.toString(microVersion));
+        if (nanoVersion > 0) {
+            builder.append('.').append(nanoVersion);
+        }
         if (!TextUtils.isEmpty(trailing)) {
             builder.append(trailing);
         }

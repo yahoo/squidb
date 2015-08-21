@@ -9,6 +9,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 
+import com.yahoo.squidb.data.SquidDatabase;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -71,20 +73,21 @@ public class SquidUtilities {
     /**
      * Copy database files to the given folder. Useful for debugging.
      *
-     * @param folder the directory to copy files into
+     * @param context a Context
+     * @param database the SquidDatabase to copy
+     * @param toFolder the directory to copy files into
      */
-    public static void copyDatabases(Context context, String folder) {
-        File folderFile = new File(folder);
-        if (!folderFile.exists()) {
-            folderFile.mkdir();
+    public static void copyDatabase(Context context, SquidDatabase database, String toFolder) {
+        File folderFile = new File(toFolder);
+        if (!(folderFile.mkdirs() || folderFile.isDirectory())) {
+            Log.e("squidb", "Error creating directories for database copy");
+            return;
         }
-        for (String db : context.databaseList()) {
-            File dbFile = context.getDatabasePath(db);
-            try {
-                copyFile(dbFile, new File(folderFile.getAbsolutePath() + File.separator + db));
-            } catch (Exception e) {
-                Log.e("ERROR", "ERROR COPYING DB " + db, e);
-            }
+        File dbFile = context.getDatabasePath(database.getName());
+        try {
+            copyFile(dbFile, new File(folderFile.getAbsolutePath() + File.separator + database.getName()));
+        } catch (Exception e) {
+            Log.e("squidb", "Error copying database " + database.getName(), e);
         }
     }
 

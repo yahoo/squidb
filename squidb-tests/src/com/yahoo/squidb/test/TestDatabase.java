@@ -77,6 +77,11 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
+    protected void onOpen(SQLiteDatabaseWrapper db) {
+        super.onOpen(db);
+    }
+
+    @Override
     protected void onConfigure(SQLiteDatabaseWrapper db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         db.enableWriteAheadLogging();
