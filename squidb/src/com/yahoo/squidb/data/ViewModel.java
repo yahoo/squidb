@@ -173,8 +173,8 @@ public abstract class ViewModel extends AbstractModel {
                 if (base.table instanceof Table && ((Table) base.table).getIdProperty().equals(base)) {
                     alias = base.table.getName() + "Id";
                 } else {
-                    int occurence = numOccurences.get(name);
-                    alias = name + "_" + occurence;
+                    int occurrence = numOccurences.get(name);
+                    alias = name + "_" + occurrence;
                 }
                 aliasedPropertyArray[i] = base.as(alias);
                 numOccurences.put(name, numOccurences.get(name) - 1);

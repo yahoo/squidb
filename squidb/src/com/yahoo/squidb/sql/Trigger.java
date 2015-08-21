@@ -10,6 +10,7 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -250,10 +251,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return this Trigger instance, for chaining method calls
      */
     public Trigger perform(TableStatement... statements) {
-        for (TableStatement statement : statements) {
-            // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-            this.statements.add(statement);
-        }
+        Collections.addAll(this.statements, statements);
         return this;
     }
 
@@ -351,6 +349,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     private void visitStatements(SqlBuilder builder) {
         builder.sql.append("BEGIN ");
         for (int i = 0; i < statements.size(); i++) {
+            // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
             builder.sql.append(statements.get(i).toRawSql(builder.sqliteVersion)).append("; ");
         }
         builder.sql.append("END");

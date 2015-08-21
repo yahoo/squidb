@@ -83,10 +83,7 @@ public class Table extends SqlTable<TableModel> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(" ModelClass=").append(modelClass.getSimpleName())
-                .append(" TableConstraint=").append(tableConstraint);
-        return sb.toString();
+        return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " TableConstraint=" + tableConstraint;
     }
 
     /**

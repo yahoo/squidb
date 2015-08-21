@@ -146,11 +146,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     @Override
     public boolean equals(Object other) {
-        if (other == null || other.getClass() != getClass()) {
-            return false;
-        }
-
-        return getMergedValues().equals(((AbstractModel) other).getMergedValues());
+        return other != null && getClass().equals(other.getClass()) && getMergedValues()
+                .equals(((AbstractModel) other).getMergedValues());
     }
 
     @Override
@@ -160,13 +157,9 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getClass().getSimpleName()).append("\n")
-                .append("set values:\n")
-                .append(setValues).append("\n")
-                .append("values:\n")
-                .append(values).append("\n");
-        return builder.toString();
+        return getClass().getSimpleName() + "\n" +
+                "set values:\n" + setValues + "\n" +
+                "values:\n" + values + "\n";
     }
 
     @Override
@@ -299,15 +292,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * @return true if a value for this property has been read from the database or set by the user
      */
     public boolean containsValue(Property<?> property) {
-        if (setValues != null && setValues.containsKey(property.getName())) {
-            return true;
-        }
-
-        if (values != null && values.containsKey(property.getName())) {
-            return true;
-        }
-
-        return false;
+        return valuesContainsKey(setValues, property) || valuesContainsKey(values, property);
     }
 
     /**
@@ -316,15 +301,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * stored is not null
      */
     public boolean containsNonNullValue(Property<?> property) {
-        if (setValues != null && setValues.containsKey(property.getName())) {
-            return setValues.get(property.getName()) != null;
-        }
-
-        if (values != null && values.containsKey(property.getName())) {
-            return values.get(property.getName()) != null;
-        }
-
-        return false;
+        return (valuesContainsKey(setValues, property) && setValues.get(property.getName()) != null)
+                || (valuesContainsKey(values, property) && values.get(property.getName()) != null);
     }
 
     /**
@@ -332,7 +310,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * @return true if this property has a value that was set by the user
      */
     public boolean fieldIsDirty(Property<?> property) {
-        return setValues != null && setValues.containsKey(property.getName());
+        return valuesContainsKey(setValues, property);
+    }
+
+    private boolean valuesContainsKey(ContentValues values, Property<?> property) {
+        return values != null && values.containsKey(property.getName());
     }
 
     // --- data storage

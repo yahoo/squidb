@@ -75,27 +75,38 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
         if (alias != null ? !alias.equals(dbObject.alias) : dbObject.alias != null) {
             return false;
         }
-        String myExpression = getExpression();
-        String otherExpression = dbObject.getExpression();
+        String myExpression = expressionForComparison();
+        String otherExpression = dbObject.expressionForComparison();
+
         if (myExpression != null ? !myExpression.equals(otherExpression) : otherExpression != null) {
             return false;
         }
+        return !(qualifier != null ? !qualifier.equals(dbObject.qualifier) : dbObject.qualifier != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = alias != null ? alias.hashCode() : 0;
-        String expression = getExpression();
+        String expression = expressionForComparison();
         result = 31 * result + (expression != null ? expression.hashCode() : 0);
+        result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * @return a string-literal representation of this object suitable for implementing equals() and hashCode(). Most
+     * subclasses will not need to override this; only classes like {@link Function} or {@link Property} where
+     * {@link #getExpression()} is implemented differently need to care about this.
+     */
+    protected String expressionForComparison() {
+        return getExpression();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Expression=").append(getExpression());
+        sb.append("Expression=").append(expressionForComparison());
         if (hasQualifier()) {
             sb.append(" Qualifier=").append(qualifier);
         }
@@ -126,10 +137,9 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * @return the string-literal representation of this object, prepended with its qualifier (if it has one)
      */
     public final String getQualifiedExpression() {
-        if (hasQualifier()) {
-            return qualifier + '.' + getExpression();
-        }
-        return getExpression();
+        StringBuilder builder = new StringBuilder();
+        appendQualifiedExpressionToStringBuilder(builder);
+        return builder.toString();
     }
 
     /**
@@ -149,6 +159,13 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     }
 
     protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
-        builder.sql.append(getQualifiedExpression());
+        appendQualifiedExpressionToStringBuilder(builder.sql);
+    }
+
+    private void appendQualifiedExpressionToStringBuilder(StringBuilder builder) {
+        if (hasQualifier()) {
+            builder.append(qualifier).append('.');
+        }
+        builder.append(getExpression());
     }
 }

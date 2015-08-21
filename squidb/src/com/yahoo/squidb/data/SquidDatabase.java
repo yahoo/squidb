@@ -19,10 +19,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yahoo.squidb.Beta;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SQLExceptionWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
