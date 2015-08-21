@@ -69,6 +69,11 @@ public abstract class Function<TYPE> extends Field<TYPE> {
         return builder.getSqlString();
     }
 
+    @Override
+    protected String expressionForComparison() {
+        return getExpression(VersionCode.LATEST);
+    }
+
     /**
      * Create a Function call with the given name and list of arguments. Returns
      * a function equivalent to "functionName(arg1, arg2, ...)"

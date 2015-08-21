@@ -93,6 +93,14 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         return super.getExpression();
     }
 
+    @Override
+    protected String expressionForComparison() {
+        if (function != null) {
+            return function.expressionForComparison();
+        }
+        return super.expressionForComparison();
+    }
+
     /**
      * Accept a {@link PropertyVisitor}
      */

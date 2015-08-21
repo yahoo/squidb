@@ -75,8 +75,8 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
         if (alias != null ? !alias.equals(dbObject.alias) : dbObject.alias != null) {
             return false;
         }
-        if (getExpression() != null ? !getExpression().equals(dbObject.getExpression())
-                : dbObject.getExpression() != null) {
+        if (expressionForComparison() != null ? !expressionForComparison().equals(dbObject.expressionForComparison())
+                : dbObject.expressionForComparison() != null) {
             return false;
         }
         return !(qualifier != null ? !qualifier.equals(dbObject.qualifier) : dbObject.qualifier != null);
@@ -86,15 +86,24 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     @Override
     public int hashCode() {
         int result = alias != null ? alias.hashCode() : 0;
-        result = 31 * result + (getExpression() != null ? getExpression().hashCode() : 0);
+        result = 31 * result + (expressionForComparison() != null ? expressionForComparison().hashCode() : 0);
         result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * @return a string-literal representation of this object suitable for implementing equals() and hashCode(). Most
+     * subclasses will not need to override this; only classes like {@link Function} or {@link Property} where
+     * {@link #getExpression()} is implemented differently need to care about this.
+     */
+    protected String expressionForComparison() {
+        return getExpression();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Expression=").append(getExpression());
+        sb.append("Expression=").append(expressionForComparison());
         if (hasQualifier()) {
             sb.append(" Qualifier=").append(qualifier);
         }
