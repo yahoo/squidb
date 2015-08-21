@@ -60,7 +60,7 @@ public class PropertyTest extends SquidTestCase {
         assertEquals(test1.hashCode(), test2.hashCode());
 
         StringProperty test3 = new StringProperty(TestModel.TABLE, "testCol");
-        StringProperty test4 = new StringProperty(TestModel.TABLE, "testCol", "DEFAULT 'A");
+        StringProperty test4 = new StringProperty(TestModel.TABLE, "testCol", "DEFAULT 'A'");
 
         assertEquals(test3, test4);
         assertEquals(test3.hashCode(), test4.hashCode());

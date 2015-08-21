@@ -75,8 +75,10 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
         if (alias != null ? !alias.equals(dbObject.alias) : dbObject.alias != null) {
             return false;
         }
-        if (expressionForComparison() != null ? !expressionForComparison().equals(dbObject.expressionForComparison())
-                : dbObject.expressionForComparison() != null) {
+        String myExpression = expressionForComparison();
+        String otherExpression = dbObject.expressionForComparison();
+
+        if (myExpression != null ? !myExpression.equals(otherExpression) : otherExpression != null) {
             return false;
         }
         return !(qualifier != null ? !qualifier.equals(dbObject.qualifier) : dbObject.qualifier != null);
@@ -86,7 +88,8 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     @Override
     public int hashCode() {
         int result = alias != null ? alias.hashCode() : 0;
-        result = 31 * result + (expressionForComparison() != null ? expressionForComparison().hashCode() : 0);
+        String expression = expressionForComparison();
+        result = 31 * result + (expression != null ? expression.hashCode() : 0);
         result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         return result;
     }
