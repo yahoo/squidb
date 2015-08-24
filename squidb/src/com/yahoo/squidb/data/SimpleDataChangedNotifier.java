@@ -7,6 +7,7 @@ package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.SqlTable;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -31,6 +32,13 @@ public abstract class SimpleDataChangedNotifier extends DataChangedNotifier<Simp
      * Construct a SimpleDataChangedNotifier that will be notified of changes to the given tables
      */
     public SimpleDataChangedNotifier(SqlTable<?>... tables) {
+        super(tables);
+    }
+
+    /**
+     * Construct a SimpleDataChangedNotifier that will be notified of changes to the given tables
+     */
+    public SimpleDataChangedNotifier(Collection<SqlTable<?>> tables) {
         super(tables);
     }
 

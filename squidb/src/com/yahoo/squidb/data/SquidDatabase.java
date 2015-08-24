@@ -1844,7 +1844,7 @@ public abstract class SquidDatabase {
             return;
         }
         synchronized (notifiersLock) {
-            List<SqlTable<?>> tables = notifier.whichTables();
+            Collection<SqlTable<?>> tables = notifier.whichTables();
             if (tables == null || tables.isEmpty()) {
                 globalNotifiers.add(notifier);
             } else {
@@ -1871,7 +1871,7 @@ public abstract class SquidDatabase {
             return;
         }
         synchronized (notifiersLock) {
-            List<SqlTable<?>> tables = notifier.whichTables();
+            Collection<SqlTable<?>> tables = notifier.whichTables();
             if (tables == null || tables.isEmpty()) {
                 globalNotifiers.remove(notifier);
             } else {

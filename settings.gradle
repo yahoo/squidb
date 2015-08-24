@@ -16,3 +16,6 @@ project(':squidb-jackson-annotations').projectDir = new File(settingsDir, 'squid
 
 include ':squidb-sqlite-bindings'
 project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-addons/squidb-sqlite-bindings')
+
+include ':squidb-reactive'
+project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/squidb-reactive')
