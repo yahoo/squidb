@@ -31,7 +31,7 @@ public class ConstructorPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
+    public List<? extends PluginWriter> getWritersForModelSpec(ModelSpec<?> modelSpec) {
         return Collections.singletonList(new ConstructorWriter(modelSpec.getGeneratedClassName()));
     }
 

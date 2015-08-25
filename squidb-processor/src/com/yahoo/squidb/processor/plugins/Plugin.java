@@ -33,7 +33,7 @@ public class Plugin {
         return null;
     }
 
-    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
+    public List<? extends PluginWriter> getWritersForModelSpec(ModelSpec<?> modelSpec) {
         return Collections.EMPTY_LIST;
     }
 

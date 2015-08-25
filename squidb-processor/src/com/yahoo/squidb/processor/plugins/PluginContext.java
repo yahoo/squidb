@@ -74,7 +74,7 @@ public class PluginContext {
     public List<PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
         List<PluginWriter> writers = new ArrayList<PluginWriter>();
         for (Plugin plugin : plugins) {
-            List<? extends PluginWriter> pluginWriters = plugin.getWritersForElement(modelSpec);
+            List<? extends PluginWriter> pluginWriters = plugin.getWritersForModelSpec(modelSpec);
             if (pluginWriters != null) {
                 writers.addAll(pluginWriters);
             }

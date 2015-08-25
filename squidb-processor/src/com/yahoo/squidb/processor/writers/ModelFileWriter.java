@@ -110,7 +110,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
         emitCreator();
         emitModelSpecificHelpers();
-        emitHelpersFromPlugins();
+        emitAdditionalCodeFromPlugins();
 
         writer.finishTypeDefinition();
     }
@@ -172,6 +172,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         constant.getSimpleName().toString(),
                         Expressions.staticReference(modelSpec.getModelSpecName(), constant.getSimpleName().toString()),
                         TypeConstants.PUBLIC_STATIC_FINAL);
+            }
+            for (PluginWriter pluginWriter : pluginWriters) {
+                pluginWriter.writeConstants(writer);
             }
             writer.writeNewline();
         }
@@ -308,9 +311,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         // Subclasses can override
     }
 
-    private void emitHelpersFromPlugins() throws IOException {
+    private void emitAdditionalCodeFromPlugins() throws IOException {
         for (PluginWriter pluginWriter : pluginWriters) {
-            pluginWriter.writeAdditionalHelpers(writer);
+            pluginWriter.writeAdditionalCode(writer);
         }
     }
 }

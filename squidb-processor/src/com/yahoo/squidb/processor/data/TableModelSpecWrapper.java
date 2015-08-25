@@ -65,7 +65,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
             }
             if (TypeConstants.isPropertyType(typeName)) {
                 utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Can't copy Property constants to model "
-                        + "defintion--they'd become part of the model", e);
+                        + "definition--they'd become part of the model", e);
             } else {
                 constantElements.add(e);
             }

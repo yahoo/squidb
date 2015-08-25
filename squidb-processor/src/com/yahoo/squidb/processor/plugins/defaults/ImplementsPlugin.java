@@ -28,7 +28,7 @@ public class ImplementsPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
+    public List<? extends PluginWriter> getWritersForModelSpec(ModelSpec<?> modelSpec) {
         final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
         TypeElement modelSpecElement = modelSpec.getModelSpecElement();
         if (modelSpecElement.getAnnotation(Implements.class) != null) {

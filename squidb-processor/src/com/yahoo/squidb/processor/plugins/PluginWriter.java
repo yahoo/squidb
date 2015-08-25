@@ -15,28 +15,27 @@ import java.util.Set;
 public class PluginWriter {
 
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        // Stub
+        // Stub for subclasses to override
     }
 
     public List<DeclaredTypeName> getInterfacesToImplement() {
-        // Stub
+        // Stub for subclasses to override
         return null;
     }
 
     public void writeConstants(JavaFileWriter writer) throws IOException {
-        // Stub
+        // Stub for subclasses to override
     }
 
     public void writeConstructors(JavaFileWriter writer) throws IOException {
-        // Stub
+        // Stub for subclasses to override
     }
 
     public void writeMethods(JavaFileWriter writer) throws IOException {
-        // Stub
+        // Stub for subclasses to override
     }
 
-    public void writeAdditionalHelpers(JavaFileWriter writer) throws IOException {
-        // Stub
-        // Arbitrary code can go here--other initializers (static or otherwise), other helper objects, whatever
+    public void writeAdditionalCode(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
     }
 }

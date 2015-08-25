@@ -41,7 +41,7 @@ public class ModelMethodPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
+    public List<? extends PluginWriter> getWritersForModelSpec(ModelSpec<?> modelSpec) {
         final List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
         final List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
         List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
