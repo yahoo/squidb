@@ -12,7 +12,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginContext;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.Collection;

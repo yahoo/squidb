@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.squidb.processor.properties.generators.BasicStringPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicStringPropertyGenerator;
 
 import java.io.IOException;
 import java.util.Set;

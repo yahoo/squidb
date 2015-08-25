@@ -11,10 +11,10 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
-import com.yahoo.squidb.processor.properties.factory.InheritedModelPropertyGeneratorFactory;
-import com.yahoo.squidb.processor.properties.factory.TablePropertyGeneratorFactory;
-import com.yahoo.squidb.processor.properties.factory.ViewPropertyGeneratorFactory;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.factory.InheritedModelPropertyGeneratorFactory;
+import com.yahoo.squidb.processor.plugins.properties.factory.TablePropertyGeneratorFactory;
+import com.yahoo.squidb.processor.plugins.properties.factory.ViewPropertyGeneratorFactory;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

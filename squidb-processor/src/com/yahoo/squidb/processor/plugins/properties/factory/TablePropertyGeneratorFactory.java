@@ -3,21 +3,21 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.properties.factory;
+package com.yahoo.squidb.processor.plugins.properties.factory;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.properties.generators.BasicBlobPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicBooleanPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicDoublePropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicIdPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicIntegerPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicLongPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.BasicStringPropertyGenerator;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicBlobPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicBooleanPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicDoublePropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicIdPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicIntegerPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicLongPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.BasicStringPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.util.HashMap;
 import java.util.List;

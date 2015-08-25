@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.properties.generators;
+package com.yahoo.squidb.processor.plugins.properties.generators;
 
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;

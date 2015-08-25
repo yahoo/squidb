@@ -8,7 +8,7 @@ package com.yahoo.squidb.jackson;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;

@@ -20,7 +20,7 @@ import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.io.Writer;

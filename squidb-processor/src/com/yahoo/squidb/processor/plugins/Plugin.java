@@ -7,7 +7,7 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.util.Collections;
 import java.util.List;
