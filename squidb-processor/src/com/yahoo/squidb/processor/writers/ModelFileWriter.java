@@ -17,9 +17,8 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.annotations.Ignore;
-import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,7 +35,6 @@ import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -60,7 +57,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
     protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
 
-    protected static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
+    public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
 
     private static final MethodDeclarationParameters GET_CREATOR_PARAMS;
@@ -83,7 +80,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 .setReturnType(TypeConstants.CONTENT_VALUES);
     }
 
-    public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass, PluginManager pluginManager,
+    public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass, PluginContext pluginContext,
             PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
         this.modelSpecElement = modelSpecElement;
         this.propertyGeneratorFactory = propertyGeneratorFactory;
@@ -91,7 +88,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
         this.sourceElementName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpec = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(sourceElementName.getPackageName(), getGeneratedClassName());
-        this.pluginWriters = pluginManager.getWritersForElement(modelSpecElement, sourceElementName, generatedClassName);
+        this.pluginWriters = pluginContext.getWritersForElement(modelSpecElement, sourceElementName, generatedClassName);
     }
 
     protected abstract String getGeneratedClassName();
@@ -129,13 +126,12 @@ public abstract class ModelFileWriter<T extends Annotation> {
         emitClone();
         emitDefaultValues();
         emitGettersAndSetters();
-
-        for (PluginWriter pluginWriter : pluginWriters) {
-            pluginWriter.writeMethods(writer);
-        }
+        emitMethods();
 
         emitCreator();
         emitModelSpecificHelpers();
+        emitHelpersFromPlugins();
+
         writer.finishTypeDefinition();
     }
 
@@ -193,10 +189,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     private void addCommonImports() {
-        imports.add(TypeConstants.CONTENT_VALUES);
-        imports.add(TypeConstants.PROPERTY);
-        imports.add(TypeConstants.ABSTRACT_MODEL);
-        imports.add(TypeConstants.SQUID_CURSOR);
+        imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
+        imports.add(TypeConstants.ABSTRACT_MODEL); // For CREATOR
         imports.add(getModelSuperclass());
         for (PropertyGenerator generator : propertyGenerators) {
             generator.registerRequiredImports(imports);
@@ -284,38 +278,14 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected abstract void writePropertiesInitializationBlock() throws IOException;
 
-    protected void emitConstructors() throws IOException {
+    private void emitConstructors() throws IOException {
         writer.writeComment("--- constructors");
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setConstructorName(generatedClassName);
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("super()")
-                .finishMethodDefinition();
-
-        DeclaredTypeName squidCursorType = TypeConstants.SQUID_CURSOR.clone();
-        squidCursorType.setTypeArgs(Collections.singletonList(getSquidCursorTypeArg()));
-        params.setArgumentTypes(squidCursorType).setArgumentNames("cursor");
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromCursor(cursor)")
-                .finishMethodDefinition();
-
-        params.setArgumentTypes(Collections.singletonList(TypeConstants.CONTENT_VALUES))
-                .setArgumentNames("contentValues");
-        writer.beginConstructorDeclaration(params)
-                .writeStatement(Expressions.callMethod("this", "contentValues", PROPERTIES_ARRAY_NAME))
-                .finishMethodDefinition();
-
-        params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES, TypeConstants.PROPERTY_VARARGS))
-                .setArgumentNames("contentValues", "withProperties");
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromContentValues(contentValues, withProperties)")
-                .finishMethodDefinition();
+        for (PluginWriter pluginWriter : pluginWriters) {
+            pluginWriter.writeConstructors(writer);
+        }
     }
 
-    protected void emitClone() throws IOException {
+    private void emitClone() throws IOException {
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setModifiers(Modifier.PUBLIC)
                 .setMethodName("clone")
@@ -330,15 +300,18 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 .finishMethodDefinition();
     }
 
-    protected TypeName getSquidCursorTypeArg() {
-        return generatedClassName;
-    }
-
     protected void emitGettersAndSetters() throws IOException {
         writer.writeComment("--- getters and setters");
         for (PropertyGenerator generator : propertyGenerators) {
             emitGetter(writer, generator);
             emitSetter(writer, generator);
+        }
+    }
+
+    private void emitMethods() throws IOException {
+        writer.writeComment("--- other instance methods");
+        for (PluginWriter pluginWriter : pluginWriters) {
+            pluginWriter.writeMethods(writer);
         }
     }
 
@@ -352,31 +325,6 @@ public abstract class ModelFileWriter<T extends Annotation> {
         generator.beforeEmitSetter(writer);
         generator.emitSetter(writer);
         generator.afterEmitSetter(writer);
-    }
-
-    private void emitModelMethod(ExecutableElement e, Modifier... modifiers) throws IOException {
-        MethodDeclarationParameters params = utils.methodDeclarationParamsFromExecutableElement(e, modifiers);
-
-        ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        List<Object> arguments = new ArrayList<Object>();
-        if (methodAnnotation != null) {
-            String name = methodAnnotation.name();
-            if (!AptUtils.isEmpty(name)) {
-                params.setMethodName(name);
-            }
-            params.getArgumentTypes().remove(0);
-            params.getArgumentNames().remove(0);
-            arguments.add(0, "this");
-        }
-        arguments.addAll(params.getArgumentNames());
-        Expression methodCall = Expressions.staticMethod(sourceElementName,
-                e.getSimpleName().toString(), arguments);
-        if (!CoreTypes.VOID.equals(params.getReturnType())) {
-            methodCall = methodCall.returnExpr();
-        }
-        writer.beginMethodDefinition(params)
-                .writeStatement(methodCall)
-                .finishMethodDefinition();
     }
 
     protected void emitDefaultValues() throws IOException {
@@ -421,5 +369,11 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected void emitModelSpecificHelpers() throws IOException {
         // Subclasses can override
+    }
+
+    protected void emitHelpersFromPlugins() throws IOException {
+        for (PluginWriter pluginWriter : pluginWriters) {
+            pluginWriter.writeAdditionalHelpers(writer);
+        }
     }
 }

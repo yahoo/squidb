@@ -62,16 +62,16 @@ public class ImplementsPlugin extends Plugin {
             }
         }
         if (!AptUtils.isEmpty(interfaces)) {
-            return Collections.singletonList(new ImplementsPluginWriter(interfaces));
+            return Collections.singletonList(new ImplementsWriter(interfaces));
         }
         return null;
     }
 
-    private class ImplementsPluginWriter extends PluginWriter {
+    private class ImplementsWriter extends PluginWriter {
 
         private final List<DeclaredTypeName> interfaces;
 
-        private ImplementsPluginWriter(List<DeclaredTypeName> interfaces) {
+        private ImplementsWriter(List<DeclaredTypeName> interfaces) {
             this.interfaces = interfaces;
         }
 

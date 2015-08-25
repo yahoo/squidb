@@ -17,7 +17,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
@@ -53,9 +53,9 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
                 .setModifiers(Modifier.PROTECTED);
     }
 
-    public ViewModelFileWriter(TypeElement element, PluginManager pluginManager,
+    public ViewModelFileWriter(TypeElement element, PluginContext pluginContext,
             PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
-        super(element, ViewModelSpec.class, pluginManager, propertyGeneratorFactory, utils);
+        super(element, ViewModelSpec.class, pluginContext, propertyGeneratorFactory, utils);
     }
 
     @Override

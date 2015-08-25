@@ -7,6 +7,7 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
 
@@ -15,11 +16,12 @@ import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 
-public class PluginManager {
+public class PluginContext {
 
     private List<Plugin> plugins = new ArrayList<Plugin>();
 
-    public PluginManager(AptUtils utils) {
+    public PluginContext(AptUtils utils) {
+        plugins.add(new ConstructorPlugin(utils));
         plugins.add(new ImplementsPlugin(utils));
         plugins.add(new ModelMethodPlugin(utils));
     }

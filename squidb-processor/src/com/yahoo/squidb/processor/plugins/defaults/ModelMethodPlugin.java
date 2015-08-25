@@ -52,7 +52,7 @@ public class ModelMethodPlugin extends Plugin {
             }
         }
         if (!AptUtils.isEmpty(modelMethods) || !AptUtils.isEmpty(staticModelMethods)) {
-            return Collections.singletonList(new ModelMethodPluginWriter(modelMethods, staticModelMethods, modelSpecName));
+            return Collections.singletonList(new ModelMethodWriter(modelMethods, staticModelMethods, modelSpecName));
         }
         return null;
     }
@@ -112,13 +112,13 @@ public class ModelMethodPlugin extends Plugin {
         return typeName.equals(generatedClassName) || typeName.equals(TypeConstants.ABSTRACT_MODEL);
     }
 
-    private class ModelMethodPluginWriter extends PluginWriter {
+    private class ModelMethodWriter extends PluginWriter {
 
         private final List<ExecutableElement> modelMethods;
         private final List<ExecutableElement> staticModelMethods;
         private final DeclaredTypeName modelSpecName;
 
-        private ModelMethodPluginWriter(List<ExecutableElement> modelMethods,
+        private ModelMethodWriter(List<ExecutableElement> modelMethods,
                 List<ExecutableElement> staticModelMethods, DeclaredTypeName modelSpecName) {
             this.modelMethods = modelMethods;
             this.staticModelMethods = staticModelMethods;
@@ -133,7 +133,6 @@ public class ModelMethodPlugin extends Plugin {
 
         @Override
         public void writeMethods(JavaFileWriter writer) throws IOException {
-            writer.writeComment("--- other methods");
             for (ExecutableElement e : modelMethods) {
                 emitModelMethod(writer, e, Modifier.PUBLIC);
             }
