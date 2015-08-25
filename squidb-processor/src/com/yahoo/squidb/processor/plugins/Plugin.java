@@ -29,7 +29,7 @@ public class Plugin {
     }
 
     public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName elementType,
-            DeclaredTypeName modelClass) {
+            DeclaredTypeName generatedModelName) {
         return null;
     }
 

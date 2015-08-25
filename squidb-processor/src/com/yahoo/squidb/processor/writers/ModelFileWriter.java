@@ -20,7 +20,6 @@ import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
-import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -45,7 +44,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected T modelSpec;
     protected JavaFileWriter writer;
-    protected PropertyGeneratorFactory propertyGeneratorFactory;
+    protected PluginContext pluginContext;
     protected List<PluginWriter> pluginWriters;
     protected DeclaredTypeName generatedClassName;
     protected DeclaredTypeName sourceElementName;
@@ -81,9 +80,9 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass, PluginContext pluginContext,
-            PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
+            AptUtils utils) {
         this.modelSpecElement = modelSpecElement;
-        this.propertyGeneratorFactory = propertyGeneratorFactory;
+        this.pluginContext = pluginContext;
         this.utils = utils;
         this.sourceElementName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpec = modelSpecElement.getAnnotation(modelSpecClass);
@@ -165,8 +164,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     protected PropertyGenerator propertyGeneratorForElement(VariableElement e) {
-        return propertyGeneratorFactory
-                .getPropertyGeneratorForVariableElement(e, generatedClassName, modelSpecElement);
+        return pluginContext.getPropertyGeneratorForVariableElement(modelSpecElement, e, generatedClassName);
     }
 
     protected abstract void processVariableElement(VariableElement e, DeclaredTypeName elementType);

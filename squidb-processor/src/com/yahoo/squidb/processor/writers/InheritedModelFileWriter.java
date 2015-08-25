@@ -12,7 +12,6 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginContext;
-import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -29,9 +28,8 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
 
     private final DeclaredTypeName superclass;
 
-    public InheritedModelFileWriter(TypeElement element, PluginContext pluginContext,
-            PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
-        super(element, InheritedModelSpec.class, pluginContext, propertyGeneratorFactory, utils);
+    public InheritedModelFileWriter(TypeElement element, PluginContext pluginContext, AptUtils utils) {
+        super(element, InheritedModelSpec.class, pluginContext, utils);
         this.superclass = new DeclaredTypeName(modelSpec.inheritsFrom());
     }
 

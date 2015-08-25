@@ -9,9 +9,8 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginContext;
-import com.yahoo.squidb.processor.properties.factory.PluggablePropertyGeneratorFactory;
-import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
@@ -64,7 +63,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private AptUtils utils;
     private Filer filer;
 
-    private PropertyGeneratorFactory propertyGeneratorFactory;
     private PluginContext pluginContext;
 
     @Override
@@ -88,7 +86,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         utils = new AptUtils(env.getMessager(), env.getTypeUtils());
         filer = env.getFiler();
 
-        propertyGeneratorFactory = new PropertyGeneratorFactory(utils);
         pluginContext = new PluginContext(utils);
         processOptionsForPlugins(env.getOptions());
     }
@@ -109,19 +106,18 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         }
     }
 
-    private void processSinglePlugin(String plugin) {
+    private void processSinglePlugin(String pluginName) {
         try {
-            Class<?> pluggableFactory = Class.forName(plugin);
-            if (PluggablePropertyGeneratorFactory.class.isAssignableFrom(pluggableFactory)) {
-                PluggablePropertyGeneratorFactory factory = (PluggablePropertyGeneratorFactory) pluggableFactory
-                        .getConstructor(AptUtils.class).newInstance(utils);
-                propertyGeneratorFactory.registerPluggablePropertyGeneratorFactory(factory);
+            Class<?> pluginClass = Class.forName(pluginName);
+            if (Plugin.class.isAssignableFrom(pluginClass)) {
+                Plugin plugin = (Plugin) pluginClass.getConstructor(AptUtils.class).newInstance(utils);
+                pluginContext.addPlugin(plugin);
             } else {
                 utils.getMessager().printMessage(Kind.WARNING,
-                        "Plugin " + plugin + " is not a subclass of PluggablePropertyGeneratorFactory");
+                        "Plugin " + pluginName + " is not a subclass of Plugin");
             }
         } catch (Exception e) {
-            utils.getMessager().printMessage(Kind.WARNING, "Unable to instantiate plugin " + plugin + ", reason: " + e);
+            utils.getMessager().printMessage(Kind.WARNING, "Unable to instantiate plugin " + pluginName + ", reason: " + e);
         }
     }
 
@@ -148,11 +144,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
         if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, pluginContext, propertyGeneratorFactory, utils);
+            return new TableModelFileWriter(typeElement, pluginContext, utils);
         } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, pluginContext, propertyGeneratorFactory, utils);
+            return new ViewModelFileWriter(typeElement, pluginContext, utils);
         } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, pluginContext, propertyGeneratorFactory, utils);
+            return new InheritedModelFileWriter(typeElement, pluginContext, utils);
         } else {
             throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
         }

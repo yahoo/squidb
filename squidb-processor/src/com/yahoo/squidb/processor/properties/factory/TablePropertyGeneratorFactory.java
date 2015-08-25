@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.properties.generators.BasicBlobPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicBooleanPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.BasicDoublePropertyGenerator;
@@ -26,7 +27,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
-public class TablePropertyGeneratorFactory extends PluggablePropertyGeneratorFactory {
+public class TablePropertyGeneratorFactory extends Plugin {
 
     private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap
             = new HashMap<DeclaredTypeName, Class<? extends PropertyGenerator>>();
@@ -37,8 +38,9 @@ public class TablePropertyGeneratorFactory extends PluggablePropertyGeneratorFac
     }
 
     @Override
-    public boolean canHandleElement(VariableElement element, DeclaredTypeName elementType, TypeElement parentElement) {
-        return parentElement.getAnnotation(TableModelSpec.class) != null && generatorMap.containsKey(elementType);
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+            TypeElement modelSpecElement) {
+        return modelSpecElement.getAnnotation(TableModelSpec.class) != null && generatorMap.containsKey(elementType);
     }
 
     @Override

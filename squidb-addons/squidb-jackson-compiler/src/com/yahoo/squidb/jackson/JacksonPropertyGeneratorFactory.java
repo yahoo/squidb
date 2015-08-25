@@ -7,21 +7,22 @@ package com.yahoo.squidb.jackson;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.squidb.processor.properties.factory.PluggablePropertyGeneratorFactory;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-public class JacksonPropertyGeneratorFactory extends PluggablePropertyGeneratorFactory {
+public class JacksonPropertyGeneratorFactory extends Plugin {
 
     public JacksonPropertyGeneratorFactory(AptUtils utils) {
         super(utils);
     }
 
     @Override
-    public boolean canHandleElement(VariableElement element, DeclaredTypeName elementType, TypeElement parentElement) {
-        if (element.getAnnotation(JacksonProperty.class) == null) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+            TypeElement modelSpecElement) {
+        if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
         if (elementType.equals(JacksonTypeConstants.MAP)) {

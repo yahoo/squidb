@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.properties.factory;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.ViewPropertyGenerator;
 
@@ -15,14 +16,15 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
-abstract class FieldReferencePropertyGeneratorFactory extends PluggablePropertyGeneratorFactory {
+abstract class FieldReferencePropertyGeneratorFactory extends Plugin {
 
     public FieldReferencePropertyGeneratorFactory(AptUtils utils) {
         super(utils);
     }
 
     @Override
-    public boolean canHandleElement(VariableElement element, DeclaredTypeName elementType, TypeElement parentElement) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+            TypeElement modelSpecElement) {
         return TypeConstants.isPropertyType(elementType);
     }
 
