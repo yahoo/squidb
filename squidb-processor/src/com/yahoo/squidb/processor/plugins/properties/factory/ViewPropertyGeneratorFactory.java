@@ -19,9 +19,9 @@ public class ViewPropertyGeneratorFactory extends FieldReferencePropertyGenerato
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName generatedClassName,
             TypeElement modelSpecElement) {
-        return super.hasPropertyGeneratorForField(field, elementType, modelSpecElement)
+        return super.hasPropertyGeneratorForField(field, generatedClassName, modelSpecElement)
                 && modelSpecElement.getAnnotation(ViewModelSpec.class) != null;
     }
 

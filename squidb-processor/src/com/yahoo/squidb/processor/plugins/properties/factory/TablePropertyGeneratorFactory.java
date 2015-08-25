@@ -38,22 +38,22 @@ public class TablePropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType,
             TypeElement modelSpecElement) {
-        return modelSpecElement.getAnnotation(TableModelSpec.class) != null && generatorMap.containsKey(elementType);
+        return modelSpecElement.getAnnotation(TableModelSpec.class) != null && generatorMap.containsKey(fieldType);
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(VariableElement element, DeclaredTypeName elementType,
-            DeclaredTypeName modelClass) {
-        Class<? extends PropertyGenerator> generatorClass = generatorMap.get(elementType);
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType,
+            DeclaredTypeName generatedClassName) {
+        Class<? extends PropertyGenerator> generatorClass = generatorMap.get(fieldType);
         try {
-            if (element.getAnnotation(PrimaryKey.class) != null &&
+            if (field.getAnnotation(PrimaryKey.class) != null &&
                     BasicLongPropertyGenerator.class.equals(generatorClass)) {
-                return new BasicIdPropertyGenerator(element, elementType, utils);
+                return new BasicIdPropertyGenerator(field, fieldType, utils);
             }
             return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, AptUtils.class)
-                    .newInstance(element, modelClass, utils);
+                    .newInstance(field, generatedClassName, utils);
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);

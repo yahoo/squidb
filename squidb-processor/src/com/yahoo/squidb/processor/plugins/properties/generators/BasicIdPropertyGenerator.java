@@ -15,9 +15,9 @@ public class BasicIdPropertyGenerator extends BasicLongPropertyGenerator {
 
     private final PrimaryKey annotation;
 
-    public BasicIdPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
-        annotation = element.getAnnotation(PrimaryKey.class);
+    public BasicIdPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
+        annotation = field.getAnnotation(PrimaryKey.class);
     }
 
     @Override

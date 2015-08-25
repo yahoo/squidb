@@ -9,7 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.VariableElement;
@@ -17,11 +17,11 @@ import javax.lang.model.element.VariableElement;
 public class BasicBlobPropertyGenerator extends BasicPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
-        return Arrays.asList(TypeConstants.BYTE_ARRAY);
+        return Collections.singletonList(TypeConstants.BYTE_ARRAY);
     }
 
-    public BasicBlobPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicBlobPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
     }
 
     @Override

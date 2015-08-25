@@ -16,9 +16,9 @@ public class ViewPropertyGenerator extends BasicPropertyGenerator {
     private final DeclaredTypeName propertyType;
     private final DeclaredTypeName getAndSetType;
 
-    public ViewPropertyGenerator(VariableElement element, DeclaredTypeName propertyType, DeclaredTypeName modelName,
-            AptUtils utils) {
-        super(element, modelName, utils);
+    public ViewPropertyGenerator(VariableElement field, DeclaredTypeName propertyType,
+            DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
         this.propertyType = propertyType;
         this.getAndSetType = extractGetAndSetType();
     }

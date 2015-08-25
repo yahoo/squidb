@@ -16,20 +16,20 @@ import javax.lang.model.element.VariableElement;
 
 public abstract class PropertyGenerator {
 
-    protected final VariableElement element;
-    protected final DeclaredTypeName modelName;
+    protected final VariableElement field;
+    protected final DeclaredTypeName generatedClassName;
     protected final AptUtils utils;
     protected final boolean isDeprecated;
 
-    public PropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        this.element = element;
-        this.modelName = modelName;
+    public PropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        this.field = field;
+        this.generatedClassName = generatedClassName;
         this.utils = utils;
-        this.isDeprecated = element.getAnnotation(Deprecated.class) != null;
+        this.isDeprecated = field.getAnnotation(Deprecated.class) != null;
     }
 
-    public VariableElement getElement() {
-        return element;
+    public VariableElement getField() {
+        return field;
     }
 
     public void registerRequiredImports(Set<DeclaredTypeName> imports) {

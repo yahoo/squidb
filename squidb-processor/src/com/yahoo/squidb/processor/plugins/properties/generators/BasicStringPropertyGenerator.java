@@ -11,7 +11,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.VariableElement;
@@ -19,11 +19,11 @@ import javax.lang.model.element.VariableElement;
 public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
-        return Arrays.asList(CoreTypes.JAVA_STRING);
+        return Collections.singletonList(CoreTypes.JAVA_STRING);
     }
 
-    public BasicStringPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicStringPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
     }
 
     @Override

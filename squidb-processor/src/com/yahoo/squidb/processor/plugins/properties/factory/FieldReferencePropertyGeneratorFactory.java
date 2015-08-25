@@ -23,18 +23,18 @@ abstract class FieldReferencePropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType,
             TypeElement modelSpecElement) {
-        return TypeConstants.isPropertyType(elementType);
+        return TypeConstants.isPropertyType(fieldType);
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(VariableElement element, DeclaredTypeName elementType,
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType,
             DeclaredTypeName modelClass) {
         Class<? extends ViewPropertyGenerator> generatorClass = getViewPropertyGenerator();
         try {
             return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, DeclaredTypeName.class,
-                    AptUtils.class).newInstance(element, elementType, modelClass, utils);
+                    AptUtils.class).newInstance(field, fieldType, modelClass, utils);
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);

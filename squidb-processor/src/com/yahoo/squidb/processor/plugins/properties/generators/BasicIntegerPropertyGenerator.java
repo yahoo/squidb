@@ -22,8 +22,8 @@ public class BasicIntegerPropertyGenerator extends BasicPropertyGenerator {
                 CoreTypes.PRIMITIVE_BYTE, CoreTypes.PRIMITIVE_SHORT, CoreTypes.PRIMITIVE_INT);
     }
 
-    public BasicIntegerPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicIntegerPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
     }
 
     @Override

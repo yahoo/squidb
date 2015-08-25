@@ -22,8 +22,8 @@ public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
         return Arrays.asList(CoreTypes.JAVA_BOOLEAN, CoreTypes.PRIMITIVE_BOOLEAN);
     }
 
-    public BasicBooleanPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicBooleanPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
     }
 
     @Override

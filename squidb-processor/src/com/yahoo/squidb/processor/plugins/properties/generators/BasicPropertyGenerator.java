@@ -32,18 +32,18 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     protected final String camelCasePropertyName;
     protected final String columnName;
 
-    public BasicPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
-        this.extras = element.getAnnotation(ColumnSpec.class);
-        String name = element.getSimpleName().toString();
+    public BasicPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
+        this.extras = field.getAnnotation(ColumnSpec.class);
+        String name = field.getSimpleName().toString();
         this.camelCasePropertyName = StringUtils.toCamelCase(name);
         this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
         this.columnName = getColumnName(extras);
 
         if (columnName.indexOf('$') >= 0) {
-            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot contain the $ symbol", element);
+            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot contain the $ symbol", field);
         } else if (Character.isDigit(columnName.charAt(0))) {
-            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot begin with a digit", element);
+            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot begin with a digit", field);
         }
     }
 
@@ -106,7 +106,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 if (!toReturn.toUpperCase().contains("DEFAULT")) {
                     toReturn += " DEFAULT " + columnDefaultValue;
                 } else {
-                    utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", element);
+                    utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", field);
                 }
             }
             toReturn = "\"" + toReturn + "\"";
@@ -150,7 +150,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 : camelCasePropertyName;
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setMethodName(setterMethodName())
-                .setReturnType(modelName)
+                .setReturnType(generatedClassName)
                 .setModifiers(Modifier.PUBLIC)
                 .setArgumentTypes(getTypeForGetAndSet())
                 .setArgumentNames(argName);

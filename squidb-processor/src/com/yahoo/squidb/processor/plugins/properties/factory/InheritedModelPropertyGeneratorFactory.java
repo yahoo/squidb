@@ -19,9 +19,9 @@ public class InheritedModelPropertyGeneratorFactory extends FieldReferenceProper
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType,
             TypeElement modelSpecElement) {
-        return super.hasPropertyGeneratorForField(field, elementType, modelSpecElement)
+        return super.hasPropertyGeneratorForField(field, fieldType, modelSpecElement)
                 && modelSpecElement.getAnnotation(InheritedModelSpec.class) != null;
     }
 

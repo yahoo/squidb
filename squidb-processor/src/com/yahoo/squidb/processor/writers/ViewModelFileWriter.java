@@ -155,10 +155,10 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
     }
 
     private boolean emitPropertyReferenceArrayBody(boolean alias) throws IOException {
-        for (PropertyGenerator e : propertyGenerators) {
-            Expression reference = Expressions.staticReference(modelSpecName, e.getPropertyName());
+        for (PropertyGenerator propertyGenerator : propertyGenerators) {
+            Expression reference = Expressions.staticReference(modelSpecName, propertyGenerator.getPropertyName());
             if (alias) {
-                Alias aliasAnnotation = e.getElement().getAnnotation(Alias.class);
+                Alias aliasAnnotation = propertyGenerator.getField().getAnnotation(Alias.class);
                 if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
                     reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
                 }

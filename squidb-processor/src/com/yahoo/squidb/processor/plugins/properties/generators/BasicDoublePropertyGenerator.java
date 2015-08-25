@@ -22,8 +22,8 @@ public class BasicDoublePropertyGenerator extends BasicPropertyGenerator {
                 CoreTypes.JAVA_DOUBLE, CoreTypes.PRIMITIVE_DOUBLE);
     }
 
-    public BasicDoublePropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicDoublePropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
     }
 
     @Override

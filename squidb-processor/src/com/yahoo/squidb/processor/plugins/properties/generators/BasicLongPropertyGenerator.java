@@ -25,8 +25,8 @@ public class BasicLongPropertyGenerator extends BasicPropertyGenerator {
         return Arrays.asList(CoreTypes.JAVA_LONG, CoreTypes.PRIMITIVE_LONG);
     }
 
-    public BasicLongPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
+    public BasicLongPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+        super(field, generatedClassName, utils);
 
         String columnDefault = getColumnDefault();
         if (ColumnSpec.DEFAULT_NULL.equals(columnDefault)) {
