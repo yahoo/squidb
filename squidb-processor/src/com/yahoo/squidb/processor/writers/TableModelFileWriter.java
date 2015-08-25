@@ -14,6 +14,7 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.BasicLongPropertyGenerator;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
@@ -39,9 +40,9 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpec> {
     private DeclaredTypeName tableType;
     private PropertyGenerator idPropertyGenerator;
 
-    public TableModelFileWriter(TypeElement element, PropertyGeneratorFactory propertyGeneratorFactory,
-            AptUtils utils) {
-        super(element, TableModelSpec.class, propertyGeneratorFactory, utils);
+    public TableModelFileWriter(TypeElement element, PluginManager pluginManager,
+            PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
+        super(element, TableModelSpec.class, pluginManager, propertyGeneratorFactory, utils);
         if (isVirtualTable()) {
             tableType = TypeConstants.VIRTUAL_TABLE;
         } else {

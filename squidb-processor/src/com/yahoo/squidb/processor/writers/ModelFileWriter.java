@@ -17,9 +17,10 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.annotations.Ignore;
-import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginWriter;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
@@ -35,17 +36,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ErrorType;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
 
@@ -54,6 +49,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected T modelSpec;
     protected JavaFileWriter writer;
     protected PropertyGeneratorFactory propertyGeneratorFactory;
+    protected List<PluginWriter> pluginWriters;
     protected DeclaredTypeName generatedClassName;
     protected DeclaredTypeName sourceElementName;
     protected TypeElement modelSpecElement;
@@ -63,10 +59,6 @@ public abstract class ModelFileWriter<T extends Annotation> {
     protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
     protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
     protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
-
-    private List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
-    private List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
-    private List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
 
     protected static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
@@ -91,113 +83,18 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 .setReturnType(TypeConstants.CONTENT_VALUES);
     }
 
-    public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass,
+    public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass, PluginManager pluginManager,
             PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
         this.modelSpecElement = modelSpecElement;
         this.propertyGeneratorFactory = propertyGeneratorFactory;
         this.utils = utils;
         this.sourceElementName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpec = modelSpecElement.getAnnotation(modelSpecClass);
-        generatedClassName = new DeclaredTypeName(sourceElementName.getPackageName(), getGeneratedClassName());
-        initModelMethods();
-        initInterfaces();
+        this.generatedClassName = new DeclaredTypeName(sourceElementName.getPackageName(), getGeneratedClassName());
+        this.pluginWriters = pluginManager.getWritersForElement(modelSpecElement, sourceElementName, generatedClassName);
     }
 
     protected abstract String getGeneratedClassName();
-
-    private void initModelMethods() {
-        List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e instanceof ExecutableElement) {
-                checkExecutableElement((ExecutableElement) e);
-            }
-        }
-    }
-
-    private void checkExecutableElement(ExecutableElement e) {
-        Set<Modifier> modifiers = e.getModifiers();
-        if (e.getKind() == ElementKind.CONSTRUCTOR) {
-            // Don't copy constructors
-            return;
-        }
-        if (!modifiers.contains(Modifier.STATIC)) {
-            utils.getMessager().printMessage(Kind.WARNING,
-                    "Model spec objects should never be instantiated, so non-static methods are meaningless. Did you mean to make this a static method?",
-                    e);
-            return;
-        }
-        ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        // Private static methods may be unannotated if they are called by a public annotated method. Don't assume error if method is private
-        if (methodAnnotation == null) {
-            if (modifiers.contains(Modifier.PUBLIC)) {
-                staticModelMethods.add(e);
-            } else if (!modifiers.contains(Modifier.PRIVATE)) {
-                utils.getMessager().printMessage(Kind.WARNING,
-                        "This method will not be added to the model definition. Did you mean to annotate this method with @ModelMethod?",
-                        e);
-            }
-        } else {
-            List<? extends VariableElement> params = e.getParameters();
-            if (params.size() == 0) {
-                utils.getMessager().printMessage(Kind.ERROR,
-                        "@ModelMethod methods must have an abstract model as their first argument", e);
-            } else {
-                VariableElement firstParam = params.get(0);
-                TypeMirror paramType = firstParam.asType();
-                if (!checkFirstArgType(paramType)) {
-                    utils.getMessager().printMessage(Kind.ERROR,
-                            "@ModelMethod methods must have an abstract model as their first argument", e);
-                } else {
-                    modelMethods.add(e);
-                }
-            }
-        }
-    }
-
-    protected void initInterfaces() {
-        List<DeclaredTypeName> typeNames = utils.getTypeNamesFromAnnotationValue(
-                utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceClasses"));
-        if (!AptUtils.isEmpty(typeNames)) {
-            interfaces.addAll(typeNames);
-        }
-
-        AnnotationValue value = utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceDefinitions");
-        List<AnnotationMirror> interfaceSpecs = utils.getValuesFromAnnotationValue(value,
-                AnnotationMirror.class);
-
-        for (AnnotationMirror spec : interfaceSpecs) {
-            AnnotationValue interfaceClassValue = utils.getAnnotationValueFromMirror(spec, "interfaceClass");
-            List<DeclaredTypeName> interfaceClassList = utils.getTypeNamesFromAnnotationValue(interfaceClassValue);
-            if (!AptUtils.isEmpty(interfaceClassList)) {
-                DeclaredTypeName interfaceClass = interfaceClassList.get(0);
-
-                AnnotationValue interfaceTypeArgsValue = utils.getAnnotationValueFromMirror(spec, "interfaceTypeArgs");
-                List<DeclaredTypeName> typeArgs = utils.getTypeNamesFromAnnotationValue(interfaceTypeArgsValue);
-                if (AptUtils.isEmpty(typeArgs)) {
-                    List<String> typeArgNames = utils.getValuesFromAnnotationValue(
-                            utils.getAnnotationValueFromMirror(spec, "interfaceTypeArgNames"), String.class);
-                    for (String typeArgName : typeArgNames) {
-                        typeArgs.add(new DeclaredTypeName(typeArgName));
-                    }
-                }
-                interfaceClass.setTypeArgs(typeArgs);
-                interfaces.add(interfaceClass);
-            }
-        }
-    }
-
-    private boolean checkFirstArgType(TypeMirror type) {
-        if (type instanceof ErrorType) {
-            return true;
-        }
-        if (!(type instanceof DeclaredType)) {
-            return false;
-        }
-
-        DeclaredTypeName typeName = (DeclaredTypeName) utils.getTypeNameFromTypeMirror(type);
-
-        return typeName.equals(generatedClassName) || typeName.equals(TypeConstants.ABSTRACT_MODEL);
-    }
 
     public final void writeJava(Filer filer) throws IOException {
         initFileWriter(filer);
@@ -232,7 +129,10 @@ public abstract class ModelFileWriter<T extends Annotation> {
         emitClone();
         emitDefaultValues();
         emitGettersAndSetters();
-        emitExtraModelMethods();
+
+        for (PluginWriter pluginWriter : pluginWriters) {
+            pluginWriter.writeMethods(writer);
+        }
 
         emitCreator();
         emitModelSpecificHelpers();
@@ -306,8 +206,10 @@ public abstract class ModelFileWriter<T extends Annotation> {
             imports.addAll(modelSpecificImports);
         }
         utils.accumulateImportsFromElements(imports, constantElements);
-        utils.accumulateImportsFromElements(imports, modelMethods);
-        utils.accumulateImportsFromTypeNames(imports, interfaces);
+
+        for (PluginWriter writer : pluginWriters) {
+            writer.addRequiredImports(imports);
+        }
     }
 
     protected abstract Collection<DeclaredTypeName> getModelSpecificImports();
@@ -321,10 +223,21 @@ public abstract class ModelFileWriter<T extends Annotation> {
         TypeDeclarationParameters params = new TypeDeclarationParameters()
                 .setName(generatedClassName)
                 .setSuperclass(getModelSuperclass())
-                .setInterfaces(interfaces)
+                .setInterfaces(accumulateInterfacesFromPlugins())
                 .setKind(Type.CLASS)
                 .setModifiers(Modifier.PUBLIC);
         writer.beginTypeDefinition(params);
+    }
+
+    private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
+        List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
+        for (PluginWriter writer : pluginWriters) {
+            List<DeclaredTypeName> writerInterfaces = writer.getInterfacesToImplement();
+            if (writerInterfaces != null) {
+                interfaces.addAll(writerInterfaces);
+            }
+        }
+        return interfaces;
     }
 
     protected void emitConstantElements() throws IOException {
@@ -357,6 +270,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
         writer.writeComment("--- property declarations");
         emitAllProperties();
         emitPropertyArrayInitialization();
+        writer.writeNewline();
     }
 
 
@@ -438,18 +352,6 @@ public abstract class ModelFileWriter<T extends Annotation> {
         generator.beforeEmitSetter(writer);
         generator.emitSetter(writer);
         generator.afterEmitSetter(writer);
-    }
-
-    protected void emitExtraModelMethods() throws IOException {
-        if (modelMethods.size() > 0 || staticModelMethods.size() > 0) {
-            writer.writeComment("--- other methods");
-            for (ExecutableElement e : modelMethods) {
-                emitModelMethod(e, Modifier.PUBLIC);
-            }
-            for (ExecutableElement e : staticModelMethods) {
-                emitModelMethod(e, Modifier.PUBLIC, Modifier.STATIC);
-            }
-        }
     }
 
     private void emitModelMethod(ExecutableElement e, Modifier... modifiers) throws IOException {

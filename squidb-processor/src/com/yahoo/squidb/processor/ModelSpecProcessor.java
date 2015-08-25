@@ -9,6 +9,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.properties.factory.PluggablePropertyGeneratorFactory;
 import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
@@ -64,6 +65,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private Filer filer;
 
     private PropertyGeneratorFactory propertyGeneratorFactory;
+    private PluginManager pluginManager;
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -87,6 +89,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         filer = env.getFiler();
 
         propertyGeneratorFactory = new PropertyGeneratorFactory(utils);
+        pluginManager = new PluginManager(utils);
         processOptionsForPlugins(env.getOptions());
     }
 
@@ -145,11 +148,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
         if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, propertyGeneratorFactory, utils);
+            return new TableModelFileWriter(typeElement, pluginManager, propertyGeneratorFactory, utils);
         } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, propertyGeneratorFactory, utils);
+            return new ViewModelFileWriter(typeElement, pluginManager, propertyGeneratorFactory, utils);
         } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, propertyGeneratorFactory, utils);
+            return new InheritedModelFileWriter(typeElement, pluginManager, propertyGeneratorFactory, utils);
         } else {
             throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
         }
