@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.defaults;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.Implements;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
 
@@ -27,9 +28,9 @@ public class ImplementsPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(TypeElement modelSpecElement, DeclaredTypeName modelSpecName,
-            DeclaredTypeName generatedModelName) {
+    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
         final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
+        TypeElement modelSpecElement = modelSpec.getModelSpecElement();
         if (modelSpecElement.getAnnotation(Implements.class) != null) {
             List<DeclaredTypeName> typeNames = utils.getTypeNamesFromAnnotationValue(
                     utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceClasses"));

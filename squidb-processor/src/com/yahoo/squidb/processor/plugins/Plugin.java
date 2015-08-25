@@ -7,12 +7,12 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.util.Collections;
 import java.util.List;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 public class Plugin {
@@ -23,18 +23,17 @@ public class Plugin {
         this.utils = utils;
     }
 
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
-            TypeElement modelSpecElement) {
+    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field,
+            DeclaredTypeName fieldType) {
         return false;
     }
 
-    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName elementType,
-            DeclaredTypeName generatedModelName) {
+    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field,
+            DeclaredTypeName fieldType) {
         return null;
     }
 
-    public List<? extends PluginWriter> getWritersForElement(TypeElement modelSpecElement, DeclaredTypeName modelSpecName,
-            DeclaredTypeName generatedModelName) {
+    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
         return Collections.EMPTY_LIST;
     }
 

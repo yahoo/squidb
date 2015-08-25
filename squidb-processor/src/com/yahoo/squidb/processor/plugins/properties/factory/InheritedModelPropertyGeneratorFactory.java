@@ -8,8 +8,8 @@ package com.yahoo.squidb.processor.plugins.properties.factory;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 public class InheritedModelPropertyGeneratorFactory extends FieldReferencePropertyGeneratorFactory {
@@ -19,10 +19,9 @@ public class InheritedModelPropertyGeneratorFactory extends FieldReferenceProper
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType,
-            TypeElement modelSpecElement) {
-        return super.hasPropertyGeneratorForField(field, fieldType, modelSpecElement)
-                && modelSpecElement.getAnnotation(InheritedModelSpec.class) != null;
+    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+        return super.hasPropertyGeneratorForField(modelSpec, field, fieldType)
+                && modelSpec.getModelSpecElement().getAnnotation(InheritedModelSpec.class) != null;
     }
 
 }

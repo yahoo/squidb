@@ -5,62 +5,21 @@
  */
 package com.yahoo.squidb.processor.writers;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.squidb.annotations.ColumnSpec;
-import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic.Kind;
 
-public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec> {
-
-    private final DeclaredTypeName superclass;
+public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpecWrapper> {
 
     public InheritedModelFileWriter(TypeElement element, PluginContext pluginContext, AptUtils utils) {
-        super(element, InheritedModelSpec.class, pluginContext, utils);
-        this.superclass = new DeclaredTypeName(modelSpec.inheritsFrom());
-    }
-
-    @Override
-    protected String getGeneratedClassName() {
-        return modelSpec.className();
-    }
-
-    @Override
-    protected void processVariableElement(VariableElement e, DeclaredTypeName typeName) {
-        if (e.getAnnotation(Deprecated.class) != null) {
-            return;
-        }
-        if (e.getAnnotation(ColumnSpec.class) != null) {
-            utils.getMessager().printMessage(Kind.WARNING, "ColumnSpec is ignored outside of table models", e);
-        }
-        Set<Modifier> modifiers = e.getModifiers();
-        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            if (!TypeConstants.isPropertyType(typeName)) {
-                constantElements.add(e);
-            } else {
-                initializePropertyGenerator(e);
-            }
-        } else {
-            utils.getMessager().printMessage(Kind.WARNING, "Unused field in spec", e);
-        }
-    }
-
-    @Override
-    protected DeclaredTypeName getModelSuperclass() {
-        return superclass;
+        super(new InheritedModelSpecWrapper(element, pluginContext, utils), pluginContext, utils);
     }
 
     @Override
@@ -69,13 +28,8 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     @Override
-    protected Collection<DeclaredTypeName> getModelSpecificImports() {
-        return Collections.singletonList(superclass);
-    }
-
-    @Override
     protected void emitAllProperties() throws IOException {
-        for (PropertyGenerator e : propertyGenerators) {
+        for (PropertyGenerator e : modelSpec.getPropertyGenerators()) {
             emitSinglePropertyDeclaration(e);
         }
     }
@@ -83,7 +37,7 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     private void emitSinglePropertyDeclaration(PropertyGenerator generator) throws IOException {
         generator.beforeEmitPropertyDeclaration(writer);
         writer.writeFieldDeclaration(generator.getPropertyType(), generator.getPropertyName(),
-                Expressions.staticReference(modelSpecName, generator.getPropertyName()),
+                Expressions.staticReference(modelSpec.getModelSpecName(), generator.getPropertyName()),
                 TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
         generator.afterEmitPropertyDeclaration(writer);
@@ -92,7 +46,7 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     @Override
     protected void emitPropertiesArray() throws IOException {
         writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
-                Expressions.staticReference(getModelSuperclass(), PROPERTIES_ARRAY_NAME),
+                Expressions.staticReference(modelSpec.getModelSuperclass(), PROPERTIES_ARRAY_NAME),
                 TypeConstants.PUBLIC_STATIC_FINAL);
     }
 

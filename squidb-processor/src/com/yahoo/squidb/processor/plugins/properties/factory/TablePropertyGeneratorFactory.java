@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.properties.generators.BasicBlobPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.properties.generators.BasicBooleanPropertyGenerator;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
@@ -38,14 +38,13 @@ public class TablePropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType,
-            TypeElement modelSpecElement) {
-        return modelSpecElement.getAnnotation(TableModelSpec.class) != null && generatorMap.containsKey(fieldType);
+    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+        return modelSpec.getModelSpecElement().getAnnotation(TableModelSpec.class) != null
+                && generatorMap.containsKey(fieldType);
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType,
-            DeclaredTypeName generatedClassName) {
+    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
         Class<? extends PropertyGenerator> generatorClass = generatorMap.get(fieldType);
         try {
             if (field.getAnnotation(PrimaryKey.class) != null &&
@@ -53,7 +52,7 @@ public class TablePropertyGeneratorFactory extends Plugin {
                 return new BasicIdPropertyGenerator(field, fieldType, utils);
             }
             return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, AptUtils.class)
-                    .newInstance(field, generatedClassName, utils);
+                    .newInstance(field, modelSpec.getGeneratedClassName(), utils);
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);

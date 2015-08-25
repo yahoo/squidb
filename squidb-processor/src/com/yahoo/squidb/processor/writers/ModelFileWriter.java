@@ -16,47 +16,33 @@ import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
-import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
 
-public abstract class ModelFileWriter<T extends Annotation> {
+public abstract class ModelFileWriter<T extends ModelSpec<?>> {
+
+    protected final AptUtils utils;
+    private final PluginContext pluginContext;
 
     protected final T modelSpec;
-    protected final AptUtils utils;
-
-    private final PluginContext pluginContext;
     private final List<PluginWriter> pluginWriters;
 
     protected JavaFileWriter writer;
-
-    protected DeclaredTypeName generatedClassName;
-    protected DeclaredTypeName modelSpecName;
-    protected TypeElement modelSpecElement;
-
-    protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
-    protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
-    protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
 
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
@@ -81,18 +67,12 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 .setReturnType(TypeConstants.CONTENT_VALUES);
     }
 
-    public ModelFileWriter(TypeElement modelSpecElement, Class<T> modelSpecClass, PluginContext pluginContext,
-            AptUtils utils) {
-        this.modelSpecElement = modelSpecElement;
+    public ModelFileWriter(T modelSpec, PluginContext pluginContext, AptUtils utils) {
         this.pluginContext = pluginContext;
         this.utils = utils;
-        this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
-        this.modelSpec = modelSpecElement.getAnnotation(modelSpecClass);
-        this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassName());
-        this.pluginWriters = pluginContext.getWritersForElement(modelSpecElement, modelSpecName, generatedClassName);
+        this.modelSpec = modelSpec;
+        this.pluginWriters = pluginContext.getWritersForElement(modelSpec);
     }
-
-    protected abstract String getGeneratedClassName();
 
     public final void writeJava(Filer filer) throws IOException {
         initFileWriter(filer);
@@ -102,7 +82,8 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     private void initFileWriter(Filer filer) throws IOException {
         if (this.writer == null) {
-            JavaFileObject jfo = filer.createSourceFile(generatedClassName.toString(), modelSpecElement);
+            JavaFileObject jfo = filer.createSourceFile(modelSpec.getGeneratedClassName().toString(),
+                    modelSpec.getModelSpecElement());
             Writer writer = jfo.openWriter();
             this.writer = new JavaFileWriter(writer);
         } else {
@@ -111,8 +92,6 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     private void writeJavaFile() throws IOException {
-        processVariableElements();
-
         emitPackage();
         emitImports();
         beginClassDeclaration();
@@ -136,74 +115,23 @@ public abstract class ModelFileWriter<T extends Annotation> {
         writer.finishTypeDefinition();
     }
 
-    private void processVariableElements() {
-        List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
-                TypeName typeName = utils.getTypeNameFromTypeMirror(e.asType());
-                if (!(typeName instanceof DeclaredTypeName)) {
-                    utils.getMessager().printMessage(Kind.WARNING,
-                            "Element type " + typeName + " is not a concrete type, will be ignored", e);
-                } else {
-                    processVariableElement((VariableElement) e, (DeclaredTypeName) typeName);
-                }
-            }
-        }
-    }
-
-    protected abstract void processVariableElement(VariableElement e, DeclaredTypeName elementType);
-
-    protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = propertyGeneratorForElement(e);
-        if (generator != null) {
-            if (generator.isDeprecated()) {
-                deprecatedPropertyGenerators.add(generator);
-            } else {
-                propertyGenerators.add(generator);
-            }
-        } else {
-            utils.getMessager()
-                    .printMessage(Kind.WARNING, "No PropertyGenerator found to handle this modelSpecElement", e);
-        }
-    }
-
-    protected PropertyGenerator propertyGeneratorForElement(VariableElement e) {
-        return pluginContext.getPropertyGeneratorForVariableElement(modelSpecElement, e, generatedClassName);
-    }
-
-    protected abstract DeclaredTypeName getModelSuperclass();
-
     private void emitPackage() throws IOException {
-        writer.writePackage(generatedClassName.getPackageName());
+        writer.writePackage(modelSpec.getGeneratedClassName().getPackageName());
     }
 
     private void emitImports() throws IOException {
-        Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
+        Set<DeclaredTypeName> imports = modelSpec.getRequiredImports();
         accumulateImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
-                TypeConstants.TABLE_MAPPING_VISITORS, modelSpecName);
+                TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
     }
 
     private void accumulateImports(Set<DeclaredTypeName> imports) {
-        imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
-        imports.add(TypeConstants.ABSTRACT_MODEL); // For CREATOR
-        imports.add(getModelSuperclass());
-        for (PropertyGenerator generator : propertyGenerators) {
-            generator.registerRequiredImports(imports);
-        }
-        Collection<DeclaredTypeName> modelSpecificImports = getModelSpecificImports();
-        if (modelSpecificImports != null) {
-            imports.addAll(modelSpecificImports);
-        }
-        utils.accumulateImportsFromElements(imports, constantElements);
-
         for (PluginWriter writer : pluginWriters) {
             writer.addRequiredImports(imports);
         }
     }
-
-    protected abstract Collection<DeclaredTypeName> getModelSpecificImports();
 
     protected void emitModelSpecificFields() throws IOException {
         // Subclasses can override
@@ -211,13 +139,13 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     private void beginClassDeclaration() throws IOException {
         writer.writeComment("Generated code -- do not modify!");
-        writer.writeComment("This class was generated from the model spec at " + modelSpecName);
-        if (modelSpecElement.getAnnotation(Deprecated.class) != null) {
+        writer.writeComment("This class was generated from the model spec at " + modelSpec.getModelSpecName());
+        if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
         TypeDeclarationParameters params = new TypeDeclarationParameters()
-                .setName(generatedClassName)
-                .setSuperclass(getModelSuperclass())
+                .setName(modelSpec.getGeneratedClassName())
+                .setSuperclass(modelSpec.getModelSuperclass())
                 .setInterfaces(accumulateInterfacesFromPlugins())
                 .setKind(Type.CLASS)
                 .setModifiers(Modifier.PUBLIC);
@@ -236,13 +164,13 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     protected void emitConstantElements() throws IOException {
-        if (constantElements.size() > 0) {
+        if (modelSpec.getConstantElements().size() > 0) {
             writer.writeComment("--- constants");
-            for (VariableElement constant : constantElements) {
+            for (VariableElement constant : modelSpec.getConstantElements()) {
                 writer.writeFieldDeclaration(
                         utils.getTypeNameFromTypeMirror(constant.asType()),
                         constant.getSimpleName().toString(),
-                        Expressions.staticReference(modelSpecName, constant.getSimpleName().toString()),
+                        Expressions.staticReference(modelSpec.getModelSpecName(), constant.getSimpleName().toString()),
                         TypeConstants.PUBLIC_STATIC_FINAL);
             }
             writer.writeNewline();
@@ -258,7 +186,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
     }
 
     protected int getPropertiesArrayLength() {
-        return propertyGenerators.size();
+        return modelSpec.getPropertyGenerators().size();
     }
 
     private void emitPropertyDeclarations() throws IOException {
@@ -290,10 +218,10 @@ public abstract class ModelFileWriter<T extends Annotation> {
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setModifiers(Modifier.PUBLIC)
                 .setMethodName("clone")
-                .setReturnType(generatedClassName);
+                .setReturnType(modelSpec.getGeneratedClassName());
 
         Expression cloneBody = Expressions.callMethodOn("super", "clone")
-                .cast(generatedClassName).returnExpr();
+                .cast(modelSpec.getGeneratedClassName()).returnExpr();
 
         writer.writeAnnotation(CoreTypes.OVERRIDE);
         writer.beginMethodDefinition(params)
@@ -303,7 +231,7 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     protected void emitGettersAndSetters() throws IOException {
         writer.writeComment("--- getters and setters");
-        for (PropertyGenerator generator : propertyGenerators) {
+        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             emitGetter(writer, generator);
             emitSetter(writer, generator);
         }
@@ -355,14 +283,15 @@ public abstract class ModelFileWriter<T extends Annotation> {
 
     private void emitCreator() throws IOException {
         writer.writeComment("--- parcelable helpers");
-        List<DeclaredTypeName> genericList = Collections.singletonList(generatedClassName);
+        List<DeclaredTypeName> genericList = Collections.singletonList(modelSpec.getGeneratedClassName());
         DeclaredTypeName creatorType = TypeConstants.CREATOR.clone();
         DeclaredTypeName modelCreatorType = TypeConstants.MODEL_CREATOR.clone();
         creatorType.setTypeArgs(genericList);
         modelCreatorType.setTypeArgs(genericList);
 
         writer.writeFieldDeclaration(creatorType,
-                "CREATOR", Expressions.callConstructor(modelCreatorType, Expressions.classObject(generatedClassName)),
+                "CREATOR", Expressions.callConstructor(modelCreatorType,
+                        Expressions.classObject(modelSpec.getGeneratedClassName())),
                 TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
 

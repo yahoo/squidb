@@ -11,6 +11,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class ConstructorPlugin extends Plugin {
 
@@ -31,9 +31,8 @@ public class ConstructorPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(TypeElement modelSpecElement,
-            DeclaredTypeName modelSpecName, DeclaredTypeName generatedModelName) {
-        return Collections.singletonList(new ConstructorWriter(generatedModelName));
+    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
+        return Collections.singletonList(new ConstructorWriter(modelSpec.getGeneratedClassName()));
     }
 
     private class ConstructorWriter extends PluginWriter {

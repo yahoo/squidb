@@ -14,6 +14,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginWriter;
 
@@ -27,7 +28,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
@@ -41,18 +41,19 @@ public class ModelMethodPlugin extends Plugin {
     }
 
     @Override
-    public List<? extends PluginWriter> getWritersForElement(TypeElement modelSpecElement,
-            final DeclaredTypeName modelSpecName, DeclaredTypeName generatedModelName) {
+    public List<? extends PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
         final List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
         final List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
-        List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
+        List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
         for (Element e : enclosedElements) {
             if (e instanceof ExecutableElement) {
-                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods, generatedModelName);
+                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
+                        modelSpec.getGeneratedClassName());
             }
         }
         if (!AptUtils.isEmpty(modelMethods) || !AptUtils.isEmpty(staticModelMethods)) {
-            return Collections.singletonList(new ModelMethodWriter(modelMethods, staticModelMethods, modelSpecName));
+            return Collections.singletonList(new ModelMethodWriter(modelMethods, staticModelMethods,
+                    modelSpec.getModelSpecName()));
         }
         return null;
     }

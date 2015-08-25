@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
@@ -19,7 +20,6 @@ import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerato
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 public class PluginContext {
@@ -70,12 +70,10 @@ public class PluginContext {
         }
     }
 
-    public List<PluginWriter> getWritersForElement(TypeElement modelSpecElement, DeclaredTypeName modelSpecName,
-            DeclaredTypeName generatedModelName) {
+    public List<PluginWriter> getWritersForElement(ModelSpec<?> modelSpec) {
         List<PluginWriter> writers = new ArrayList<PluginWriter>();
         for (Plugin plugin : plugins) {
-            List<? extends PluginWriter> pluginWriters = plugin.getWritersForElement(modelSpecElement, modelSpecName,
-                    generatedModelName);
+            List<? extends PluginWriter> pluginWriters = plugin.getWritersForElement(modelSpec);
             if (pluginWriters != null) {
                 writers.addAll(pluginWriters);
             }
@@ -83,22 +81,20 @@ public class PluginContext {
         return writers;
     }
 
-    public PropertyGenerator getPropertyGeneratorForVariableElement(TypeElement modelSpecElement,
-            VariableElement element, DeclaredTypeName generatedModelName) {
-        TypeName type = utils.getTypeNameFromTypeMirror(element.asType());
+    public PropertyGenerator getPropertyGeneratorForVariableElement(ModelSpec<?> modelSpec, VariableElement field) {
+        TypeName fieldType = utils.getTypeNameFromTypeMirror(field.asType());
         PropertyGenerator generator = null;
-        if (type instanceof DeclaredTypeName) {
-            generator = searchPluginsForPropertyGenerator(element, (DeclaredTypeName) type, generatedModelName,
-                    modelSpecElement);
+        if (fieldType instanceof DeclaredTypeName) {
+            generator = searchPluginsForPropertyGenerator(modelSpec, field, (DeclaredTypeName) fieldType);
         }
         return generator;
     }
 
-    private PropertyGenerator searchPluginsForPropertyGenerator(VariableElement element, DeclaredTypeName elementType,
-            DeclaredTypeName generatedModelName, TypeElement modelSpecElement) {
+    private PropertyGenerator searchPluginsForPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field,
+            DeclaredTypeName fieldType) {
         for (Plugin plugin : plugins) {
-            if (plugin.hasPropertyGeneratorForField(element, elementType, modelSpecElement)) {
-                PropertyGenerator generator = plugin.getPropertyGenerator(element, elementType, generatedModelName);
+            if (plugin.hasPropertyGeneratorForField(modelSpec, field, fieldType)) {
+                PropertyGenerator generator = plugin.getPropertyGenerator(modelSpec, field, fieldType);
                 if (generator != null) {
                     return generator;
                 }
