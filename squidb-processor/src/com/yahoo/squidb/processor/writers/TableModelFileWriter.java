@@ -151,16 +151,18 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     @Override
     protected void emitGettersAndSetters() throws IOException {
         super.emitGettersAndSetters();
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setMethodName("setId")
-                .setArgumentTypes(new DeclaredTypeName("long"))
-                .setArgumentNames("id")
-                .setReturnType(modelSpec.getGeneratedClassName());
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(params)
-                .writeStringStatement("super.setId(id)")
-                .writeStringStatement("return this")
-                .finishMethodDefinition();
+        if (!pluginContext.getFlag(PluginContext.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
+            MethodDeclarationParameters params = new MethodDeclarationParameters()
+                    .setModifiers(Modifier.PUBLIC)
+                    .setMethodName("setId")
+                    .setArgumentTypes(new DeclaredTypeName("long"))
+                    .setArgumentNames("id")
+                    .setReturnType(modelSpec.getGeneratedClassName());
+            writer.writeAnnotation(CoreTypes.OVERRIDE)
+                    .beginMethodDefinition(params)
+                    .writeStringStatement("super.setId(id)")
+                    .writeStringStatement("return this")
+                    .finishMethodDefinition();
+        }
     }
 }

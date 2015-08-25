@@ -37,7 +37,7 @@ import javax.tools.JavaFileObject;
 public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected final AptUtils utils;
-    private final PluginContext pluginContext;
+    protected final PluginContext pluginContext;
 
     protected final T modelSpec;
     private final List<PluginWriter> pluginWriters;
@@ -163,7 +163,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         return interfaces;
     }
 
-    protected void emitConstantElements() throws IOException {
+    private void emitConstantElements() throws IOException {
         if (modelSpec.getConstantElements().size() > 0) {
             writer.writeComment("--- constants");
             for (VariableElement constant : modelSpec.getConstantElements()) {
@@ -195,7 +195,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         emitPropertyArrayInitialization();
         writer.writeNewline();
     }
-
 
     protected abstract void emitAllProperties() throws IOException;
 
@@ -230,10 +229,14 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     protected void emitGettersAndSetters() throws IOException {
-        writer.writeComment("--- getters and setters");
-        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-            emitGetter(writer, generator);
-            emitSetter(writer, generator);
+        if (pluginContext.getFlag(PluginContext.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
+            writer.writeComment("--- getters and setters disabled by plugin flag");
+        } else {
+            writer.writeComment("--- getters and setters");
+            for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+                emitGetter(writer, generator);
+                emitSetter(writer, generator);
+            }
         }
     }
 
