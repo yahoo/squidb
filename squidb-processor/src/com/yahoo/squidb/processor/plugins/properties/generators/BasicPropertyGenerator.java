@@ -14,6 +14,7 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 
 import java.io.IOException;
@@ -32,8 +33,8 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     protected final String camelCasePropertyName;
     protected final String columnName;
 
-    public BasicPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public BasicPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
         this.extras = field.getAnnotation(ColumnSpec.class);
         String name = field.getSimpleName().toString();
         this.camelCasePropertyName = StringUtils.toCamelCase(name);
@@ -150,7 +151,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 : camelCasePropertyName;
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setMethodName(setterMethodName())
-                .setReturnType(generatedClassName)
+                .setReturnType(modelSpec.getGeneratedClassName())
                 .setModifiers(Modifier.PUBLIC)
                 .setArgumentTypes(getTypeForGetAndSet())
                 .setArgumentNames(argName);

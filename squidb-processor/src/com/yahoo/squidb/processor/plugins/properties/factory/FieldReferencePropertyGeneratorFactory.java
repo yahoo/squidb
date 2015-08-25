@@ -14,7 +14,6 @@ import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerato
 import com.yahoo.squidb.processor.plugins.properties.generators.ViewPropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 
 abstract class FieldReferencePropertyGeneratorFactory extends Plugin {
 
@@ -29,19 +28,7 @@ abstract class FieldReferencePropertyGeneratorFactory extends Plugin {
 
     @Override
     public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
-        Class<? extends ViewPropertyGenerator> generatorClass = getViewPropertyGenerator();
-        try {
-            return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, DeclaredTypeName.class,
-                    AptUtils.class).newInstance(field, fieldType, modelSpec.getGeneratedClassName(), utils);
-        } catch (Exception e) {
-            utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                    "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
-        }
-        return null;
-    }
-
-    protected Class<? extends ViewPropertyGenerator> getViewPropertyGenerator() {
-        return ViewPropertyGenerator.class;
+        return new ViewPropertyGenerator(modelSpec, field, fieldType, utils);
     }
 
 }

@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +23,8 @@ public class BasicDoublePropertyGenerator extends BasicPropertyGenerator {
                 CoreTypes.JAVA_DOUBLE, CoreTypes.PRIMITIVE_DOUBLE);
     }
 
-    public BasicDoublePropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public BasicDoublePropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
     }
 
     @Override

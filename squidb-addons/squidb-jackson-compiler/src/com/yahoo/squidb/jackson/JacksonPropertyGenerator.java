@@ -10,6 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.properties.generators.BasicStringPropertyGenerator;
 
 import java.io.IOException;
@@ -19,12 +20,12 @@ import javax.lang.model.element.VariableElement;
 
 public abstract class JacksonPropertyGenerator extends BasicStringPropertyGenerator {
 
-    protected final DeclaredTypeName elementType;
+    protected final DeclaredTypeName fieldType;
 
-    public JacksonPropertyGenerator(VariableElement element, DeclaredTypeName elementType, DeclaredTypeName modelName,
+    public JacksonPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType,
             AptUtils utils) {
-        super(element, modelName, utils);
-        this.elementType = elementType;
+        super(modelSpec, field, utils);
+        this.fieldType = fieldType;
     }
 
     @Override
@@ -35,7 +36,7 @@ public abstract class JacksonPropertyGenerator extends BasicStringPropertyGenera
 
     @Override
     protected DeclaredTypeName getTypeForGetAndSet() {
-        return elementType;
+        return fieldType;
     }
 
     @Override

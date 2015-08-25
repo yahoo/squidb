@@ -10,6 +10,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +23,8 @@ public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
         return Collections.singletonList(CoreTypes.JAVA_STRING);
     }
 
-    public BasicStringPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public BasicStringPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
     }
 
     @Override

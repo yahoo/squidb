@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.properties.generators;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
 import java.util.Set;
@@ -16,14 +17,14 @@ import javax.lang.model.element.VariableElement;
 
 public abstract class PropertyGenerator {
 
+    protected final ModelSpec<?> modelSpec;
     protected final VariableElement field;
-    protected final DeclaredTypeName generatedClassName;
     protected final AptUtils utils;
     protected final boolean isDeprecated;
 
-    public PropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
+    public PropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        this.modelSpec = modelSpec;
         this.field = field;
-        this.generatedClassName = generatedClassName;
         this.utils = utils;
         this.isDeprecated = field.getAnnotation(Deprecated.class) != null;
     }

@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.properties.generators;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +21,8 @@ public class BasicBlobPropertyGenerator extends BasicPropertyGenerator {
         return Collections.singletonList(TypeConstants.BYTE_ARRAY);
     }
 
-    public BasicBlobPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public BasicBlobPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
     }
 
     @Override

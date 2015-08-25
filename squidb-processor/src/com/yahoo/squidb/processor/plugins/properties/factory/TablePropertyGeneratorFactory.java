@@ -49,10 +49,10 @@ public class TablePropertyGeneratorFactory extends Plugin {
         try {
             if (field.getAnnotation(PrimaryKey.class) != null &&
                     BasicLongPropertyGenerator.class.equals(generatorClass)) {
-                return new BasicIdPropertyGenerator(field, fieldType, utils);
+                return new BasicIdPropertyGenerator(modelSpec, field, utils);
             }
-            return generatorClass.getConstructor(VariableElement.class, DeclaredTypeName.class, AptUtils.class)
-                    .newInstance(field, modelSpec.getGeneratedClassName(), utils);
+            return generatorClass.getConstructor(ModelSpec.class, VariableElement.class, AptUtils.class)
+                    .newInstance(modelSpec, field, utils);
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);

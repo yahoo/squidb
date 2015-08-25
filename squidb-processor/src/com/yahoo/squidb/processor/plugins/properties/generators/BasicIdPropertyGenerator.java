@@ -5,9 +5,9 @@
  */
 package com.yahoo.squidb.processor.plugins.properties.generators;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import javax.lang.model.element.VariableElement;
 
@@ -15,8 +15,8 @@ public class BasicIdPropertyGenerator extends BasicLongPropertyGenerator {
 
     private final PrimaryKey annotation;
 
-    public BasicIdPropertyGenerator(VariableElement field, DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public BasicIdPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
         annotation = field.getAnnotation(PrimaryKey.class);
     }
 

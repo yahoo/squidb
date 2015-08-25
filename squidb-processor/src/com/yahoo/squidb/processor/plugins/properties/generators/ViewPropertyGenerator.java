@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.properties.generators;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import javax.lang.model.element.VariableElement;
 
@@ -16,9 +17,9 @@ public class ViewPropertyGenerator extends BasicPropertyGenerator {
     private final DeclaredTypeName propertyType;
     private final DeclaredTypeName getAndSetType;
 
-    public ViewPropertyGenerator(VariableElement field, DeclaredTypeName propertyType,
-            DeclaredTypeName generatedClassName, AptUtils utils) {
-        super(field, generatedClassName, utils);
+    public ViewPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName propertyType,
+            AptUtils utils) {
+        super(modelSpec, field, utils);
         this.propertyType = propertyType;
         this.getAndSetType = extractGetAndSetType();
     }

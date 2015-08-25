@@ -7,10 +7,10 @@ package com.yahoo.squidb.jackson;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 public class JacksonPropertyGeneratorFactory extends Plugin {
@@ -20,27 +20,25 @@ public class JacksonPropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName elementType,
-            TypeElement modelSpecElement) {
+    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
-        if (elementType.equals(JacksonTypeConstants.MAP)) {
-            return elementType.getTypeArgs().get(0) instanceof DeclaredTypeName &&
-                    elementType.getTypeArgs().get(1) instanceof DeclaredTypeName;
-        } else if (elementType.equals(JacksonTypeConstants.LIST)) {
-            return elementType.getTypeArgs().get(0) instanceof DeclaredTypeName;
+        if (fieldType.equals(JacksonTypeConstants.MAP)) {
+            return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName &&
+                    fieldType.getTypeArgs().get(1) instanceof DeclaredTypeName;
+        } else if (fieldType.equals(JacksonTypeConstants.LIST)) {
+            return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName;
         }
         return false;
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(VariableElement element, DeclaredTypeName elementType,
-            DeclaredTypeName modelClass) {
-        if (elementType.equals(JacksonTypeConstants.MAP)) {
-            return new JacksonMapPropertyGenerator(element, elementType, modelClass, utils);
-        } else if (elementType.equals(JacksonTypeConstants.LIST)) {
-            return new JacksonListPropertyGenerator(element, elementType, modelClass, utils);
+    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+        if (fieldType.equals(JacksonTypeConstants.MAP)) {
+            return new JacksonMapPropertyGenerator(modelSpec, field, fieldType, utils);
+        } else if (fieldType.equals(JacksonTypeConstants.LIST)) {
+            return new JacksonListPropertyGenerator(modelSpec, field, fieldType, utils);
         }
         return null;
     }
