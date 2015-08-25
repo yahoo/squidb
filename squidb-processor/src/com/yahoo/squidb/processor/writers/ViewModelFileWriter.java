@@ -156,7 +156,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
 
     private boolean emitPropertyReferenceArrayBody(boolean alias) throws IOException {
         for (PropertyGenerator e : propertyGenerators) {
-            Expression reference = Expressions.staticReference(sourceElementName, e.getPropertyName());
+            Expression reference = Expressions.staticReference(modelSpecName, e.getPropertyName());
             if (alias) {
                 Alias aliasAnnotation = e.getElement().getAnnotation(Alias.class);
                 if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
@@ -177,7 +177,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
         writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
         String name = "\"" + modelSpec.viewName() + "\"";
         if (queryElement != null) {
-            Expression queryReference = Expressions.staticReference(sourceElementName,
+            Expression queryReference = Expressions.staticReference(modelSpecName,
                     queryElement.getSimpleName().toString()).callMethod("selectMore", ALIASED_PROPERTY_ARRAY_NAME);
             if (viewQueryAnnotation.freeze()) {
                 queryReference = queryReference.callMethod("freeze");

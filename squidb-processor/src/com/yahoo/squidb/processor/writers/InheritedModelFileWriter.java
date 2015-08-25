@@ -15,8 +15,8 @@ import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -70,7 +70,7 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
 
     @Override
     protected Collection<DeclaredTypeName> getModelSpecificImports() {
-        return Arrays.asList(superclass);
+        return Collections.singletonList(superclass);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     private void emitSinglePropertyDeclaration(PropertyGenerator generator) throws IOException {
         generator.beforeEmitPropertyDeclaration(writer);
         writer.writeFieldDeclaration(generator.getPropertyType(), generator.getPropertyName(),
-                Expressions.staticReference(sourceElementName, generator.getPropertyName()),
+                Expressions.staticReference(modelSpecName, generator.getPropertyName()),
                 TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
         generator.afterEmitPropertyDeclaration(writer);
