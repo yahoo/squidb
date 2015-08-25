@@ -25,20 +25,48 @@ import javax.lang.model.element.VariableElement;
 public class PluginContext {
 
     private final AptUtils utils;
+    private final int optionFlags;
     private List<Plugin> plugins = new ArrayList<Plugin>();
 
-    public PluginContext(AptUtils utils) {
+    public static final int OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS = 1;
+    public static final int OPTIONS_DISABLE_IMPLEMENTS_HANDLING = 1 << 1;
+    public static final int OPTIONS_DISABLE_METHOD_HANDLING = 1 << 2;
+
+    public static final int OPTIONS_PREFER_USER_PLUGINS = 1 << 31;
+
+    public PluginContext(AptUtils utils, int optionFlags) {
         this.utils = utils;
-        plugins.add(new ConstructorPlugin(utils));
-        plugins.add(new ImplementsPlugin(utils));
-        plugins.add(new ModelMethodPlugin(utils));
+        this.optionFlags = optionFlags;
+        initializeDefaultPlugins();
+    }
+
+    private void initializeDefaultPlugins() {
+        if (!getFlag(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
+            plugins.add(new ConstructorPlugin(utils));
+        }
+        if (!getFlag(OPTIONS_DISABLE_IMPLEMENTS_HANDLING)) {
+            plugins.add(new ImplementsPlugin(utils));
+        }
+        if (!getFlag(OPTIONS_DISABLE_METHOD_HANDLING)) {
+            plugins.add(new ModelMethodPlugin(utils));
+        }
+
+        // Can't disable these, but they can be overridden by user plugins if the OPTIONS_PREFER_USER_PLUGIN flag is set
         plugins.add(new TablePropertyGeneratorFactory(utils));
         plugins.add(new ViewPropertyGeneratorFactory(utils));
         plugins.add(new InheritedModelPropertyGeneratorFactory(utils));
     }
 
+    public boolean getFlag(int mask) {
+        return (optionFlags & mask) > 0;
+    }
+
     public void addPlugin(Plugin plugin) {
-        this.plugins.add(plugin);
+        if (getFlag(OPTIONS_PREFER_USER_PLUGINS)) {
+            this.plugins.add(0, plugin);
+        } else {
+            this.plugins.add(plugin);
+        }
     }
 
     public List<PluginWriter> getWritersForElement(TypeElement modelSpecElement, DeclaredTypeName modelSpecName,

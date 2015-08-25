@@ -60,6 +60,8 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private static final String PLUGINS_KEY = "squidbPlugins";
     private static final String SEPARATOR = ";";
 
+    private static final String OPTIONS_KEY = "squidbOptions";
+
     private AptUtils utils;
     private Filer filer;
 
@@ -86,8 +88,24 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         utils = new AptUtils(env.getMessager(), env.getTypeUtils());
         filer = env.getFiler();
 
-        pluginContext = new PluginContext(utils);
-        processOptionsForPlugins(env.getOptions());
+        Map<String, String> options = env.getOptions();
+
+        pluginContext = new PluginContext(utils, getOptionsFlag(options));
+        processOptionsForPlugins(options);
+    }
+
+    private int getOptionsFlag(Map<String, String> options) {
+        int flags = 0;
+        if (options != null && options.containsKey(OPTIONS_KEY)) {
+            String flagsString = options.get(OPTIONS_KEY);
+            try {
+                flags = Integer.parseInt(flagsString);
+            } catch (NumberFormatException e) {
+                utils.getMessager().printMessage(Kind.WARNING, "Options flag value " + flagsString +
+                        " could not be parsed");
+            }
+        }
+        return flags;
     }
 
     private void processOptionsForPlugins(Map<String, String> options) {
