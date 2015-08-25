@@ -334,17 +334,21 @@ public abstract class ModelFileWriter<T extends Annotation> {
                 Expressions.callConstructor(TypeConstants.CONTENT_VALUES),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
-        writer.beginInitializerBlock(true, true)
-                .writeComment("--- put property defaults");
+        if (pluginContext.getFlag(PluginContext.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
+            writer.writeComment("--- property defaults disabled by plugin flag");
+        } else {
+            writer.beginInitializerBlock(true, true)
+                    .writeComment("--- put property defaults");
 
-        emitDefaultValuesInitializationBlock();
+            emitDefaultValuesInitializationBlock();
 
-        writer.finishInitializerBlock(false, true).writeNewline();
+            writer.finishInitializerBlock(false, true).writeNewline();
 
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(GET_DEFAULT_VALUES_PARAMS)
-                .writeStringStatement("return " + DEFAULT_VALUES_NAME)
-                .finishMethodDefinition();
+            writer.writeAnnotation(CoreTypes.OVERRIDE)
+                    .beginMethodDefinition(GET_DEFAULT_VALUES_PARAMS)
+                    .writeStringStatement("return " + DEFAULT_VALUES_NAME)
+                    .finishMethodDefinition();
+        }
     }
 
     protected abstract void emitDefaultValuesInitializationBlock() throws IOException;

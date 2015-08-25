@@ -31,6 +31,7 @@ public class PluginContext {
     public static final int OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS = 1;
     public static final int OPTIONS_DISABLE_IMPLEMENTS_HANDLING = 1 << 1;
     public static final int OPTIONS_DISABLE_METHOD_HANDLING = 1 << 2;
+    public static final int OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES = 1 << 3;
 
     public static final int OPTIONS_PREFER_USER_PLUGINS = 1 << 31;
 
