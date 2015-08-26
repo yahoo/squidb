@@ -24,16 +24,33 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
+/**
+ * Base class for data representing a model spec. This class holds the following pieces of information common to all
+ * types of models (table models, view models, and inherited models):
+ * <ul>
+ *     <li>The model spec annotation itself (see {@link #getSpecAnnotation()})</li>
+ *     <li>The {@link TypeElement} representing the model spec class (see {@link #getModelSpecElement()})</li>
+ *     <li>The name of the TypeElement (see {@link #getModelSpecName()})</li>
+ *     <li>The name of the class to be generated (see {@link #getGeneratedClassName()})</li>
+ *     <li>A list of {@link VariableElement}s representing constant fields to be copied
+ *          (see {@link #getConstantElements()})</li>
+ *     <li>A list of {@link PropertyGenerator}s for the generated model's fields
+ *          (see {@link #getPropertyGenerators()})</li>
+ *     <li>A list of {@link PropertyGenerator}s for the generated model's deprecated fields
+ *          (see {@link #getDeprecatedPropertyGenerators()})</li>
+ * </ul>
+ * @param <T>
+ */
 public abstract class ModelSpec<T extends Annotation> {
 
     protected final T modelSpecAnnotation;
-    protected DeclaredTypeName generatedClassName;
-    protected DeclaredTypeName modelSpecName;
-    protected TypeElement modelSpecElement;
+    protected final DeclaredTypeName generatedClassName;
+    protected final DeclaredTypeName modelSpecName;
+    protected final TypeElement modelSpecElement;
 
-    protected List<VariableElement> constantElements = new ArrayList<VariableElement>();
-    protected List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
-    protected List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
+    protected final List<VariableElement> constantElements = new ArrayList<VariableElement>();
+    protected final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
+    protected final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
 
     protected final AptUtils utils;
     protected final PluginContext pluginContext;
@@ -46,10 +63,10 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
-        processVariableElements();
+        accumulatePropertyGenerators();
     }
 
-    private void processVariableElements() {
+    private void accumulatePropertyGenerators() {
         List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
         for (Element e : enclosedElements) {
             if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
@@ -68,6 +85,9 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected abstract String getGeneratedClassNameString();
 
+    /**
+     * @return the name of the superclass for the generated model
+     */
     public abstract DeclaredTypeName getModelSuperclass();
 
     protected void initializePropertyGenerator(VariableElement e) {
@@ -88,7 +108,10 @@ public abstract class ModelSpec<T extends Annotation> {
         return pluginContext.getPropertyGeneratorForVariableElement(this, e);
     }
 
-    public Set<DeclaredTypeName> getRequiredImports() {
+    /**
+     * @return a set of imports needed to include in the generated model
+     */
+    public final Set<DeclaredTypeName> getRequiredImports() {
         Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
         imports.add(TypeConstants.ABSTRACT_MODEL); // For CREATOR
@@ -103,30 +126,51 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected abstract void addModelSpecificImports(Set<DeclaredTypeName> imports);
 
+    /**
+     * @return the name of the model spec class
+     */
     public DeclaredTypeName getModelSpecName() {
         return modelSpecName;
     }
 
+    /**
+     * @return the name of the generated model class
+     */
     public DeclaredTypeName getGeneratedClassName() {
         return generatedClassName;
     }
 
+    /**
+     * @return the {@link TypeElement} for the model spec class
+     */
     public TypeElement getModelSpecElement() {
         return modelSpecElement;
     }
 
+    /**
+     * @return the model spec annotation (e.g. an instance of {@link com.yahoo.squidb.annotations.TableModelSpec})
+     */
     public T getSpecAnnotation() {
         return modelSpecAnnotation;
     }
 
+    /**
+     * @return a list of constant elements to be copied to the generated model
+     */
     public List<VariableElement> getConstantElements() {
         return constantElements;
     }
 
+    /**
+     * @return a list of {@link PropertyGenerator}s for the fields in the generated model
+     */
     public List<PropertyGenerator> getPropertyGenerators() {
         return propertyGenerators;
     }
 
+    /**
+     * @return a list of {@link PropertyGenerator}s for deprecated fields in the generated model
+     */
     public List<PropertyGenerator> getDeprecatedPropertyGenerators() {
         return deprecatedPropertyGenerators;
     }

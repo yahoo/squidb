@@ -24,7 +24,7 @@ import javax.tools.Diagnostic;
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     private PropertyGenerator idPropertyGenerator;
-    private DeclaredTypeName tableType;
+    private final DeclaredTypeName tableType;
 
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginContext pluginContext, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginContext, utils);
@@ -35,6 +35,9 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         }
     }
 
+    /**
+     * @return true if the table model is for a virtual table, false otherwise
+     */
     public boolean isVirtualTable() {
         return !AptUtils.isEmpty(modelSpecAnnotation.virtualModule());
     }
@@ -86,10 +89,16 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         }
     }
 
+    /**
+     * @return a {@link PropertyGenerator} for the model's id property
+     */
     public PropertyGenerator getIdPropertyGenerator() {
         return idPropertyGenerator;
     }
 
+    /**
+     * @return the name of the table class (e.g. Table or VirtualTable)
+     */
     public DeclaredTypeName getTableType() {
         return tableType;
     }

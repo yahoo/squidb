@@ -21,6 +21,12 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.TypeElement;
 
+/**
+ * A {@link Plugin} that controls declaring that model classes implement interfaces. This plugin looks for and parses
+ * the value of any {@link Implements} annotations on the given model spec to determine which interfaces to add. It is
+ * enabled by default. It can be disabled by passing a bitmask with the
+ * {@link com.yahoo.squidb.processor.plugins.PluginContext#OPTIONS_DISABLE_IMPLEMENTS_HANDLING} flag set.
+ */
 public class ImplementsPlugin extends Plugin {
 
     public ImplementsPlugin(AptUtils utils) {

@@ -24,6 +24,11 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * A {@link Plugin} that controls generating constructors in model classes. This plugin generates four distinct
+ * constructors in each model class. Itis enabled by default. It can be disabled by passing a bitmask with the
+ * {@link com.yahoo.squidb.processor.plugins.PluginContext#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS} flag set.
+ */
 public class ConstructorPlugin extends Plugin {
 
     public ConstructorPlugin(AptUtils utils) {

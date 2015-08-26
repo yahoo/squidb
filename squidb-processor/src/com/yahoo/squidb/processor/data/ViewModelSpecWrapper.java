@@ -73,10 +73,17 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
         }
     }
 
+    /**
+     * @return a {@link VariableElement} representing the query in the model spec that should define the view
+     */
     public VariableElement getQueryElement() {
         return queryElement;
     }
 
+    /**
+     * @return the {@link ViewQuery} annotation for the query element
+     * @see #getQueryElement()
+     */
     public ViewQuery getViewQueryAnnotation() {
         return viewQueryAnnotation;
     }

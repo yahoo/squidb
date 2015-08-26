@@ -34,6 +34,11 @@ import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
+/**
+ * A {@link Plugin} that controls copying public static methods or methods annotated with {@link ModelMethod}
+ * to the generated model. It is enabled by default. It can be disabled by passing a bitmask with the
+ * {@link com.yahoo.squidb.processor.plugins.PluginContext#OPTIONS_DISABLE_METHOD_HANDLING} flag set.
+ */
 public class ModelMethodPlugin extends Plugin {
 
     public ModelMethodPlugin(AptUtils utils) {
