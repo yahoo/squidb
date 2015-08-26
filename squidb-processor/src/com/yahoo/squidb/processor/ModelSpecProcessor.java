@@ -134,7 +134,8 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                         "Plugin " + pluginName + " is not a subclass of Plugin");
             }
         } catch (Exception e) {
-            utils.getMessager().printMessage(Kind.WARNING, "Unable to instantiate plugin " + pluginName + ", reason: " + e);
+            utils.getMessager()
+                    .printMessage(Kind.WARNING, "Unable to instantiate plugin " + pluginName + ", reason: " + e);
         }
     }
 

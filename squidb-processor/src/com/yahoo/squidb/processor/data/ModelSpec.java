@@ -29,18 +29,17 @@ import javax.tools.Diagnostic;
  * Base class for data representing a model spec. This class holds the following pieces of information common to all
  * types of models (table models, view models, and inherited models):
  * <ul>
- *     <li>The model spec annotation itself (see {@link #getSpecAnnotation()})</li>
- *     <li>The {@link TypeElement} representing the model spec class (see {@link #getModelSpecElement()})</li>
- *     <li>The name of the TypeElement (see {@link #getModelSpecName()})</li>
- *     <li>The name of the class to be generated (see {@link #getGeneratedClassName()})</li>
- *     <li>A list of {@link VariableElement}s representing constant fields to be copied
- *          (see {@link #getConstantElements()})</li>
- *     <li>A list of {@link PropertyGenerator}s for the generated model's fields
- *          (see {@link #getPropertyGenerators()})</li>
- *     <li>A list of {@link PropertyGenerator}s for the generated model's deprecated fields
- *          (see {@link #getDeprecatedPropertyGenerators()})</li>
+ * <li>The model spec annotation itself (see {@link #getSpecAnnotation()})</li>
+ * <li>The {@link TypeElement} representing the model spec class (see {@link #getModelSpecElement()})</li>
+ * <li>The name of the TypeElement (see {@link #getModelSpecName()})</li>
+ * <li>The name of the class to be generated (see {@link #getGeneratedClassName()})</li>
+ * <li>A list of {@link VariableElement}s representing constant fields to be copied
+ * (see {@link #getConstantElements()})</li>
+ * <li>A list of {@link PropertyGenerator}s for the generated model's fields
+ * (see {@link #getPropertyGenerators()})</li>
+ * <li>A list of {@link PropertyGenerator}s for the generated model's deprecated fields
+ * (see {@link #getDeprecatedPropertyGenerators()})</li>
  * </ul>
- * @param <T>
  */
 public abstract class ModelSpec<T extends Annotation> {
 
@@ -100,8 +99,8 @@ public abstract class ModelSpec<T extends Annotation> {
                 propertyGenerators.add(generator);
             }
         } else {
-            utils.getMessager()
-                    .printMessage(Diagnostic.Kind.WARNING, "No PropertyGenerator found to handle this modelSpecElement", e);
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "No PropertyGenerator found to handle this modelSpecElement", e);
         }
     }
 

@@ -34,7 +34,8 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec> {
             return;
         }
         if (field.getAnnotation(ColumnSpec.class) != null) {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "ColumnSpec is ignored outside of table models", field);
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "ColumnSpec is ignored outside of table models", field);
         }
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {

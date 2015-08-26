@@ -45,7 +45,8 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
             return;
         }
         if (e.getAnnotation(ColumnSpec.class) != null) {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "ColumnSpec is ignored outside of table models", e);
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "ColumnSpec is ignored outside of table models", e);
         }
         boolean isViewProperty = TypeConstants.isPropertyType(typeName);
         ViewQuery isViewQuery = e.getAnnotation(ViewQuery.class);
@@ -56,7 +57,8 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "ViewQuery must be an instance of " + TypeConstants.QUERY.toString());
                 } else if (queryElement != null) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR, "Only one ViewQuery per spec allowedd");
+                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                            "Only one ViewQuery can be declared per spec");
                 } else {
                     viewQueryAnnotation = isViewQuery;
                     queryElement = e;

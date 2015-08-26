@@ -54,7 +54,8 @@ public class ImplementsPlugin extends Plugin {
                 interfaces.addAll(typeNames);
             }
 
-            AnnotationValue value = utils.getAnnotationValue(modelSpecElement, Implements.class, "interfaceDefinitions");
+            AnnotationValue value = utils
+                    .getAnnotationValue(modelSpecElement, Implements.class, "interfaceDefinitions");
             List<AnnotationMirror> interfaceSpecs = utils.getValuesFromAnnotationValue(value,
                     AnnotationMirror.class);
 
@@ -64,7 +65,8 @@ public class ImplementsPlugin extends Plugin {
                 if (!AptUtils.isEmpty(interfaceClassList)) {
                     DeclaredTypeName interfaceClass = interfaceClassList.get(0);
 
-                    AnnotationValue interfaceTypeArgsValue = utils.getAnnotationValueFromMirror(spec, "interfaceTypeArgs");
+                    AnnotationValue interfaceTypeArgsValue = utils
+                            .getAnnotationValueFromMirror(spec, "interfaceTypeArgs");
                     List<DeclaredTypeName> typeArgs = utils.getTypeNamesFromAnnotationValue(interfaceTypeArgsValue);
                     if (AptUtils.isEmpty(typeArgs)) {
                         List<String> typeArgNames = utils.getValuesFromAnnotationValue(

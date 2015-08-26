@@ -40,6 +40,7 @@ public class PluginBundle {
     /**
      * This class searches all available plugins for one that can handle and return a {@link PropertyGenerator} for the
      * given field
+     *
      * @param field a {@link VariableElement} field in a model spec representing a Property to be generated
      * @return a PropertyGenerator for handling the given field, or null if none could be found in the available plugins
      */

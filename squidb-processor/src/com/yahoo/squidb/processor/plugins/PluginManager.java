@@ -108,6 +108,7 @@ public class PluginManager {
 
     /**
      * Add a {@link Plugin} class to the list of known plugins
+     *
      * @param plugin the plugin class
      */
     public void addPlugin(Class<? extends Plugin> plugin) {
