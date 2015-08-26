@@ -9,7 +9,6 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 public class PluginWriter {
@@ -18,9 +17,8 @@ public class PluginWriter {
         // Stub for subclasses to override
     }
 
-    public List<DeclaredTypeName> getInterfacesToImplement() {
+    public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
         // Stub for subclasses to override
-        return null;
     }
 
     public void writeConstants(JavaFileWriter writer) throws IOException {

@@ -25,7 +25,9 @@ import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerato
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -153,14 +155,11 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
-        List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
+        Set<DeclaredTypeName> interfaces = new LinkedHashSet<DeclaredTypeName>();
         for (PluginWriter writer : pluginWriters) {
-            List<DeclaredTypeName> writerInterfaces = writer.getInterfacesToImplement();
-            if (writerInterfaces != null) {
-                interfaces.addAll(writerInterfaces);
-            }
+            writer.addInterfacesToImplement(interfaces);
         }
-        return interfaces;
+        return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }
 
     private void emitConstantElements() throws IOException {

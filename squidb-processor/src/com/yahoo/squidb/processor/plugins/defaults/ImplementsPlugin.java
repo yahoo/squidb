@@ -88,8 +88,8 @@ public class ImplementsPlugin extends Plugin {
         }
 
         @Override
-        public List<DeclaredTypeName> getInterfacesToImplement() {
-            return interfaces;
+        public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
+            interfaces.addAll(this.interfaces);
         }
     }
 }
