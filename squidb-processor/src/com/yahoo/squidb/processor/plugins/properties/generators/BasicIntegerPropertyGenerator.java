@@ -16,6 +16,9 @@ import java.util.List;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * An implementation of {@link PropertyGenerator} for handling int fields
+ */
 public class BasicIntegerPropertyGenerator extends BasicPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {

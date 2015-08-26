@@ -12,6 +12,9 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * An implementation of {@link PropertyGenerator} for handling properties in view models
+ */
 public class ViewPropertyGenerator extends BasicPropertyGenerator {
 
     private final DeclaredTypeName propertyType;

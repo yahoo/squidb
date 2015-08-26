@@ -17,6 +17,9 @@ import java.util.List;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * An implementation of {@link PropertyGenerator} for handling boolean fields
+ */
 public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {

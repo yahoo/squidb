@@ -11,6 +11,9 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * An implementation of {@link PropertyGenerator} for handling long fields annotated with {@link PrimaryKey}
+ */
 public class BasicIdPropertyGenerator extends BasicLongPropertyGenerator {
 
     private final PrimaryKey annotation;

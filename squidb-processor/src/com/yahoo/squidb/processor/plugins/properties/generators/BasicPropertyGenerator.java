@@ -26,6 +26,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ * A basic implementation of {@link PropertyGenerator} that handles the {@link ColumnSpec} annotation
+ */
 public abstract class BasicPropertyGenerator extends PropertyGenerator {
 
     protected final ColumnSpec extras;

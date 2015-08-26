@@ -17,6 +17,9 @@ import java.util.List;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * An implementation of {@link PropertyGenerator} for handling long fields
+ */
 public class BasicLongPropertyGenerator extends BasicPropertyGenerator {
 
     private String columnDefDefault;
