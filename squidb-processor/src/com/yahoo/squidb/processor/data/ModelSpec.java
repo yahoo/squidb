@@ -128,6 +128,13 @@ public abstract class ModelSpec<T extends Annotation> {
     protected abstract void addModelSpecificImports(Set<DeclaredTypeName> imports);
 
     /**
+     * @return a {@link PluginContext} for this model spec
+     */
+    public PluginContext getPluginContext() {
+        return pluginContext;
+    }
+
+    /**
      * @return the name of the model spec class
      */
     public DeclaredTypeName getModelSpecName() {

@@ -18,7 +18,6 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.PluginContext;
 import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
@@ -42,7 +41,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     protected final PluginManager pluginManager;
 
     protected final T modelSpec;
-    private final PluginContext pluginContext;
 
     protected JavaFileWriter writer;
 
@@ -70,10 +68,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     public ModelFileWriter(T modelSpec, PluginManager pluginManager, AptUtils utils) {
+        this.modelSpec = modelSpec;
         this.pluginManager = pluginManager;
         this.utils = utils;
-        this.modelSpec = modelSpec;
-        this.pluginContext = pluginManager.getPluginContextForModelSpec(modelSpec);
     }
 
     public final void writeJava(Filer filer) throws IOException {
@@ -123,7 +120,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitImports() throws IOException {
         Set<DeclaredTypeName> imports = modelSpec.getRequiredImports();
-        pluginContext.addRequiredImports(imports);
+        modelSpec.getPluginContext().addRequiredImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
                 TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
@@ -150,7 +147,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
         Set<DeclaredTypeName> interfaces = new LinkedHashSet<DeclaredTypeName>();
-        pluginContext.addInterfacesToImplement(interfaces);
+        modelSpec.getPluginContext().addInterfacesToImplement(interfaces);
         return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }
 
@@ -164,7 +161,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         Expressions.staticReference(modelSpec.getModelSpecName(), constant.getSimpleName().toString()),
                         TypeConstants.PUBLIC_STATIC_FINAL);
             }
-            pluginContext.writeConstants(writer);
+            modelSpec.getPluginContext().writeConstants(writer);
             writer.writeNewline();
         }
     }
@@ -200,7 +197,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitConstructors() throws IOException {
         writer.writeComment("--- constructors");
-        pluginContext.writeConstructors(writer);
+        modelSpec.getPluginContext().writeConstructors(writer);
     }
 
     private void emitClone() throws IOException {
@@ -244,7 +241,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitMethods() throws IOException {
         writer.writeComment("--- other instance methods");
-        pluginContext.writeMethods(writer);
+        modelSpec.getPluginContext().writeMethods(writer);
     }
 
     protected void emitDefaultValues() throws IOException {
@@ -297,6 +294,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void emitAdditionalCodeFromPlugins() throws IOException {
-        pluginContext.writeAdditionalCode(writer);
+        modelSpec.getPluginContext().writeAdditionalCode(writer);
     }
 }
