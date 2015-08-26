@@ -70,7 +70,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
                 utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Can't copy Property constants to model "
                         + "definition--they'd become part of the model", e);
             } else {
-                constantElements.add(e);
+                addConstantField(e);
             }
         } else {
             if (e.getAnnotation(PrimaryKey.class) != null) {
@@ -81,7 +81,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Only a single primary key column is supported at this time.", e);
                 } else {
-                    idPropertyGenerator = propertyGeneratorForElement(e);
+                    idPropertyGenerator = pluginContext.getPropertyGeneratorForVariableElement(this, e);
                 }
             } else {
                 initializePropertyGenerator(e);

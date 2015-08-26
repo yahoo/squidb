@@ -62,7 +62,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
                     queryElement = e;
                 }
             } else if (!isViewProperty) {
-                constantElements.add(e);
+                addConstantField(e);
             } else {
                 initializePropertyGenerator(e);
             }

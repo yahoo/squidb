@@ -48,9 +48,9 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final DeclaredTypeName modelSpecName;
     protected final TypeElement modelSpecElement;
 
-    protected final List<VariableElement> constantElements = new ArrayList<VariableElement>();
-    protected final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
-    protected final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
+    private final List<VariableElement> constantElements = new ArrayList<VariableElement>();
+    private final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
+    private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
 
     protected final AptUtils utils;
     protected final PluginContext pluginContext;
@@ -91,7 +91,7 @@ public abstract class ModelSpec<T extends Annotation> {
     public abstract DeclaredTypeName getModelSuperclass();
 
     protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = propertyGeneratorForElement(e);
+        PropertyGenerator generator = pluginContext.getPropertyGeneratorForVariableElement(this, e);
         if (generator != null) {
             if (generator.isDeprecated()) {
                 deprecatedPropertyGenerators.add(generator);
@@ -104,8 +104,8 @@ public abstract class ModelSpec<T extends Annotation> {
         }
     }
 
-    protected PropertyGenerator propertyGeneratorForElement(VariableElement e) {
-        return pluginContext.getPropertyGeneratorForVariableElement(this, e);
+    protected void addConstantField(VariableElement field) {
+        constantElements.add(field);
     }
 
     /**

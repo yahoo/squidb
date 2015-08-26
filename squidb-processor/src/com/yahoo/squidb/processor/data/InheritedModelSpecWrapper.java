@@ -39,7 +39,7 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec> {
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
             if (!TypeConstants.isPropertyType(fieldType)) {
-                constantElements.add(field);
+                addConstantField(field);
             } else {
                 initializePropertyGenerator(field);
             }
