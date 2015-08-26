@@ -10,7 +10,7 @@ import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginBundle;
 import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
@@ -54,7 +54,7 @@ public abstract class ModelSpec<T extends Annotation> {
     private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
 
     protected final AptUtils utils;
-    protected final PluginContext pluginContext;
+    protected final PluginBundle pluginBundle;
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginManager pluginManager, AptUtils utils) {
@@ -63,7 +63,7 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
-        this.pluginContext = pluginManager.getPluginContextForModelSpec(this);
+        this.pluginBundle = pluginManager.getPluginBundleForModelSpec(this);
         accumulatePropertyGenerators();
     }
 
@@ -92,7 +92,7 @@ public abstract class ModelSpec<T extends Annotation> {
     public abstract DeclaredTypeName getModelSuperclass();
 
     protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = pluginContext.getPropertyGeneratorForVariableElement(e);
+        PropertyGenerator generator = pluginBundle.getPropertyGeneratorForVariableElement(e);
         if (generator != null) {
             if (generator.isDeprecated()) {
                 deprecatedPropertyGenerators.add(generator);
@@ -128,10 +128,10 @@ public abstract class ModelSpec<T extends Annotation> {
     protected abstract void addModelSpecificImports(Set<DeclaredTypeName> imports);
 
     /**
-     * @return a {@link PluginContext} for this model spec
+     * @return a {@link PluginBundle} for this model spec
      */
-    public PluginContext getPluginContext() {
-        return pluginContext;
+    public PluginBundle getPluginBundle() {
+        return pluginBundle;
     }
 
     /**

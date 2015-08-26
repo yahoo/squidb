@@ -27,6 +27,10 @@ import java.util.Map;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ * This plugin controls generating property declarations, getters, and setters for fields in a table model. It can
+ * create instances of {@link PropertyGenerator} for each of the basic supported column types (String, int, long, etc.)
+ */
 public class TablePropertyGeneratorFactory extends Plugin {
 
     private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap

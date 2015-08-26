@@ -81,7 +81,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Only a single primary key column is supported at this time.", e);
                 } else {
-                    idPropertyGenerator = pluginContext.getPropertyGeneratorForVariableElement(e);
+                    idPropertyGenerator = pluginBundle.getPropertyGeneratorForVariableElement(e);
                 }
             } else {
                 initializePropertyGenerator(e);

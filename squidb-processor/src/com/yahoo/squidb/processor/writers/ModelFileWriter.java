@@ -120,7 +120,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitImports() throws IOException {
         Set<DeclaredTypeName> imports = modelSpec.getRequiredImports();
-        modelSpec.getPluginContext().addRequiredImports(imports);
+        modelSpec.getPluginBundle().addRequiredImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
                 TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
@@ -147,7 +147,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
         Set<DeclaredTypeName> interfaces = new LinkedHashSet<DeclaredTypeName>();
-        modelSpec.getPluginContext().addInterfacesToImplement(interfaces);
+        modelSpec.getPluginBundle().addInterfacesToImplement(interfaces);
         return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }
 
@@ -161,7 +161,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         Expressions.staticReference(modelSpec.getModelSpecName(), constant.getSimpleName().toString()),
                         TypeConstants.PUBLIC_STATIC_FINAL);
             }
-            modelSpec.getPluginContext().writeConstants(writer);
+            modelSpec.getPluginBundle().writeConstants(writer);
             writer.writeNewline();
         }
     }
@@ -197,7 +197,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitConstructors() throws IOException {
         writer.writeComment("--- constructors");
-        modelSpec.getPluginContext().writeConstructors(writer);
+        modelSpec.getPluginBundle().writeConstructors(writer);
     }
 
     private void emitClone() throws IOException {
@@ -241,7 +241,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void emitMethods() throws IOException {
         writer.writeComment("--- other instance methods");
-        modelSpec.getPluginContext().writeMethods(writer);
+        modelSpec.getPluginBundle().writeMethods(writer);
     }
 
     protected void emitDefaultValues() throws IOException {
@@ -294,6 +294,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void emitAdditionalCodeFromPlugins() throws IOException {
-        modelSpec.getPluginContext().writeAdditionalCode(writer);
+        modelSpec.getPluginBundle().writeAdditionalCode(writer);
     }
 }

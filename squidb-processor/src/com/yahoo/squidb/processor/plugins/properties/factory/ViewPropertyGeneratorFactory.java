@@ -9,9 +9,15 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * This plugin controls generating property declarations, getters, and setters for fields in a view model. It can
+ * create instances of {@link PropertyGenerator} for references to other Property subclasses (StringProperty,
+ * LongProperty, etc.)
+ */
 public class ViewPropertyGeneratorFactory extends FieldReferencePropertyGeneratorFactory {
 
     public ViewPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {

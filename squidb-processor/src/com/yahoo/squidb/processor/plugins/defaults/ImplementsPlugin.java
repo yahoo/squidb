@@ -28,11 +28,11 @@ import javax.lang.model.element.TypeElement;
  */
 public class ImplementsPlugin extends Plugin {
 
-    private final List<DeclaredTypeName> interfaces;
+    private final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
 
     public ImplementsPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
-        interfaces = parseInterfaces();
+        parseInterfaces();
     }
 
     @Override
@@ -45,8 +45,7 @@ public class ImplementsPlugin extends Plugin {
         interfaces.addAll(this.interfaces);
     }
 
-    private List<DeclaredTypeName> parseInterfaces() {
-        final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
+    private void parseInterfaces() {
         TypeElement modelSpecElement = modelSpec.getModelSpecElement();
         if (modelSpecElement.getAnnotation(Implements.class) != null) {
             List<DeclaredTypeName> typeNames = utils.getTypeNamesFromAnnotationValue(
@@ -79,6 +78,5 @@ public class ImplementsPlugin extends Plugin {
                 }
             }
         }
-        return interfaces;
     }
 }
