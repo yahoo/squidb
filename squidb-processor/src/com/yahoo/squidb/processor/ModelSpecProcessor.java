@@ -10,7 +10,7 @@ import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
@@ -65,7 +65,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private AptUtils utils;
     private Filer filer;
 
-    private PluginContext pluginContext;
+    private PluginManager pluginManager;
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -90,7 +90,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
         Map<String, String> options = env.getOptions();
 
-        pluginContext = new PluginContext(utils, getOptionsFlag(options));
+        pluginManager = new PluginManager(utils, getOptionsFlag(options));
         processOptionsForPlugins(options);
     }
 
@@ -128,8 +128,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         try {
             Class<?> pluginClass = Class.forName(pluginName);
             if (Plugin.class.isAssignableFrom(pluginClass)) {
-                Plugin plugin = (Plugin) pluginClass.getConstructor(AptUtils.class).newInstance(utils);
-                pluginContext.addPlugin(plugin);
+                pluginManager.addPlugin((Class<? extends Plugin>) pluginClass);
             } else {
                 utils.getMessager().printMessage(Kind.WARNING,
                         "Plugin " + pluginName + " is not a subclass of Plugin");
@@ -162,11 +161,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
         if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, pluginContext, utils);
+            return new TableModelFileWriter(typeElement, pluginManager, utils);
         } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, pluginContext, utils);
+            return new ViewModelFileWriter(typeElement, pluginManager, utils);
         } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, pluginContext, utils);
+            return new InheritedModelFileWriter(typeElement, pluginManager, utils);
         } else {
             throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
         }

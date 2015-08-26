@@ -11,7 +11,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 
 import java.util.Set;
 
@@ -25,8 +25,8 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
     private VariableElement queryElement;
     private ViewQuery viewQueryAnnotation;
 
-    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginContext pluginContext, AptUtils utils) {
-        super(modelSpecElement, ViewModelSpec.class, pluginContext, utils);
+    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginManager pluginManager, AptUtils utils) {
+        super(modelSpecElement, ViewModelSpec.class, pluginManager, utils);
     }
 
     @Override

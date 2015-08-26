@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.properties.generators.BasicLongPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
@@ -26,8 +26,8 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     private PropertyGenerator idPropertyGenerator;
     private final DeclaredTypeName tableType;
 
-    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginContext pluginContext, AptUtils utils) {
-        super(modelSpecElement, TableModelSpec.class, pluginContext, utils);
+    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginManager pluginManager, AptUtils utils) {
+        super(modelSpecElement, TableModelSpec.class, pluginManager, utils);
         if (isVirtualTable()) {
             tableType = TypeConstants.VIRTUAL_TABLE;
         } else {
@@ -81,7 +81,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Only a single primary key column is supported at this time.", e);
                 } else {
-                    idPropertyGenerator = pluginContext.getPropertyGeneratorForVariableElement(this, e);
+                    idPropertyGenerator = pluginContext.getPropertyGeneratorForVariableElement(e);
                 }
             } else {
                 initializePropertyGenerator(e);

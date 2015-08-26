@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 
 import java.util.Set;
 
@@ -23,8 +23,8 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec> {
 
     private final DeclaredTypeName superclass;
 
-    public InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginContext pluginContext, AptUtils utils) {
-        super(modelSpecElement, InheritedModelSpec.class, pluginContext, utils);
+    public InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginManager pluginManager, AptUtils utils) {
+        super(modelSpecElement, InheritedModelSpec.class, pluginManager, utils);
         this.superclass = new DeclaredTypeName(getSpecAnnotation().inheritsFrom());
     }
 

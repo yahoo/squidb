@@ -13,7 +13,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -31,8 +31,8 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     public static final String TABLE_NAME = "TABLE";
 
-    public TableModelFileWriter(TypeElement element, PluginContext pluginContext, AptUtils utils) {
-        super(new TableModelSpecWrapper(element, pluginContext, utils), pluginContext, utils);
+    public TableModelFileWriter(TypeElement element, PluginManager pluginManager, AptUtils utils) {
+        super(new TableModelSpecWrapper(element, pluginManager, utils), pluginManager, utils);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     @Override
     protected void emitGettersAndSetters() throws IOException {
         super.emitGettersAndSetters();
-        if (!pluginContext.getFlag(PluginContext.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
+        if (!pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
             MethodDeclarationParameters params = new MethodDeclarationParameters()
                     .setModifiers(Modifier.PUBLIC)
                     .setMethodName("setId")

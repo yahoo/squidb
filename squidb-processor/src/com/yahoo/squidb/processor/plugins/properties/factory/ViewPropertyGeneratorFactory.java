@@ -14,13 +14,13 @@ import javax.lang.model.element.VariableElement;
 
 public class ViewPropertyGeneratorFactory extends FieldReferencePropertyGeneratorFactory {
 
-    public ViewPropertyGeneratorFactory(AptUtils utils) {
-        super(utils);
+    public ViewPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+        super(modelSpec, utils);
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
-        return super.hasPropertyGeneratorForField(modelSpec, field, fieldType)
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+        return super.hasPropertyGeneratorForField(field, fieldType)
                 && modelSpec.getModelSpecElement().getAnnotation(ViewModelSpec.class) != null;
     }
 

@@ -11,6 +11,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginContext;
+import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.lang.annotation.Annotation;
@@ -56,13 +57,13 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final PluginContext pluginContext;
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
-            PluginContext pluginContext, AptUtils utils) {
-        this.pluginContext = pluginContext;
+            PluginManager pluginManager, AptUtils utils) {
         this.utils = utils;
         this.modelSpecElement = modelSpecElement;
         this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
+        this.pluginContext = pluginManager.getPluginContextForModelSpec(this);
         accumulatePropertyGenerators();
     }
 
@@ -91,7 +92,7 @@ public abstract class ModelSpec<T extends Annotation> {
     public abstract DeclaredTypeName getModelSuperclass();
 
     protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = pluginContext.getPropertyGeneratorForVariableElement(this, e);
+        PropertyGenerator generator = pluginContext.getPropertyGeneratorForVariableElement(e);
         if (generator != null) {
             if (generator.isDeprecated()) {
                 deprecatedPropertyGenerators.add(generator);

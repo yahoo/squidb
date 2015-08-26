@@ -7,34 +7,57 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
 
 public class Plugin {
 
+    protected final ModelSpec<?> modelSpec;
     protected final AptUtils utils;
 
-    public Plugin(AptUtils utils) {
+    public Plugin(ModelSpec<?> modelSpec, AptUtils utils) {
+        this.modelSpec = modelSpec;
         this.utils = utils;
     }
 
-    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field,
-            DeclaredTypeName fieldType) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+        // Stub for subclasses to override
         return false;
     }
 
-    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field,
-            DeclaredTypeName fieldType) {
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+        // Stub for subclasses to override
         return null;
     }
 
-    public List<? extends PluginWriter> getWritersForModelSpec(ModelSpec<?> modelSpec) {
-        return Collections.EMPTY_LIST;
+    public void addRequiredImports(Set<DeclaredTypeName> imports) {
+        // Stub for subclasses to override
+    }
+
+    public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
+        // Stub for subclasses to override
+    }
+
+    public void writeConstants(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    public void writeConstructors(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    public void writeMethods(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    public void writeAdditionalCode(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
     }
 
 }

@@ -17,17 +17,17 @@ import javax.lang.model.element.VariableElement;
 
 abstract class FieldReferencePropertyGeneratorFactory extends Plugin {
 
-    public FieldReferencePropertyGeneratorFactory(AptUtils utils) {
-        super(utils);
+    public FieldReferencePropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+        super(modelSpec, utils);
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return TypeConstants.isPropertyType(fieldType);
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         return new ViewPropertyGenerator(modelSpec, field, fieldType, utils);
     }
 

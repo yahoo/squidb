@@ -32,19 +32,19 @@ public class TablePropertyGeneratorFactory extends Plugin {
     private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap
             = new HashMap<DeclaredTypeName, Class<? extends PropertyGenerator>>();
 
-    public TablePropertyGeneratorFactory(AptUtils utils) {
-        super(utils);
+    public TablePropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+        super(modelSpec, utils);
         registerBasicPropertyGenerators();
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return modelSpec.getModelSpecElement().getAnnotation(TableModelSpec.class) != null
                 && generatorMap.containsKey(fieldType);
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         Class<? extends PropertyGenerator> generatorClass = generatorMap.get(fieldType);
         try {
             if (field.getAnnotation(PrimaryKey.class) != null &&

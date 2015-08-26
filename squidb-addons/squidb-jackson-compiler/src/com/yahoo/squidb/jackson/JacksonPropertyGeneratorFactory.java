@@ -15,12 +15,12 @@ import javax.lang.model.element.VariableElement;
 
 public class JacksonPropertyGeneratorFactory extends Plugin {
 
-    public JacksonPropertyGeneratorFactory(AptUtils utils) {
-        super(utils);
+    public JacksonPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+        super(modelSpec, utils);
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
@@ -34,7 +34,7 @@ public class JacksonPropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType) {
+    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         if (fieldType.equals(JacksonTypeConstants.MAP)) {
             return new JacksonMapPropertyGenerator(modelSpec, field, fieldType, utils);
         } else if (fieldType.equals(JacksonTypeConstants.LIST)) {
