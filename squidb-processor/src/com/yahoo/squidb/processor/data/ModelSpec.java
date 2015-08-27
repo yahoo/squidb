@@ -16,8 +16,10 @@ import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerato
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -51,6 +53,7 @@ public abstract class ModelSpec<T extends Annotation> {
     private final List<VariableElement> constantElements = new ArrayList<VariableElement>();
     private final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
     private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
+    private final Map<String, Object> metadataMap = new HashMap<String, Object>();
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
@@ -63,10 +66,10 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginManager.getPluginBundleForModelSpec(this);
-        accumulatePropertyGenerators();
+        processVariableElements();
     }
 
-    private void accumulatePropertyGenerators() {
+    private void processVariableElements() {
         List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
         for (Element e : enclosedElements) {
             if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
@@ -74,14 +77,13 @@ public abstract class ModelSpec<T extends Annotation> {
                 if (!(typeName instanceof DeclaredTypeName)) {
                     utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
                             "Element type " + typeName + " is not a concrete type, will be ignored", e);
-                } else {
-                    processVariableElement((VariableElement) e, (DeclaredTypeName) typeName);
+                } else if (!pluginBundle.processVariableElement((VariableElement) e, (DeclaredTypeName) typeName)) {
+                        utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                "No plugin found to handle field", e);
                 }
             }
         }
     }
-
-    protected abstract void processVariableElement(VariableElement e, DeclaredTypeName elementType);
 
     protected abstract String getGeneratedClassNameString();
 
@@ -89,24 +91,6 @@ public abstract class ModelSpec<T extends Annotation> {
      * @return the name of the superclass for the generated model
      */
     public abstract DeclaredTypeName getModelSuperclass();
-
-    protected void initializePropertyGenerator(VariableElement e) {
-        PropertyGenerator generator = pluginBundle.getPropertyGeneratorForVariableElement(e);
-        if (generator != null) {
-            if (generator.isDeprecated()) {
-                deprecatedPropertyGenerators.add(generator);
-            } else {
-                propertyGenerators.add(generator);
-            }
-        } else {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                    "No PropertyGenerator found to handle this modelSpecElement", e);
-        }
-    }
-
-    protected void addConstantField(VariableElement field) {
-        constantElements.add(field);
-    }
 
     /**
      * @return a set of imports needed to include in the generated model
@@ -169,6 +153,13 @@ public abstract class ModelSpec<T extends Annotation> {
     }
 
     /**
+     * Add a constant element to be copied to the generated model
+     */
+    public void addConstantElement(VariableElement e) {
+        constantElements.add(e);
+    }
+
+    /**
      * @return a list of {@link PropertyGenerator}s for the fields in the generated model
      */
     public List<PropertyGenerator> getPropertyGenerators() {
@@ -176,9 +167,36 @@ public abstract class ModelSpec<T extends Annotation> {
     }
 
     /**
+     * Add a {@link PropertyGenerator} to the model spec
+     */
+    public void addPropertyGenerator(PropertyGenerator propertyGenerator) {
+        propertyGenerators.add(propertyGenerator);
+    }
+
+    /**
      * @return a list of {@link PropertyGenerator}s for deprecated fields in the generated model
      */
     public List<PropertyGenerator> getDeprecatedPropertyGenerators() {
         return deprecatedPropertyGenerators;
+    }
+
+    /**
+     * Add a deprecated {@link PropertyGenerator} to the model spec
+     */
+    public void addDeprecatedPropertyGenerator(PropertyGenerator propertyGenerator) {
+        deprecatedPropertyGenerators.add(propertyGenerator);
+    }
+
+    public void attachMetadata(String metadataKey, Object metadata) {
+        metadataMap.put(metadataKey, metadata);
+    }
+
+    public boolean hasMetadata(String metadataKey) {
+        return metadataMap.containsKey(metadataKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <TYPE> TYPE getAttachedMetadata(String metadataKey) {
+        return (TYPE) metadataMap.get(metadataKey);
     }
 }

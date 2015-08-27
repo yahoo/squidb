@@ -23,8 +23,7 @@ import javax.lang.model.element.VariableElement;
  * <li>Generating Property declarations/getters/setters using {@link PropertyGenerator}. This can be used to
  * declare properties of a custom field type (as in the squidb-jackson-plugin) or to override default behavior
  * of the basic column types. Plugins implementing this functionality should override
- * {@link #hasPropertyGeneratorForField(VariableElement, DeclaredTypeName)} and
- * {@link #getPropertyGenerator(VariableElement, DeclaredTypeName)}</li>
+ * {@link #processVariableElement(VariableElement, DeclaredTypeName)} to handle fields in the model</li>
  * <li>Adding imports required by whatever code the plugin generates by overriding {@link #addRequiredImports(Set)}.
  * Nearly all plugins will probably need to override this method</li>
  * <li>Adding interfaces for the generated model to implement (see {@link #addInterfacesToImplement(Set)})</li>
@@ -54,23 +53,24 @@ public class Plugin {
     }
 
     /**
-     * @param field a {@link VariableElement} field in a model spec representing a Property to be generated
-     * @param fieldType the type name of the field
-     * @return true if this plugin can create a {@link PropertyGenerator} for the given field
+     * @return true if this plugin may make any changes during code generation for this model spec. The default is true;
+     * plugins like the default property generator plugins may return false if the model spec is of a different kind
+     * than the kind they handle
      */
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        // Stub for subclasses to override
-        return false;
+    public boolean canProcessModelSpec() {
+        // Subclasses can override if they want to ignore this entire model spec
+        return true;
     }
 
     /**
-     * @param field a {@link VariableElement} field in a model spec representing a Property to be generated
+     * @param field a {@link VariableElement} field in a model spec
      * @param fieldType the type name of the field
-     * @return a {@link PropertyGenerator} for handling the given field
+     * @return true if the processing of the variable element was claimed by this plugin and should not be processed
+     * by other plugins
      */
-    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         // Stub for subclasses to override
-        return null;
+        return false;
     }
 
     /**

@@ -8,19 +8,19 @@ package com.yahoo.squidb.jackson;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.Plugin;
+import com.yahoo.squidb.processor.plugins.properties.factory.TablePropertyGeneratorFactory;
 import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
 
-public class JacksonPropertyGeneratorFactory extends Plugin {
+public class JacksonPropertyGeneratorFactory extends TablePropertyGeneratorFactory {
 
     public JacksonPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
     }
 
     @Override
-    public boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
@@ -34,7 +34,7 @@ public class JacksonPropertyGeneratorFactory extends Plugin {
     }
 
     @Override
-    public PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         if (fieldType.equals(JacksonTypeConstants.MAP)) {
             return new JacksonMapPropertyGenerator(modelSpec, field, fieldType, utils);
         } else if (fieldType.equals(JacksonTypeConstants.LIST)) {

@@ -6,16 +6,15 @@
 package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic;
 
 /**
  * This class wraps a list of {@link Plugin}s that have been instantiated for a single
@@ -37,33 +36,18 @@ public class PluginBundle {
         this.utils = utils;
     }
 
-    /**
-     * This class searches all available plugins for one that can handle and return a {@link PropertyGenerator} for the
-     * given field
-     *
-     * @param field a {@link VariableElement} field in a model spec representing a Property to be generated
-     * @return a PropertyGenerator for handling the given field, or null if none could be found in the available plugins
-     */
-    public PropertyGenerator getPropertyGeneratorForVariableElement(VariableElement field) {
-        TypeName fieldType = utils.getTypeNameFromTypeMirror(field.asType());
-        PropertyGenerator generator = null;
-        if (fieldType instanceof DeclaredTypeName) {
-            generator = searchPluginsForPropertyGenerator(field, (DeclaredTypeName) fieldType);
-        }
-        return generator;
-    }
-
-    private PropertyGenerator searchPluginsForPropertyGenerator(VariableElement field,
-            DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         for (Plugin plugin : plugins) {
-            if (plugin.hasPropertyGeneratorForField(field, fieldType)) {
-                PropertyGenerator generator = plugin.getPropertyGenerator(field, fieldType);
-                if (generator != null) {
-                    return generator;
-                }
+            if (plugin.modelSpec.getGeneratedClassName().getSimpleName().equals("TestModel")) {
+                utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                        "Checking plugin " + plugin.getClass() + " for field " + field.getSimpleName());
+            }
+            if (plugin.canProcessModelSpec() && plugin.processVariableElement(field, fieldType)) {
+                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Processed, returning true");
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     /**
@@ -71,7 +55,9 @@ public class PluginBundle {
      */
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         for (Plugin plugin : plugins) {
-            plugin.addRequiredImports(imports);
+            if (plugin.canProcessModelSpec()) {
+                plugin.addRequiredImports(imports);
+            }
         }
     }
 
@@ -80,7 +66,9 @@ public class PluginBundle {
      */
     public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
         for (Plugin plugin : plugins) {
-            plugin.addInterfacesToImplement(interfaces);
+            if (plugin.canProcessModelSpec()) {
+                plugin.addInterfacesToImplement(interfaces);
+            }
         }
     }
 
@@ -89,7 +77,9 @@ public class PluginBundle {
      */
     public void writeConstants(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            plugin.writeConstants(writer);
+            if (plugin.canProcessModelSpec()) {
+                plugin.writeConstants(writer);
+            }
         }
     }
 
@@ -98,7 +88,9 @@ public class PluginBundle {
      */
     public void writeConstructors(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            plugin.writeConstructors(writer);
+            if (plugin.canProcessModelSpec()) {
+                plugin.writeConstructors(writer);
+            }
         }
     }
 
@@ -107,7 +99,9 @@ public class PluginBundle {
      */
     public void writeMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            plugin.writeMethods(writer);
+            if (plugin.canProcessModelSpec()) {
+                plugin.writeMethods(writer);
+            }
         }
     }
 
@@ -116,7 +110,9 @@ public class PluginBundle {
      */
     public void writeAdditionalCode(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            plugin.writeAdditionalCode(writer);
+            if (plugin.canProcessModelSpec()) {
+                plugin.writeAdditionalCode(writer);
+            }
         }
     }
 }
