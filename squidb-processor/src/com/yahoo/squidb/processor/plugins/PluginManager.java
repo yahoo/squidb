@@ -125,8 +125,6 @@ public class PluginManager {
      * @param priority the priority to give the plugin
      */
     public void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
-        utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                "Adding plugin class " + plugin.toString() + " with priority " + priority);
         switch (priority) {
             case LOW:
                 lowPriorityPlugins.add(plugin);
