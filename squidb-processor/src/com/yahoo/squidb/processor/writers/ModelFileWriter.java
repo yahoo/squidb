@@ -216,7 +216,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     protected void emitGettersAndSetters() throws IOException {
-        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
+        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             writer.writeComment("--- getters and setters disabled by plugin flag");
         } else {
             writer.writeComment("--- getters and setters");

@@ -36,7 +36,7 @@ import javax.tools.Diagnostic;
 /**
  * A {@link Plugin} that controls copying public static methods or methods annotated with {@link ModelMethod}
  * to the generated model. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginManager#OPTIONS_DISABLE_METHOD_HANDLING} flag set.
+ * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING} flag set.
  */
 public class ModelMethodPlugin extends Plugin {
 

@@ -146,7 +146,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     @Override
     protected void emitGettersAndSetters() throws IOException {
         super.emitGettersAndSetters();
-        if (!pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_GETTERS_AND_SETTERS)) {
+        if (!pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             MethodDeclarationParameters params = new MethodDeclarationParameters()
                     .setModifiers(Modifier.PUBLIC)
                     .setMethodName("setId")
