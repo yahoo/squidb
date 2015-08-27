@@ -54,16 +54,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpec> {
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            if (field.getAnnotation(Deprecated.class) != null) {
-                return true;
-            }
-            if (TypeConstants.isPropertyType(fieldType)) {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Can't copy Property constants to model "
-                        + "definition--they'd become part of the model", field);
-            } else {
-                modelSpec.addConstantElement(field);
-                return true;
-            }
+            // Might be a constant, ignore
+            return false;
         } else {
             if (field.getAnnotation(PrimaryKey.class) != null) {
                 if (!BasicLongPropertyGenerator.handledColumnTypes().contains(fieldType)) {
@@ -78,7 +70,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpec> {
                     return true;
                 }
             } else {
-                return createPropertyGenerator(field, fieldType);
+                return tryCreatePropertyGenerator(field, fieldType);
             }
         }
         return false;

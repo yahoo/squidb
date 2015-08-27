@@ -7,6 +7,7 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
@@ -63,14 +64,19 @@ public class PluginManager {
     public static final int OPTIONS_DISABLE_METHOD_HANDLING = 1 << 3;
 
     /**
+     * Flag for disabling the copying of public static final fields as constants to the generated model
+     */
+    public static final int OPTIONS_DISABLE_CONSTANT_COPYING = 1 << 4;
+
+    /**
      * Flag for disabling the in-memory default content values used as for fallback values in empty models
      */
-    public static final int OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES = 1 << 4;
+    public static final int OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES = 1 << 5;
 
     /**
      * Flag for disabling the convenience getters and setters generated with each property
      */
-    public static final int OPTIONS_DISABLE_GETTERS_AND_SETTERS = 1 << 5;
+    public static final int OPTIONS_DISABLE_GETTERS_AND_SETTERS = 1 << 6;
 
     /**
      * @param utils annotation processing utilities class
@@ -97,6 +103,12 @@ public class PluginManager {
         pluginClasses.add(TableModelSpecFieldPlugin.class);
         pluginClasses.add(ViewModelSpecFieldPlugin.class);
         pluginClasses.add(InheritedModelSpecFieldPlugin.class);
+
+        if (!getFlag(OPTIONS_DISABLE_CONSTANT_COPYING)) {
+            // This plugin claims any public static final fields not handled by the other plugins and copies them to the
+            // generated model
+            pluginClasses.add(ConstantCopyingPlugin.class);
+        }
     }
 
     /**

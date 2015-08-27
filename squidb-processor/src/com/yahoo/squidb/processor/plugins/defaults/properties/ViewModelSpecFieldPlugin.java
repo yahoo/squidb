@@ -40,7 +40,7 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin<ViewModelSpec
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(Deprecated.class) != null) {
-            return true;
+            return false;
         }
         if (field.getAnnotation(ColumnSpec.class) != null) {
             utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
@@ -61,19 +61,15 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin<ViewModelSpec
                     modelSpec.attachMetadata(ViewModelSpecWrapper.METADATA_KEY_VIEW_QUERY, isViewQuery);
                     modelSpec.attachMetadata(ViewModelSpecWrapper.METADATA_KEY_QUERY_ELEMENT, field);
                 }
-            } else if (!isViewProperty) {
-                modelSpec.addConstantElement(field);
-            } else {
-                return createPropertyGenerator(field, fieldType);
+                return true;
+            } else if (isViewProperty) {
+                return tryCreatePropertyGenerator(field, fieldType);
             }
             return true;
         } else if (isViewProperty) {
             utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                     "View properties must be public static final", field);
-            return false;
-        } else {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unused field in spec", field);
-            return false;
         }
+        return false;
     }
 }

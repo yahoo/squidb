@@ -78,8 +78,11 @@ public abstract class ModelSpec<T extends Annotation> {
                     utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
                             "Element type " + typeName + " is not a concrete type, will be ignored", e);
                 } else if (!pluginBundle.processVariableElement((VariableElement) e, (DeclaredTypeName) typeName)) {
+                    // Deprecated things are generally ignored by plugins, so don't warn about them
+                    if (e.getAnnotation(Deprecated.class) == null) {
                         utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
                                 "No plugin found to handle field", e);
+                    }
                 }
             }
         }

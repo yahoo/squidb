@@ -39,23 +39,16 @@ public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin<Inherite
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(Deprecated.class) != null) {
-            return true;
+            return false;
         }
         if (field.getAnnotation(ColumnSpec.class) != null) {
             utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
                     "ColumnSpec is ignored outside of table models", field);
         }
         Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            if (!TypeConstants.isPropertyType(fieldType)) {
-                modelSpec.addConstantElement(field);
-                return true;
-            } else {
-                return createPropertyGenerator(field, fieldType);
-            }
-        } else {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unused field in spec", field);
-            return false;
+        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL) && TypeConstants.isPropertyType(fieldType)) {
+            return tryCreatePropertyGenerator(field, fieldType);
         }
+        return false;
     }
 }
