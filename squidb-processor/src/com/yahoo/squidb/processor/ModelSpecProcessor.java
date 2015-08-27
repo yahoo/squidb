@@ -140,7 +140,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                         utils.getMessager().printMessage(Kind.WARNING, "Unrecognized priority string " + priorityString
                                 + " for plugin " + pluginName + ", defaulting to 'normal'. Should be one of '" +
                                 PluginPriority.HIGH + "', " + "'" + PluginPriority.NORMAL + "', or '" +
-                                PluginPriority. LOW+ "'.");
+                                PluginPriority.LOW + "'.");
                         priority = PluginPriority.NORMAL;
                     }
                 }

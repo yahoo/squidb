@@ -11,11 +11,9 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
-import java.lang.annotation.Annotation;
-
 import javax.lang.model.element.VariableElement;
 
-public abstract class BaseFieldPlugin<T extends Annotation> extends Plugin {
+public abstract class BaseFieldPlugin extends Plugin {
 
     public BaseFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);

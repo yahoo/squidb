@@ -8,7 +8,6 @@ package com.yahoo.squidb.processor.plugins.defaults.properties;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ColumnSpec;
-import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -25,7 +24,7 @@ import javax.tools.Diagnostic;
  * create instances of {@link PropertyGenerator} for references to other Property subclasses (StringProperty,
  * LongProperty, etc.)
  */
-public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin<InheritedModelSpec> {
+public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin {
 
     public InheritedModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);

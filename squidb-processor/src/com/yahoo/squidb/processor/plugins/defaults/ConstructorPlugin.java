@@ -27,7 +27,7 @@ import javax.lang.model.element.Modifier;
 
 /**
  * A {@link Plugin} that controls generating constructors in model classes. This plugin generates four distinct
- * constructors in each model class. It is enabled by default. It can be disabled by passing a bitmask with the
+ * constructors in each model class. It isenabled by default. It can be disabled by passing a bitmask with the
  * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS} flag set.
  */
 public class ConstructorPlugin extends Plugin {

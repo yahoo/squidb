@@ -20,19 +20,19 @@ import javax.lang.model.element.VariableElement;
  * model can be broken down into several distinct phases, each of which has one or more corresponding hooks available
  * to plugins:
  * <ol>
- *     <li>Declare imports. Plugins can add imports using {@link #addRequiredImports(Set)}</li>
- *     <li>Begin class declaration. Much of this is fixed, but plugins can add interfaces for the generated class to
- *     implement using {@link #addInterfacesToImplement(Set)}</li>
- *     <li>Emitting the table or view schema. This includes property declarations, the Table or View object for the
- *     model, etc. Plugins can generate code before or after this phase using {@link #beforeEmitSchema(JavaFileWriter)}
- *     and {@link #afterEmitSchema(JavaFileWriter)}</li>
- *     <li>Emitting constructors. Plugins can add constructors using {@link #emitConstructors(JavaFileWriter)}. Note
- *     that several default constructors and a clone() method are emitted by a built-in plugin.</li>
- *     <li>Emitting methods. Plugins can emit code before methods are declared
- *     ({@link #beforeEmitMethods(JavaFileWriter)}), emit methods ({@link #emitMethods(JavaFileWriter)}), or emit code
- *     after methods are emitted ({@link #afterEmitMethods(JavaFileWriter)})</li>
- *     <li>Emit other helpers. This is the final phase of code generation before the class definition is closed. Plugins
- *     can generate arbitrary code here using {@link #emitOtherHelpers(JavaFileWriter)}</li>
+ * <li>Declare imports. Plugins can add imports using {@link #addRequiredImports(Set)}</li>
+ * <li>Begin class declaration. Much of this is fixed, but plugins can add interfaces for the generated class to
+ * implement using {@link #addInterfacesToImplement(Set)}</li>
+ * <li>Emitting the table or view schema. This includes property declarations, the Table or View object for the
+ * model, etc. Plugins can generate code before or after this phase using {@link #beforeEmitSchema(JavaFileWriter)}
+ * and {@link #afterEmitSchema(JavaFileWriter)}</li>
+ * <li>Emitting constructors. Plugins can add constructors using {@link #emitConstructors(JavaFileWriter)}. Note
+ * that several default constructors and a clone() method are emitted by a built-in plugin.</li>
+ * <li>Emitting methods. Plugins can emit code before methods are declared
+ * ({@link #beforeEmitMethods(JavaFileWriter)}), emit methods ({@link #emitMethods(JavaFileWriter)}), or emit code
+ * after methods are emitted ({@link #afterEmitMethods(JavaFileWriter)})</li>
+ * <li>Emit other helpers. This is the final phase of code generation before the class definition is closed. Plugins
+ * can generate arbitrary code here using {@link #emitOtherHelpers(JavaFileWriter)}</li>
  * </ol>
  */
 public class Plugin {
