@@ -11,6 +11,7 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginManager.PluginPriority;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
@@ -126,9 +127,27 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private void processSinglePlugin(String pluginName) {
         try {
+            PluginPriority priority = PluginPriority.NORMAL;
+            if (pluginName.contains(":")) {
+                String[] nameAndPriority = pluginName.split(":");
+                if (nameAndPriority.length != 2) {
+                    utils.getMessager().printMessage(Kind.ERROR, "Error parsing plugin and priority " + pluginName);
+                } else {
+                    pluginName = nameAndPriority[0];
+                    String priorityString = nameAndPriority[1];
+                    priority = PluginPriority.valueOf(priorityString.toUpperCase());
+                    if (priority == null) {
+                        utils.getMessager().printMessage(Kind.WARNING, "Unrecognized priority string " + priorityString
+                                + " for plugin " + pluginName + ", defaulting to 'normal'. Should be one of '" +
+                                PluginPriority.HIGH + "', " + "'" + PluginPriority.NORMAL + "', or '" +
+                                PluginPriority. LOW+ "'.");
+                        priority = PluginPriority.NORMAL;
+                    }
+                }
+            }
             Class<?> pluginClass = Class.forName(pluginName);
             if (Plugin.class.isAssignableFrom(pluginClass)) {
-                pluginManager.addPlugin((Class<? extends Plugin>) pluginClass);
+                pluginManager.addPlugin((Class<? extends Plugin>) pluginClass, priority);
             } else {
                 utils.getMessager().printMessage(Kind.WARNING,
                         "Plugin " + pluginName + " is not a subclass of Plugin");
