@@ -5,10 +5,14 @@
  */
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "BasicData", tableName = "data")
 public class BasicDataSpec {
+
+    @PrimaryKey
+    long dataId;
 
     String data1;
 

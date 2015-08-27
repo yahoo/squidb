@@ -23,6 +23,8 @@ import javax.tools.Diagnostic;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
+    public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
+
     private PropertyGenerator idPropertyGenerator;
     private final DeclaredTypeName tableType;
 
@@ -94,6 +96,14 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
      */
     public PropertyGenerator getIdPropertyGenerator() {
         return idPropertyGenerator;
+    }
+
+    public String getIdPropertyName() {
+        if (idPropertyGenerator != null) {
+            return idPropertyGenerator.getPropertyName();
+        } else {
+            return DEFAULT_ID_PROPERTY_NAME;
+        }
     }
 
     /**

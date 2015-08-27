@@ -6,7 +6,6 @@
 package com.yahoo.squidb.processor.writers;
 
 import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
@@ -105,12 +104,11 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                         "\"PRIMARY KEY AUTOINCREMENT\"");
             }
 
-            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, "ID", constructor,
-                    TypeConstants.PUBLIC_STATIC_FINAL);
+            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
+                    constructor, TypeConstants.PUBLIC_STATIC_FINAL);
         }
         writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setIdProperty",
-                idPropertyGenerator == null ? "ID" : idPropertyGenerator.getPropertyName()));
+        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setIdProperty", modelSpec.getIdPropertyName()));
         writer.finishInitializerBlock(true, true);
         writer.writeNewline();
     }
@@ -122,18 +120,15 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                 .setReturnType(TypeConstants.LONG_PROPERTY)
                 .setMethodName("getIdProperty");
         writer.beginMethodDefinition(params);
-        if (modelSpec.getIdPropertyGenerator() != null) {
-            writer.writeStringStatement("return " + modelSpec.getIdPropertyGenerator().getPropertyName());
-        } else {
-            writer.writeStringStatement("return ID");
-        }
+        writer.writeStringStatement("return " + modelSpec.getIdPropertyName());
         writer.finishMethodDefinition();
     }
 
     @Override
     protected void writePropertiesInitializationBlock() throws IOException {
         writer.writeStatement(Expressions
-                .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, 0), Expressions.fromString("ID")));
+                .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, 0),
+                        Expressions.fromString(modelSpec.getIdPropertyName())));
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             writer.writeStatement(Expressions
                     .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i + 1),
@@ -155,7 +150,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
             MethodDeclarationParameters params = new MethodDeclarationParameters()
                     .setModifiers(Modifier.PUBLIC)
                     .setMethodName("setId")
-                    .setArgumentTypes(new DeclaredTypeName("long"))
+                    .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
                     .setArgumentNames("id")
                     .setReturnType(modelSpec.getGeneratedClassName());
             writer.writeAnnotation(CoreTypes.OVERRIDE)
