@@ -64,16 +64,6 @@ public class ModelMethodPlugin extends Plugin {
         }
     }
 
-    private void parseModelMethods() {
-        List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e instanceof ExecutableElement) {
-                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
-                        modelSpec.getGeneratedClassName());
-            }
-        }
-    }
-
     private void emitModelMethod(JavaFileWriter writer, ExecutableElement e, Modifier... modifiers)
             throws IOException {
         MethodDeclarationParameters params = utils.methodDeclarationParamsFromExecutableElement(e, modifiers);
@@ -98,6 +88,16 @@ public class ModelMethodPlugin extends Plugin {
         writer.beginMethodDefinition(params)
                 .writeStatement(methodCall)
                 .finishMethodDefinition();
+    }
+
+    private void parseModelMethods() {
+        List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
+        for (Element e : enclosedElements) {
+            if (e instanceof ExecutableElement) {
+                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
+                        modelSpec.getGeneratedClassName());
+            }
+        }
     }
 
     private void checkExecutableElement(ExecutableElement e, List<ExecutableElement> modelMethods,

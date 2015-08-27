@@ -129,13 +129,11 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
     private Expression constructInitializer(String name, boolean view) {
         if (view) {
-            return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery",
-                    QUERY_NAME, name, Expressions.classObject(modelSpec.getGeneratedClassName()),
-                    PROPERTIES_ARRAY_NAME);
+            return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery", QUERY_NAME, name,
+                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
         } else {
-            return Expressions
-                    .callMethodOn(QUERY_NAME, "as", name, Expressions.classObject(modelSpec.getGeneratedClassName()),
-                            PROPERTIES_ARRAY_NAME);
+            return Expressions.callMethodOn(QUERY_NAME, "as", name,
+                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
         }
     }
 
