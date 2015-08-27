@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.properties.factory;
+package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
@@ -12,7 +12,7 @@ import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
 
@@ -25,9 +25,9 @@ import javax.tools.Diagnostic;
  * create instances of {@link PropertyGenerator} for references to other Property subclasses (StringProperty,
  * LongProperty, etc.)
  */
-public class InheritedModelPropertyGeneratorFactory extends FieldReferencePropertyGeneratorFactory<InheritedModelSpec> {
+public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin<InheritedModelSpec> {
 
-    public InheritedModelPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+    public InheritedModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
     }
 

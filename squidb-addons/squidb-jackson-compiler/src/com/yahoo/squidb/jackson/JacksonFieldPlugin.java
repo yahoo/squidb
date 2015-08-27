@@ -8,22 +8,27 @@ package com.yahoo.squidb.jackson;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.properties.factory.TablePropertyGeneratorFactory;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
 
-public class JacksonPropertyGeneratorFactory extends TablePropertyGeneratorFactory {
+public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
 
-    public JacksonPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+    public JacksonFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
+        return super.processVariableElement(field, fieldType);
+    }
+
+    @Override
+    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (fieldType.equals(JacksonTypeConstants.MAP)) {
             return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName &&
                     fieldType.getTypeArgs().get(1) instanceof DeclaredTypeName;

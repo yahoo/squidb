@@ -3,39 +3,41 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.properties.generators;
+package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
+import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.VariableElement;
 
 /**
- * An implementation of {@link PropertyGenerator} for handling blob (byte[]) fields
+ * An implementation of {@link PropertyGenerator} for handling double fields
  */
-public class BasicBlobPropertyGenerator extends BasicPropertyGenerator {
+public class BasicDoublePropertyGenerator extends BasicPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
-        return Collections.singletonList(TypeConstants.BYTE_ARRAY);
+        return Arrays.asList(CoreTypes.JAVA_FLOAT, CoreTypes.PRIMITIVE_FLOAT,
+                CoreTypes.JAVA_DOUBLE, CoreTypes.PRIMITIVE_DOUBLE);
     }
 
-    public BasicBlobPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+    public BasicDoublePropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
 
     @Override
     protected DeclaredTypeName getTypeForGetAndSet() {
-        return TypeConstants.BYTE_ARRAY;
+        return CoreTypes.JAVA_DOUBLE;
     }
 
     @Override
     public DeclaredTypeName getPropertyType() {
-        return TypeConstants.BLOB_PROPERTY;
+        return TypeConstants.DOUBLE_PROPERTY;
     }
 
 }

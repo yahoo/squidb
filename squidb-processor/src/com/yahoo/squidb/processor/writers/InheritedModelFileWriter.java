@@ -10,7 +10,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginManager;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 

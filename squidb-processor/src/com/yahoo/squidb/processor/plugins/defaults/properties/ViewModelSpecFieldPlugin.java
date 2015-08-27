@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.properties.factory;
+package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
@@ -13,7 +13,7 @@ import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
 
@@ -26,9 +26,9 @@ import javax.tools.Diagnostic;
  * create instances of {@link PropertyGenerator} for references to other Property subclasses (StringProperty,
  * LongProperty, etc.)
  */
-public class ViewPropertyGeneratorFactory extends FieldReferencePropertyGeneratorFactory<ViewModelSpec> {
+public class ViewModelSpecFieldPlugin extends FieldReferencePlugin<ViewModelSpec> {
 
-    public ViewPropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+    public ViewModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
     }
 

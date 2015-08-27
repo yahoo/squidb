@@ -12,7 +12,7 @@ import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
 import com.yahoo.squidb.processor.plugins.PluginManager;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

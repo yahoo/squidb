@@ -11,7 +11,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicStringPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 
 import java.io.IOException;
 import java.util.Set;

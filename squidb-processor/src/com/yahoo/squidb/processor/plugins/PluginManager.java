@@ -10,9 +10,10 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
-import com.yahoo.squidb.processor.plugins.properties.factory.InheritedModelPropertyGeneratorFactory;
-import com.yahoo.squidb.processor.plugins.properties.factory.TablePropertyGeneratorFactory;
-import com.yahoo.squidb.processor.plugins.properties.factory.ViewPropertyGeneratorFactory;
+import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,8 @@ import javax.tools.Diagnostic;
  * This class maintains a list of known/enabled {@link Plugin} classes. Plugins available by default include
  * {@link ConstructorPlugin} for generating model constructors, {@link ImplementsPlugin} for allowing models to
  * implement interfaces, {@link ModelMethodPlugin} for copying methods from the model spec to the model, and the three
- * property generator plugins ({@link TablePropertyGeneratorFactory}, {@link ViewPropertyGeneratorFactory}, and
- * {@link InheritedModelPropertyGeneratorFactory}).
+ * property generator plugins ({@link TableModelSpecFieldPlugin}, {@link ViewModelSpecFieldPlugin}, and
+ * {@link InheritedModelSpecFieldPlugin}).
  * <p>
  * This class also manages option flags for plugins. The default plugins for constructors, interfaces, and model
  * methods can all be disabled using a flag. Other flags allow disabling default content values, disabling the
@@ -39,7 +40,7 @@ public class PluginManager {
 
     /**
      * Flag for preferring user plugins to the default plugins. This applies only to plugins that create
-     * {@link com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator}s. Set this flag if for example
+     * {@link PropertyGenerator}s. Set this flag if for example
      * if you want to provide a property generator that does custom StringProperty handling or otherwise override
      * the default property generation.
      */
@@ -93,9 +94,9 @@ public class PluginManager {
         }
 
         // Can't disable these, but they can be overridden by user plugins if the OPTIONS_PREFER_USER_PLUGIN flag is set
-        pluginClasses.add(TablePropertyGeneratorFactory.class);
-        pluginClasses.add(ViewPropertyGeneratorFactory.class);
-        pluginClasses.add(InheritedModelPropertyGeneratorFactory.class);
+        pluginClasses.add(TableModelSpecFieldPlugin.class);
+        pluginClasses.add(ViewModelSpecFieldPlugin.class);
+        pluginClasses.add(InheritedModelSpecFieldPlugin.class);
     }
 
     /**

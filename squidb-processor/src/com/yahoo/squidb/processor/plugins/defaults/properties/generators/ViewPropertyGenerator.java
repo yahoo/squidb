@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.properties.generators;
+package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
@@ -15,7 +15,8 @@ import javax.lang.model.element.VariableElement;
 /**
  * An implementation of {@link PropertyGenerator} for handling properties in view models
  */
-public class ViewPropertyGenerator extends BasicPropertyGenerator {
+public class ViewPropertyGenerator extends
+        com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator {
 
     private final DeclaredTypeName propertyType;
     private final DeclaredTypeName getAndSetType;

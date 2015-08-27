@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.properties.factory;
+package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
@@ -12,14 +12,14 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicBlobPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicBooleanPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicDoublePropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicIdPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicIntegerPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicLongPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.BasicStringPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBlobPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBooleanPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicDoublePropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIdPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIntegerPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLongPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +35,12 @@ import javax.tools.Diagnostic.Kind;
  * This plugin controls generating property declarations, getters, and setters for fields in a table model. It can
  * create instances of {@link PropertyGenerator} for each of the basic supported column types (String, int, long, etc.)
  */
-public class TablePropertyGeneratorFactory extends PropertyGeneratorPlugin<TableModelSpec> {
+public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpec> {
 
     private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap
             = new HashMap<DeclaredTypeName, Class<? extends PropertyGenerator>>();
 
-    public TablePropertyGeneratorFactory(ModelSpec<?> modelSpec, AptUtils utils) {
+    public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
         super(modelSpec, utils);
         registerBasicPropertyGenerators();
     }
