@@ -52,7 +52,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpec> {
 
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
-        utils.getMessager().printMessage(Kind.WARNING, "Table plugin processing field " + field.getSimpleName());
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
             if (field.getAnnotation(Deprecated.class) != null) {

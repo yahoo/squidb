@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 
 /**
  * This class wraps a list of {@link Plugin}s that have been instantiated for a single
@@ -38,12 +37,7 @@ public class PluginBundle {
 
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         for (Plugin plugin : plugins) {
-            if (plugin.modelSpec.getGeneratedClassName().getSimpleName().equals("TestModel")) {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                        "Checking plugin " + plugin.getClass() + " for field " + field.getSimpleName());
-            }
             if (plugin.canProcessModelSpec() && plugin.processVariableElement(field, fieldType)) {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Processed, returning true");
                 return true;
             }
         }
