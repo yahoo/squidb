@@ -5,9 +5,11 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
+import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
@@ -41,7 +43,8 @@ public class ConstructorPlugin extends Plugin {
     }
 
     @Override
-    public void writeConstructors(JavaFileWriter writer) throws IOException {
+    public void emitConstructors(JavaFileWriter writer) throws IOException {
+        writer.writeComment("--- default constructors");
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setModifiers(Modifier.PUBLIC)
                 .setConstructorName(modelSpec.getGeneratedClassName());
@@ -69,6 +72,19 @@ public class ConstructorPlugin extends Plugin {
         writer.beginConstructorDeclaration(params)
                 .writeStringStatement("this()")
                 .writeStringStatement("readPropertiesFromContentValues(contentValues, withProperties)")
+                .finishMethodDefinition();
+
+        MethodDeclarationParameters cloneParams = new MethodDeclarationParameters()
+                .setModifiers(Modifier.PUBLIC)
+                .setMethodName("clone")
+                .setReturnType(modelSpec.getGeneratedClassName());
+
+        Expression cloneBody = Expressions.callMethodOn("super", "clone")
+                .cast(modelSpec.getGeneratedClassName()).returnExpr();
+
+        writer.writeAnnotation(CoreTypes.OVERRIDE);
+        writer.beginMethodDefinition(cloneParams)
+                .writeStatement(cloneBody)
                 .finishMethodDefinition();
     }
 }

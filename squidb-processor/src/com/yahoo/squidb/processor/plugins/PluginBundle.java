@@ -67,45 +67,78 @@ public class PluginBundle {
     }
 
     /**
-     * Calls {@link Plugin#writeConstants(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#beforeEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
-    public void writeConstants(JavaFileWriter writer) throws IOException {
+    public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.canProcessModelSpec()) {
-                plugin.writeConstants(writer);
+                plugin.beforeEmitSchema(writer);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#writeConstructors(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#afterEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
-    public void writeConstructors(JavaFileWriter writer) throws IOException {
+    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.canProcessModelSpec()) {
-                plugin.writeConstructors(writer);
+                plugin.afterEmitSchema(writer);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#writeMethods(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#emitConstructors(JavaFileWriter)} on all the bundled plugins
      */
-    public void writeMethods(JavaFileWriter writer) throws IOException {
+    public void emitConstructors(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.canProcessModelSpec()) {
-                plugin.writeMethods(writer);
+                plugin.emitConstructors(writer);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#writeAdditionalCode(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#beforeEmitMethods(JavaFileWriter)} on all the bundled plugins
      */
-    public void writeAdditionalCode(JavaFileWriter writer) throws IOException {
+    public void beforeEmitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.canProcessModelSpec()) {
-                plugin.writeAdditionalCode(writer);
+                plugin.beforeEmitMethods(writer);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#emitMethods(JavaFileWriter)} on all the bundled plugins
+     */
+    public void emitMethods(JavaFileWriter writer) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.canProcessModelSpec()) {
+                plugin.emitMethods(writer);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#afterEmitMethods(JavaFileWriter)} on all the bundled plugins
+     */
+    public void afterEmitMethods(JavaFileWriter writer) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.canProcessModelSpec()) {
+                plugin.afterEmitMethods(writer);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#emitOtherHelpers(JavaFileWriter)} on all the bundled plugins
+     */
+    public void emitOtherHelpers(JavaFileWriter writer) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.canProcessModelSpec()) {
+                plugin.emitOtherHelpers(writer);
             }
         }
     }

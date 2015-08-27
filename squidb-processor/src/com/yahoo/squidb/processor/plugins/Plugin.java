@@ -9,7 +9,6 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.Set;
@@ -17,23 +16,24 @@ import java.util.Set;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Base class for all code generator plugins. All Plugins should extend from this base class, and can override any of
- * its methods to add code generation of that type. The types of code generation supported via plugins are:
- * <ul>
- * <li>Generating Property declarations/getters/setters using {@link PropertyGenerator}. This can be used to
- * declare properties of a custom field type (as in the squidb-jackson-plugin) or to override default behavior
- * of the basic column types. Plugins implementing this functionality should override
- * {@link #processVariableElement(VariableElement, DeclaredTypeName)} to handle fields in the model</li>
- * <li>Adding imports required by whatever code the plugin generates by overriding {@link #addRequiredImports(Set)}.
- * Nearly all plugins will probably need to override this method</li>
- * <li>Adding interfaces for the generated model to implement (see {@link #addInterfacesToImplement(Set)})</li>
- * <li>Write constant fields (see {@link #writeConstants(JavaFileWriter)})</li>
- * <li>Write additional constructors (see {@link #writeConstructors(JavaFileWriter)})</li>
- * <li>Write any additional methods (see {@link #writeMethods(JavaFileWriter)})</li>
- * <li>Write any additional arbitrary code at the bottom of the generated class. This could include static or
- * non-static initializer blocks, fields, methods, or anything else (see
- * {@link #writeAdditionalCode(JavaFileWriter)})</li>
- * </ul>
+ * The Plugin class defines several hooks for plugins to add code to a generated model class. Code generation for a
+ * model can be broken down into several distinct phases, each of which has one or more corresponding hooks available
+ * to plugins:
+ * <ol>
+ *     <li>Declare imports. Plugins can add imports using {@link #addRequiredImports(Set)}</li>
+ *     <li>Begin class declaration. Much of this is fixed, but plugins can add interfaces for the generated class to
+ *     implement using {@link #addInterfacesToImplement(Set)}</li>
+ *     <li>Emitting the table or view schema. This includes property declarations, the Table or View object for the
+ *     model, etc. Plugins can generate code before or after this phase using {@link #beforeEmitSchema(JavaFileWriter)}
+ *     and {@link #afterEmitSchema(JavaFileWriter)}</li>
+ *     <li>Emitting constructors. Plugins can add constructors using {@link #emitConstructors(JavaFileWriter)}. Note
+ *     that several default constructors and a clone() method are emitted by a built-in plugin.</li>
+ *     <li>Emitting methods. Plugins can emit code before methods are declared
+ *     ({@link #beforeEmitMethods(JavaFileWriter)}), emit methods ({@link #emitMethods(JavaFileWriter)}), or emit code
+ *     after methods are emitted ({@link #afterEmitMethods(JavaFileWriter)})</li>
+ *     <li>Emit other helpers. This is the final phase of code generation before the class definition is closed. Plugins
+ *     can generate arbitrary code here using {@link #emitOtherHelpers(JavaFileWriter)}</li>
+ * </ol>
  */
 public class Plugin {
 
@@ -93,32 +93,60 @@ public class Plugin {
     }
 
     /**
-     * Called when emitting constant declarations (public static final fields) at the top of the generated model class.
-     * Plugin subclasses can override to add their own constants
+     * Called before emitting the table schema (property declarations, the Table/View object, etc.). This is essentially
+     * the top of the file before anything model-specific exists.
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
-    public void writeConstants(JavaFileWriter writer) throws IOException {
+    public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
         // Stub for subclasses to override
     }
 
     /**
-     * Called when emitting constructors for the generated model class. Plugin subclasses can override to add their own
+     * Called after emitting the table schema (property declarations, the Table/View object, etc.)
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     */
+    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called to emit constructors for the generated model class. Plugin subclasses can override to add their own
      * constructors
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
-    public void writeConstructors(JavaFileWriter writer) throws IOException {
+    public void emitConstructors(JavaFileWriter writer) throws IOException {
         // Stub for subclasses to override
     }
 
     /**
-     * Called after emitting getters and setters for each property. Plugin subclasses can override to add any additional
-     * methods
+     * Called before emitting methods. Plugin subclasses can generate arbitrary code here. This is called after
+     * emitting constructors
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
-    public void writeMethods(JavaFileWriter writer) throws IOException {
+    public void beforeEmitMethods(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called to emit methods. Plugin subclasses can override to add methods to the model definition
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     */
+    public void emitMethods(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting methods. Plugin subclasses can generate arbitrary code here. This is called after
+     * emitting methods
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     */
+    public void afterEmitMethods(JavaFileWriter writer) throws IOException {
         // Stub for subclasses to override
     }
 
@@ -128,7 +156,7 @@ public class Plugin {
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
-    public void writeAdditionalCode(JavaFileWriter writer) throws IOException {
+    public void emitOtherHelpers(JavaFileWriter writer) throws IOException {
         // Stub for subclasses to override
     }
 

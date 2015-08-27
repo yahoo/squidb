@@ -55,7 +55,7 @@ public class ModelMethodPlugin extends Plugin {
     }
 
     @Override
-    public void writeMethods(JavaFileWriter writer) throws IOException {
+    public void emitMethods(JavaFileWriter writer) throws IOException {
         for (ExecutableElement e : modelMethods) {
             emitModelMethod(writer, e, Modifier.PUBLIC);
         }

@@ -17,7 +17,6 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +34,6 @@ import javax.tools.Diagnostic;
  * <li>The {@link TypeElement} representing the model spec class (see {@link #getModelSpecElement()})</li>
  * <li>The name of the TypeElement (see {@link #getModelSpecName()})</li>
  * <li>The name of the class to be generated (see {@link #getGeneratedClassName()})</li>
- * <li>A list of {@link VariableElement}s representing constant fields to be copied
- * (see {@link #getConstantElements()})</li>
  * <li>A list of {@link PropertyGenerator}s for the generated model's fields
  * (see {@link #getPropertyGenerators()})</li>
  * <li>A list of {@link PropertyGenerator}s for the generated model's deprecated fields
@@ -50,7 +47,6 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final DeclaredTypeName modelSpecName;
     protected final TypeElement modelSpecElement;
 
-    private final List<VariableElement> constantElements = new ArrayList<VariableElement>();
     private final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
     private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
     private final Map<String, Object> metadataMap = new HashMap<String, Object>();
@@ -98,8 +94,7 @@ public abstract class ModelSpec<T extends Annotation> {
     /**
      * @return a set of imports needed to include in the generated model
      */
-    public final Set<DeclaredTypeName> getRequiredImports() {
-        Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
+    public final void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
         imports.add(TypeConstants.ABSTRACT_MODEL); // For CREATOR
         imports.add(getModelSuperclass());
@@ -107,8 +102,7 @@ public abstract class ModelSpec<T extends Annotation> {
             generator.registerRequiredImports(imports);
         }
         addModelSpecificImports(imports);
-        utils.accumulateImportsFromElements(imports, constantElements);
-        return imports;
+        pluginBundle.addRequiredImports(imports);
     }
 
     protected abstract void addModelSpecificImports(Set<DeclaredTypeName> imports);
@@ -146,20 +140,6 @@ public abstract class ModelSpec<T extends Annotation> {
      */
     public T getSpecAnnotation() {
         return modelSpecAnnotation;
-    }
-
-    /**
-     * @return a list of constant elements to be copied to the generated model
-     */
-    public List<VariableElement> getConstantElements() {
-        return constantElements;
-    }
-
-    /**
-     * Add a constant element to be copied to the generated model
-     */
-    public void addConstantElement(VariableElement e) {
-        constantElements.add(e);
     }
 
     /**

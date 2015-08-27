@@ -12,12 +12,12 @@ import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.JavaFileWriter.Type;
-import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginBundle;
 import com.yahoo.squidb.processor.plugins.PluginManager;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
@@ -26,13 +26,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
 import javax.tools.JavaFileObject;
 
 public abstract class ModelFileWriter<T extends ModelSpec<?>> {
@@ -91,25 +91,29 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void writeJavaFile() throws IOException {
+        PluginBundle plugins = modelSpec.getPluginBundle();
+
         emitPackage();
         emitImports();
         beginClassDeclaration();
-        emitConstantElements();
 
+        plugins.beforeEmitSchema(writer);
         emitPropertiesArray();
-
         emitModelSpecificFields();
-
         emitPropertyDeclarations();
-        emitConstructors();
-        emitClone();
         emitDefaultValues();
+        plugins.afterEmitSchema(writer);
+
+        plugins.emitConstructors(writer);
+
+        plugins.beforeEmitMethods(writer);
         emitGettersAndSetters();
-        emitMethods();
+        plugins.emitMethods(writer);
+        plugins.afterEmitMethods(writer);
 
         emitCreator();
         emitModelSpecificHelpers();
-        emitAdditionalCodeFromPlugins();
+        plugins.emitOtherHelpers(writer);
 
         writer.finishTypeDefinition();
     }
@@ -119,15 +123,11 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void emitImports() throws IOException {
-        Set<DeclaredTypeName> imports = modelSpec.getRequiredImports();
-        modelSpec.getPluginBundle().addRequiredImports(imports);
+        Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
+        modelSpec.addRequiredImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
                 TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
-    }
-
-    protected void emitModelSpecificFields() throws IOException {
-        // Subclasses can override
     }
 
     private void beginClassDeclaration() throws IOException {
@@ -151,21 +151,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }
 
-    private void emitConstantElements() throws IOException {
-        if (modelSpec.getConstantElements().size() > 0) {
-            writer.writeComment("--- constants");
-            for (VariableElement constant : modelSpec.getConstantElements()) {
-                writer.writeFieldDeclaration(
-                        utils.getTypeNameFromTypeMirror(constant.asType()),
-                        constant.getSimpleName().toString(),
-                        Expressions.staticReference(modelSpec.getModelSpecName(), constant.getSimpleName().toString()),
-                        TypeConstants.PUBLIC_STATIC_FINAL);
-            }
-            modelSpec.getPluginBundle().writeConstants(writer);
-            writer.writeNewline();
-        }
-    }
-
     protected void emitPropertiesArray() throws IOException {
         writer.writeComment("--- allocate properties array");
         writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
@@ -176,6 +161,10 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected int getPropertiesArrayLength() {
         return modelSpec.getPropertyGenerators().size();
+    }
+
+    protected void emitModelSpecificFields() throws IOException {
+        // Subclasses can override
     }
 
     private void emitPropertyDeclarations() throws IOException {
@@ -194,55 +183,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     protected abstract void writePropertiesInitializationBlock() throws IOException;
-
-    private void emitConstructors() throws IOException {
-        writer.writeComment("--- constructors");
-        modelSpec.getPluginBundle().writeConstructors(writer);
-    }
-
-    private void emitClone() throws IOException {
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setMethodName("clone")
-                .setReturnType(modelSpec.getGeneratedClassName());
-
-        Expression cloneBody = Expressions.callMethodOn("super", "clone")
-                .cast(modelSpec.getGeneratedClassName()).returnExpr();
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        writer.beginMethodDefinition(params)
-                .writeStatement(cloneBody)
-                .finishMethodDefinition();
-    }
-
-    protected void emitGettersAndSetters() throws IOException {
-        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
-            writer.writeComment("--- getters and setters disabled by plugin flag");
-        } else {
-            writer.writeComment("--- getters and setters");
-            for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-                emitGetter(writer, generator);
-                emitSetter(writer, generator);
-            }
-        }
-    }
-
-    private void emitGetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitGetter(writer);
-        generator.emitGetter(writer);
-        generator.afterEmitGetter(writer);
-    }
-
-    private void emitSetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitSetter(writer);
-        generator.emitSetter(writer);
-        generator.afterEmitSetter(writer);
-    }
-
-    private void emitMethods() throws IOException {
-        writer.writeComment("--- other instance methods");
-        modelSpec.getPluginBundle().writeMethods(writer);
-    }
 
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");
@@ -269,6 +209,30 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected abstract void emitDefaultValuesInitializationBlock() throws IOException;
 
+    protected void emitGettersAndSetters() throws IOException {
+        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+            writer.writeComment("--- getters and setters disabled by plugin flag");
+        } else {
+            writer.writeComment("--- getters and setters");
+            for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+                emitGetter(writer, generator);
+                emitSetter(writer, generator);
+            }
+        }
+    }
+
+    private void emitGetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
+        generator.beforeEmitGetter(writer);
+        generator.emitGetter(writer);
+        generator.afterEmitGetter(writer);
+    }
+
+    private void emitSetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
+        generator.beforeEmitSetter(writer);
+        generator.emitSetter(writer);
+        generator.afterEmitSetter(writer);
+    }
+
     private void emitCreator() throws IOException {
         writer.writeComment("--- parcelable helpers");
         List<DeclaredTypeName> genericList = Collections.singletonList(modelSpec.getGeneratedClassName());
@@ -291,9 +255,5 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected void emitModelSpecificHelpers() throws IOException {
         // Subclasses can override
-    }
-
-    private void emitAdditionalCodeFromPlugins() throws IOException {
-        modelSpec.getPluginBundle().writeAdditionalCode(writer);
     }
 }
