@@ -91,8 +91,11 @@ public abstract class ModelSpec<T extends Annotation> {
      */
     public abstract DeclaredTypeName getModelSuperclass();
 
+
     /**
-     * @return a set of imports needed to include in the generated model
+     * Adds imports required by this model spec to the given accumulator set
+     *
+     * @param imports accumulator set
      */
     public final void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array

@@ -6,7 +6,6 @@
 package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 
 import java.io.IOException;
@@ -24,15 +23,12 @@ import javax.lang.model.element.VariableElement;
 public class PluginBundle {
 
     private final List<Plugin> plugins;
-    private final AptUtils utils;
 
     /**
      * @param plugins a list of Plugins instantiated for a given model spec
-     * @param utils annotation processing utilities class
      */
-    public PluginBundle(List<Plugin> plugins, AptUtils utils) {
+    public PluginBundle(List<Plugin> plugins) {
         this.plugins = plugins;
-        this.utils = utils;
     }
 
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {

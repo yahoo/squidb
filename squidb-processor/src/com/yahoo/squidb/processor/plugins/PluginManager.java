@@ -148,7 +148,7 @@ public class PluginManager {
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);
-        return new PluginBundle(plugins, utils);
+        return new PluginBundle(plugins);
     }
 
     private void accumulatePlugins(List<Plugin> accumulator, List<Class<? extends Plugin>> pluginList,
