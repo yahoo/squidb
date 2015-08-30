@@ -20,7 +20,7 @@ public abstract class BaseFieldPlugin extends Plugin {
     }
 
     @Override
-    public abstract boolean canProcessModelSpec();
+    public abstract boolean hasChangesForModelSpec();
 
     protected final boolean tryCreatePropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         if (hasPropertyGeneratorForField(field, fieldType)) {

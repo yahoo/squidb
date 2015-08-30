@@ -32,7 +32,7 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
     }
 
     @Override
-    public boolean canProcessModelSpec() {
+    public boolean hasChangesForModelSpec() {
         return modelSpec instanceof ViewModelSpecWrapper;
     }
 
@@ -57,8 +57,8 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Only one ViewQuery can be declared per spec");
                 } else {
-                    modelSpec.attachMetadata(ViewModelSpecWrapper.METADATA_KEY_VIEW_QUERY, isViewQuery);
-                    modelSpec.attachMetadata(ViewModelSpecWrapper.METADATA_KEY_QUERY_ELEMENT, field);
+                    modelSpec.putMetadata(ViewModelSpecWrapper.METADATA_KEY_VIEW_QUERY, isViewQuery);
+                    modelSpec.putMetadata(ViewModelSpecWrapper.METADATA_KEY_QUERY_ELEMENT, field);
                 }
                 return true;
             } else if (isViewProperty) {

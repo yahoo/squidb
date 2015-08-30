@@ -40,7 +40,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
      * @return a {@link VariableElement} representing the query in the model spec that should define the view
      */
     public VariableElement getQueryElement() {
-        return getAttachedMetadata(METADATA_KEY_QUERY_ELEMENT);
+        return getMetadata(METADATA_KEY_QUERY_ELEMENT);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
      * @see #getQueryElement()
      */
     public ViewQuery getViewQueryAnnotation() {
-        return getAttachedMetadata(METADATA_KEY_VIEW_QUERY);
+        return getMetadata(METADATA_KEY_VIEW_QUERY);
     }
 
     @Override

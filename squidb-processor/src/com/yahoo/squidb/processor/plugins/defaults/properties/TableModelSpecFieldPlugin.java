@@ -45,7 +45,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
-    public boolean canProcessModelSpec() {
+    public boolean hasChangesForModelSpec() {
         return modelSpec instanceof TableModelSpecWrapper;
     }
 
@@ -64,7 +64,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                             "Only a single primary key column is supported at this time.", field);
                 } else {
-                    modelSpec.attachMetadata(TableModelSpecWrapper.METADATA_KEY_ID_PROPERTY_GENERATOR,
+                    modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ID_PROPERTY_GENERATOR,
                             getPropertyGenerator(field, fieldType));
                     return true;
                 }

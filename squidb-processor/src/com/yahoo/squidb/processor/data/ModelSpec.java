@@ -39,6 +39,9 @@ import javax.tools.Diagnostic;
  * <li>A list of {@link PropertyGenerator}s for the generated model's deprecated fields
  * (see {@link #getDeprecatedPropertyGenerators()})</li>
  * </ul>
+ * <p>
+ * Plugins can also store arbitrary metadata in a model spec using {@link #putMetadata(String, Object)} and
+ * {@link #getMetadata(String)}
  */
 public abstract class ModelSpec<T extends Annotation> {
 
@@ -62,7 +65,9 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginManager.getPluginBundleForModelSpec(this);
+
         processVariableElements();
+        pluginBundle.afterProcessVariableElements();
     }
 
     private void processVariableElements() {
@@ -173,16 +178,40 @@ public abstract class ModelSpec<T extends Annotation> {
         deprecatedPropertyGenerators.add(propertyGenerator);
     }
 
-    public void attachMetadata(String metadataKey, Object metadata) {
+    /**
+     * Attach arbitrary metadata to this model spec objects. Plugins can store metadata and then retrieve it later with
+     * {@link #getMetadata(String)}
+     * @param metadataKey key for storing/retrieving the metadata
+     * @param metadata the metadata to store
+     *
+     * @see #hasMetadata(String)
+     * @see #getMetadata(String)
+     */
+    public void putMetadata(String metadataKey, Object metadata) {
         metadataMap.put(metadataKey, metadata);
     }
 
+    /**
+     * @param metadataKey the metadata key to look up
+     * @return true if there is metadata stored for the given key, false otherwise
+     *
+     * @see #putMetadata(String, Object)
+     * @see #getMetadata(String)
+     */
     public boolean hasMetadata(String metadataKey) {
         return metadataMap.containsKey(metadataKey);
     }
 
+    /**
+     * Retrieve metadata that was previously attached with {@link #putMetadata(String, Object)}
+     * @param metadataKey key for storing/retrieving metadata
+     * @return the metadata object for the given key if one was found, null otherwise
+     *
+     * @see #putMetadata(String, Object)
+     * @see #hasMetadata(String)
+     */
     @SuppressWarnings("unchecked")
-    public <TYPE> TYPE getAttachedMetadata(String metadataKey) {
+    public <TYPE> TYPE getMetadata(String metadataKey) {
         return (TYPE) metadataMap.get(metadataKey);
     }
 }

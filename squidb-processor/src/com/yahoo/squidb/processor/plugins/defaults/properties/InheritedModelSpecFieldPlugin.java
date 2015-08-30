@@ -31,7 +31,7 @@ public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin {
     }
 
     @Override
-    public boolean canProcessModelSpec() {
+    public boolean hasChangesForModelSpec() {
         return modelSpec instanceof InheritedModelSpecWrapper;
     }
 

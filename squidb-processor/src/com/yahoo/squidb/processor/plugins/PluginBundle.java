@@ -31,9 +31,16 @@ public class PluginBundle {
         this.plugins = plugins;
     }
 
+    /**
+     * Calls {@link Plugin#processVariableElement(VariableElement, DeclaredTypeName)} on all the bundled plugins until
+     * one of them returns true to "claim" the field
+     * @param field a {@link VariableElement} field in a model spec
+     * @param fieldType the type name of the field
+     * @return true if any of the bundled plugins claimed the field for processing, false otherwise
+     */
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec() && plugin.processVariableElement(field, fieldType)) {
+            if (plugin.hasChangesForModelSpec() && plugin.processVariableElement(field, fieldType)) {
                 return true;
             }
         }
@@ -41,11 +48,22 @@ public class PluginBundle {
     }
 
     /**
+     * Calls {@link Plugin#afterProcessVariableElements()} on all the bundled plugins
+     */
+    public void afterProcessVariableElements() {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.afterProcessVariableElements();
+            }
+        }
+    }
+
+    /**
      * Calls {@link Plugin#addRequiredImports(Set)} on all the bundled plugins
      */
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.addRequiredImports(imports);
             }
         }
@@ -56,7 +74,7 @@ public class PluginBundle {
      */
     public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.addInterfacesToImplement(interfaces);
             }
         }
@@ -67,7 +85,7 @@ public class PluginBundle {
      */
     public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.beforeEmitSchema(writer);
             }
         }
@@ -78,7 +96,7 @@ public class PluginBundle {
      */
     public void afterEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.afterEmitSchema(writer);
             }
         }
@@ -89,7 +107,7 @@ public class PluginBundle {
      */
     public void emitConstructors(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.emitConstructors(writer);
             }
         }
@@ -100,7 +118,7 @@ public class PluginBundle {
      */
     public void beforeEmitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.beforeEmitMethods(writer);
             }
         }
@@ -111,7 +129,7 @@ public class PluginBundle {
      */
     public void emitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.emitMethods(writer);
             }
         }
@@ -122,7 +140,7 @@ public class PluginBundle {
      */
     public void afterEmitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.afterEmitMethods(writer);
             }
         }
@@ -133,7 +151,7 @@ public class PluginBundle {
      */
     public void emitOtherHelpers(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
-            if (plugin.canProcessModelSpec()) {
+            if (plugin.hasChangesForModelSpec()) {
                 plugin.emitOtherHelpers(writer);
             }
         }

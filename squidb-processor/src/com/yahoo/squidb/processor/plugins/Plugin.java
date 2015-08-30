@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.Set;
@@ -55,9 +56,10 @@ public class Plugin {
     /**
      * @return true if this plugin may make any changes during code generation for this model spec. The default is true;
      * plugins like the default property generator plugins may return false if the model spec is of a different kind
-     * than the kind they handle
+     * than the kind they handle. If this method returns false, none of the other methods in this plugin will be called
+     * during code generation for this model
      */
-    public boolean canProcessModelSpec() {
+    public boolean hasChangesForModelSpec() {
         // Subclasses can override if they want to ignore this entire model spec
         return true;
     }
@@ -71,6 +73,16 @@ public class Plugin {
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         // Stub for subclasses to override
         return false;
+    }
+
+    /**
+     * Called after processing all variable elements in the model spec. Subclasses that want to add additional property
+     * generators for properties not corresponding to a field in the model spec should override this method and do so
+     * here by calling {@link ModelSpec#addPropertyGenerator(PropertyGenerator)} or
+     * {@link ModelSpec#addDeprecatedPropertyGenerator(PropertyGenerator)}
+     */
+    public void afterProcessVariableElements() {
+        // Stub for subclasses to override
     }
 
     /**
