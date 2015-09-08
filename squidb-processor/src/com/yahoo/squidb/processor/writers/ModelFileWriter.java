@@ -18,7 +18,7 @@ import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ import javax.tools.JavaFileObject;
 public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected final AptUtils utils;
-    protected final PluginManager pluginManager;
+    protected final PluginEnvironment pluginEnv;
 
     protected final T modelSpec;
 
@@ -67,9 +67,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                 .setReturnType(TypeConstants.CONTENT_VALUES);
     }
 
-    public ModelFileWriter(T modelSpec, PluginManager pluginManager, AptUtils utils) {
+    public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv, AptUtils utils) {
         this.modelSpec = modelSpec;
-        this.pluginManager = pluginManager;
+        this.pluginEnv = pluginEnv;
         this.utils = utils;
     }
 
@@ -190,7 +190,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                 Expressions.callConstructor(TypeConstants.CONTENT_VALUES),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
-        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
+        if (pluginEnv.getFlag(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
             writer.writeComment("--- property defaults disabled by plugin flag");
         } else {
             writer.beginInitializerBlock(true, true)
@@ -210,7 +210,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     protected abstract void emitDefaultValuesInitializationBlock() throws IOException;
 
     protected void emitGettersAndSetters() throws IOException {
-        if (pluginManager.getFlag(PluginManager.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+        if (pluginEnv.getFlag(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             writer.writeComment("--- getters and setters disabled by plugin flag");
         } else {
             writer.writeComment("--- getters and setters");

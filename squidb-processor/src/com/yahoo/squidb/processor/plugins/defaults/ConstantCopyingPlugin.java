@@ -6,13 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,14 +24,14 @@ import javax.lang.model.element.VariableElement;
 /**
  * A plugin that controls the copying of otherwise unhandled public static final fields in model specs as constants in
  * the generated model. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING} flag set.
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING} flag set.
  */
 public class ConstantCopyingPlugin extends Plugin {
 
     private final List<VariableElement> constantElements = new ArrayList<VariableElement>();
 
-    public ConstantCopyingPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public ConstantCopyingPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

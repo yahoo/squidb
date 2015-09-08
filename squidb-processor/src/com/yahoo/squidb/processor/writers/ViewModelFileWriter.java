@@ -15,7 +15,7 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.Alias;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -40,8 +40,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
                 .setModifiers(Modifier.PROTECTED);
     }
 
-    public ViewModelFileWriter(TypeElement element, PluginManager pluginManager, AptUtils utils) {
-        super(new ViewModelSpecWrapper(element, pluginManager, utils), pluginManager, utils);
+    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
+        super(new ViewModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
     }
 
     @Override

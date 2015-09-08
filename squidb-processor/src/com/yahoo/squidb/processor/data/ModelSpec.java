@@ -11,7 +11,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.lang.annotation.Annotation;
@@ -58,13 +58,13 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final PluginBundle pluginBundle;
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
-            PluginManager pluginManager, AptUtils utils) {
+            PluginEnvironment pluginEnv, AptUtils utils) {
         this.utils = utils;
         this.modelSpecElement = modelSpecElement;
         this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
-        this.pluginBundle = pluginManager.getPluginBundleForModelSpec(this);
+        this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();

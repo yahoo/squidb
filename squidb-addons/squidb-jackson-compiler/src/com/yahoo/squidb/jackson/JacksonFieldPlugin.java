@@ -6,8 +6,8 @@
 package com.yahoo.squidb.jackson;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
@@ -15,8 +15,8 @@ import javax.lang.model.element.VariableElement;
 
 public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
 
-    public JacksonFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public JacksonFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

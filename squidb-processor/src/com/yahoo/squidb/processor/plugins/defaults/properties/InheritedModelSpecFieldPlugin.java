@@ -6,11 +6,11 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
@@ -26,8 +26,8 @@ import javax.tools.Diagnostic;
  */
 public class InheritedModelSpecFieldPlugin extends FieldReferencePlugin {
 
-    public InheritedModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public InheritedModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

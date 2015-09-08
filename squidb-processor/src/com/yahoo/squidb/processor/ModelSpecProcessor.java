@@ -9,18 +9,14 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
-import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginManager;
-import com.yahoo.squidb.processor.plugins.PluginManager.PluginPriority;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 import com.yahoo.squidb.processor.writers.ViewModelFileWriter;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -58,15 +54,10 @@ import javax.tools.Diagnostic.Kind;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public final class ModelSpecProcessor extends AbstractProcessor {
 
-    private static final String PLUGINS_KEY = "squidbPlugins";
-    private static final String SEPARATOR = ";";
-
-    private static final String OPTIONS_KEY = "squidbOptions";
-
     private AptUtils utils;
     private Filer filer;
 
-    private PluginManager pluginManager;
+    private PluginEnvironment pluginEnv;
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -79,7 +70,10 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedOptions() {
-        return Collections.singleton(PLUGINS_KEY);
+        Set<String> supportedOptions = new HashSet<String>();
+        supportedOptions.add(PluginEnvironment.PLUGINS_KEY);
+        supportedOptions.add(PluginEnvironment.OPTIONS_KEY);
+        return supportedOptions;
     }
 
     @Override
@@ -89,73 +83,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         utils = new AptUtils(env.getMessager(), env.getTypeUtils());
         filer = env.getFiler();
 
-        Map<String, String> options = env.getOptions();
-
-        pluginManager = new PluginManager(utils, getOptionsFlag(options));
-        processOptionsForPlugins(options);
-    }
-
-    private int getOptionsFlag(Map<String, String> options) {
-        int flags = 0;
-        if (options != null && options.containsKey(OPTIONS_KEY)) {
-            String flagsString = options.get(OPTIONS_KEY);
-            try {
-                flags = Integer.parseInt(flagsString);
-            } catch (NumberFormatException e) {
-                utils.getMessager().printMessage(Kind.WARNING, "Options flag value " + flagsString +
-                        " could not be parsed");
-            }
-        }
-        return flags;
-    }
-
-    private void processOptionsForPlugins(Map<String, String> options) {
-        if (options != null) {
-            String plugins = options.get(PLUGINS_KEY);
-            if (!AptUtils.isEmpty(plugins)) {
-                processPluginsString(plugins);
-            }
-        }
-    }
-
-    private void processPluginsString(String pluginsString) {
-        String[] allPlugins = pluginsString.split(SEPARATOR);
-        for (String plugin : allPlugins) {
-            processSinglePlugin(plugin);
-        }
-    }
-
-    private void processSinglePlugin(String pluginName) {
-        try {
-            PluginPriority priority = PluginPriority.NORMAL;
-            if (pluginName.contains(":")) {
-                String[] nameAndPriority = pluginName.split(":");
-                if (nameAndPriority.length != 2) {
-                    utils.getMessager().printMessage(Kind.ERROR, "Error parsing plugin and priority " + pluginName);
-                } else {
-                    pluginName = nameAndPriority[0];
-                    String priorityString = nameAndPriority[1];
-                    priority = PluginPriority.valueOf(priorityString.toUpperCase());
-                    if (priority == null) {
-                        utils.getMessager().printMessage(Kind.WARNING, "Unrecognized priority string " + priorityString
-                                + " for plugin " + pluginName + ", defaulting to 'normal'. Should be one of '" +
-                                PluginPriority.HIGH + "', " + "'" + PluginPriority.NORMAL + "', or '" +
-                                PluginPriority.LOW + "'.");
-                        priority = PluginPriority.NORMAL;
-                    }
-                }
-            }
-            Class<?> pluginClass = Class.forName(pluginName);
-            if (Plugin.class.isAssignableFrom(pluginClass)) {
-                pluginManager.addPlugin((Class<? extends Plugin>) pluginClass, priority);
-            } else {
-                utils.getMessager().printMessage(Kind.WARNING,
-                        "Plugin " + pluginName + " is not a subclass of Plugin");
-            }
-        } catch (Exception e) {
-            utils.getMessager()
-                    .printMessage(Kind.WARNING, "Unable to instantiate plugin " + pluginName + ", reason: " + e);
-        }
+        pluginEnv = new PluginEnvironment(utils, env.getOptions());
     }
 
     @Override
@@ -181,11 +109,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
         if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, pluginManager, utils);
+            return new TableModelFileWriter(typeElement, pluginEnv, utils);
         } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, pluginManager, utils);
+            return new ViewModelFileWriter(typeElement, pluginEnv, utils);
         } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, pluginManager, utils);
+            return new InheritedModelFileWriter(typeElement, pluginEnv, utils);
         } else {
             throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
         }

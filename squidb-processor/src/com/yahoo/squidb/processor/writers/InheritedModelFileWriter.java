@@ -9,7 +9,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
@@ -18,8 +18,8 @@ import javax.lang.model.element.TypeElement;
 
 public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpecWrapper> {
 
-    public InheritedModelFileWriter(TypeElement element, PluginManager pluginManager, AptUtils utils) {
-        super(new InheritedModelSpecWrapper(element, pluginManager, utils), pluginManager, utils);
+    public InheritedModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
+        super(new InheritedModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
     }
 
     @Override

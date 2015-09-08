@@ -7,7 +7,6 @@ package com.yahoo.squidb.processor.plugins.defaults;
 
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
@@ -15,7 +14,7 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 
 import java.io.IOException;
@@ -28,12 +27,12 @@ import javax.lang.model.element.Modifier;
 /**
  * A {@link Plugin} that controls generating constructors in model classes. This plugin generates four distinct
  * constructors in each model class. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS} flag set.
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS} flag set.
  */
 public class ConstructorPlugin extends Plugin {
 
-    public ConstructorPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

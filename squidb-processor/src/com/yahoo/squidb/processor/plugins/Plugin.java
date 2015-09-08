@@ -39,6 +39,7 @@ import javax.lang.model.element.VariableElement;
 public class Plugin {
 
     protected final ModelSpec<?> modelSpec;
+    protected final PluginEnvironment pluginEnv;
     protected final AptUtils utils;
 
     /**
@@ -46,11 +47,14 @@ public class Plugin {
      * spec to determine what if any code it should run in its overridden methods
      *
      * @param modelSpec a {@link ModelSpec} representing the spec class
-     * @param utils annotation processing utilities class
+     * @param pluginEnv an object representing the current environment the plugin is running in. Plugins can call
+     * methods like {@link PluginEnvironment#getUtils()} for annotation processing helpers or
+     * {@link PluginEnvironment#getEnvOptions()} to read environment options
      */
-    public Plugin(ModelSpec<?> modelSpec, AptUtils utils) {
+    public Plugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         this.modelSpec = modelSpec;
-        this.utils = utils;
+        this.pluginEnv = pluginEnv;
+        this.utils = pluginEnv.getUtils();
     }
 
     /**

@@ -9,7 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
@@ -23,8 +23,8 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     private final DeclaredTypeName tableType;
 
-    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginManager pluginManager, AptUtils utils) {
-        super(modelSpecElement, TableModelSpec.class, pluginManager, utils);
+    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
+        super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
         if (isVirtualTable()) {
             tableType = TypeConstants.VIRTUAL_TABLE;
         } else {

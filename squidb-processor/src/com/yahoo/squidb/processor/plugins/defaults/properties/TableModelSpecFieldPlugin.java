@@ -11,6 +11,7 @@ import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBlobPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBooleanPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicDoublePropertyGenerator;
@@ -39,8 +40,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap
             = new HashMap<DeclaredTypeName, Class<? extends PropertyGenerator>>();
 
-    public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
         registerBasicPropertyGenerators();
     }
 

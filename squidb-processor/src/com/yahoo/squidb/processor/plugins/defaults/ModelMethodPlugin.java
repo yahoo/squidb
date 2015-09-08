@@ -16,7 +16,7 @@ import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,15 +36,15 @@ import javax.tools.Diagnostic;
 /**
  * A {@link Plugin} that controls copying public static methods or methods annotated with {@link ModelMethod}
  * to the generated model. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING} flag set.
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING} flag set.
  */
 public class ModelMethodPlugin extends Plugin {
 
     private final List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
     private final List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
 
-    public ModelMethodPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public ModelMethodPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
         parseModelMethods();
     }
 

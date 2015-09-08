@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Set;
 
@@ -22,8 +22,8 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
     public static final String METADATA_KEY_QUERY_ELEMENT = "queryElement";
     public static final String METADATA_KEY_VIEW_QUERY = "viewQuery";
 
-    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginManager pluginManager, AptUtils utils) {
-        super(modelSpecElement, ViewModelSpec.class, pluginManager, utils);
+    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
+        super(modelSpecElement, ViewModelSpec.class, pluginEnv, utils);
     }
 
     @Override

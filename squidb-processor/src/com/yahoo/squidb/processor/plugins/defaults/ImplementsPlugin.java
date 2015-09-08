@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
-import com.yahoo.squidb.processor.plugins.PluginManager;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +24,14 @@ import javax.lang.model.element.TypeElement;
  * A {@link Plugin} that controls declaring that model classes implement interfaces. This plugin looks for and parses
  * the value of any {@link Implements} annotations on the given model spec to determine which interfaces to add. It is
  * enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginManager#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING} flag set.
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING} flag set.
  */
 public class ImplementsPlugin extends Plugin {
 
     private final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
 
-    public ImplementsPlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public ImplementsPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
         parseInterfaces();
     }
 

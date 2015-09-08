@@ -6,9 +6,9 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.ViewPropertyGenerator;
 
@@ -16,8 +16,8 @@ import javax.lang.model.element.VariableElement;
 
 abstract class FieldReferencePlugin extends BaseFieldPlugin {
 
-    public FieldReferencePlugin(ModelSpec<?> modelSpec, AptUtils utils) {
-        super(modelSpec, utils);
+    public FieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override
