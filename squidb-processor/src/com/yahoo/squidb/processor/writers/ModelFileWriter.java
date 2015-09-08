@@ -113,7 +113,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
         emitCreator();
         emitModelSpecificHelpers();
-        plugins.emitOtherHelpers(writer);
+        plugins.emitAdditionalJava(writer);
 
         writer.finishTypeDefinition();
     }

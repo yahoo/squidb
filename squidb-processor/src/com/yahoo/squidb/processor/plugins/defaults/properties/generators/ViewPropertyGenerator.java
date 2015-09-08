@@ -15,8 +15,7 @@ import javax.lang.model.element.VariableElement;
 /**
  * An implementation of {@link PropertyGenerator} for handling properties in view models
  */
-public class ViewPropertyGenerator extends
-        com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator {
+public class ViewPropertyGenerator extends BasicPropertyGenerator {
 
     private final DeclaredTypeName propertyType;
     private final DeclaredTypeName getAndSetType;

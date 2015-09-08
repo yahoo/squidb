@@ -19,9 +19,9 @@ import javax.lang.model.element.VariableElement;
  * Base class for controlling the generation of property declarations and the convenience getters/setters that go
  * with them. Plugins can create PropertyGenerators for handling fields of some type(s) in a particular way. Default
  * implementations of PropertyGenerators already exist for the basic field types (e.g.
- * {@link BasicStringPropertyGenerator}, {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLongPropertyGenerator}) so Plugins that just want to tweak the
+ * {@link BasicStringPropertyGenerator}, {@link BasicLongPropertyGenerator}) so Plugins that just want to tweak the
  * existing behavior should probably override one of these existing implementations, or override
- * {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator} which includes handling for the {@link com.yahoo.squidb.annotations.ColumnSpec}
+ * {@link BasicPropertyGenerator} which includes handling for the {@link com.yahoo.squidb.annotations.ColumnSpec}
  * annotation but no specific type handling.
  */
 public abstract class PropertyGenerator {

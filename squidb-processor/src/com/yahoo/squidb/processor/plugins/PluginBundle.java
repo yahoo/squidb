@@ -147,12 +147,12 @@ public class PluginBundle {
     }
 
     /**
-     * Calls {@link Plugin#emitOtherHelpers(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#emitAdditionalJava(JavaFileWriter)} on all the bundled plugins
      */
-    public void emitOtherHelpers(JavaFileWriter writer) throws IOException {
+    public void emitAdditionalJava(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.emitOtherHelpers(writer);
+                plugin.emitAdditionalJava(writer);
             }
         }
     }

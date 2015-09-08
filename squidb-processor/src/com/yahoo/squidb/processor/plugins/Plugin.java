@@ -32,8 +32,8 @@ import javax.lang.model.element.VariableElement;
  * <li>Emitting methods. Plugins can emit code before methods are declared
  * ({@link #beforeEmitMethods(JavaFileWriter)}), emit methods ({@link #emitMethods(JavaFileWriter)}), or emit code
  * after methods are emitted ({@link #afterEmitMethods(JavaFileWriter)})</li>
- * <li>Emit other helpers. This is the final phase of code generation before the class definition is closed. Plugins
- * can generate arbitrary code here using {@link #emitOtherHelpers(JavaFileWriter)}</li>
+ * <li>Emit any other helper code. This is the final phase of code generation before the class definition is closed.
+ * Plugins can generate arbitrary code here using {@link #emitAdditionalJava(JavaFileWriter)}</li>
  * </ol>
  */
 public class Plugin {
@@ -172,7 +172,7 @@ public class Plugin {
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
-    public void emitOtherHelpers(JavaFileWriter writer) throws IOException {
+    public void emitAdditionalJava(JavaFileWriter writer) throws IOException {
         // Stub for subclasses to override
     }
 
