@@ -64,7 +64,7 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
             } else if (isViewProperty) {
                 return tryCreatePropertyGenerator(field, fieldType);
             }
-            return true;
+            return false;
         } else if (isViewProperty) {
             utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                     "View properties must be public static final", field);
