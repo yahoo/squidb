@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.Set;
 
@@ -16,9 +17,9 @@ import javax.lang.model.element.VariableElement;
 
 public class JacksonMapPropertyGenerator extends JacksonPropertyGenerator {
 
-    public JacksonMapPropertyGenerator(VariableElement element, DeclaredTypeName elementType,
-            DeclaredTypeName modelName, AptUtils utils) {
-        super(element, elementType, modelName, utils);
+    public JacksonMapPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType,
+            AptUtils utils) {
+        super(modelSpec, field, fieldType, utils);
     }
 
     @Override
@@ -40,8 +41,8 @@ public class JacksonMapPropertyGenerator extends JacksonPropertyGenerator {
                 .callMethod("getTypeFactory")
                 .callMethod("constructMapType",
                         Expressions.classObject(JacksonTypeConstants.HASH_MAP),
-                        Expressions.classObject((DeclaredTypeName) elementType.getTypeArgs().get(0)),
-                        Expressions.classObject((DeclaredTypeName) elementType.getTypeArgs().get(1)));
+                        Expressions.classObject((DeclaredTypeName) fieldType.getTypeArgs().get(0)),
+                        Expressions.classObject((DeclaredTypeName) fieldType.getTypeArgs().get(1)));
     }
 
 }

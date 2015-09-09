@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.properties.generators;
+package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
@@ -14,6 +14,7 @@ import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 
 import java.io.IOException;
@@ -25,6 +26,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ * A basic implementation of {@link PropertyGenerator} that handles the {@link ColumnSpec} annotation
+ */
 public abstract class BasicPropertyGenerator extends PropertyGenerator {
 
     protected final ColumnSpec extras;
@@ -32,18 +36,18 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     protected final String camelCasePropertyName;
     protected final String columnName;
 
-    public BasicPropertyGenerator(VariableElement element, DeclaredTypeName modelName, AptUtils utils) {
-        super(element, modelName, utils);
-        this.extras = element.getAnnotation(ColumnSpec.class);
-        String name = element.getSimpleName().toString();
+    public BasicPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+        super(modelSpec, field, utils);
+        this.extras = field.getAnnotation(ColumnSpec.class);
+        String name = field.getSimpleName().toString();
         this.camelCasePropertyName = StringUtils.toCamelCase(name);
         this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
         this.columnName = getColumnName(extras);
 
         if (columnName.indexOf('$') >= 0) {
-            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot contain the $ symbol", element);
+            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot contain the $ symbol", field);
         } else if (Character.isDigit(columnName.charAt(0))) {
-            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot begin with a digit", element);
+            utils.getMessager().printMessage(Kind.ERROR, "Column names cannot begin with a digit", field);
         }
     }
 
@@ -106,7 +110,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 if (!toReturn.toUpperCase().contains("DEFAULT")) {
                     toReturn += " DEFAULT " + columnDefaultValue;
                 } else {
-                    utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", element);
+                    utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", field);
                 }
             }
             toReturn = "\"" + toReturn + "\"";
@@ -150,7 +154,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 : camelCasePropertyName;
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setMethodName(setterMethodName())
-                .setReturnType(modelName)
+                .setReturnType(modelSpec.getGeneratedClassName())
                 .setModifiers(Modifier.PUBLIC)
                 .setArgumentTypes(getTypeForGetAndSet())
                 .setArgumentNames(argName);

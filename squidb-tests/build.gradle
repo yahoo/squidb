@@ -54,6 +54,6 @@ dependencies {
 
 apt {
     arguments {
-        squidbPlugins 'com.yahoo.squidb.jackson.JacksonPropertyGeneratorFactory'
+        squidbPlugins 'com.yahoo.squidb.jackson.JacksonFieldPlugin'
     }
 }
