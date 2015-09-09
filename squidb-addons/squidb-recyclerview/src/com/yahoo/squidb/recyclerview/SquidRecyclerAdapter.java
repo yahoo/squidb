@@ -16,7 +16,7 @@ import com.yahoo.squidb.data.SquidCursor;
  * @param <M> the model type of the backing SquidCursor
  * @param <V> a RecyclerView.ViewHolder implementation
  */
-public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends RecyclerView.ViewHolder>
+public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends SquidViewHolder<? extends M>>
         extends RecyclerView.Adapter<V> {
 
     private SquidCursor<M> cursor;
@@ -39,6 +39,32 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Re
     public int getItemCount() {
         return cursor == null ? 0 : cursor.getCount();
     }
+
+    /**
+     * @return the SquidCursor backing the adapter
+     */
+    public SquidCursor<M> getCursor() {
+        return cursor;
+    }
+
+    @Override
+    public void onBindViewHolder(V holder, int position) {
+        if (cursor == null || !cursor.moveToPosition(position)) {
+            throw new IllegalStateException("this should only be called when the cursor is valid");
+        }
+        holder.item.readPropertiesFromCursor(cursor);
+        onBindSquidViewHolder(holder, position);
+    }
+
+    /**
+     * Update the contents of the ViewHolder.itemView to reflect the item at the given position. At this point the
+     * ViewHolder.item is populated with valiues from the backing cursor, so it is not necessary to populate the item
+     * yourself.
+     *
+     * @param holder the SquidViewHolder that should represent the contents of the item at the given position
+     * @param position the position of the item in the data set
+     */
+    public abstract void onBindSquidViewHolder(V holder, int position);
 
     /**
      * Change the SquidCursor backing the adapter. If there is an existing SquidCursor it will be closed.
