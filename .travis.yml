@@ -14,6 +14,7 @@ android:
     - sys-img-armeabi-v7a-android-16
     - android-19
     - sys-img-armeabi-v7a-android-19
+    - extra-android-m2repository
 before_script:
     - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a
     - emulator -avd test -no-skin -no-audio -no-window &
