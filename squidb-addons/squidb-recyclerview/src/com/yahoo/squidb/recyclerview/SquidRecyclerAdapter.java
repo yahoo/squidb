@@ -11,10 +11,14 @@ import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 
 /**
- * RecyclerView.Adapter implementation backed by a {@link SquidCursor}
+ * RecyclerView.Adapter implementation backed by a {@link SquidCursor}. Subclasses must also define an implentation
+ * of {@link SquidViewHolder}, which recycles a SquiDB model instance along with the associated itemView. This
+ * adapter automatically populates the model instance with data from the backing SquidCursor, so that it can be used
+ * to help bind data to the itemView inside of {@link #onBindSquidViewHolder(SquidViewHolder, int)
+ * onBindSquidViewHolder}.
  *
  * @param <M> the model type of the backing SquidCursor
- * @param <V> a RecyclerView.ViewHolder implementation
+ * @param <V> a SquidViewHolder implementation
  */
 public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends SquidViewHolder<? extends M>>
         extends RecyclerView.Adapter<V> {
