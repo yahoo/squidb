@@ -6,9 +6,11 @@
 package com.yahoo.squidb.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.Adapter;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.sql.Property;
 
 /**
  * RecyclerView.Adapter implementation backed by a {@link SquidCursor}. Subclasses must also define an implentation
@@ -24,24 +26,67 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
         extends RecyclerView.Adapter<V> {
 
     private SquidCursor<M> cursor;
+    private Property<Long> idProperty;
 
     /**
      * Construct a new SquidRecyclerAdapter
      */
     public SquidRecyclerAdapter() {
-        this(null);
+        this(null, null);
     }
 
     /**
-     * Construct a new SquidRecyclerAdapter backed by the specified SquidCursor
+     * Construct a new SquidRecyclerAdapter backed by the specified SquidCursor.
+     *
+     * @param cursor the backing SquidCursor
      */
     public SquidRecyclerAdapter(SquidCursor<M> cursor) {
+        this(cursor, null);
+    }
+
+    /**
+     * Construct a new SquidRecyclerAdapter that uses the specified column to determine item IDs in {@link
+     * #getItemId(int)}. This should be a column that is distinct and non-null for every row in the cursor. If this
+     * argument is not null, the adapter will report that it has stable item IDs (see {@link Adapter#hasStableIds()
+     * hasStableIds()}).
+     *
+     * @param idProperty the column to use for item IDs
+     */
+    public SquidRecyclerAdapter(Property<Long> idProperty) {
+        this(null, idProperty);
+    }
+
+    /**
+     * Construct a new SquidRecyclerAdapter backed by the specified SquidCursor and that uses the specified column to
+     * determine item IDs in {@link #getItemId(int)}. This should be a column that is distinct and non-null for every
+     * row in the cursor. If this argument is not null, the adapter will report that it has stable item IDs (see {@link
+     * Adapter#hasStableIds() hasStableIds()}).
+     *
+     * @param cursor the backing SquidCursor
+     * @param idProperty the column to use for item IDs
+     */
+    public SquidRecyclerAdapter(SquidCursor<M> cursor, Property<Long> idProperty) {
         this.cursor = cursor;
+        this.idProperty = idProperty;
+        if (idProperty != null) {
+            setHasStableIds(true);
+        }
     }
 
     @Override
     public int getItemCount() {
         return cursor == null ? 0 : cursor.getCount();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (hasStableIds()) {
+            if (cursor != null && cursor.moveToPosition(position)) {
+                return cursor.get(idProperty);
+            }
+            return RecyclerView.NO_ID;
+        }
+        return super.getItemId(position);
     }
 
     /**
