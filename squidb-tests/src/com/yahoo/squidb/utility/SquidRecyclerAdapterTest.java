@@ -22,8 +22,6 @@ import com.yahoo.squidb.test.TestModel;
 
 public class SquidRecyclerAdapterTest extends DatabaseTestCase {
 
-    private TestRecyclerAdapter adapter;
-
     @Override
     protected void setupDatabase() {
         super.setupDatabase();
@@ -31,22 +29,69 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         insertBasicTestModel("Linus", "Torvalds", DateUtils.YEAR_IN_MILLIS);
     }
 
+    private interface RecyclerAdapterTest {
+
+        void testRecyclerAdapter(TestRecyclerAdapter adapter);
+    }
+
     public void testNoIdProperty() {
-        testIdProperty(null, RecyclerView.NO_ID, RecyclerView.NO_ID);
+        testRecyclerAdapterInternal(null, new RecyclerAdapterTest() {
+
+            @Override
+            public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertEquals(RecyclerView.NO_ID, adapter.getItemId(0));
+                assertEquals(RecyclerView.NO_ID, adapter.getItemId(1));
+            }
+        });
     }
 
     public void testIdProperty() {
-        testIdProperty(TestModel.ID, 1, 2);
+        testRecyclerAdapterInternal(TestModel.ID, new RecyclerAdapterTest() {
+
+            @Override
+            public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertEquals(1, adapter.getItemId(0));
+                assertEquals(2, adapter.getItemId(1));
+            }
+        });
     }
 
     public void testCustomIdProperty() {
         Function<Long> idSquared = Function.rawFunction("_id * _id");
         LongProperty idSquaredProperty = LongProperty.fromFunction(idSquared, "idSquared");
-        testIdProperty(idSquaredProperty, 1, 4);
+        testRecyclerAdapterInternal(idSquaredProperty, new RecyclerAdapterTest() {
+
+            @Override
+            public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertEquals(1, adapter.getItemId(0));
+                assertEquals(4, adapter.getItemId(1));
+            }
+        });
     }
 
-    private void testIdProperty(LongProperty idProperty, long expected1, long expected2) {
-        Query query = Query.select(TestModel.FIRST_NAME, TestModel.LAST_NAME, TestModel.BIRTHDAY)
+    public void testViewHolderItemBinding() {
+        final TestModel model1 = database.fetch(TestModel.class, 1, TestModel.PROPERTIES);
+        final TestModel model2 = database.fetch(TestModel.class, 2, TestModel.PROPERTIES);
+
+        testRecyclerAdapterInternal(TestModel.ID, new RecyclerAdapterTest() {
+
+            @Override
+            public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                FrameLayout parent = new FrameLayout(getContext());
+                TestViewHolder holder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(0));
+
+                adapter.onBindViewHolder(holder, 0);
+                assertEquals(model1, holder.item);
+                assertEquals(model1.getDisplayName(), holder.textView.getText().toString());
+                adapter.onBindViewHolder(holder, 1);
+                assertEquals(model2, holder.item);
+                assertEquals(model2.getDisplayName(), holder.textView.getText().toString());
+            }
+        });
+    }
+
+    private void testRecyclerAdapterInternal(LongProperty idProperty, RecyclerAdapterTest test) {
+        Query query = Query.select(TestModel.PROPERTIES)
                 .orderBy(TestModel.BIRTHDAY.asc())
                 .limit(2);
         if (idProperty != null) {
@@ -54,33 +99,13 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         }
         SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
 
-        adapter = new TestRecyclerAdapter(idProperty);
+        TestRecyclerAdapter adapter = new TestRecyclerAdapter(idProperty);
         adapter.changeCursor(cursor);
-        assertEquals(expected1, adapter.getItemId(0));
-        assertEquals(expected2, adapter.getItemId(1));
-    }
-
-    public void testViewHolderItemBinding() {
-        SquidCursor<TestModel> cursor = database.query(TestModel.class,
-                Query.select().orderBy(TestModel.BIRTHDAY.asc()));
-
-        cursor.moveToFirst();
-        final TestModel model1 = new TestModel(cursor);
-        cursor.moveToNext();
-        final TestModel model2 = new TestModel(cursor);
-
-        adapter = new TestRecyclerAdapter(TestModel.ID);
-        adapter.changeCursor(cursor);
-        FrameLayout parent = new FrameLayout(getContext());
-        TestViewHolder holder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(0));
-
-        adapter.onBindViewHolder(holder, 0);
-        assertEquals(model1, holder.item);
-        assertEquals(model1.getDisplayName(), holder.textView.getText().toString());
-        adapter.onBindViewHolder(holder, 1);
-        assertEquals(model2, holder.item);
-        assertEquals(model2.getDisplayName(), holder.textView.getText().toString());
-
+        try {
+            test.testRecyclerAdapter(adapter);
+        } finally {
+            cursor.close();
+        }
     }
 
     // -- test adapter implementation
