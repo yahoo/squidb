@@ -19,29 +19,19 @@ import com.yahoo.squidb.sql.Property;
  * to help bind data to the itemView inside of {@link #onBindSquidViewHolder(SquidViewHolder, int)
  * onBindSquidViewHolder}.
  *
- * @param <M> the model type of the backing SquidCursor
  * @param <V> a SquidViewHolder implementation
  */
 public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends SquidViewHolder<? extends M>>
         extends RecyclerView.Adapter<V> {
 
-    private SquidCursor<M> cursor;
+    private SquidCursor<? extends M> cursor;
     private Property<Long> idProperty;
 
     /**
      * Construct a new SquidRecyclerAdapter
      */
     public SquidRecyclerAdapter() {
-        this(null, null);
-    }
-
-    /**
-     * Construct a new SquidRecyclerAdapter backed by the specified SquidCursor.
-     *
-     * @param cursor the backing SquidCursor
-     */
-    public SquidRecyclerAdapter(SquidCursor<M> cursor) {
-        this(cursor, null);
+        this(null);
     }
 
     /**
@@ -53,20 +43,6 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
      * @param idProperty the column to use for item IDs
      */
     public SquidRecyclerAdapter(Property<Long> idProperty) {
-        this(null, idProperty);
-    }
-
-    /**
-     * Construct a new SquidRecyclerAdapter backed by the specified SquidCursor and that uses the specified column to
-     * determine item IDs in {@link #getItemId(int)}. This should be a column that is distinct and non-null for every
-     * row in the cursor. If this argument is not null, the adapter will report that it has stable item IDs (see {@link
-     * Adapter#hasStableIds() hasStableIds()}).
-     *
-     * @param cursor the backing SquidCursor
-     * @param idProperty the column to use for item IDs
-     */
-    public SquidRecyclerAdapter(SquidCursor<M> cursor, Property<Long> idProperty) {
-        this.cursor = cursor;
         this.idProperty = idProperty;
         if (idProperty != null) {
             setHasStableIds(true);
@@ -92,7 +68,7 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
     /**
      * @return the SquidCursor backing the adapter
      */
-    public SquidCursor<M> getCursor() {
+    public SquidCursor<? extends M> getCursor() {
         return cursor;
     }
 
@@ -120,8 +96,8 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
      *
      * @param newCursor the new SquidCursor
      */
-    public void changeCursor(SquidCursor<M> newCursor) {
-        SquidCursor<M> oldCursor = swapCursor(newCursor);
+    public void changeCursor(SquidCursor<? extends M> newCursor) {
+        SquidCursor<?> oldCursor = swapCursor(newCursor);
         if (oldCursor != null) {
             oldCursor.close();
         }
@@ -135,11 +111,11 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
      * @return Returns the previously set SquidCursor. If no SquidCursor was previously set, new SquidCursor is the
      * same instance is the previously set one, null is returned.
      */
-    public SquidCursor<M> swapCursor(SquidCursor<M> newCursor) {
+    public SquidCursor<?> swapCursor(SquidCursor<? extends M> newCursor) {
         if (cursor == newCursor) {
             return null;
         }
-        SquidCursor<M> oldCursor = cursor;
+        SquidCursor<?> oldCursor = cursor;
         cursor = newCursor;
         notifyDataSetChanged();
         return oldCursor;

@@ -54,7 +54,8 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         }
         SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
 
-        adapter = new TestRecyclerAdapter(cursor, idProperty);
+        adapter = new TestRecyclerAdapter(idProperty);
+        adapter.changeCursor(cursor);
         assertEquals(expected1, adapter.getItemId(0));
         assertEquals(expected2, adapter.getItemId(1));
     }
@@ -68,7 +69,8 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         cursor.moveToNext();
         final TestModel model2 = new TestModel(cursor);
 
-        adapter = new TestRecyclerAdapter(cursor, TestModel.ID);
+        adapter = new TestRecyclerAdapter(TestModel.ID);
+        adapter.changeCursor(cursor);
         FrameLayout parent = new FrameLayout(getContext());
         TestViewHolder holder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(0));
 
@@ -78,14 +80,15 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         adapter.onBindViewHolder(holder, 1);
         assertEquals(model2, holder.item);
         assertEquals(model2.getDisplayName(), holder.textView.getText().toString());
+
     }
 
     // -- test adapter implementation
 
     static class TestRecyclerAdapter extends SquidRecyclerAdapter<TestModel, TestViewHolder> {
 
-        public TestRecyclerAdapter(SquidCursor<TestModel> cursor, LongProperty idProperty) {
-            super(cursor, idProperty);
+        public TestRecyclerAdapter(LongProperty idProperty) {
+            super(idProperty);
         }
 
         @Override
@@ -96,6 +99,11 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         @Override
         public void onBindSquidViewHolder(TestViewHolder holder, int position) {
             holder.textView.setText(holder.item.getDisplayName());
+        }
+
+        @Override
+        public SquidCursor<TestModel> getCursor() {
+            return (SquidCursor<TestModel>) super.getCursor();
         }
     }
 
