@@ -18,6 +18,10 @@ import com.yahoo.squidb.sql.Property;
  * adapter automatically populates the model instance with data from the backing SquidCursor, so that it can be used
  * to help bind data to the itemView inside of {@link #onBindSquidViewHolder(SquidViewHolder, int)
  * onBindSquidViewHolder}.
+ * <p>
+ * If you specify an ID property, the adapter will report that it has stable item IDs (see {@link Adapter#hasStableIds()
+ * hasStableIds()}) and uses this property to implement {@link #getItemId(int)}. Make sure any cursor given to this
+ * adapter contains the appropriate ID column.
  *
  * @param <V> a SquidViewHolder implementation
  */

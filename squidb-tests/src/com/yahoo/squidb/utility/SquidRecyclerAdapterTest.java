@@ -39,6 +39,7 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
 
             @Override
             public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertFalse(adapter.hasStableIds());
                 assertEquals(RecyclerView.NO_ID, adapter.getItemId(0));
                 assertEquals(RecyclerView.NO_ID, adapter.getItemId(1));
             }
@@ -50,6 +51,7 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
 
             @Override
             public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertTrue(adapter.hasStableIds());
                 assertEquals(1, adapter.getItemId(0));
                 assertEquals(2, adapter.getItemId(1));
             }
@@ -63,6 +65,7 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
 
             @Override
             public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
+                assertTrue(adapter.hasStableIds());
                 assertEquals(1, adapter.getItemId(0));
                 assertEquals(4, adapter.getItemId(1));
             }

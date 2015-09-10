@@ -12,7 +12,6 @@ import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property;
-import com.yahoo.squidb.sql.SqlTable;
 
 /**
  * A base {@link Adapter} implementation backed by a {@link SquidCursor}. Subclass implementations typically supply a
@@ -28,9 +27,14 @@ import com.yahoo.squidb.sql.SqlTable;
  * in the data set, you should either clone the value returned by {@link #getItem(int)}, construct new model instances
  * using {@link AbstractModel#readPropertiesFromCursor(SquidCursor) readPropertiesFromCursor}, or read values from the
  * backing cursor directly.
- *
- * By default, {@link #hasStableIds()} returns true. You should override it to return true if your adapter will not have
- * stable ids.
+ * <p>
+ * By default, if a subclass of {@link TableModel} is passed to the one-arg constructor, the adapter will use the ID
+ * property of the associated table for {@link #getItemId(int)}. In that case {@link #hasStableIds()} will return
+ * true; otherwise it returns false and {@link #getItemId(int)} returns 0. You should override both these if other
+ * behavior is desired.
+ * <p>
+ * If you use the one-arg constructor with a subclass of TableModel, or you use the two-arg constructor with a
+ * non-null second argument, be sure that the appropriate ID column is present in any cursor given to this adapter.
  *
  * @param <T> the model type of the SquidCursor backing this adapter
  */
@@ -40,32 +44,28 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
     private final T model;
     private final Property<Long> columnForId;
 
-    /** Property for default "_id" name */
-    private static final Property<Long> ID_PROPERTY = new Property.LongProperty((SqlTable<?>) null,
-            TableModel.DEFAULT_ID_COLUMN, null);
-
     /**
-     * Constructs a SquidCursorAdapter that will use the model class's default id property to implement
+     * Construct a SquidCursorAdapter that will use the model class's default id property to implement
      * {@link #getItemId(int)}.
      *
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
      * @see #SquidCursorAdapter(AbstractModel, Property)
      */
     public SquidCursorAdapter(T model) {
-        this(model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : ID_PROPERTY);
+        this(model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : null);
     }
 
     /**
+     * Construct a SquidCursorAdapter. If <code>columnForId</code> is not null, it will be used to implement {@link
+     * #getItemId(int)}. This should be a column that is distinct and non-null for every row in the cursor.
+     *
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
-     * @param columnForId a column to use for {@link #getItemId(int)}. This should be a column that is distinct and
-     * non-null for every row in the cursor. If one is not specified, getItemId() will fall back to reading
-     * the _id column. It will throw an exception if no column is specified and the cursor doesn't contain an
-     * _id column.
+     * @param columnForId a column to use for {@link #getItemId(int)}.
      */
     public SquidCursorAdapter(T model, Property<Long> columnForId) {
         super();
         this.model = model;
-        this.columnForId = columnForId != null ? columnForId : ID_PROPERTY;
+        this.columnForId = columnForId;
     }
 
     /**
@@ -118,15 +118,17 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
 
     @Override
     public long getItemId(int position) {
-        if (cursor != null && cursor.moveToPosition(position)) {
-            return cursor.get(columnForId);
+        if (hasStableIds()) {
+            if (cursor != null && cursor.moveToPosition(position)) {
+                return cursor.get(columnForId);
+            }
         }
         return 0;
     }
 
     @Override
     public boolean hasStableIds() {
-        return true;
+        return columnForId != null;
     }
 
     /**
