@@ -23,6 +23,7 @@ import com.yahoo.squidb.sql.Property;
  * hasStableIds()}) and uses this property to implement {@link #getItemId(int)}. Make sure any cursor given to this
  * adapter contains the appropriate ID column.
  *
+ * @param <M> the model type of the backing SquidCursor
  * @param <V> a SquidViewHolder implementation
  */
 public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends SquidViewHolder<? extends M>>
