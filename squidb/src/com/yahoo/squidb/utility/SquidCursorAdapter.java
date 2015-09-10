@@ -38,7 +38,7 @@ import com.yahoo.squidb.sql.SqlTable;
  */
 public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAdapter {
 
-    private SquidCursor<T> cursor;
+    private SquidCursor<? extends T> cursor;
     private final Context context;
     private final LayoutInflater inflater;
     private final T model;
@@ -77,7 +77,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
     /**
      * @return the cursor backing this adapter
      */
-    public SquidCursor<T> getCursor() {
+    public SquidCursor<? extends T> getCursor() {
         return this.cursor;
     }
 
@@ -156,12 +156,12 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @return The old cursor. If there was no previously set cursor or the new Cursor and the old cursor are the same
      * instance, this method returns {@code null}.
      */
-    public SquidCursor<T> swapCursor(SquidCursor<T> newCursor) {
+    public SquidCursor<? extends T> swapCursor(SquidCursor<? extends T> newCursor) {
         if (newCursor == this.cursor) {
             return null;
         }
 
-        SquidCursor<T> oldCursor = this.cursor;
+        SquidCursor<? extends T> oldCursor = this.cursor;
         this.cursor = newCursor;
         if (newCursor != null) {
             notifyDataSetChanged();
@@ -176,8 +176,8 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      *
      * @param newCursor the new cursor
      */
-    public void changeCursor(SquidCursor<T> newCursor) {
-        SquidCursor<T> oldCursor = swapCursor(newCursor);
+    public void changeCursor(SquidCursor<? extends T> newCursor) {
+        SquidCursor<? extends T> oldCursor = swapCursor(newCursor);
         if (oldCursor != null) {
             oldCursor.close();
         }
