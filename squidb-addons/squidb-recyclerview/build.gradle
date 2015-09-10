@@ -51,7 +51,7 @@ android {
 
 dependencies {
     compile project(':squidb')
-    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'
