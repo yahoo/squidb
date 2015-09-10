@@ -83,7 +83,7 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
 
     /**
      * Update the contents of the ViewHolder.itemView to reflect the item at the given position. At this point the
-     * ViewHolder.item is populated with valiues from the backing cursor, so it is not necessary to populate the item
+     * ViewHolder.item is populated with values from the backing cursor, so it is not necessary to populate the item
      * yourself.
      *
      * @param holder the SquidViewHolder that should represent the contents of the item at the given position
