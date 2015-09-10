@@ -20,9 +20,9 @@ public class SquidCursorAdapterTest extends DatabaseTestCase {
         insertBasicTestModel("Jonathan", "Koren", 2);
     }
 
-    private static interface CursorAdapterTest {
+    private interface CursorAdapterTest {
 
-        public void testCursorAdapter(SquidCursorAdapter<TestModel> adapter);
+        void testCursorAdapter(SquidCursorAdapter<TestModel> adapter);
     }
 
     public void testReusableModel() {
@@ -65,8 +65,7 @@ public class SquidCursorAdapterTest extends DatabaseTestCase {
         }
         SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
         try {
-            SquidCursorAdapter<TestModel> adapter = new SquidCursorAdapter<TestModel>(getContext(), new TestModel(),
-                    idColumn) {
+            SquidCursorAdapter<TestModel> adapter = new SquidCursorAdapter<TestModel>(new TestModel(), idColumn) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     return null;

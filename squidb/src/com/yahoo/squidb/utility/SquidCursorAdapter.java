@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 
@@ -39,8 +37,6 @@ import com.yahoo.squidb.sql.SqlTable;
 public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAdapter {
 
     private SquidCursor<? extends T> cursor;
-    private final Context context;
-    private final LayoutInflater inflater;
     private final T model;
     private final Property<Long> columnForId;
 
@@ -53,10 +49,10 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * {@link #getItemId(int)}.
      *
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
-     * @see #SquidCursorAdapter(Context, AbstractModel, Property)
+     * @see #SquidCursorAdapter(AbstractModel, Property)
      */
-    public SquidCursorAdapter(Context context, T model) {
-        this(context, model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : ID_PROPERTY);
+    public SquidCursorAdapter(T model) {
+        this(model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : ID_PROPERTY);
     }
 
     /**
@@ -66,10 +62,8 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * the _id column. It will throw an exception if no column is specified and the cursor doesn't contain an
      * _id column.
      */
-    public SquidCursorAdapter(Context context, T model, Property<Long> columnForId) {
+    public SquidCursorAdapter(T model, Property<Long> columnForId) {
         super();
-        this.context = context;
-        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.model = model;
         this.columnForId = columnForId != null ? columnForId : ID_PROPERTY;
     }
@@ -89,20 +83,6 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
             return -1;
         }
         return this.cursor.getPosition();
-    }
-
-    /**
-     * @return an internal {@link Context} object
-     */
-    protected Context getContext() {
-        return this.context;
-    }
-
-    /**
-     * @return an internal {@link LayoutInflater} for creating views
-     */
-    protected LayoutInflater getLayoutInflater() {
-        return this.inflater;
     }
 
     @Override
