@@ -115,11 +115,11 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
      * @return Returns the previously set SquidCursor. If no SquidCursor was previously set, new SquidCursor is the
      * same instance is the previously set one, null is returned.
      */
-    public SquidCursor<?> swapCursor(SquidCursor<? extends M> newCursor) {
+    public SquidCursor<? extends M> swapCursor(SquidCursor<? extends M> newCursor) {
         if (cursor == newCursor) {
             return null;
         }
-        SquidCursor<?> oldCursor = cursor;
+        SquidCursor<? extends M> oldCursor = cursor;
         cursor = newCursor;
         notifyDataSetChanged();
         return oldCursor;
