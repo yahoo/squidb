@@ -388,4 +388,63 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             assertEquals(VersionCode.LATEST, database.getSqliteVersion());
         }
     }
+
+    public void testDropView() {
+        database.tryDropView(TestViewModel.VIEW);
+        testThrowsRuntimeException(new Runnable() {
+            @Override
+            public void run() {
+                database.query(TestViewModel.class, Query.select().from(TestViewModel.VIEW));
+            }
+        });
+    }
+
+    public void testDropTable() {
+        database.tryDropTable(TestModel.TABLE);
+        testThrowsRuntimeException(new Runnable() {
+            @Override
+            public void run() {
+                database.query(TestModel.class, Query.select().from(TestModel.TABLE));
+            }
+        });
+    }
+
+    public void testTryExecSqlReturnsFalseForInvalidSql() {
+        assertFalse(database.tryExecSql("CREATE TABLE"));
+    }
+
+    public void testExecSqlOrThrowThrowsForInvalidSql() {
+        testThrowsRuntimeException(new Runnable() {
+            @Override
+            public void run() {
+                database.execSqlOrThrow("CREATE TABLE");
+            }
+        });
+        testThrowsRuntimeException(new Runnable() {
+            @Override
+            public void run() {
+                database.execSqlOrThrow("CREATE TABLE", null);
+            }
+        });
+    }
+
+    public void testUpdateAll() {
+        database.persist(new TestModel().setFirstName("A").setLastName("A")
+                .setBirthday(System.currentTimeMillis() - 1).setLuckyNumber(1));
+        database.persist(new TestModel().setFirstName("A").setLastName("B")
+                .setBirthday(System.currentTimeMillis() - 1).setLuckyNumber(2));
+
+        database.updateAll(new TestModel().setLuckyNumber(5));
+
+        assertEquals(0, database.count(TestModel.class, TestModel.LUCKY_NUMBER.neq(5)));
+    }
+
+    public void testDeleteAll() {
+        insertBasicTestModel("A", "B", System.currentTimeMillis() - 1);
+        insertBasicTestModel("C", "D", System.currentTimeMillis());
+
+        assertEquals(2, database.countAll(TestModel.class));
+        database.deleteAll(TestModel.class);
+        assertEquals(0, database.countAll(TestModel.class));
+    }
 }

@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.data;
 
+import android.net.Uri;
 import android.text.format.DateUtils;
 
 import com.yahoo.squidb.sql.Delete;
@@ -15,6 +16,7 @@ import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -275,6 +277,56 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             database.endTransaction();
         }
         assertEquals(1, onDataChangedCalledCount.get());
+    }
+
+    public void testNotifierConstructors() {
+        testNotifierConstructorsInternal(new UriNotifier() {
+            @Override
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                return false;
+            }
+        });
+        testNotifierConstructorsInternal(new SimpleDataChangedNotifier() {
+            @Override
+            protected void onDataChanged() {
+
+            }
+        });
+
+        testNotifierConstructorsInternal(new UriNotifier(TestModel.TABLE) {
+            @Override
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                return false;
+            }
+        }, TestModel.TABLE);
+        testNotifierConstructorsInternal(new SimpleDataChangedNotifier(TestModel.TABLE) {
+            @Override
+            protected void onDataChanged() {
+
+            }
+        }, TestModel.TABLE);
+
+        testNotifierConstructorsInternal(new UriNotifier(Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
+            @Override
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                return false;
+            }
+        }, TestModel.TABLE, Employee.TABLE);
+        testNotifierConstructorsInternal(new SimpleDataChangedNotifier(Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
+            @Override
+            protected void onDataChanged() {
+
+            }
+        }, TestModel.TABLE, Employee.TABLE);
+    }
+
+    private void testNotifierConstructorsInternal(DataChangedNotifier<?> notifier, SqlTable<?>... tables) {
+        Set<SqlTable<?>> whichTables = notifier.whichTables();
+        assertEquals(tables.length, whichTables.size());
+        assertTrue(whichTables.containsAll(Arrays.asList(tables)));
     }
 
 }

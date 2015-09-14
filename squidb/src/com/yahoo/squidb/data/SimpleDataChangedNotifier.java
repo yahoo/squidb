@@ -38,7 +38,7 @@ public abstract class SimpleDataChangedNotifier extends DataChangedNotifier<Simp
     /**
      * Construct a SimpleDataChangedNotifier that will be notified of changes to the given tables
      */
-    public SimpleDataChangedNotifier(Collection<SqlTable<?>> tables) {
+    public SimpleDataChangedNotifier(Collection<? extends SqlTable<?>> tables) {
         super(tables);
     }
 

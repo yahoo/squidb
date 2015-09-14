@@ -7,6 +7,8 @@ package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.sql.Property.BooleanProperty;
+import com.yahoo.squidb.sql.Property.DoubleProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
@@ -76,6 +78,27 @@ public class PropertyTest extends SquidTestCase {
 
         assertEquals(test5, test6);
         assertEquals(test5.hashCode(), test6.hashCode());
+    }
+
+    public void testLiteralProperties() {
+        StringProperty stringLiteral = StringProperty.literal("abc", "strLit");
+        assertEquals("SELECT 'abc' AS strLit", Query.select(stringLiteral).toString());
+
+        IntegerProperty intLiteral = IntegerProperty.literal(1, "intLit");
+        assertEquals("SELECT 1 AS intLit", Query.select(intLiteral).toString());
+
+        long longVal = System.currentTimeMillis();
+        LongProperty longLiteral = LongProperty.literal(longVal, "longLit");
+        assertEquals("SELECT " + longVal + " AS longLit", Query.select(longLiteral).toString());
+
+        DoubleProperty doubleLiteral = DoubleProperty.literal(1.1, "doubleLit");
+        assertEquals("SELECT 1.1 AS doubleLit", Query.select(doubleLiteral).toString());
+
+        BooleanProperty trueLiteral = BooleanProperty.literal(true, "trueLit");
+        assertEquals("SELECT 1 AS trueLit", Query.select(trueLiteral).toString());
+
+        BooleanProperty falseLiteral = BooleanProperty.literal(false, "falseLit");
+        assertEquals("SELECT 0 AS falseLit", Query.select(falseLiteral).toString());
     }
 
 }

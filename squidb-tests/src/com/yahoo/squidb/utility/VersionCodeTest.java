@@ -60,16 +60,16 @@ public class VersionCodeTest extends SquidTestCase {
         assertTrue(versionToTest.isLessThan(new VersionCode(5, 0, 5, 0)));
 
         // strings -- gte
-        assertFalse(versionToTest.isLessThan(VersionCode.parse("0")));
-        assertFalse(versionToTest.isLessThan(VersionCode.parse("3.7.51-beta")));
-        assertFalse(versionToTest.isLessThan(VersionCode.parse("4.1.37285")));
-        assertFalse(versionToTest.isLessThan(VersionCode.parse("4.2rc1")));
-        assertFalse(versionToTest.isLessThan(VersionCode.parse("4.2.0.1")));
+        assertFalse(versionToTest.isLessThan("0"));
+        assertFalse(versionToTest.isLessThan("3.7.51-beta"));
+        assertFalse(versionToTest.isLessThan("4.1.37285"));
+        assertFalse(versionToTest.isLessThan("4.2rc1"));
+        assertFalse(versionToTest.isLessThan("4.2.0.1"));
         // -- lt
-        assertTrue(versionToTest.isLessThan(VersionCode.parse("4.2.1.5")));
-        assertTrue(versionToTest.isLessThan(VersionCode.parse("4.3.0-is-this-the-real-life")));
-        assertTrue(versionToTest.isLessThan(VersionCode.parse("5.")));
-        assertTrue(versionToTest.isLessThan(VersionCode.parse("1000")));
+        assertTrue(versionToTest.isLessThan("4.2.1.5"));
+        assertTrue(versionToTest.isLessThan("4.3.0-is-this-the-real-life"));
+        assertTrue(versionToTest.isLessThan("5."));
+        assertTrue(versionToTest.isLessThan("1000"));
     }
 
     public void testVersionIsAtLeast() {
@@ -87,17 +87,17 @@ public class VersionCodeTest extends SquidTestCase {
         assertFalse(versionToTest.isAtLeast(new VersionCode(5, 0, 5, 0)));
 
         // strings -- gte
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("0")));
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("3.7.51-beta")));
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("4.1.37285")));
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("4.2rc1")));
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("4.2")));
-        assertTrue(versionToTest.isAtLeast(VersionCode.parse("4.2.0.1")));
+        assertTrue(versionToTest.isAtLeast("0"));
+        assertTrue(versionToTest.isAtLeast("3.7.51-beta"));
+        assertTrue(versionToTest.isAtLeast("4.1.37285"));
+        assertTrue(versionToTest.isAtLeast("4.2rc1"));
+        assertTrue(versionToTest.isAtLeast("4.2"));
+        assertTrue(versionToTest.isAtLeast("4.2.0.1"));
         // -- lt
-        assertFalse(versionToTest.isAtLeast(VersionCode.parse("4.2.1.5")));
-        assertFalse(versionToTest.isAtLeast(VersionCode.parse("4.3.0-is-this-the-real-life")));
-        assertFalse(versionToTest.isAtLeast(VersionCode.parse("5.")));
-        assertFalse(versionToTest.isAtLeast(VersionCode.parse("1000")));
+        assertFalse(versionToTest.isAtLeast("4.2.1.5"));
+        assertFalse(versionToTest.isAtLeast("4.3.0-is-this-the-real-life"));
+        assertFalse(versionToTest.isAtLeast("5."));
+        assertFalse(versionToTest.isAtLeast("1000"));
     }
 
     public void testVersionParse() {

@@ -110,6 +110,40 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
+    public void testReverseOrder() {
+        long max = database.countAll(Employee.class);
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).orderBy(Employee.ID.asc().reverse()));
+        try {
+            assertEquals(max, cursor.getCount());
+            assertTrue(max > 0);
+            while (cursor.moveToNext()) {
+                long nextId = cursor.get(Employee.ID);
+                if (nextId > max) {
+                    fail("IDs not in reverse order");
+                }
+                max = nextId;
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testOrderByArray() {
+        Long[] order = new Long[]{5L, 1L, 4L};
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).limit(order.length).orderBy(Employee.ID.byArray(order)));
+        try {
+            assertEquals(order.length, cursor.getCount());
+            for (int i = 0; i < order.length; i++) {
+                cursor.moveToPosition(i);
+                assertEquals(order[i], cursor.get(Employee.ID));
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
     public void testLikeWithNoEscape() {
         insertBasicTestModel();
         assertEquals(1, database.count(TestModel.class, TestModel.LAST_NAME.like("Bo_le%")));
@@ -144,6 +178,37 @@ public class QueryTest extends DatabaseTestCase {
                 assertEquals("Sam " + index, cursor.get(TestModel.FIRST_NAME));
                 index++;
             }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testBetweenCriterion() {
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).where(Employee.ID.between(2, 5)).orderBy(Employee.ID.asc()));
+        try {
+            assertEquals(4, cursor.getCount());
+            for (int i = 2; i < 6; i++) {
+                cursor.moveToPosition(i - 2);
+                assertEquals(i, cursor.get(Employee.ID).intValue());
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testGlobCriterion() {
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID, Employee.NAME).where(Employee.NAME.glob("b*")).orderBy(Employee.ID.asc()));
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(bigBird.getId(), cursor.get(Employee.ID).longValue());
+            assertEquals(bigBird.getName(), cursor.get(Employee.NAME));
+
+            cursor.moveToNext();
+            assertEquals(bert.getId(), cursor.get(Employee.ID).longValue());
+            assertEquals(bert.getName(), cursor.get(Employee.NAME));
         } finally {
             cursor.close();
         }
@@ -252,9 +317,8 @@ public class QueryTest extends DatabaseTestCase {
         // We'll check against IDs, so choose an order that shuffles the IDs somewhat
         Query query = Query.select().orderBy(Employee.NAME.desc());
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
-        int numRows = cursor.getCount();
 
-        int expectedCount = numRows;
+        int expectedCount = cursor.getCount();
         if (offset > Query.NO_OFFSET) {
             expectedCount = Math.max(expectedCount - offset, 0);
         }
@@ -625,7 +689,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(6, cursor.getCount());
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertTrue(cursor.get(Thing.BAR).intValue() > 0);
+                assertTrue(cursor.get(Thing.BAR) > 0);
             }
         } finally {
             cursor.close();
@@ -665,14 +729,21 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testJoinWithUsingClause() {
+        testJoinWithUsingClauseInternal(false);
+        testJoinWithUsingClauseInternal(true);
+    }
+
+    private void testJoinWithUsingClauseInternal(boolean leftJoin) {
         final String separator = "|";
         final Map<Long, String> expectedResults = new HashMap<Long, String>();
-        expectedResults.put(bigBird.getId(), "1");
         expectedResults.put(cookieMonster.getId(), "2|3|4");
         expectedResults.put(elmo.getId(), "2|3|4");
         expectedResults.put(oscar.getId(), "2|3|4");
-        expectedResults.put(bert.getId(), "5");
-        expectedResults.put(ernie.getId(), "6");
+        if (!leftJoin) {
+            expectedResults.put(bigBird.getId(), "1");
+            expectedResults.put(bert.getId(), "5");
+            expectedResults.put(ernie.getId(), "6");
+        }
 
         /*
          * select employees._id, employees.name, employees.managerId, subTable.subordinates as coworkers from employees
@@ -685,13 +756,22 @@ public class QueryTest extends DatabaseTestCase {
         LongProperty aliasedManagerId = employeesAlias.qualifyField(Employee.MANAGER_ID);
         StringProperty subordinates = StringProperty.fromFunction(Function.groupConcat(aliasedId, separator),
                 "subordinates");
-        Query subquery = Query.select(aliasedManagerId, subordinates).from(employeesAlias).groupBy(aliasedManagerId);
+        Query subquery = Query.select(aliasedManagerId, subordinates).from(employeesAlias)
+                .groupBy(aliasedManagerId);
+
+        if (leftJoin) {
+            subquery.having(Function.count().gt(1));
+        }
 
         SqlTable<?> subTable = subquery.as("subTable");
         StringProperty coworkers = subTable.qualifyField(subordinates);
         Query query = Query.select(Employee.PROPERTIES).selectMore(coworkers)
-                .from(Employee.TABLE)
-                .join(Join.inner(subTable, Employee.MANAGER_ID));
+                .from(Employee.TABLE);
+        if (leftJoin) {
+            query.leftJoin(subTable, Employee.MANAGER_ID);
+        } else {
+            query.innerJoin(subTable, Employee.MANAGER_ID);
+        }
 
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
 

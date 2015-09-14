@@ -74,6 +74,13 @@ public class VersionCode implements Comparable<VersionCode> {
     }
 
     /**
+     * @return the nano version number
+     */
+    public int getNanoVersion() {
+        return nanoVersion;
+    }
+
+    /**
      * @return the trailing text of the version code
      */
     public String getTrailingText() {
