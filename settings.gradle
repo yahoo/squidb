@@ -19,3 +19,6 @@ project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-ad
 
 include ':squidb-reactive'
 project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/squidb-reactive')
+
+include ':squidb-recyclerview'
+project(':squidb-recyclerview').projectDir = new File(settingsDir, 'squidb-addons/squidb-recyclerview')

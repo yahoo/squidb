@@ -7,6 +7,7 @@ package com.yahoo.squidb.sample.adapter;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,14 +19,17 @@ import com.yahoo.squidb.utility.SquidCursorAdapter;
 
 public class TaskListAdapter extends SquidCursorAdapter<Task> {
 
+    private LayoutInflater layoutInflater;
+
     public TaskListAdapter(Context context, Task model) {
-        super(context, model);
+        super(model);
+        layoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = getLayoutInflater().inflate(R.layout.task_row, null);
+            convertView = layoutInflater.inflate(R.layout.task_row, parent, false);
             convertView.setTag(new TaskRowViewHolder(convertView));
         }
 

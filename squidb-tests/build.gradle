@@ -48,6 +48,7 @@ dependencies {
     compile project(':squidb-jackson-annotations')
     compile project(':squidb-sqlite-bindings')
     compile project(':squidb-reactive')
+    compile project(':squidb-recyclerview')
     apt project(':squidb-jackson-compiler')
     apt project(':squidb-processor')
 }
