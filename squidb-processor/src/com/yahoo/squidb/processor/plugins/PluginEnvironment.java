@@ -63,7 +63,7 @@ public class PluginEnvironment {
     /**
      * Option for disabling the default constructors generated in each model class
      */
-    public static final String OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS = "squidb_disableDefaultConstructors";
+    public static final String OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS = "disableDefaultConstructors";
 
     /**
      * Option for disabling default processing of the {@link com.yahoo.squidb.annotations.Implements} annotation for
