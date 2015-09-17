@@ -26,6 +26,15 @@ public class BasicIntegerPropertyGenerator extends BasicPropertyGenerator {
                 CoreTypes.PRIMITIVE_BYTE, CoreTypes.PRIMITIVE_SHORT, CoreTypes.PRIMITIVE_INT);
     }
 
+    public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+        super(modelSpec, columnName, utils);
+    }
+
+    public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+            String propertyName, AptUtils utils) {
+        super(modelSpec, columnName, propertyName, utils);
+    }
+
     public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }

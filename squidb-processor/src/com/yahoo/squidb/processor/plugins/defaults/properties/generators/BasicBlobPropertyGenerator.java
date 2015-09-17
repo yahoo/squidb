@@ -24,6 +24,15 @@ public class BasicBlobPropertyGenerator extends BasicPropertyGenerator {
         return Collections.singletonList(TypeConstants.BYTE_ARRAY);
     }
 
+    public BasicBlobPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+        super(modelSpec, columnName, utils);
+    }
+
+    public BasicBlobPropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+            String propertyName, AptUtils utils) {
+        super(modelSpec, columnName, propertyName, utils);
+    }
+
     public BasicBlobPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
