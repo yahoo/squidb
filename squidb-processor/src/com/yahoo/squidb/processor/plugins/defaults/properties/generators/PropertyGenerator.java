@@ -39,7 +39,8 @@ public abstract class PropertyGenerator {
     }
 
     /**
-     * @return the {@link VariableElement} this PropertyGenerator was created from
+     * @return the {@link VariableElement} this PropertyGenerator was created from. This may be null if the
+     * PropertyGenerator did not originate from a VariableElement in a model spec
      */
     public VariableElement getField() {
         return field;
