@@ -22,3 +22,6 @@ project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/sq
 
 include ':squidb-recyclerview'
 project(':squidb-recyclerview').projectDir = new File(settingsDir, 'squidb-addons/squidb-recyclerview')
+
+include ':squidb-support-loader'
+project(':squidb-support-loader').projectDir = new File(settingsDir, 'squidb-addons/squidb-support-loader')

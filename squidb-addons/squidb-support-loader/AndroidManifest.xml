@@ -6,9 +6,9 @@
  * See the accompanying LICENSE file for terms.
  *-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yahoo.squidb.recyclerview"
-    android:versionCode="3"
-    android:versionName="1.1.0">
+          package="com.yahoo.squidb.support"
+          android:versionCode="3"
+          android:versionName="1.1.0">
 
     <uses-sdk android:minSdkVersion="14" />
 
