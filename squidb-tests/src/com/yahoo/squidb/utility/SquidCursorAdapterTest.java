@@ -99,6 +99,38 @@ public class SquidCursorAdapterTest extends DatabaseTestCase {
         }
     }
 
+    public void testSwapCursorDoesNotCloseOldCursor() {
+        TestAdapter adapter = new TestAdapter(new TestModel());
+
+        SquidCursor<TestModel> cursor1 = database.query(TestModel.class, Query.select());
+        try {
+            adapter.swapCursor(cursor1);
+            SquidCursor<TestModel> cursor2 = database.query(TestModel.class, Query.select().where(TestModel.ID.eq(1)));
+            try {
+                SquidCursor<?> swappedCursor = adapter.swapCursor(cursor2);
+                assertFalse(swappedCursor.isClosed());
+            } finally {
+                adapter.swapCursor(null);
+                cursor2.close();
+            }
+        } finally {
+            cursor1.close();
+        }
+    }
+
+    public void testChangeCursorClosesOldCursor() {
+        TestAdapter adapter = new TestAdapter(new TestModel());
+
+        SquidCursor<TestModel> cursor1 = database.query(TestModel.class, Query.select());
+        adapter.swapCursor(cursor1);
+        SquidCursor<TestModel> cursor2 = database.query(TestModel.class, Query.select().where(TestModel.ID.eq(1)));
+
+        adapter.changeCursor(cursor2);
+        assertTrue(cursor1.isClosed());
+        adapter.changeCursor(null);
+        cursor2.close();
+    }
+
     static class TestAdapter extends SquidCursorAdapter<AbstractModel> {
 
         public TestAdapter(AbstractModel model) {

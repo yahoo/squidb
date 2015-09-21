@@ -51,7 +51,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(Collection<SqlTable<?>> tables) {
+    public UriNotifier(Collection<? extends SqlTable<?>> tables) {
         super(tables);
     }
 

@@ -9,7 +9,9 @@ import android.text.format.DateUtils;
 
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.BooleanProperty;
+import com.yahoo.squidb.sql.Property.DoubleProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
+import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
@@ -139,16 +141,21 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     }
 
     public void testSubstr() {
-        testSubstrInternal(1, model1.getLastName().length());
+        testSubstrInternal(2, 0);
         testSubstrInternal(2, 2);
         testSubstrInternal(3, 4);
     }
 
     private void testSubstrInternal(int offset, int length) {
-        Function<String> substr = Function.substr(TestModel.LAST_NAME, offset, length);
+        Function<String> substr;
+        if (length == 0) {
+            substr = Function.substr(TestModel.LAST_NAME, offset);
+        } else {
+            substr = Function.substr(TestModel.LAST_NAME, offset, length);
+        }
         StringProperty substrProperty = StringProperty.fromFunction(substr, "substr");
         int trueStart = offset - 1;
-        int end = trueStart + length;
+        int end = length == 0 ? model1.getLastName().length() : trueStart + length;
 
         TestModel model = database.fetch(TestModel.class, model1.getId(), substrProperty);
         String substrLastName = model.get(substrProperty);
@@ -298,6 +305,107 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         }
     }
 
+    public void testMin() {
+        LongProperty minId = LongProperty.fromFunction(Function.min(TestModel.ID), "minId");
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(minId));
+        try {
+            cursor.moveToFirst();
+            assertEquals(model1.getId(), cursor.get(minId).longValue());
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testMax() {
+        LongProperty maxId = LongProperty.fromFunction(Function.max(TestModel.ID), "maxId");
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(maxId));
+        try {
+            cursor.moveToFirst();
+            assertEquals(model3.getId(), cursor.get(maxId).longValue());
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testAvgAndAvgDistinct() {
+        setUpAggregateTest();
+
+        DoubleProperty avg = DoubleProperty.fromFunction(Function.avg(TestModel.LUCKY_NUMBER), "avg");
+        DoubleProperty avgDistinct = DoubleProperty.fromFunction(
+                Function.avgDistinct(TestModel.LUCKY_NUMBER), "avgDistinct");
+
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(avg, avgDistinct));
+        try {
+            cursor.moveToFirst();
+            assertEquals(2.0, cursor.get(avg));
+            assertEquals(4.0, cursor.get(avgDistinct));
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testGroupConcat() {
+        setUpAggregateTest();
+
+        StringProperty firstNameConcat = StringProperty.fromFunction(
+                Function.groupConcat(TestModel.FIRST_NAME), "fname_concat");
+        StringProperty firstNameConcatSeparator = StringProperty.fromFunction(
+                Function.groupConcat(TestModel.FIRST_NAME, "|"), "fname_concat_separator");
+        StringProperty firstNameDistinct = StringProperty.fromFunction(
+                Function.groupConcatDistinct(TestModel.FIRST_NAME), "fname_distinct");
+        SquidCursor<TestModel> cursor = database.query(TestModel.class,
+                Query.select(firstNameConcat, firstNameConcatSeparator, firstNameDistinct)
+                        .groupBy(TestModel.FIRST_NAME));
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals("A,A,A", cursor.get(firstNameConcat));
+            assertEquals("A|A|A", cursor.get(firstNameConcatSeparator));
+            assertEquals("A", cursor.get(firstNameDistinct));
+            cursor.moveToNext();
+            assertEquals("B,B,B", cursor.get(firstNameConcat));
+            assertEquals("B|B|B", cursor.get(firstNameConcatSeparator));
+            assertEquals("B", cursor.get(firstNameDistinct));
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testSumAndSumDistinct() {
+        setUpAggregateTest();
+
+        IntegerProperty sum = IntegerProperty.fromFunction(
+                Function.sum(TestModel.LUCKY_NUMBER), "sum");
+        IntegerProperty sumDistinct = IntegerProperty.fromFunction(
+                Function.sumDistinct(TestModel.LUCKY_NUMBER), "sumDistinct");
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(sum, sumDistinct));
+        try {
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(12, cursor.get(sum).intValue());
+            assertEquals(8, cursor.get(sumDistinct).intValue());
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private void setUpAggregateTest() {
+        database.clear();
+        long now = System.currentTimeMillis();
+        peristModelForDistinctAggregates("A", "A", now - 3, 1);
+        peristModelForDistinctAggregates("A", "B", now - 2, 1);
+        peristModelForDistinctAggregates("A", "C", now - 1, 1);
+
+        peristModelForDistinctAggregates("B", "D", now + 1, 1);
+        peristModelForDistinctAggregates("B", "E", now + 2, 1);
+        peristModelForDistinctAggregates("B", "F", now + 3, 7);
+    }
+
+    private void peristModelForDistinctAggregates(String firstName, String lastName, long birthday, int luckyNumber) {
+        database.persist(new TestModel().setFirstName(firstName).setLastName(lastName)
+                .setBirthday(birthday).setLuckyNumber(luckyNumber));
+    }
+
     public void testCaseWhen() {
         final String PASS = "PASS";
         final String FAIL = "FAIL";
@@ -380,49 +488,14 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         }
     }
 
-    public void testDistinctAggregates() {
-        database.clear();
-        long now = System.currentTimeMillis();
-        peristModelForDistinctAggregates("A", "A", now - 3, 1);
-        peristModelForDistinctAggregates("A", "B", now - 2, 1);
-        peristModelForDistinctAggregates("A", "C", now - 1, 1);
-
-        peristModelForDistinctAggregates("B", "D", now + 1, 2);
-        peristModelForDistinctAggregates("B", "E", now + 2, 2);
-        peristModelForDistinctAggregates("B", "F", now + 3, 2);
-
-        StringProperty firstNameConcat = StringProperty.fromFunction(
-                Function.groupConcat(TestModel.FIRST_NAME, "|"), "fname_concat");
-        StringProperty firstNameDistinct = StringProperty.fromFunction(
-                Function.groupConcatDistinct(TestModel.FIRST_NAME), "fname_distinct");
-        SquidCursor<TestModel> cursor = database.query(TestModel.class,
-                Query.select(firstNameConcat, firstNameDistinct).groupBy(TestModel.FIRST_NAME));
+    public void testCast() {
+        Function<String> castToString = Function.cast(Field.field("x'61'"), "TEXT");
+        SquidCursor<?> cursor = database.query(null, Query.select(castToString));
         try {
-            assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals("A|A|A", cursor.get(firstNameConcat));
-            assertEquals("A", cursor.get(firstNameDistinct));
-            cursor.moveToNext();
-            assertEquals("B|B|B", cursor.get(firstNameConcat));
-            assertEquals("B", cursor.get(firstNameDistinct));
+            assertEquals("a", cursor.getString(0));
         } finally {
             cursor.close();
         }
-
-        IntegerProperty sumDistinct = IntegerProperty.fromFunction(Function.sumDistinct(TestModel.LUCKY_NUMBER),
-                "sumDistinct");
-        cursor = database.query(TestModel.class, Query.select(sumDistinct));
-        try {
-            assertEquals(1, cursor.getCount());
-            cursor.moveToFirst();
-            assertEquals(3, cursor.get(sumDistinct).intValue());
-        } finally {
-            cursor.close();
-        }
-    }
-
-    private void peristModelForDistinctAggregates(String firstName, String lastName, long birthday, int luckyNumber) {
-        database.persist(new TestModel().setFirstName(firstName).setLastName(lastName)
-                .setBirthday(birthday).setLuckyNumber(luckyNumber));
     }
 }

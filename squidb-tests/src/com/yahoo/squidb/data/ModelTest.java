@@ -12,6 +12,8 @@ import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
 
+import java.util.Arrays;
+
 public class ModelTest extends DatabaseTestCase {
 
     public void testBasicModelFunctions() {
@@ -171,5 +173,35 @@ public class ModelTest extends DatabaseTestCase {
         assertTrue(model.isHappy()); // Test set values
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
+    }
+
+    public void testFieldIsDirty() {
+        TestModel model = new TestModel();
+        model.setFirstName("Sam");
+        assertTrue(model.fieldIsDirty(TestModel.FIRST_NAME));
+        model.markSaved();
+        assertFalse(model.fieldIsDirty(TestModel.FIRST_NAME));
+    }
+
+    public void testTransitories() {
+        String key1 = "transitory1";
+        String key2 = "transitory2";
+
+        TestModel model = new TestModel();
+
+        model.putTransitory(key1, "A");
+        model.putTransitory(key2, "B");
+        assertTrue(model.hasTransitory(key1));
+        assertTrue(model.hasTransitory(key2));
+
+        assertEquals("A", model.getTransitory(key1));
+        assertEquals("B", model.getTransitory(key2));
+
+        assertTrue(model.getAllTransitoryKeys().containsAll(Arrays.asList(key1, key2)));
+
+        model.clearTransitory(key1);
+        assertFalse(model.hasTransitory(key1));
+        assertTrue(model.checkAndClearTransitory(key2));
+        assertFalse(model.hasTransitory(key2));
     }
 }

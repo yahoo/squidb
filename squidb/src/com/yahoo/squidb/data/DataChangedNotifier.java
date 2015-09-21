@@ -80,7 +80,7 @@ public abstract class DataChangedNotifier<T> {
     /**
      * For constructing a DataChangedNotifier that will be notified of changes to the given tables
      */
-    public DataChangedNotifier(Collection<SqlTable<?>> tables) {
+    public DataChangedNotifier(Collection<? extends SqlTable<?>> tables) {
         this.tables.addAll(tables);
     }
 

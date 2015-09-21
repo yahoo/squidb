@@ -16,4 +16,8 @@ public class TriggerTesterSpec {
 
     @ColumnSpec(defaultValue = "0")
     int value2;
+
+    String str1;
+
+    String str2;
 }

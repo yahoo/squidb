@@ -51,4 +51,8 @@ public class VirtualModelTest extends DatabaseTestCase {
         assertEquals(id, fetched.getId());
         assertEquals(testNum, fetched.getTestNumber());
     }
+
+    public void testVirtualTableHasCorrectModule() {
+        assertEquals("fts4", TestVirtualModel.TABLE.getModuleName());
+    }
 }
