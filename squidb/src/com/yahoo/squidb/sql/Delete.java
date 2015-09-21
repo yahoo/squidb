@@ -48,22 +48,24 @@ public class Delete extends TableStatement {
      * @return this Delete object, to allow chaining method calls
      */
     public Delete where(Criterion criterion) {
-        this.criterions.add(criterion);
-        invalidateCompileCache();
+        if (criterion != null) {
+            this.criterions.add(criterion);
+            invalidateCompileCache();
+        }
         return this;
     }
 
     @Override
-    protected void appendCompiledStringWithArguments(StringBuilder sql, List<Object> deleteArgsBuilder) {
-        sql.append("DELETE FROM ").append(table.getExpression());
-        visitWhere(sql, deleteArgsBuilder);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("DELETE FROM ").append(table.getExpression());
+        visitWhere(builder, forSqlValidation);
     }
 
-    private void visitWhere(StringBuilder sql, List<Object> deleteArgsBuilder) {
+    private void visitWhere(SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
-        sql.append(" WHERE ");
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, deleteArgsBuilder, " AND ");
+        builder.sql.append(" WHERE ");
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
     }
 }

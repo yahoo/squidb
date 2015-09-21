@@ -7,8 +7,6 @@ package com.yahoo.squidb.sql;
 
 import android.text.TextUtils;
 
-import java.util.List;
-
 /**
  * A SQLite database object
  */
@@ -77,27 +75,38 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
         if (alias != null ? !alias.equals(dbObject.alias) : dbObject.alias != null) {
             return false;
         }
-        String myExpression = getExpression();
-        String otherExpression = dbObject.getExpression();
+        String myExpression = expressionForComparison();
+        String otherExpression = dbObject.expressionForComparison();
+
         if (myExpression != null ? !myExpression.equals(otherExpression) : otherExpression != null) {
             return false;
         }
+        return !(qualifier != null ? !qualifier.equals(dbObject.qualifier) : dbObject.qualifier != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = alias != null ? alias.hashCode() : 0;
-        String expression = getExpression();
+        String expression = expressionForComparison();
         result = 31 * result + (expression != null ? expression.hashCode() : 0);
+        result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * @return a string-literal representation of this object suitable for implementing equals() and hashCode(). Most
+     * subclasses will not need to override this; only classes like {@link Function} or {@link Property} where
+     * {@link #getExpression()} is implemented differently need to care about this.
+     */
+    protected String expressionForComparison() {
+        return getExpression();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Expression=").append(getExpression());
+        sb.append("Expression=").append(expressionForComparison());
         if (hasQualifier()) {
             sb.append(" Qualifier=").append(qualifier);
         }
@@ -128,29 +137,35 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * @return the string-literal representation of this object, prepended with its qualifier (if it has one)
      */
     public final String getQualifiedExpression() {
-        if (hasQualifier()) {
-            return qualifier + '.' + getExpression();
-        }
-        return getExpression();
+        StringBuilder builder = new StringBuilder();
+        appendQualifiedExpressionToStringBuilder(builder);
+        return builder.toString();
     }
 
     /**
      * Appends an expression used in a SELECT statement to represent this object
      *
-     * @param sql StringBuilder to append to
-     * @param selectionArgsBuilder list to contain values that bind to the replaceable character '?'
+     * @param builder the {@link SqlBuilder} to append to
+     * @param forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendQualifiedExpression(sql, selectionArgsBuilder);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        appendQualifiedExpression(builder, forSqlValidation);
         if (hasAlias()) {
-            sql.append(" AS ").append(alias);
+            builder.sql.append(" AS ").append(alias);
         } else if (hasQualifier()) {
-            sql.append(" AS ").append(expression);
+            builder.sql.append(" AS ").append(expression);
         }
     }
 
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append(getQualifiedExpression());
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+        appendQualifiedExpressionToStringBuilder(builder.sql);
+    }
+
+    private void appendQualifiedExpressionToStringBuilder(StringBuilder builder) {
+        if (hasQualifier()) {
+            builder.append(qualifier).append('.');
+        }
+        builder.append(getExpression());
     }
 }

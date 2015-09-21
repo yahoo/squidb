@@ -6,8 +6,7 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
-
-import java.util.List;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A {@link Field} defined as a SQLite function.
@@ -18,7 +17,7 @@ import java.util.List;
  * Function&lt;Long&gt; maxFunc = Function.max(Model.TIMESTAMP);
  * LongProperty maxTimestamp = LongProperty.fromFunction(maxFunc, "maxTimestamp");
  * Query query = Query.select(Model.TYPE, maxTimestamp).groupBy(Model.TYPE);
- * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * </pre>
  *
  * This allows the value to be read directly from the cursor using {@link SquidCursor#get(Property) get(Property)}, or
@@ -49,17 +48,30 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     @Override
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendFunctionExpression(sql, selectionArgsBuilder);
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+        appendFunctionExpression(builder, forSqlValidation);
     }
 
-    protected abstract void appendFunctionExpression(StringBuilder sql, List<Object> selectionArgsBuilder);
+    protected abstract void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation);
 
     @Override
     public String getExpression() {
-        StringBuilder sql = new StringBuilder();
-        appendQualifiedExpression(sql, null);
-        return sql.toString();
+        throw new UnsupportedOperationException("Function expressions cannot be converted to a String without a "
+                + "VersionCode for context. Instead use getExpression(VersionCode)");
+    }
+
+    /**
+     * Return the expression for the function as it would be compiled for the given SQLite version
+     */
+    public String getExpression(VersionCode forSqliteVersion) {
+        SqlBuilder builder = new SqlBuilder(forSqliteVersion, false);
+        appendQualifiedExpression(builder, false);
+        return builder.getSqlString();
+    }
+
+    @Override
+    protected String expressionForComparison() {
+        return getExpression(VersionCode.LATEST);
     }
 
     /**
@@ -75,6 +87,14 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      */
     public static <T> Function<T> rawFunction(String expression) {
         return new RawFunction<T>(expression);
+    }
+
+    /**
+     * Create a Function representing the result of a subquery. Note: the query must have exactly one column in its
+     * result set (i.e. one field in the SELECT clause) for this to be valid SQL.
+     */
+    public static <T> Function<T> fromQuery(Query query) {
+        return new QueryFunction<T>(query);
     }
 
     /**
@@ -123,10 +143,10 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
-     * Create a Function that counts all rows
+     * Create a Function that counts all rows (i.e. count(*))
      */
     public static Function<Integer> count() {
-        return new ArgumentFunction<Integer>("COUNT", 1);
+        return new RawFunction<Integer>("COUNT(*)");
     }
 
     /**
@@ -240,6 +260,9 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      * Begins a CASE statement, populating it with the first WHEN ... THEN branch
      */
     public static CaseBuilder caseWhen(Criterion when, Object then) {
+        if (when == null) {
+            throw new IllegalArgumentException("Can't construct a CASE WHEN statement with a null criterion");
+        }
         return new CaseBuilder(null).when(when, then);
     }
 
@@ -257,10 +280,9 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     public static <T, R> Function<R> cast(final Field<T> field, final String newType) {
         return new ArgumentFunction<R>("CAST") {
             @Override
-            protected void appendArgumentList(StringBuilder sql, List<Object> selectionArgsBuilder,
-                    Object[] arguments) {
-                SqlUtils.addToSqlString(sql, selectionArgsBuilder, field);
-                sql.append(" AS ").append(newType);
+            protected void appendArgumentList(SqlBuilder builder, Object[] arguments, boolean forSqlValidation) {
+                builder.addValueToSql(field, forSqlValidation);
+                builder.sql.append(" AS ").append(newType);
             }
         };
     }

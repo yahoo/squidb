@@ -8,9 +8,9 @@ package com.yahoo.squidb.processor;
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.GenericName;
-import com.yahoo.aptutils.model.TypeName;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +68,7 @@ public class TypeConstants {
     public static final DeclaredTypeName PROPERTY_VARARGS;
 
     static {
-        PROPERTY.setTypeArgs(Arrays.asList(GenericName.DEFAULT_WILDCARD));
+        PROPERTY.setTypeArgs(Collections.singletonList(GenericName.DEFAULT_WILDCARD));
 
         PROPERTY_ARRAY = PROPERTY.clone();
         PROPERTY_ARRAY.setArrayDepth(1);
@@ -89,7 +89,7 @@ public class TypeConstants {
         PROPERTY_TYPES.add(TypeConstants.STRING_PROPERTY);
     }
 
-    public static boolean isPropertyType(TypeName type) {
+    public static boolean isPropertyType(DeclaredTypeName type) {
         return PROPERTY_TYPES.contains(type);
     }
 }

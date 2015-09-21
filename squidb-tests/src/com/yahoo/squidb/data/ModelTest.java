@@ -7,11 +7,12 @@ package com.yahoo.squidb.data;
 
 import android.content.ContentValues;
 
-import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
+
+import java.util.Arrays;
 
 public class ModelTest extends DatabaseTestCase {
 
@@ -28,7 +29,7 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals("Bosley", model.getLastName());
         assertTrue(model.isModified());
 
-        dao.persist(model);
+        database.persist(model);
         assertTrue(model.isSaved());
         assertFalse(model.isModified());
     }
@@ -56,40 +57,40 @@ public class ModelTest extends DatabaseTestCase {
     public void testCrudMethods() {
         // insert
         TestModel model = insertBasicTestModel("Sam", "Bosley", testDate);
-        assertEquals(1, dao.count(TestModel.class, Criterion.all));
+        assertEquals(1, database.countAll(TestModel.class));
 
         // query
         final long id = model.getId();
-        TestModel fetched = dao.fetch(TestModel.class, id, TestModel.PROPERTIES);
+        TestModel fetched = database.fetch(TestModel.class, id, TestModel.PROPERTIES);
         assertNotNull(fetched);
 
         // update
         model.setFirstName("Jack").setLastName("Sparrow").setBirthday(System.currentTimeMillis());
-        assertTrue(dao.saveExisting(model));
-        assertEquals(1, dao.count(TestModel.class, Criterion.all));
+        assertTrue(database.saveExisting(model));
+        assertEquals(1, database.countAll(TestModel.class));
 
         // delete
-        assertTrue(dao.delete(TestModel.class, id));
-        assertEquals(0, dao.count(TestModel.class, Criterion.all));
+        assertTrue(database.delete(TestModel.class, id));
+        assertEquals(0, database.countAll(TestModel.class));
     }
 
     public void testCrudMethodsWithNonDefaultPrimaryKey() {
         Thing thing = new Thing();
-        dao.persist(thing);
+        database.persist(thing);
         assertEquals(1, thing.getId());
 
-        Thing fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        Thing fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
         assertNotNull(fetched);
 
         thing.setFoo("new foo");
-        dao.persist(thing);
-        fetched = dao.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        database.persist(thing);
+        fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
         assertEquals("new foo", fetched.getFoo());
-        assertEquals(1, dao.count(Thing.class, Criterion.all));
+        assertEquals(1, database.countAll(Thing.class));
 
         // delete
-        assertTrue(dao.delete(Thing.class, thing.getId()));
-        assertEquals(0, dao.count(Thing.class, Criterion.all));
+        assertTrue(database.delete(Thing.class, thing.getId()));
+        assertEquals(0, database.countAll(Thing.class));
     }
 
     public void testDeprecatedPropertiesNotIncluded() {
@@ -172,5 +173,35 @@ public class ModelTest extends DatabaseTestCase {
         assertTrue(model.isHappy()); // Test set values
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
+    }
+
+    public void testFieldIsDirty() {
+        TestModel model = new TestModel();
+        model.setFirstName("Sam");
+        assertTrue(model.fieldIsDirty(TestModel.FIRST_NAME));
+        model.markSaved();
+        assertFalse(model.fieldIsDirty(TestModel.FIRST_NAME));
+    }
+
+    public void testTransitories() {
+        String key1 = "transitory1";
+        String key2 = "transitory2";
+
+        TestModel model = new TestModel();
+
+        model.putTransitory(key1, "A");
+        model.putTransitory(key2, "B");
+        assertTrue(model.hasTransitory(key1));
+        assertTrue(model.hasTransitory(key2));
+
+        assertEquals("A", model.getTransitory(key1));
+        assertEquals("B", model.getTransitory(key2));
+
+        assertTrue(model.getAllTransitoryKeys().containsAll(Arrays.asList(key1, key2)));
+
+        model.clearTransitory(key1);
+        assertFalse(model.hasTransitory(key1));
+        assertTrue(model.checkAndClearTransitory(key2));
+        assertFalse(model.hasTransitory(key2));
     }
 }

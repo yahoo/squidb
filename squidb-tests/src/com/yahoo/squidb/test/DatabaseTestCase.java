@@ -5,16 +5,14 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.data.AbstractDatabase;
-import com.yahoo.squidb.data.DatabaseDao;
+import com.yahoo.squidb.data.SquidDatabase;
 
 import java.util.Calendar;
 
 
 public class DatabaseTestCase extends SquidTestCase {
 
-    protected AbstractDatabase database;
-    protected DatabaseDao dao;
+    protected SquidDatabase database;
 
     protected final long testDate;
 
@@ -38,7 +36,7 @@ public class DatabaseTestCase extends SquidTestCase {
         model.setBirthday(birthday);
         model.setIsHappy(true);
 
-        dao.persist(model);
+        database.persist(model);
         assertTrue(model.isSaved());
         return model;
     }
@@ -50,14 +48,13 @@ public class DatabaseTestCase extends SquidTestCase {
     }
 
     /**
-     * Called during {@link #setUp()} to initialize the database and DAO. The base implementation creates a new
-     * {@link TestDatabase} and a {@link DatabaseDao} for it. Subclasses that want to insert test data should
-     * override and call super, then perform its operations.
+     * Called during {@link #setUp()} to initialize the database. The base implementation creates a new
+     * {@link TestDatabase}. Subclasses that want to insert test data should override and call super, then perform its
+     * operations.
      */
     protected void setupDatabase() {
         database = new TestDatabase(getContext());
         database.clear();
-        dao = new DatabaseDao(database);
     }
 
     @Override

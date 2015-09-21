@@ -7,11 +7,11 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import static com.yahoo.squidb.sql.SqlUtils.EMPTY_ARGS;
 
 /**
  * Triggers are database operations that are automatically performed when a specified database event occurs.
@@ -37,14 +37,14 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     private boolean isTemp;
     private final List<Property<?>> columns = new ArrayList<Property<?>>();
     private final List<Criterion> criterions = new ArrayList<Criterion>();
-    private final List<String> statements = new ArrayList<String>();
+    private final List<TableStatement> statements = new ArrayList<TableStatement>();
 
     private enum TriggerType {
         BEFORE("BEFORE"), AFTER("AFTER"), INSTEAD("INSTEAD OF");
 
         final String name;
 
-        private TriggerType(String name) {
+        TriggerType(String name) {
             this.name = name;
         }
     }
@@ -237,7 +237,9 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return this Trigger instance, for chaining method calls
      */
     public Trigger when(Criterion criterion) {
-        criterions.add(criterion);
+        if (criterion != null) {
+            criterions.add(criterion);
+        }
         return this;
     }
 
@@ -249,10 +251,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return this Trigger instance, for chaining method calls
      */
     public Trigger perform(TableStatement... statements) {
-        for (TableStatement statement : statements) {
-            // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-            this.statements.add(statement.toRawSql());
-        }
+        Collections.addAll(this.statements, statements);
         return this;
     }
 
@@ -282,21 +281,21 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     }
 
     @Override
-    public CompiledStatement compile() {
+    public CompiledStatement compile(VersionCode sqliteVersion) {
         // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-        return new CompiledStatement(toRawSql(), EMPTY_ARGS);
+        return new CompiledStatement(toRawSql(sqliteVersion), EMPTY_ARGS, false);
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         assertTriggerEvent();
         assertStatements();
 
-        visitCreateTrigger(sql);
-        visitTriggerType(sql);
-        visitTriggerEvent(sql);
-        visitWhen(sql);
-        visitStatements(sql);
+        visitCreateTrigger(builder.sql);
+        visitTriggerType(builder.sql);
+        visitTriggerEvent(builder.sql);
+        visitWhen(builder, forSqlValidation);
+        visitStatements(builder);
     }
 
     private void assertTriggerEvent() {
@@ -338,20 +337,21 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         sql.append(" ON ").append(table.getExpression()).append(" ");
     }
 
-    private void visitWhen(StringBuilder sql) {
+    private void visitWhen(SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
-        sql.append("WHEN ");
-        SqlUtils.appendConcatenatedCompilables(criterions, sql, null, " AND ");
-        sql.append(" ");
+        builder.sql.append("WHEN ");
+        builder.appendConcatenatedCompilables(criterions, " AND ", forSqlValidation);
+        builder.sql.append(" ");
     }
 
-    private void visitStatements(StringBuilder sql) {
-        sql.append("BEGIN ");
+    private void visitStatements(SqlBuilder builder) {
+        builder.sql.append("BEGIN ");
         for (int i = 0; i < statements.size(); i++) {
-            sql.append(statements.get(i)).append("; ");
+            // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
+            builder.sql.append(statements.get(i).toRawSql(builder.sqliteVersion)).append("; ");
         }
-        sql.append("END");
+        builder.sql.append("END");
     }
 }

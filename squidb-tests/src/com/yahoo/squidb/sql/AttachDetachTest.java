@@ -1,6 +1,5 @@
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestDatabase;
@@ -17,7 +16,6 @@ public class AttachDetachTest extends DatabaseTestCase {
     private TestVirtualModel virtualModel;
 
     private TestDatabase database2;
-    private DatabaseDao dao2;
 
     @Override
     protected void setUp() throws Exception {
@@ -34,11 +32,10 @@ public class AttachDetachTest extends DatabaseTestCase {
         model3 = insertBasicTestModel("Guy 3", "Lname3", System.currentTimeMillis() - 3);
 
         virtualModel = new TestVirtualModel().setTestNumber(1L).setTitle("A").setBody("B");
-        dao.persist(virtualModel);
+        database.persist(virtualModel);
 
-        dao2 = new DatabaseDao(database2);
         database2.clear();
-        assertEquals(0, dao2.count(TestModel.class, Criterion.all));
+        assertEquals(0, database2.countAll(TestModel.class));
     }
 
     public void testAttachDetach() {
@@ -49,17 +46,17 @@ public class AttachDetachTest extends DatabaseTestCase {
         Insert insertVirtual = Insert.into(TestVirtualModel.TABLE).columns(TestVirtualModel.PROPERTIES)
                 .select(Query.select(TestVirtualModel.PROPERTIES)
                         .from(TestVirtualModel.TABLE.qualifiedFromDatabase(attachedAs)));
-        dao2.beginTransaction();
+        database2.beginTransaction();
         try {
             database2.tryExecStatement(insert);
             database2.tryExecStatement(insertVirtual);
-            dao2.setTransactionSuccessful();
+            database2.setTransactionSuccessful();
         } finally {
-            dao2.endTransaction();
+            database2.endTransaction();
             database2.detachDatabase(database);
         }
 
-        SquidCursor<TestModel> cursor = dao2
+        SquidCursor<TestModel> cursor = database2
                 .query(TestModel.class,
                         Query.select(TestModel.ID, TestModel.FIRST_NAME, TestModel.LAST_NAME, TestModel.BIRTHDAY));
         try {
@@ -74,7 +71,7 @@ public class AttachDetachTest extends DatabaseTestCase {
             cursor.close();
         }
         assertEquals(virtualModel,
-                dao2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
+                database2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
 
         assertFalse(database2.tryExecStatement(insert)); // Should fail after detach
     }
@@ -83,11 +80,11 @@ public class AttachDetachTest extends DatabaseTestCase {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                dao.beginTransaction();
+                database.beginTransaction();
                 try {
                     database2.attachDatabase(database);
                 } finally {
-                    dao.endTransaction();
+                    database.endTransaction();
                 }
             }
         }, IllegalStateException.class);
@@ -96,11 +93,11 @@ public class AttachDetachTest extends DatabaseTestCase {
     public void testAttacherWithTransactionOnSameThreadThrowsException() {
         testThrowsException(new Runnable() {
             public void run() {
-                dao2.beginTransaction();
+                database2.beginTransaction();
                 try {
                     database2.attachDatabase(database);
                 } finally {
-                    dao2.endTransaction();
+                    database2.endTransaction();
                 }
             }
         }, IllegalStateException.class);
@@ -129,21 +126,21 @@ public class AttachDetachTest extends DatabaseTestCase {
             @Override
             public void run() {
                 try {
-                    dao.beginTransaction();
+                    database.beginTransaction();
                     try {
                         if (transactionBeforeAttach) {
                             sleep(2000L);
                         }
-                        dao.beginTransaction(); // Test with nested transaction
+                        database.beginTransaction(); // Test with nested transaction
                         try {
                             insertBasicTestModel("New", "Guy", System.currentTimeMillis() - 1);
-                            dao.setTransactionSuccessful();
+                            database.setTransactionSuccessful();
                         } finally {
-                            dao.endTransaction();
+                            database.endTransaction();
                         }
-                        dao.setTransactionSuccessful();
+                        database.setTransactionSuccessful();
                     } finally {
-                        dao.endTransaction();
+                        database.endTransaction();
                     }
                 } catch (Exception e) {
                     threadFailed.set(e);
@@ -156,7 +153,7 @@ public class AttachDetachTest extends DatabaseTestCase {
             Thread.sleep(1000L);
         }
         String attachedAs = database2.attachDatabase(database);
-        dao2.beginTransaction();
+        database2.beginTransaction();
         try {
             database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.PROPERTIES)
                     .select(Query.select(TestModel.PROPERTIES)
@@ -165,9 +162,9 @@ public class AttachDetachTest extends DatabaseTestCase {
                 anotherThread.start();
                 Thread.sleep(2000L);
             }
-            dao2.setTransactionSuccessful();
+            database2.setTransactionSuccessful();
         } finally {
-            dao2.endTransaction();
+            database2.endTransaction();
             database2.detachDatabase(database);
         }
 
@@ -180,8 +177,8 @@ public class AttachDetachTest extends DatabaseTestCase {
         if (threadFailed.get() != null) {
             throw threadFailed.get();
         }
-        assertEquals(4, dao.count(TestModel.class, Criterion.all));
-        assertEquals(3 + (transactionBeforeAttach ? 1 : 0), dao2.count(TestModel.class, Criterion.all));
+        assertEquals(4, database.countAll(TestModel.class));
+        assertEquals(3 + (transactionBeforeAttach ? 1 : 0), database2.countAll(TestModel.class));
     }
 
     /*
@@ -195,13 +192,13 @@ public class AttachDetachTest extends DatabaseTestCase {
             @Override
             public void run() {
                 try {
-                    dao2.beginTransaction();
+                    database2.beginTransaction();
                     try {
                         sleep(2000L);
-                        dao2.persist(new TestModel().setFirstName("Alan").setLastName("Turing"));
-                        dao2.setTransactionSuccessful();
+                        database2.persist(new TestModel().setFirstName("Alan").setLastName("Turing"));
+                        database2.setTransactionSuccessful();
                     } finally {
-                        dao2.endTransaction();
+                        database2.endTransaction();
                     }
                 } catch (Exception e) {
                     threadFailed.set(e);
@@ -213,14 +210,14 @@ public class AttachDetachTest extends DatabaseTestCase {
         Thread.sleep(1000L);
 
         String attachedAs = database2.attachDatabase(database);
-        dao2.beginTransaction();
+        database2.beginTransaction();
         try {
             database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                     .select(Query.select(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                             .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs))));
-            dao2.setTransactionSuccessful();
+            database2.setTransactionSuccessful();
         } finally {
-            dao2.endTransaction();
+            database2.endTransaction();
             database2.detachDatabase(database);
         }
 
@@ -233,7 +230,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         if (threadFailed.get() != null) {
             throw threadFailed.get();
         }
-        assertEquals(4, dao2.count(TestModel.class, Criterion.all));
+        assertEquals(4, database2.countAll(TestModel.class));
     }
 
 }

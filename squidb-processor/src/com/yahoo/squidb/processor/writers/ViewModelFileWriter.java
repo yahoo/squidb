@@ -13,35 +13,24 @@ import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.Alias;
-import com.yahoo.squidb.annotations.ColumnSpec;
-import com.yahoo.squidb.annotations.ViewModelSpec;
-import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.properties.factory.PropertyGeneratorFactory;
-import com.yahoo.squidb.processor.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic.Kind;
 
-public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
+public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
     private static final String BASE_PROPERTY_ARRAY_NAME = "BASE_PROPERTIES";
     private static final String ALIASED_PROPERTY_ARRAY_NAME = "ALIASED_PROPERTIES";
     private static final String QUERY_NAME = "QUERY";
     private static final String VIEW_NAME = "VIEW";
     private static final String SUBQUERY_NAME = "SUBQUERY";
-
-    private VariableElement queryElement;
-
-    private ViewQuery viewQueryAnnotation;
 
     private static final MethodDeclarationParameters GET_TABLE_MAPPING_VISITORS;
 
@@ -52,67 +41,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
                 .setModifiers(Modifier.PROTECTED);
     }
 
-    public ViewModelFileWriter(TypeElement element, PropertyGeneratorFactory propertyGeneratorFactory, AptUtils utils) {
-        super(element, ViewModelSpec.class, propertyGeneratorFactory, utils);
-    }
-
-    @Override
-    protected String getGeneratedClassName() {
-        return modelSpec.className();
-    }
-
-    @Override
-    protected DeclaredTypeName getModelSuperclass() {
-        return TypeConstants.VIEW_MODEL;
-    }
-
-    @Override
-    protected void processVariableElement(VariableElement e, DeclaredTypeName typeName) {
-        if (e.getAnnotation(Deprecated.class) != null) {
-            return;
-        }
-        if (e.getAnnotation(ColumnSpec.class) != null) {
-            utils.getMessager().printMessage(Kind.WARNING, "ColumnSpec is ignored outside of table models", e);
-        }
-        boolean isViewProperty = TypeConstants.isPropertyType(typeName);
-        ViewQuery isViewQuery = e.getAnnotation(ViewQuery.class);
-        Set<Modifier> modifiers = e.getModifiers();
-        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            if (isViewQuery != null) {
-                if (!TypeConstants.QUERY.equals(typeName)) {
-                    utils.getMessager().printMessage(Kind.ERROR,
-                            "ViewQuery must be an instance of " + TypeConstants.QUERY.toString());
-                } else if (queryElement != null) {
-                    utils.getMessager().printMessage(Kind.ERROR, "Only one ViewQuery per spec allowedd");
-                } else {
-                    viewQueryAnnotation = isViewQuery;
-                    queryElement = e;
-                }
-            } else if (!isViewProperty) {
-                constantElements.add(e);
-            } else {
-                initializePropertyGenerator(e);
-            }
-        } else if (isViewProperty) {
-            utils.getMessager().printMessage(Kind.ERROR, "View properties must be public static final", e);
-        } else {
-            utils.getMessager().printMessage(Kind.WARNING, "Unused field in spec", e);
-        }
-    }
-
-    @Override
-    protected Collection<DeclaredTypeName> getModelSpecificImports() {
-        if (queryElement != null) {
-            List<DeclaredTypeName> imports = new ArrayList<DeclaredTypeName>();
-            if (modelSpec.isSubquery()) {
-                imports.add(TypeConstants.SUBQUERY_TABLE);
-            } else {
-                imports.add(TypeConstants.VIEW);
-            }
-            imports.add(TypeConstants.QUERY);
-            return imports;
-        }
-        return null;
+    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
+        super(new ViewModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
     }
 
     @Override
@@ -155,31 +85,36 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
     }
 
     private boolean emitPropertyReferenceArrayBody(boolean alias) throws IOException {
-        for (PropertyGenerator e : propertyGenerators) {
-            Expression reference = Expressions.staticReference(sourceElementName, e.getPropertyName());
+        for (PropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
+            Expression reference = Expressions.staticReference(modelSpec.getModelSpecName(),
+                    propertyGenerator.getPropertyName());
             if (alias) {
-                Alias aliasAnnotation = e.getElement().getAnnotation(Alias.class);
-                if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
-                    reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                VariableElement field = propertyGenerator.getField();
+                if (field != null) {
+                    Alias aliasAnnotation = field.getAnnotation(Alias.class);
+                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
+                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                    }
                 }
             }
             writer.writeExpression(reference);
             writer.appendString(",\n");
         }
-        return !AptUtils.isEmpty(propertyGenerators);
+        return !AptUtils.isEmpty(modelSpec.getPropertyGenerators());
     }
 
     private void emitQueryAndTableDeclaration() throws IOException {
-        emitSqlTableDeclaration(!modelSpec.isSubquery());
+        emitSqlTableDeclaration(!modelSpec.getSpecAnnotation().isSubquery());
     }
 
     private void emitSqlTableDeclaration(boolean view) throws IOException {
         writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
-        String name = "\"" + modelSpec.viewName() + "\"";
-        if (queryElement != null) {
-            Expression queryReference = Expressions.staticReference(sourceElementName,
-                    queryElement.getSimpleName().toString()).callMethod("selectMore", ALIASED_PROPERTY_ARRAY_NAME);
-            if (viewQueryAnnotation.freeze()) {
+        String name = "\"" + modelSpec.getSpecAnnotation().viewName() + "\"";
+        if (modelSpec.getQueryElement() != null) {
+            Expression queryReference = Expressions.staticReference(modelSpec.getModelSpecName(),
+                    modelSpec.getQueryElement().getSimpleName().toString())
+                    .callMethod("selectMore", ALIASED_PROPERTY_ARRAY_NAME);
+            if (modelSpec.getViewQueryAnnotation().freeze()) {
                 queryReference = queryReference.callMethod("freeze");
             }
 
@@ -198,18 +133,18 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
 
     private Expression constructInitializer(String name, boolean view) {
         if (view) {
-            return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery",
-                    QUERY_NAME, name, Expressions.classObject(generatedClassName), PROPERTIES_ARRAY_NAME);
+            return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery", QUERY_NAME, name,
+                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
         } else {
-            return Expressions.callMethodOn(QUERY_NAME, "as", name, Expressions.classObject(generatedClassName),
-                    PROPERTIES_ARRAY_NAME);
+            return Expressions.callMethodOn(QUERY_NAME, "as", name,
+                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
         }
     }
 
     @Override
     protected void emitAllProperties() throws IOException {
-        for (int i = 0; i < propertyGenerators.size(); i++) {
-            emitSinglePropertyDeclaration(propertyGenerators.get(i), i);
+        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
+            emitSinglePropertyDeclaration(modelSpec.getPropertyGenerators().get(i), i);
         }
     }
 
@@ -218,8 +153,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
         DeclaredTypeName type = generator.getPropertyType();
         String fieldToQualify = ALIASED_PROPERTY_ARRAY_NAME + "[" + index + "]";
         Expression expressionToCast;
-        if (queryElement != null) {
-            String callOn = modelSpec.isSubquery() ? SUBQUERY_NAME : VIEW_NAME;
+        if (modelSpec.getQueryElement() != null) {
+            String callOn = modelSpec.getSpecAnnotation().isSubquery() ? SUBQUERY_NAME : VIEW_NAME;
             expressionToCast = Expressions.callMethodOn(callOn, "qualifyField", fieldToQualify);
         } else {
             expressionToCast = Expressions.reference(fieldToQualify);
@@ -232,15 +167,15 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpec> {
 
     @Override
     protected int getPropertiesArrayLength() {
-        return propertyGenerators.size();
+        return modelSpec.getPropertyGenerators().size();
     }
 
     @Override
     protected void writePropertiesInitializationBlock() throws IOException {
-        for (int i = 0; i < propertyGenerators.size(); i++) {
+        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             writer.writeStatement(Expressions
                     .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
-                            Expressions.fromString(propertyGenerators.get(i).getPropertyName())));
+                            Expressions.fromString(modelSpec.getPropertyGenerators().get(i).getPropertyName())));
         }
     }
 

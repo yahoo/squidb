@@ -3,5 +3,25 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-jackson-plugin', ':squidb-jackson-compiler',
-        ':squidb-sample', ':squidb-jackson-annotations', ':squidb-tests'
+include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-sample', ':squidb-tests'
+
+include ':squidb-jackson-plugin'
+project(':squidb-jackson-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-plugin')
+
+include ':squidb-jackson-compiler'
+project(':squidb-jackson-compiler').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-compiler')
+
+include ':squidb-jackson-annotations'
+project(':squidb-jackson-annotations').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-annotations')
+
+include ':squidb-sqlite-bindings'
+project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-addons/squidb-sqlite-bindings')
+
+include ':squidb-reactive'
+project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/squidb-reactive')
+
+include ':squidb-recyclerview'
+project(':squidb-recyclerview').projectDir = new File(settingsDir, 'squidb-addons/squidb-recyclerview')
+
+include ':squidb-support-loader'
+project(':squidb-support-loader').projectDir = new File(settingsDir, 'squidb-addons/squidb-support-loader')

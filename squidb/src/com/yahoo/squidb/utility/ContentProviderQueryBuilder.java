@@ -8,7 +8,6 @@ package com.yahoo.squidb.utility;
 import android.content.ContentProvider;
 import android.text.TextUtils;
 
-import com.yahoo.squidb.data.DatabaseDao;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Order;
@@ -31,7 +30,8 @@ import java.util.List;
  * <ul>
  * <li>set strict mode to true</li>
  * <li>provide a {@link ProjectionMap}</li>
- * <li>call build() to create a Query that will be validated when executed by a {@link DatabaseDao}</li>
+ * <li>call build() to create a Query that will be validated when executed by a
+ * {@link com.yahoo.squidb.data.SquidDatabase}</li>
  * </ul>
  * These steps will ensure the query is protected against malicious arguments in the projection, selection, and
  * sortOrder.

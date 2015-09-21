@@ -1,14 +1,20 @@
 language: android
 env:
-  - ANDROID_TARGET=android-15 ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-19 ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-15 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-16 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-16 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-19 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  - ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
 android:
   components:
     - build-tools-22.0.1
     - android-15
     - sys-img-armeabi-v7a-android-15
+    - android-16
+    - sys-img-armeabi-v7a-android-16
     - android-19
     - sys-img-armeabi-v7a-android-19
+    - extra-android-m2repository
 before_script:
     - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a
     - emulator -avd test -no-skin -no-audio -no-window &
@@ -16,4 +22,4 @@ before_script:
     - adb shell input keyevent 82 &
     - ./gradlew squidb-tests:installDebug squidb-tests:installDebugAndroidTest
 script:
-    - adb shell am instrument -w com.yahoo.squidb.test.test/android.test.InstrumentationTestRunner
+    - adb shell am instrument -w -e squidb_binding $SQUIDB_BINDING com.yahoo.squidb.test/com.yahoo.squidb.test.SquidInstrumentationTestRunner

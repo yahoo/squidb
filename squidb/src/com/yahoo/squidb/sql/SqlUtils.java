@@ -9,7 +9,6 @@ import android.text.TextUtils;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,57 +18,10 @@ public class SqlUtils {
         /* no instantiation */
     }
 
-    static final Object[] EMPTY_ARGS = new Object[0];
-
-    /**
-     * Append a literal value to a SQL string being built. If {@code sqlArgs} is provided, a '?' may be placed in the
-     * SQL string and the value added to {@code sqlArgs} instead. This method properly handles {@link Field},
-     * {@link Property}, {@link Query}, and other database objects.
-     *
-     * @param sql The SQL string being built
-     * @param sqlArgs Holds arguments that should bind to '?' characters appended to {@code sql}
-     * @param value The value to be appended
-     */
-    static void addToSqlString(StringBuilder sql, List<Object> sqlArgs, Object value) {
-        if (value instanceof DBObject<?>) {
-            ((DBObject<?>) value).appendQualifiedExpression(sql, sqlArgs);
-        } else if (value instanceof Query) {
-            sql.append("(");
-            ((Query) value).appendCompiledStringWithArguments(sql, sqlArgs);
-            sql.append(")");
-        } else if (value instanceof CompilableWithArguments) {
-            ((CompilableWithArguments) value).appendCompiledStringWithArguments(sql, sqlArgs);
-        } else if (sqlArgs == null) {
-            sql.append(toSanitizedString(value));
-        } else {
-            if (value != null) {
-                sql.append(SqlStatement.REPLACEABLE_PARAMETER);
-                sqlArgs.add(value);
-            } else {
-                sql.append("NULL");
-            }
-        }
-    }
-
-    static void addToSqlString(StringBuilder sql, Object value) {
-        addToSqlString(sql, null, value);
-    }
-
-    static void addCollectionArgToSqlString(StringBuilder sql, List<Object> sqlArgs, Collection<?> value) {
-        if (value != null) {
-            if (sqlArgs == null) {
-                addInlineCollectionToSqlString(sql, value);
-            } else {
-                sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
-                sqlArgs.add(value);
-            }
-        }
-    }
-
     static void addInlineCollectionToSqlString(StringBuilder sql, Collection<?> values) {
         if (values != null && !values.isEmpty()) {
             for (Object t : values) {
-                addToSqlString(sql, t);
+                sql.append(toSanitizedString(t));
                 sql.append(",");
             }
             sql.deleteCharAt(sql.length() - 1);
@@ -77,18 +29,13 @@ public class SqlUtils {
     }
 
     /**
-     * Convert an arbitrary object to a string. If the argument is a {@link DBObject}, the qualified name is returned
-     * instead. If the object is a {@link String}, it will be sanitized.
+     * Convert an arbitrary object to a string. If the object itself is a {@link String}, it will be sanitized.
      */
     static String toSanitizedString(Object value) {
-        if (value instanceof DBObject<?>) {
-            return ((DBObject<?>) value).getQualifiedExpression();
-        } else if (value instanceof String) {
+        if (value instanceof String) {
             return sanitizeStringAsLiteral((String) value);
         } else if (value instanceof AtomicReference<?>) {
             return toSanitizedString(((AtomicReference<?>) value).get());
-        } else if (value instanceof Query) {
-            return "(" + ((Query) value).toRawSql() + ")";
         } else {
             return sanitizeObject(value);
         }
@@ -97,7 +44,7 @@ public class SqlUtils {
     /**
      * Sanitize a {@link String} for use in a SQL statement
      */
-    private static String sanitizeStringAsLiteral(String literal) {
+    static String sanitizeStringAsLiteral(String literal) {
         String sanitizedLiteral = literal.replace("'", "''");
         int nullIndex = sanitizedLiteral.indexOf('\0');
         if (nullIndex >= 0) {
@@ -147,34 +94,6 @@ public class SqlUtils {
             return ((AtomicBoolean) value).get() ? "1" : "0";
         } else {
             return sanitizeStringAsLiteral(String.valueOf(value));
-        }
-    }
-
-    static void appendConcatenatedCompilables(List<? extends CompilableWithArguments> compilables, StringBuilder sql,
-            List<Object> selectionArgsBuilder, String separator) {
-        if (compilables != null && !compilables.isEmpty()) {
-            boolean needSeparator = false;
-            for (CompilableWithArguments compilable : compilables) {
-                if (needSeparator) {
-                    sql.append(separator);
-                }
-                needSeparator = true;
-                compilable.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
-            }
-        }
-    }
-
-    static void appendConcatenatedValidatables(List<? extends Validatable> validatables, StringBuilder sql,
-            List<Object> selectionArgsBuilder, String separator, boolean withValidation) {
-        if (validatables != null && !validatables.isEmpty()) {
-            boolean needSeparator = false;
-            for (Validatable compilable : validatables) {
-                if (needSeparator) {
-                    sql.append(separator);
-                }
-                needSeparator = true;
-                compilable.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
-            }
         }
     }
 

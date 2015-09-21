@@ -32,3 +32,19 @@ java-traits
 https://github.com/sbosley/java-traits
 Copyright (C) 2014 -- Yahoo, Inc.
 License: Apache 2.0
+
+*
+
+squidb-sqlite-bindings uses the SQLite Android Bindings
+https://www.sqlite.org/android/doc/trunk/www/index.wiki
+Copyright (C) 2008 -- The Android Open Source Project
+Modifications made by the SQLite developers, sqlite-dev@sqlite.org
+License: Apache 2.0
+
+*
+
+Parts of squidb-reactive were inspired by:
+SQLBrite
+https://github.com/square/sqlbrite
+Copyright (C) 2015 Square, Inc.
+License: Apache 2.0

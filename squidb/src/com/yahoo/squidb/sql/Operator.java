@@ -62,7 +62,7 @@ public enum Operator {
 
     private final String operator;
 
-    private Operator(String operator) {
+    Operator(String operator) {
         this.operator = operator;
     }
 

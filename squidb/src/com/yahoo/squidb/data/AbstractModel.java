@@ -31,7 +31,7 @@ import java.util.Set;
  * <ol>
  * <li>values explicitly set using set(Property, Object) or a generated setter, found in the set returned by
  * {@link #getSetValues()}</li>
- * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
+ * <li>values written to the model as a result of fetching it using a {@link SquidDatabase} or constructing it from a
  * {@link SquidCursor}, found in the set returned by {@link #getDatabaseValues()}</li>
  * <li>default values, found in the set returned by {@link #getDefaultValues()}</li>
  * </ol>
@@ -48,10 +48,10 @@ import java.util.Set;
  * database.
  *
  * <pre>
- * DatabaseDao dao = ...
- * Model model = dao.fetch(Model.class, id, Model.PROPERTIES);
+ * MyDatabase db = ...
+ * Model model = db.fetch(Model.class, id, Model.PROPERTIES);
  * // or
- * SquidCursor&lt;Model&gt; cursor = dao.query(Model.class, query);
+ * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * cursor.moveToFirst();
  * Model model = new Model(cursor);
  * </pre>
@@ -146,11 +146,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     @Override
     public boolean equals(Object other) {
-        if (other == null || other.getClass() != getClass()) {
-            return false;
-        }
-
-        return getMergedValues().equals(((AbstractModel) other).getMergedValues());
+        return other != null && getClass().equals(other.getClass()) && getMergedValues()
+                .equals(((AbstractModel) other).getMergedValues());
     }
 
     @Override
@@ -160,13 +157,9 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getClass().getSimpleName()).append("\n")
-                .append("set values:\n")
-                .append(setValues).append("\n")
-                .append("values:\n")
-                .append(values).append("\n");
-        return builder.toString();
+        return getClass().getSimpleName() + "\n" +
+                "set values:\n" + setValues + "\n" +
+                "values:\n" + values + "\n";
     }
 
     @Override
@@ -261,8 +254,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * Return the value of the specified {@link Property}. The model prioritizes values as follows:
      * <ol>
      * <li>values explicitly set using {@link #set(Property, Object)} or a generated setter</li>
-     * <li>values written to the model as a result of fetching it using a {@link DatabaseDao} or constructing it from a
-     * {@link SquidCursor}</li>
+     * <li>values written to the model as a result of fetching it using a {@link SquidDatabase} or constructing it from
+     * a {@link SquidCursor}</li>
      * <li>the set of default values as specified by {@link #getDefaultValues()}</li>
      * </ol>
      * If a value is not found in any of those places, an exception is thrown.
@@ -299,15 +292,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * @return true if a value for this property has been read from the database or set by the user
      */
     public boolean containsValue(Property<?> property) {
-        if (setValues != null && setValues.containsKey(property.getName())) {
-            return true;
-        }
-
-        if (values != null && values.containsKey(property.getName())) {
-            return true;
-        }
-
-        return false;
+        return valuesContainsKey(setValues, property) || valuesContainsKey(values, property);
     }
 
     /**
@@ -316,15 +301,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * stored is not null
      */
     public boolean containsNonNullValue(Property<?> property) {
-        if (setValues != null && setValues.containsKey(property.getName())) {
-            return setValues.get(property.getName()) != null;
-        }
-
-        if (values != null && values.containsKey(property.getName())) {
-            return values.get(property.getName()) != null;
-        }
-
-        return false;
+        return (valuesContainsKey(setValues, property) && setValues.get(property.getName()) != null)
+                || (valuesContainsKey(values, property) && values.get(property.getName()) != null);
     }
 
     /**
@@ -332,7 +310,11 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      * @return true if this property has a value that was set by the user
      */
     public boolean fieldIsDirty(Property<?> property) {
-        return setValues != null && setValues.containsKey(property.getName());
+        return valuesContainsKey(setValues, property);
+    }
+
+    private boolean valuesContainsKey(ContentValues values, Property<?> property) {
+        return values != null && values.containsKey(property.getName());
     }
 
     // --- data storage
@@ -541,7 +523,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
             if (value instanceof Boolean) {
                 dst.put(property.getName(), (Boolean) value);
             } else if (value instanceof Integer) {
-                dst.put(property.getName(), ((Integer) value).intValue() != 0);
+                dst.put(property.getName(), ((Integer) value) != 0);
             }
             return null;
         }

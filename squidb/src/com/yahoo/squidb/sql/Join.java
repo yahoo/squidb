@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 /**
  * A JOIN clause used in a SELECT statement.
  * <p>
@@ -15,7 +13,7 @@ import java.util.List;
  * datasets. If a join constraint is specified, it is evaluated for each row of the cartesian product as a boolean
  * expression, and only rows for which the expression evaluates to true are included in the result.
  */
-public class Join extends Validatable {
+public class Join extends CompilableWithArguments {
 
     private enum JoinType {
         INNER, LEFT, CROSS
@@ -109,33 +107,27 @@ public class Join extends Validatable {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
-            boolean withValidation) {
-        sql.append(joinType).append(" JOIN ");
-        if (joinTable instanceof SubqueryTable) {
-            ((SubqueryTable) joinTable)
-                    .appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
-        } else {
-            joinTable.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
-        }
-        sql.append(" ");
-        if (criterions != null) {
-            sql.append("ON ");
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(joinType).append(" JOIN ");
+        joinTable.appendToSqlBuilder(builder, forSqlValidation);
+        builder.sql.append(" ");
+        if (criterions != null && criterions.length > 0) {
+            builder.sql.append("ON ");
             for (int i = 0; i < criterions.length; i++) {
                 if (i > 0) {
-                    sql.append(" AND ");
+                    builder.sql.append(" AND ");
                 }
-                criterions[i].appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+                criterions[i].appendToSqlBuilder(builder, forSqlValidation);
             }
-        } else if (usings != null) {
-            sql.append("USING (");
+        } else if (usings != null && usings.length > 0) {
+            builder.sql.append("USING (");
             for (int i = 0; i < usings.length; i++) {
                 if (i > 0) {
-                    sql.append(", ");
+                    builder.sql.append(", ");
                 }
-                sql.append(usings[i].getExpression());
+                builder.sql.append(usings[i].getExpression());
             }
-            sql.append(")");
+            builder.sql.append(")");
         }
     }
 }

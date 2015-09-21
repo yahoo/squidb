@@ -5,11 +5,10 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.os.Build;
-
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
@@ -62,20 +61,18 @@ public class VirtualTable extends Table {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(" ModelClass=").append(modelClass.getSimpleName())
-                .append(" module=").append(moduleName);
-        return sb.toString();
+        return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " module=" + moduleName;
     }
 
     /**
      * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users normally should not
-     * call this method and instead let {@link AbstractDatabase} build tables automatically.
+     * call this method and instead let {@link SquidDatabase} build tables automatically.
      */
     @Override
-    public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
+            PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE ");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (sqliteVersion != null && sqliteVersion.isAtLeast(VersionCode.V3_7_11)) {
             sql.append("IF NOT EXISTS ");
         }
         sql.append(getExpression()).append(" USING ").append(moduleName).append('(');

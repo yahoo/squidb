@@ -8,7 +8,6 @@ package com.yahoo.squidb.test;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.sql.Function;
-import com.yahoo.squidb.sql.Join;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -18,7 +17,10 @@ public class TestViewModelSpec {
 
     @ViewQuery
     public static final Query QUERY = Query.select().from(TestModel.TABLE)
-            .join(Join.inner(Employee.TABLE, TestModel.ID.eq(Employee.ID)));
+            .innerJoin(Employee.TABLE, TestModel.ID.eq(Employee.ID));
+
+    public static final Query CONST_QUERY = Query.select().from(TestModel.TABLE)
+            .leftJoin(Employee.TABLE, TestModel.ID.eq(Employee.ID));
 
     public static final LongProperty TEST_MODEL_ID = TestModel.ID;
 

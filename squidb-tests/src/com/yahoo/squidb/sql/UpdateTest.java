@@ -28,25 +28,25 @@ public class UpdateTest extends DatabaseTestCase {
                 .setFirstName("Sam")
                 .setLastName("Bosley")
                 .setBirthday(now);
-        dao.persist(sam);
+        database.persist(sam);
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
                 .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
                 .setLuckyNumber(314);
-        dao.persist(kevin);
+        database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
                 .setBirthday(now + DateUtils.HOUR_IN_MILLIS)
                 .setLuckyNumber(3);
-        dao.persist(jonathan);
+        database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
                 .setBirthday(now - DateUtils.DAY_IN_MILLIS * 2)
                 .setLuckyNumber(-5);
-        dao.persist(scott);
+        database.persist(scott);
     }
 
     public void testUpdateWithNoColumnsSpecifiedThrowsIllegalStateException() {
@@ -55,7 +55,7 @@ public class UpdateTest extends DatabaseTestCase {
             @Override
             public void run() {
                 Update update = Update.table(TestModel.TABLE).where(TestModel.IS_HAPPY.isTrue());
-                update.compile();
+                update.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -76,21 +76,21 @@ public class UpdateTest extends DatabaseTestCase {
         final int newLuckyNumber = 99;
 
         // check preconditions
-        int numRows = dao.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertTrue(numRows > 0);
-        int shouldBeZero = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
+        int shouldBeZero = database.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
         assertEquals(0, shouldBeZero);
 
         // update testModels set luckyNumber = 99
         Update update = Update.table(TestModel.TABLE).set(new Property<?>[]{TestModel.LUCKY_NUMBER},
                 new Integer[]{newLuckyNumber});
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 1, newLuckyNumber);
 
-        assertEquals(numRows, dao.update(update));
+        assertEquals(numRows, database.update(update));
 
-        int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
+        int rowsWithNewLuckyNumber = database.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(newLuckyNumber));
         assertEquals(numRows, rowsWithNewLuckyNumber);
     }
 
@@ -98,19 +98,19 @@ public class UpdateTest extends DatabaseTestCase {
         Criterion criterion = TestModel.LUCKY_NUMBER.lte(0);
 
         // check preconditions
-        int rowsBeforeWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
+        int rowsBeforeWithLuckyNumberLteZero = database.count(TestModel.class, criterion);
         assertTrue(rowsBeforeWithLuckyNumberLteZero > 0);
 
         // update testModels set luckyNumber = 777 where luckyNumber <= 0;
         int luckyNumber = 777;
         Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, luckyNumber).where(criterion);
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 2, luckyNumber, 0);
 
-        assertEquals(rowsBeforeWithLuckyNumberLteZero, dao.update(update));
-        int rowsAfterWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
-        int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
+        assertEquals(rowsBeforeWithLuckyNumberLteZero, database.update(update));
+        int rowsAfterWithLuckyNumberLteZero = database.count(TestModel.class, criterion);
+        int rowsWithNewLuckyNumber = database.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
         assertEquals(0, rowsAfterWithLuckyNumberLteZero);
         assertTrue(rowsWithNewLuckyNumber >= rowsBeforeWithLuckyNumberLteZero);
     }
@@ -119,19 +119,19 @@ public class UpdateTest extends DatabaseTestCase {
         Criterion criterion = TestModel.LUCKY_NUMBER.lte(0);
 
         // check preconditions
-        int rowsBeforeWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
+        int rowsBeforeWithLuckyNumberLteZero = database.count(TestModel.class, criterion);
         assertTrue(rowsBeforeWithLuckyNumberLteZero > 0);
 
         // update testModels set luckyNumber = 777 where luckyNumber <= 0;
         TestModel template = new TestModel().setLuckyNumber(777);
         Update update = Update.table(TestModel.TABLE).fromTemplate(template).where(criterion);
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 2, template.getLuckyNumber(), 0);
 
-        assertEquals(rowsBeforeWithLuckyNumberLteZero, dao.update(update));
-        int rowsAfterWithLuckyNumberLteZero = dao.count(TestModel.class, criterion);
-        int rowsWithNewLuckyNumber = dao.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
+        assertEquals(rowsBeforeWithLuckyNumberLteZero, database.update(update));
+        int rowsAfterWithLuckyNumberLteZero = database.count(TestModel.class, criterion);
+        int rowsWithNewLuckyNumber = database.count(TestModel.class, TestModel.LUCKY_NUMBER.eq(777));
         assertEquals(0, rowsAfterWithLuckyNumberLteZero);
         assertTrue(rowsWithNewLuckyNumber >= rowsBeforeWithLuckyNumberLteZero);
     }
@@ -141,9 +141,9 @@ public class UpdateTest extends DatabaseTestCase {
         final String kevinFirstName = kevin.getFirstName();
 
         // check preconditions
-        TestModel modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
+        TestModel modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
                 TestModel.PROPERTIES);
-        TestModel modelWithKevinFirstName = dao
+        TestModel modelWithKevinFirstName = database
                 .fetchByCriterion(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName),
                         TestModel.PROPERTIES);
         assertNotNull(modelWithSamLastName);
@@ -153,16 +153,16 @@ public class UpdateTest extends DatabaseTestCase {
         // update or ignore testModels set lastName = 'Bosley' where firstName = 'Kevin'
         Update update = Update.table(TestModel.TABLE).onConflict(ConflictAlgorithm.IGNORE).set(TestModel.LAST_NAME,
                 samLastName).where(TestModel.FIRST_NAME.eq(kevinFirstName));
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
-        assertEquals(0, dao.update(update)); // Expect ignore
+        assertEquals(0, database.update(update)); // Expect ignore
 
-        int shouldBeOne = dao.count(TestModel.class, TestModel.LAST_NAME.eq(samLastName));
+        int shouldBeOne = database.count(TestModel.class, TestModel.LAST_NAME.eq(samLastName));
         assertEquals(1, shouldBeOne);
 
-        modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
+        modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
                 TestModel.PROPERTIES);
         assertNotNull(modelWithSamLastName);
 
@@ -177,31 +177,31 @@ public class UpdateTest extends DatabaseTestCase {
         final String kevinFirstName = kevin.getFirstName();
 
         // check preconditions
-        TestModel modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
+        TestModel modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
                 TestModel.PROPERTIES);
-        TestModel modelWithKevinFirstName = dao
+        TestModel modelWithKevinFirstName = database
                 .fetchByCriterion(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName),
                         TestModel.PROPERTIES);
         assertNotNull(modelWithSamLastName);
         assertNotNull(modelWithKevinFirstName);
         assertFalse(modelWithSamLastName.equals(modelWithKevinFirstName));
 
-        int shouldBeOne = dao.count(TestModel.class, TestModel.LAST_NAME.eq(samLastName));
+        int shouldBeOne = database.count(TestModel.class, TestModel.LAST_NAME.eq(samLastName));
         assertEquals(1, shouldBeOne);
-        shouldBeOne = dao.count(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName));
+        shouldBeOne = database.count(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName));
         assertEquals(1, shouldBeOne);
 
         // update or replace testModels set lastName = 'Bosley' where firstName = 'Kevin'
         Update update = Update.table(TestModel.TABLE).onConflict(ConflictAlgorithm.REPLACE).set(TestModel.LAST_NAME,
                 samLastName).where(TestModel.FIRST_NAME.eq(kevinFirstName));
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
-        assertEquals(1, dao.update(update));
-        modelWithSamLastName = dao.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
+        assertEquals(1, database.update(update));
+        modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(samLastName),
                 TestModel.PROPERTIES);
-        modelWithKevinFirstName = dao.fetchByCriterion(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName),
+        modelWithKevinFirstName = database.fetchByCriterion(TestModel.class, TestModel.FIRST_NAME.eq(kevinFirstName),
                 TestModel.PROPERTIES);
         assertNotNull(modelWithSamLastName);
         assertNotNull(modelWithKevinFirstName);
@@ -213,7 +213,7 @@ public class UpdateTest extends DatabaseTestCase {
         SquidCursor<TestModel> cursor;
 
         // build expected results
-        cursor = dao.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER).orderBy(TestModel.ID.asc()));
+        cursor = database.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER).orderBy(TestModel.ID.asc()));
         int numRows = cursor.getCount();
         assertTrue(numRows > 0);
         expectedResults = new int[numRows];
@@ -229,14 +229,14 @@ public class UpdateTest extends DatabaseTestCase {
 
         Field<Integer> luckyPlusPlus = Field.field(TestModel.LUCKY_NUMBER.getExpression() + " + 1");
         Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, luckyPlusPlus);
-        CompiledStatement compiled = update.compile();
+        CompiledStatement compiled = update.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiled, 0);
 
-        assertEquals(4, dao.update(update));
+        assertEquals(4, database.update(update));
 
         // verify
-        cursor = dao.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER).orderBy(TestModel.ID.asc()));
+        cursor = database.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER).orderBy(TestModel.ID.asc()));
         try {
             int index = 0;
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {

@@ -1,26 +1,30 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
+import com.yahoo.squidb.utility.VersionCode;
 
 abstract class CompilableWithArguments {
 
-    protected static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
-
     @Override
     public String toString() {
-        return toRawSql();
+        return toRawSql(VersionCode.LATEST);
     }
 
-    public final String toRawSql() {
-        return toStringWithSelectionArgs(null);
+    public final String toRawSql(VersionCode sqliteVersion) {
+        return buildSql(sqliteVersion, false, false).getSqlString();
     }
 
-    protected final String toStringWithSelectionArgs(List<Object> args) {
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        appendCompiledStringWithArguments(sql, args);
-        return sql.toString();
+    protected final SqlBuilder buildSql(VersionCode sqliteVersion, boolean withBoundArguments,
+            boolean forSqlValidation) {
+        SqlBuilder builder = new SqlBuilder(sqliteVersion, withBoundArguments);
+        appendToSqlBuilder(builder, forSqlValidation);
+        return builder;
     }
 
-    abstract void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder);
+    abstract void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation);
 
 }

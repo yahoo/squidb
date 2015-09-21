@@ -5,21 +5,22 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.List;
-
 class NegationCriterion extends Criterion {
 
     private final Criterion toNegate;
 
     NegationCriterion(Criterion toNegate) {
         super(Operator.not);
+        if (toNegate == null) {
+            throw new IllegalArgumentException("Can't negate a null criterion");
+        }
         this.toNegate = toNegate;
     }
 
     @Override
-    protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        sql.append(operator);
-        toNegate.appendCompiledStringWithArguments(sql, selectionArgsBuilder);
+    protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(operator);
+        toNegate.appendToSqlBuilder(builder, forSqlValidation);
     }
 
     @Override

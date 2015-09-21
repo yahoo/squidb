@@ -14,9 +14,9 @@ public class InheritanceModelTest extends DatabaseTestCase {
     public void testModelInheritance() {
         BasicData data = new BasicData();
         data.setData1("1").setData2("2").setData3("3");
-        dao.persist(data);
+        database.persist(data);
 
-        SpecificData sd = dao.fetch(SpecificData.class, data.getId(), SpecificData.PROPERTIES);
+        SpecificData sd = database.fetch(SpecificData.class, data.getId(), SpecificData.PROPERTIES);
         assertNotNull(sd);
         assertEquals("1", sd.getFirstName());
         assertEquals("2", sd.getLastName());

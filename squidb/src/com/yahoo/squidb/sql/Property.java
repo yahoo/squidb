@@ -10,8 +10,6 @@ import android.text.TextUtils;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 
-import java.util.List;
-
 /**
  * Property represents a typed column in a database.
  * <p>
@@ -79,20 +77,28 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     }
 
     @Override
-    protected void appendQualifiedExpression(StringBuilder sql, List<Object> selectionArgsBuilder) {
+    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
         if (function != null) {
-            function.appendQualifiedExpression(sql, selectionArgsBuilder);
+            function.appendToSqlBuilder(builder, forSqlValidation);
         } else {
-            super.appendQualifiedExpression(sql, selectionArgsBuilder);
+            super.appendQualifiedExpression(builder, forSqlValidation);
         }
     }
 
     @Override
     public String getExpression() {
         if (function != null) {
-            return function.getExpression();
+            throw new UnsupportedOperationException("Can't call getExpression() on a Property that wraps a Function");
         }
         return super.getExpression();
+    }
+
+    @Override
+    protected String expressionForComparison() {
+        if (function != null) {
+            return function.expressionForComparison();
+        }
+        return super.expressionForComparison();
     }
 
     /**
@@ -197,17 +203,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyVisitor<RETURN, PARAMETER> {
 
-        public RETURN visitInteger(Property<Integer> property, PARAMETER data);
+        RETURN visitInteger(Property<Integer> property, PARAMETER data);
 
-        public RETURN visitLong(Property<Long> property, PARAMETER data);
+        RETURN visitLong(Property<Long> property, PARAMETER data);
 
-        public RETURN visitDouble(Property<Double> property, PARAMETER data);
+        RETURN visitDouble(Property<Double> property, PARAMETER data);
 
-        public RETURN visitString(Property<String> property, PARAMETER data);
+        RETURN visitString(Property<String> property, PARAMETER data);
 
-        public RETURN visitBoolean(Property<Boolean> property, PARAMETER data);
+        RETURN visitBoolean(Property<Boolean> property, PARAMETER data);
 
-        public RETURN visitBlob(Property<byte[]> property, PARAMETER data);
+        RETURN visitBlob(Property<byte[]> property, PARAMETER data);
     }
 
     /**
@@ -215,17 +221,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyWritingVisitor<RETURN, DST, PARAMETER> {
 
-        public RETURN visitInteger(Property<Integer> property, DST dst, PARAMETER data);
+        RETURN visitInteger(Property<Integer> property, DST dst, PARAMETER data);
 
-        public RETURN visitLong(Property<Long> property, DST dst, PARAMETER data);
+        RETURN visitLong(Property<Long> property, DST dst, PARAMETER data);
 
-        public RETURN visitDouble(Property<Double> property, DST dst, PARAMETER data);
+        RETURN visitDouble(Property<Double> property, DST dst, PARAMETER data);
 
-        public RETURN visitString(Property<String> property, DST dst, PARAMETER data);
+        RETURN visitString(Property<String> property, DST dst, PARAMETER data);
 
-        public RETURN visitBoolean(Property<Boolean> property, DST dst, PARAMETER data);
+        RETURN visitBoolean(Property<Boolean> property, DST dst, PARAMETER data);
 
-        public RETURN visitBlob(Property<byte[]> property, DST dst, PARAMETER data);
+        RETURN visitBlob(Property<byte[]> property, DST dst, PARAMETER data);
     }
 
     // --- children
@@ -360,7 +366,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param selectAs the alias to use. May be null.
          */
         public static StringProperty literal(String literal, String selectAs) {
-            return new StringProperty(null, SqlUtils.toSanitizedString(literal), selectAs, null);
+            return new StringProperty(null, SqlUtils.sanitizeStringAsLiteral(literal), selectAs, null);
         }
 
         @Override

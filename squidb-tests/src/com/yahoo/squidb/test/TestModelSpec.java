@@ -67,7 +67,6 @@ public class TestModelSpec {
     @JacksonProperty
     Map<String, Integer> someMap;
 
-
     @ModelMethod
     public static String getDisplayName(TestModel instance) {
         return instance.getFirstName() + " " + instance.getLastName();

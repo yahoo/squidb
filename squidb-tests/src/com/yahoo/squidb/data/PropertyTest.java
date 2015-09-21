@@ -5,7 +5,13 @@
  */
 package com.yahoo.squidb.data;
 
+import com.yahoo.squidb.sql.Function;
+import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.sql.Property.BooleanProperty;
+import com.yahoo.squidb.sql.Property.DoubleProperty;
+import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
+import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestModel;
@@ -46,6 +52,53 @@ public class PropertyTest extends SquidTestCase {
         assertEquals(Thing.ID.getQualifiedExpression(), "things.id");
         assertEquals(Thing.ID.getExpression(), "id");
         assertEquals(Thing.ID.getName(), "id");
+    }
+
+    public void testEqualsAndHashCode() {
+        LongProperty test1 = new LongProperty(TestModel.TABLE, "testCol");
+        LongProperty test2 = new LongProperty(TestModel.TABLE, "testCol");
+
+        assertEquals(test1, test2);
+        assertEquals(test1.hashCode(), test2.hashCode());
+
+        StringProperty test3 = new StringProperty(TestModel.TABLE, "testCol");
+        StringProperty test4 = new StringProperty(TestModel.TABLE, "testCol", "DEFAULT 'A'");
+
+        assertEquals(test3, test4);
+        assertEquals(test3.hashCode(), test4.hashCode());
+
+        Function<Integer> func1 = Function.count();
+        Function<Integer> func2 = Function.rawFunction("COUNT(*)");
+
+        assertEquals(func1, func2);
+        assertEquals(func1.hashCode(), func2.hashCode());
+
+        IntegerProperty test5 = Property.IntegerProperty.fromFunction(func1, "count");
+        IntegerProperty test6 = Property.IntegerProperty.fromFunction(func2, "count");
+
+        assertEquals(test5, test6);
+        assertEquals(test5.hashCode(), test6.hashCode());
+    }
+
+    public void testLiteralProperties() {
+        StringProperty stringLiteral = StringProperty.literal("abc", "strLit");
+        assertEquals("SELECT 'abc' AS strLit", Query.select(stringLiteral).toString());
+
+        IntegerProperty intLiteral = IntegerProperty.literal(1, "intLit");
+        assertEquals("SELECT 1 AS intLit", Query.select(intLiteral).toString());
+
+        long longVal = System.currentTimeMillis();
+        LongProperty longLiteral = LongProperty.literal(longVal, "longLit");
+        assertEquals("SELECT " + longVal + " AS longLit", Query.select(longLiteral).toString());
+
+        DoubleProperty doubleLiteral = DoubleProperty.literal(1.1, "doubleLit");
+        assertEquals("SELECT 1.1 AS doubleLit", Query.select(doubleLiteral).toString());
+
+        BooleanProperty trueLiteral = BooleanProperty.literal(true, "trueLit");
+        assertEquals("SELECT 1 AS trueLit", Query.select(trueLiteral).toString());
+
+        BooleanProperty falseLiteral = BooleanProperty.literal(false, "falseLit");
+        assertEquals("SELECT 0 AS falseLit", Query.select(falseLiteral).toString());
     }
 
 }

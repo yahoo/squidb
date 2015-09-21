@@ -10,7 +10,7 @@ enum MathOperator {
 
     private final String value;
 
-    private MathOperator(String value) {
+    MathOperator(String value) {
         this.value = value;
     }
 

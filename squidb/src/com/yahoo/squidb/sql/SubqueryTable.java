@@ -7,8 +7,6 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
 
-import java.util.List;
-
 /**
  * A table represented by a subquery
  */
@@ -44,15 +42,9 @@ public class SubqueryTable extends QueryTable {
     }
 
     @Override
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder) {
-        appendCompiledStringWithArguments(sql, selectionArgsBuilder, false);
+    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append("(");
+        query.appendToSqlBuilder(builder, forSqlValidation);
+        builder.sql.append(") AS ").append(getName());
     }
-
-    void appendCompiledStringWithArguments(StringBuilder sql, List<Object> selectionArgsBuilder,
-            boolean withValidation) {
-        sql.append("(");
-        query.appendCompiledStringWithArguments(sql, selectionArgsBuilder, withValidation);
-        sql.append(") AS ").append(getName());
-    }
-
 }

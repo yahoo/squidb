@@ -26,61 +26,61 @@ public class DeleteTest extends DatabaseTestCase {
                 .setFirstName("Sam")
                 .setLastName("Bosley")
                 .setBirthday(now);
-        dao.persist(sam);
+        database.persist(sam);
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
                 .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
                 .setLuckyNumber(314);
-        dao.persist(kevin);
+        database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
                 .setBirthday(now + DateUtils.HOUR_IN_MILLIS)
                 .setLuckyNumber(3);
-        dao.persist(jonathan);
+        database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
                 .setBirthday(now - DateUtils.DAY_IN_MILLIS * 2)
                 .setLuckyNumber(-5);
-        dao.persist(scott);
+        database.persist(scott);
     }
 
     public void testDeleteWhere() {
         Criterion criterion = TestModel.LUCKY_NUMBER.lte(0);
 
         // check preconditions
-        TestModel shouldBeFound = dao.fetchByCriterion(TestModel.class, criterion, TestModel.PROPERTIES);
+        TestModel shouldBeFound = database.fetchByCriterion(TestModel.class, criterion, TestModel.PROPERTIES);
         assertNotNull(shouldBeFound);
 
         // delete from testModels where testModels.luckyNumber <= 0;
         Delete delete = Delete.from(TestModel.TABLE).where(criterion);
-        CompiledStatement compiled = delete.compile();
+        CompiledStatement compiled = delete.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 1, 0);
 
-        assertEquals(1, dao.delete(delete));
+        assertEquals(1, database.delete(delete));
 
-        int numRows = dao.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertEquals(3, numRows);
 
-        TestModel shouldNotBeFound = dao.fetchByCriterion(TestModel.class, criterion, TestModel.PROPERTIES);
+        TestModel shouldNotBeFound = database.fetchByCriterion(TestModel.class, criterion, TestModel.PROPERTIES);
         assertNull(shouldNotBeFound);
     }
 
     public void testDeleteAll() {
         // check preconditions
-        int numRows = dao.count(TestModel.class, Criterion.all);
+        int numRows = database.countAll(TestModel.class);
         assertTrue(numRows > 0);
 
         // delete from testModels
         Delete delete = Delete.from(TestModel.TABLE);
-        CompiledStatement compiled = delete.compile();
+        CompiledStatement compiled = delete.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiled, 0);
 
-        assertEquals(numRows, dao.delete(delete));
+        assertEquals(numRows, database.delete(delete));
 
-        numRows = dao.count(TestModel.class, Criterion.all);
+        numRows = database.countAll(TestModel.class);
         assertEquals(0, numRows);
     }
 }

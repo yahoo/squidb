@@ -6,15 +6,16 @@
 package com.yahoo.squidb.test;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
-public class TestDatabase extends AbstractDatabase {
+public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
 
@@ -26,7 +27,7 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "testDb";
     }
 
@@ -55,28 +56,39 @@ public class TestDatabase extends AbstractDatabase {
     }
 
     @Override
+    protected SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+            OpenHelperDelegate delegate, int version) {
+        return SquidTestRunner.selectedBinding.getOpenHelper(context, databaseName, delegate, version);
+    }
+
+    @Override
     protected int getVersion() {
         return 1;
     }
 
     @Override
-    protected void onTablesCreated(SQLiteDatabase db) {
+    protected void onTablesCreated(SQLiteDatabaseWrapper db) {
         super.onTablesCreated(db);
     }
 
     @Override
-    protected boolean onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
     }
 
     @Override
-    protected void onConfigure(SQLiteDatabase db) {
+    protected void onOpen(SQLiteDatabaseWrapper db) {
+        super.onOpen(db);
+    }
+
+    @Override
+    protected void onConfigure(SQLiteDatabaseWrapper db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         db.enableWriteAheadLogging();
     }
 
     @Override
-    protected boolean onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         throw new CustomMigrationException(getName(), oldVersion, newVersion);
     }
 

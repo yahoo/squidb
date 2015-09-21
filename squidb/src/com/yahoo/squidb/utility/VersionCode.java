@@ -15,33 +15,40 @@ import java.util.regex.Pattern;
  */
 public class VersionCode implements Comparable<VersionCode> {
 
+    public static final VersionCode V3_7_4 = new VersionCode(3, 7, 4, 0); // Default on API 14, default minimum
+    public static final VersionCode V3_7_11 = new VersionCode(3, 7, 11, 0); // Support for multi-row insert
+    public static final VersionCode V3_8_3 = new VersionCode(3, 8, 3, 0); // Support for common table expressions
+    public static final VersionCode LATEST = new VersionCode(3, 8, 11, 1); // Latest version
+
     private static final String VERSION_REGEX =
-            "^([\\d]+)(?:\\.([\\d]+))?(?:\\.([\\d]+))?((?:[\\w\\-\\(\\)]+\\.)*[\\w\\-\\(\\)]+)?";
+            "^([\\d]+)(?:\\.([\\d]+))?(?:\\.([\\d]+))?(?:\\.([\\d]+))?((?:[\\w\\-\\(\\)]+\\.)*[\\w\\-\\(\\)]+)?";
     private static Pattern pattern;
 
     private final int majorVersion;
     private final int minorVersion;
     private final int microVersion;
+    private final int nanoVersion;
     private final String trailing;
 
     /**
      * @throws IllegalArgumentException if any value is less than zero.
      */
-    public VersionCode(int major, int minor, int micro) {
-        this(major, minor, micro, null);
+    public VersionCode(int major, int minor, int micro, int nano) {
+        this(major, minor, micro, nano, null);
     }
 
     /**
      * @throws IllegalArgumentException if any value is less than zero.
      */
-    public VersionCode(int major, int minor, int micro, String trailing) {
-        if (major < 0 || minor < 0 || micro < 0) {
+    public VersionCode(int major, int minor, int micro, int nano, String trailing) {
+        if (major < 0 || minor < 0 || micro < 0 || nano < 0) {
             throw new IllegalArgumentException(
                     "Can't use a value less than zero to construct a VersionCode.");
         }
         majorVersion = major;
         minorVersion = minor;
         microVersion = micro;
+        nanoVersion = nano;
         this.trailing = trailing;
     }
 
@@ -64,6 +71,13 @@ public class VersionCode implements Comparable<VersionCode> {
      */
     public int getMicroVersion() {
         return microVersion;
+    }
+
+    /**
+     * @return the nano version number
+     */
+    public int getNanoVersion() {
+        return nanoVersion;
     }
 
     /**
@@ -139,7 +153,7 @@ public class VersionCode implements Comparable<VersionCode> {
             throw new IllegalArgumentException("Invalid versionString: " + versionString);
         }
 
-        int major, minor, micro;
+        int major, minor, micro, nano;
         // group(0) is the full match, so start at 1
         // regex guarantees group(1) is not null
         String majorString = matcher.group(1);
@@ -148,9 +162,11 @@ public class VersionCode implements Comparable<VersionCode> {
         minor = minorString == null ? 0 : Integer.parseInt(minorString);
         String microString = matcher.group(3);
         micro = microString == null ? 0 : Integer.parseInt(microString);
-        String trailing = matcher.group(4);
+        String nanoString = matcher.group(4);
+        nano = nanoString == null ? 0 : Integer.parseInt(nanoString);
+        String trailing = matcher.group(5);
 
-        return new VersionCode(major, minor, micro, trailing);
+        return new VersionCode(major, minor, micro, nano, trailing);
     }
 
     @Override
@@ -183,6 +199,10 @@ public class VersionCode implements Comparable<VersionCode> {
         if (result != 0) {
             return result;
         }
+        result = this.nanoVersion - other.nanoVersion;
+        if (result != 0) {
+            return result;
+        }
 
         if (this.trailing == null) {
             return other.trailing == null ? 0 : -1;
@@ -198,6 +218,9 @@ public class VersionCode implements Comparable<VersionCode> {
         builder.append(Integer.toString(majorVersion))
                 .append('.').append(Integer.toString(minorVersion))
                 .append('.').append(Integer.toString(microVersion));
+        if (nanoVersion > 0) {
+            builder.append('.').append(nanoVersion);
+        }
         if (!TextUtils.isEmpty(trailing)) {
             builder.append(trailing);
         }
@@ -210,6 +233,7 @@ public class VersionCode implements Comparable<VersionCode> {
         int hash = majorVersion;
         hash = hash * 31 + minorVersion;
         hash = hash * 31 + microVersion;
+        hash = hash * 31 + nanoVersion;
         hash = hash * 31 + (trailing == null ? 0 : trailing.hashCode());
         return hash;
     }

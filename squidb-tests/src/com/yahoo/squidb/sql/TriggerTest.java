@@ -10,7 +10,9 @@ import android.text.format.DateUtils;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.Thing;
 import com.yahoo.squidb.test.TriggerTester;
 
@@ -33,25 +35,28 @@ public class TriggerTest extends DatabaseTestCase {
                 .setFirstName("Sam")
                 .setLastName("Bosley")
                 .setBirthday(now);
-        dao.persist(sam);
+        database.persist(sam);
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
                 .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
                 .setLuckyNumber(314);
-        dao.persist(kevin);
+        database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
                 .setBirthday(now + DateUtils.HOUR_IN_MILLIS)
                 .setLuckyNumber(3);
-        dao.persist(jonathan);
+        database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
                 .setBirthday(now - DateUtils.DAY_IN_MILLIS * 2)
                 .setLuckyNumber(-5);
-        dao.persist(scott);
+        database.persist(scott);
+
+        // So that testViewModel will have rows in it -- sqlite triggers are "for each row" only
+        database.persist(new Employee().setName("Sam").setIsHappy(true));
     }
 
     public void testMissingTriggerEventThrowsIllegalStateException() {
@@ -61,7 +66,7 @@ public class TriggerTest extends DatabaseTestCase {
 
         testThrowsException(new Runnable() {
             public void run() {
-                trigger.compile();
+                trigger.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -72,7 +77,7 @@ public class TriggerTest extends DatabaseTestCase {
 
         testThrowsException(new Runnable() {
             public void run() {
-                trigger.compile();
+                trigger.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
     }
@@ -90,8 +95,8 @@ public class TriggerTest extends DatabaseTestCase {
         final int terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
-        dao.persist(test1);
-        dao.persist(test2);
+        database.persist(test1);
+        database.persist(test2);
         final long idTest1 = test1.getId();
         final long idTest2 = test2.getId();
 
@@ -102,28 +107,28 @@ public class TriggerTest extends DatabaseTestCase {
                 .updateOn(TriggerTester.TABLE, TriggerTester.VALUE_1)
                 .perform(Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_2, TriggerTester.VALUE_1)
                         .where(TriggerTester.ID.eq(Trigger.newValueOf(TriggerTester.ID))));
-        CompiledStatement compiledTrigger = trigger.compile();
+        CompiledStatement compiledTrigger = trigger.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiledTrigger, 0);
 
         // create trigger
         database.tryExecSql(compiledTrigger.sql, compiledTrigger.sqlArgs);
 
-        // update test1 with dao
+        // update test1 with db
         test1.setValue1(terminalValue);
-        assertTrue(dao.persist(test1));
+        assertTrue(database.persist(test1));
 
         // update test2 with compiled statement
         Update update = Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_1, terminalValue)
                 .where(TriggerTester.ID.eq(idTest2));
-        CompiledStatement compiledUpdate = update.compile();
+        CompiledStatement compiledUpdate = update.compile(database.getSqliteVersion());
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
-        test1 = dao.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
+        test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test1.getValue1().intValue());
         assertEquals(initialValue, test1.getValue2().intValue());
 
-        test2 = dao.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
+        test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test2.getValue1().intValue());
         assertEquals(initialValue, test2.getValue2().intValue());
     }
@@ -133,8 +138,8 @@ public class TriggerTest extends DatabaseTestCase {
         final int terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
-        dao.persist(test1);
-        dao.persist(test2);
+        database.persist(test1);
+        database.persist(test2);
         final long idTest1 = test1.getId();
         final long idTest2 = test2.getId();
 
@@ -145,36 +150,85 @@ public class TriggerTest extends DatabaseTestCase {
                 .updateOn(TriggerTester.TABLE, TriggerTester.VALUE_1)
                 .perform(Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_2, TriggerTester.VALUE_1)
                         .where(TriggerTester.ID.eq(Trigger.newValueOf(TriggerTester.ID))));
-        CompiledStatement compiledTrigger = trigger.compile();
+        CompiledStatement compiledTrigger = trigger.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiledTrigger, 0);
 
         // create trigger
         database.tryExecSql(compiledTrigger.sql, compiledTrigger.sqlArgs);
 
-        // update test1 with dao
+        // update test1 with db
         test1.setValue1(terminalValue);
-        assertTrue(dao.persist(test1));
+        assertTrue(database.persist(test1));
 
         // update test2 with compiled statement
         Update update = Update.table(TriggerTester.TABLE).set(TriggerTester.VALUE_1, terminalValue)
                 .where(TriggerTester.ID.eq(idTest2));
-        CompiledStatement compiledUpdate = update.compile();
+        CompiledStatement compiledUpdate = update.compile(database.getSqliteVersion());
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
-        test1 = dao.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
+        test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test1.getValue1().intValue());
         assertEquals(terminalValue, test1.getValue2().intValue());
 
-        test2 = dao.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
+        test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
         assertEquals(terminalValue, test2.getValue1().intValue());
         assertEquals(terminalValue, test2.getValue2().intValue());
     }
 
-    /*
-     * TODO
-     * public void testTriggerInsteadOf() -- requires Views
-     */
+    public void testTriggerInsteadOf() {
+        String tname1 = "tname1";
+        String ename1 = "ename1";
+
+        String tname2 = "tname2";
+        String ename2 = "ename2";
+
+        Insert insert = Insert.into(TriggerTester.TABLE)
+                .columns(TriggerTester.STR_1, TriggerTester.STR_2)
+                .values(Trigger.newValueOf(TestViewModel.TEST_NAME), Trigger.newValueOf(TestViewModel.EMPLOYEE_NAME));
+        Trigger insertInsteadOf = Trigger.insteadOf("view_insert")
+                .insertOn(TestViewModel.VIEW)
+                .perform(insert);
+
+        Update update = Update.table(TriggerTester.TABLE)
+                .set(TriggerTester.STR_1, Trigger.newValueOf(TestViewModel.TEST_NAME))
+                .set(TriggerTester.STR_2, Trigger.newValueOf(TestViewModel.EMPLOYEE_NAME))
+                .where(TriggerTester.ID.eq(Trigger.oldValueOf(TestViewModel.TEST_MODEL_ID)));
+        Trigger updateInsteadOf = Trigger.insteadOf("view_update")
+                .updateOn(TestViewModel.VIEW, TestViewModel.TEST_NAME, TestViewModel.EMPLOYEE_NAME)
+                .perform(update);
+
+        Delete delete = Delete.from(TriggerTester.TABLE)
+                .where(TriggerTester.ID.eq(Trigger.oldValueOf(TestViewModel.TEST_MODEL_ID)));
+        Trigger deleteInsteadOf = Trigger.insteadOf("view_delete").deleteOn(TestViewModel.VIEW)
+                .perform(delete);
+
+        assertTrue(database.tryExecStatement(insertInsteadOf));
+        assertTrue(database.tryExecStatement(updateInsteadOf));
+        assertTrue(database.tryExecStatement(deleteInsteadOf));
+
+        database.insert(Insert.into(TestViewModel.VIEW)
+                .columns(TestViewModel.TEST_NAME, TestViewModel.EMPLOYEE_NAME).values(tname1, ename1));
+
+        assertEquals(1, database.countAll(TriggerTester.class));
+        TriggerTester triggerValue = database.fetch(TriggerTester.class, 1);
+        assertNotNull(triggerValue);
+        assertEquals(tname1, triggerValue.getStr1());
+        assertEquals(ename1, triggerValue.getStr2());
+
+        database.update(Update.table(TestViewModel.VIEW)
+                .set(TestViewModel.TEST_NAME, tname2)
+                .set(TestViewModel.EMPLOYEE_NAME, ename2));
+
+        assertEquals(1, database.countAll(TriggerTester.class));
+        triggerValue = database.fetch(TriggerTester.class, 1);
+        assertNotNull(triggerValue);
+        assertEquals(tname2, triggerValue.getStr1());
+        assertEquals(ename2, triggerValue.getStr2());
+
+        database.delete(Delete.from(TestViewModel.VIEW));
+        assertEquals(0, database.countAll(TriggerTester.class));
+    }
 
     public void testTriggerWithCriterion() {
         final int threshold = 9000;
@@ -188,7 +242,7 @@ public class TriggerTest extends DatabaseTestCase {
                 .insertOn(Thing.TABLE)
                 .when(Trigger.newValueOf(Thing.BAR).gt(threshold))
                 .perform(insert);
-        CompiledStatement compiledTrigger = trigger.compile();
+        CompiledStatement compiledTrigger = trigger.compile(database.getSqliteVersion());
 
         verifyCompiledSqlArgs(compiledTrigger, 0);
 
@@ -196,13 +250,13 @@ public class TriggerTest extends DatabaseTestCase {
 
         // persist new model instances
         Thing thing1 = new Thing().setFoo("small thing").setBar(5);
-        assertTrue(dao.persist(thing1)); // should not trigger
+        assertTrue(database.persist(thing1)); // should not trigger
         Thing thing2 = new Thing().setFoo("big thing").setBar(9001);
-        assertTrue(dao.persist(thing2)); // should trigger
+        assertTrue(database.persist(thing2)); // should trigger
         Thing thing3 = new Thing().setFoo("bigger thing").setBar(20000);
-        assertTrue(dao.persist(thing3)); // should trigger
+        assertTrue(database.persist(thing3)); // should trigger
 
-        SquidCursor<TriggerTester> cursor = dao.query(TriggerTester.class, Query.select());
+        SquidCursor<TriggerTester> cursor = database.query(TriggerTester.class, Query.select());
         assertTrue(cursor.getCount() > 0);
         try {
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -239,13 +293,13 @@ public class TriggerTest extends DatabaseTestCase {
                 .perform(Insert.into(TriggerTester.TABLE).columns(TriggerTester.VALUE_1, TriggerTester.VALUE_2)
                         .values(oldLuckyNumber, newLuckyNumber));
 
-        CompiledStatement compiledLogInsert = logInsertLucky.compile();
+        CompiledStatement compiledLogInsert = logInsertLucky.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiledLogInsert, 0);
 
-        CompiledStatement compiledLogDelete = logDeleteLucky.compile();
+        CompiledStatement compiledLogDelete = logDeleteLucky.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiledLogDelete, 0);
 
-        CompiledStatement compiledLogUpdate = logUpdateLucky.compile();
+        CompiledStatement compiledLogUpdate = logUpdateLucky.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiledLogUpdate, 0);
 
         database.tryExecSql(compiledLogInsert.sql, compiledLogInsert.sqlArgs);
@@ -264,15 +318,15 @@ public class TriggerTest extends DatabaseTestCase {
                 .setFirstName("Chester")
                 .setLastName("Cheetah")
                 .setLuckyNumber(randomLuckyNumber);
-        assertTrue(dao.persist(chesterCheetah)); // +1 trigger
+        assertTrue(database.persist(chesterCheetah)); // +1 trigger
 
         // delete
         expectedBefore.add(randomLuckyNumber);
         expectedAfter.add(0);
-        assertTrue(dao.delete(TestModel.class, chesterCheetah.getId())); // +1 trigger
+        assertTrue(database.delete(TestModel.class, chesterCheetah.getId())); // +1 trigger
 
         // update
-        SquidCursor<TestModel> modelCursor = dao.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER)
+        SquidCursor<TestModel> modelCursor = database.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER)
                 .orderBy(TestModel.ID.asc()));
         int numTestModels = modelCursor.getCount();
         try {
@@ -288,13 +342,13 @@ public class TriggerTest extends DatabaseTestCase {
         // update testModels set luckyNumber = (luckyNumber + 1);
         Field<Integer> luckyPlusPlus = Field.field("(" + TestModel.LUCKY_NUMBER.getExpression() + " + 1)");
         Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, luckyPlusPlus);
-        CompiledStatement compiledUpdate = update.compile();
+        CompiledStatement compiledUpdate = update.compile(database.getSqliteVersion());
 
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs); // +numTestModels triggers
         int expectedTriggers = numTestModels + 2;
 
         // verify
-        SquidCursor<TriggerTester> triggerCursor = dao.query(TriggerTester.class, Query.select().orderBy(
+        SquidCursor<TriggerTester> triggerCursor = database.query(TriggerTester.class, Query.select().orderBy(
                 TriggerTester.ID.asc()));
         try {
             assertEquals(expectedTriggers, triggerCursor.getCount());

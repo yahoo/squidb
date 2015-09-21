@@ -43,27 +43,27 @@ public class QueryTest extends DatabaseTestCase {
 
         bigBird = new Employee();
         bigBird.setName("bigBird").setManagerId(0L);
-        dao.persist(bigBird);
+        database.persist(bigBird);
 
         cookieMonster = new Employee();
         cookieMonster.setName("cookieMonster").setManagerId(bigBird.getId());
-        dao.persist(cookieMonster);
+        database.persist(cookieMonster);
 
         elmo = new Employee();
         elmo.setName("elmo").setManagerId(bigBird.getId());
-        dao.persist(elmo);
+        database.persist(elmo);
 
         oscar = new Employee();
         oscar.setName("oscar").setManagerId(bigBird.getId()).setIsHappy(false);
-        dao.persist(oscar);
+        database.persist(oscar);
 
         bert = new Employee();
         bert.setName("bert").setManagerId(cookieMonster.getId());
-        dao.persist(bert);
+        database.persist(bert);
 
         ernie = new Employee();
         ernie.setName("ernie").setManagerId(bert.getId());
-        dao.persist(ernie);
+        database.persist(ernie);
     }
 
     public void testSelectionArgsGeneration() {
@@ -72,7 +72,7 @@ public class QueryTest extends DatabaseTestCase {
                         .and(TestModel.BIRTHDAY.gt(17))
                         .and(TestModel.LAST_NAME.neq("Smith")));
 
-        CompiledStatement compiledQuery = query.compile();
+        CompiledStatement compiledQuery = query.compile(database.getSqliteVersion());
         verifyCompiledSqlArgs(compiledQuery, 3, "Sam", 17, "Smith");
     }
 
@@ -81,12 +81,12 @@ public class QueryTest extends DatabaseTestCase {
         TestModel two = new TestModel().setFirstName("Kevin").setLastName("Lim");
         TestModel three = new TestModel().setFirstName("Jonathan").setLastName("Koren");
 
-        dao.persist(one);
-        dao.persist(two);
-        dao.persist(three);
+        database.persist(one);
+        database.persist(two);
+        database.persist(three);
 
         String[] nameOrder = new String[]{"Kevin", "Sam", "Jonathan"};
-        SquidCursor<TestModel> nameOrderCursor = dao.query(TestModel.class, Query.select(TestModel.PROPERTIES)
+        SquidCursor<TestModel> nameOrderCursor = database.query(TestModel.class, Query.select(TestModel.PROPERTIES)
                 .orderBy(Order.byArray(TestModel.FIRST_NAME, nameOrder)));
         try {
             assertEquals(3, nameOrderCursor.getCount());
@@ -98,7 +98,7 @@ public class QueryTest extends DatabaseTestCase {
         }
 
         Long[] idOrder = new Long[]{3L, 1L, 2L};
-        SquidCursor<TestModel> idOrderCursor = dao.query(TestModel.class, Query.select(TestModel.PROPERTIES)
+        SquidCursor<TestModel> idOrderCursor = database.query(TestModel.class, Query.select(TestModel.PROPERTIES)
                 .orderBy(Order.byArray(TestModel.ID, idOrder)));
         try {
             assertEquals(3, idOrderCursor.getCount());
@@ -110,18 +110,52 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
+    public void testReverseOrder() {
+        long max = database.countAll(Employee.class);
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).orderBy(Employee.ID.asc().reverse()));
+        try {
+            assertEquals(max, cursor.getCount());
+            assertTrue(max > 0);
+            while (cursor.moveToNext()) {
+                long nextId = cursor.get(Employee.ID);
+                if (nextId > max) {
+                    fail("IDs not in reverse order");
+                }
+                max = nextId;
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testOrderByArray() {
+        Long[] order = new Long[]{5L, 1L, 4L};
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).limit(order.length).orderBy(Employee.ID.byArray(order)));
+        try {
+            assertEquals(order.length, cursor.getCount());
+            for (int i = 0; i < order.length; i++) {
+                cursor.moveToPosition(i);
+                assertEquals(order[i], cursor.get(Employee.ID));
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
     public void testLikeWithNoEscape() {
         insertBasicTestModel();
-        assertEquals(1, dao.count(TestModel.class, TestModel.LAST_NAME.like("Bo_le%")));
-        assertEquals(0, dao.count(TestModel.class, TestModel.LAST_NAME.like("%leyx")));
+        assertEquals(1, database.count(TestModel.class, TestModel.LAST_NAME.like("Bo_le%")));
+        assertEquals(0, database.count(TestModel.class, TestModel.LAST_NAME.like("%leyx")));
     }
 
     public void testLikeWithEscape() {
         TestModel model = insertBasicTestModel();
         model.setFirstName("S_a%m");
-        dao.persist(model);
+        database.persist(model);
 
-        assertEquals(1, dao.count(TestModel.class, TestModel.FIRST_NAME.like("%\\_a\\%%", '\\')));
+        assertEquals(1, database.count(TestModel.class, TestModel.FIRST_NAME.like("%\\_a\\%%", '\\')));
     }
 
     public void testLikeSubquery() {
@@ -136,7 +170,7 @@ public class QueryTest extends DatabaseTestCase {
         Query likeFirstName = Query.select().where(TestModel.FIRST_NAME.like(
                 Query.select(strConcat).from(TestModel.TABLE).where(TestModel.ID.eq(1)))).orderBy(TestModel.ID.asc());
 
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, likeFirstName);
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, likeFirstName);
         try {
             assertEquals(3, cursor.getCount());
             int index = 1;
@@ -149,14 +183,45 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
+    public void testBetweenCriterion() {
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID).where(Employee.ID.between(2, 5)).orderBy(Employee.ID.asc()));
+        try {
+            assertEquals(4, cursor.getCount());
+            for (int i = 2; i < 6; i++) {
+                cursor.moveToPosition(i - 2);
+                assertEquals(i, cursor.get(Employee.ID).intValue());
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testGlobCriterion() {
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID, Employee.NAME).where(Employee.NAME.glob("b*")).orderBy(Employee.ID.asc()));
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(bigBird.getId(), cursor.get(Employee.ID).longValue());
+            assertEquals(bigBird.getName(), cursor.get(Employee.NAME));
+
+            cursor.moveToNext();
+            assertEquals(bert.getId(), cursor.get(Employee.ID).longValue());
+            assertEquals(bert.getName(), cursor.get(Employee.NAME));
+        } finally {
+            cursor.close();
+        }
+    }
+
     public void testAggregateCount() {
         TestModel model1 = insertBasicTestModel();
         TestModel model2 = new TestModel().setFirstName(model1.getFirstName()).setLastName("Smith");
-        dao.persist(model2);
+        database.persist(model2);
 
         IntegerProperty groupCount = IntegerProperty.countProperty(TestModel.FIRST_NAME, false);
         Query query = Query.select(TestModel.PROPERTIES).selectMore(groupCount).groupBy(TestModel.FIRST_NAME);
-        SquidCursor<TestModel> groupedCursor = dao.query(TestModel.class, query);
+        SquidCursor<TestModel> groupedCursor = database.query(TestModel.class, query);
         try {
             groupedCursor.moveToFirst();
             assertEquals(1, groupedCursor.getCount());
@@ -168,7 +233,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testJoinOnSameTableUsingAlias() {
         // check precondition
-        int rowsWithManager = dao.count(Employee.class, Employee.MANAGER_ID.gt(0));
+        int rowsWithManager = database.count(Employee.class, Employee.MANAGER_ID.gt(0));
         assertEquals(5, rowsWithManager);
 
         List<String> resultEmployees = new ArrayList<String>(5);
@@ -193,7 +258,7 @@ public class QueryTest extends DatabaseTestCase {
         Join join = Join.inner(managerTable, Employee.MANAGER_ID.eq(managerId));
         Query query = Query.select(employeeName, managerName).from(Employee.TABLE).join(join).orderBy(managerId.asc());
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(rowsWithManager, cursor.getCount());
             int index = 0;
@@ -210,7 +275,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testSelectAll() {
         insertBasicTestModel();
-        TestModel model = dao.fetchByQuery(TestModel.class, Query.select());
+        TestModel model = database.fetchByQuery(TestModel.class, Query.select());
         assertTrue(model.containsNonNullValue(TestModel.FIRST_NAME));
         assertTrue(model.containsNonNullValue(TestModel.LAST_NAME));
         assertTrue(model.containsNonNullValue(TestModel.IS_HAPPY));
@@ -219,9 +284,9 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testWithNonLiteralCriterion() {
         TestModel model = new TestModel().setFirstName("Sam").setLastName("Sam");
-        dao.persist(model);
+        database.persist(model);
 
-        TestModel fetch = dao
+        TestModel fetch = database
                 .fetchByQuery(TestModel.class, Query.select().where(TestModel.FIRST_NAME.eq(TestModel.LAST_NAME)));
         assertNotNull(fetch);
         assertEquals(fetch.getFirstName(), fetch.getLastName());
@@ -251,10 +316,9 @@ public class QueryTest extends DatabaseTestCase {
     private void testLimitAndOffsetInternal(int limit, int offset) {
         // We'll check against IDs, so choose an order that shuffles the IDs somewhat
         Query query = Query.select().orderBy(Employee.NAME.desc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
-        int numRows = cursor.getCount();
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
 
-        int expectedCount = numRows;
+        int expectedCount = cursor.getCount();
         if (offset > Query.NO_OFFSET) {
             expectedCount = Math.max(expectedCount - offset, 0);
         }
@@ -276,7 +340,7 @@ public class QueryTest extends DatabaseTestCase {
             cursor.close();
         }
 
-        cursor = dao.query(Employee.class, query.limit(limit, offset));
+        cursor = database.query(Employee.class, query.limit(limit, offset));
         assertEquals(expectedCount, cursor.getCount());
         try {
             int index = 0;
@@ -303,9 +367,9 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testIsEmptyCriterion() {
         TestModel model = new TestModel().setFirstName("").setLastName(null);
-        dao.persist(model);
+        database.persist(model);
 
-        TestModel fetched = dao.fetchByCriterion(TestModel.class,
+        TestModel fetched = database.fetchByCriterion(TestModel.class,
                 TestModel.FIRST_NAME.isEmpty().and(TestModel.LAST_NAME.isEmpty()), TestModel.ID);
         assertNotNull(fetched);
         assertEquals(model.getId(), fetched.getId());
@@ -313,16 +377,16 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testIsNotEmptyCriterion() {
         TestModel model = new TestModel().setFirstName("Sam").setLastName(null);
-        dao.persist(model);
+        database.persist(model);
 
-        TestModel fetched = dao.fetchByCriterion(TestModel.class,
+        TestModel fetched = database.fetchByCriterion(TestModel.class,
                 TestModel.FIRST_NAME.isNotEmpty().and(TestModel.LAST_NAME.isEmpty()), TestModel.ID);
         assertNotNull(fetched);
         assertEquals(model.getId(), fetched.getId());
     }
 
     private void testInQuery(Query query) {
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
@@ -344,7 +408,7 @@ public class QueryTest extends DatabaseTestCase {
 
     private void testReusableQueryInternal(AtomicReference<String> ref, String name, Query query) {
         ref.set(name);
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             cursor.moveToFirst();
             assertEquals(1, cursor.getCount());
@@ -358,7 +422,7 @@ public class QueryTest extends DatabaseTestCase {
         AtomicInteger id = new AtomicInteger(1);
         Query query = Query.select(Employee.ID).where(Employee.ID.eq(id));
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -367,7 +431,7 @@ public class QueryTest extends DatabaseTestCase {
             cursor.close();
         }
         id.set(2);
-        cursor = dao.query(Employee.class, query);
+        cursor = database.query(Employee.class, query);
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -381,7 +445,7 @@ public class QueryTest extends DatabaseTestCase {
         AtomicBoolean isHappy = new AtomicBoolean(false);
 
         Query query = Query.select().where(Employee.IS_HAPPY.eq(isHappy));
-        SquidCursor<Employee> unhappyEmployee = dao.query(Employee.class, query);
+        SquidCursor<Employee> unhappyEmployee = database.query(Employee.class, query);
         try {
             assertEquals(1, unhappyEmployee.getCount());
             unhappyEmployee.moveToFirst();
@@ -391,7 +455,7 @@ public class QueryTest extends DatabaseTestCase {
         }
 
         isHappy.set(true);
-        SquidCursor<Employee> happyEmployees = dao.query(Employee.class, query);
+        SquidCursor<Employee> happyEmployees = database.query(Employee.class, query);
         try {
             assertEquals(5, happyEmployees.getCount());
         } finally {
@@ -403,7 +467,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.fromSubquery(Query.select(Employee.NAME).from(Employee.TABLE), "subquery");
         StringProperty name = query.getTable().qualifyField(Employee.NAME);
         query.where(name.eq("bigBird"));
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -426,7 +490,7 @@ public class QueryTest extends DatabaseTestCase {
     private void testReusableQueryWithInCriterionInternal(Collection<String> collection, Query query, String... list) {
         collection.clear();
         collection.addAll(Arrays.asList(list));
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(collection.size(), cursor.getCount());
             while (cursor.moveToNext()) {
@@ -442,19 +506,19 @@ public class QueryTest extends DatabaseTestCase {
         int numRows = SqlStatement.MAX_VARIABLE_NUMBER + 1;
         Set<Long> rowIds = new HashSet<Long>();
 
-        dao.beginTransaction();
+        database.beginTransaction();
         try {
             for (int i = 0; i < numRows; i++) {
                 TestModel testModel = new TestModel();
-                dao.persist(testModel);
+                database.persist(testModel);
                 rowIds.add(testModel.getId());
             }
-            dao.setTransactionSuccessful();
+            database.setTransactionSuccessful();
         } finally {
-            dao.endTransaction();
+            database.endTransaction();
         }
         assertTrue(rowIds.size() > SqlStatement.MAX_VARIABLE_NUMBER);
-        assertTrue(dao.count(TestModel.class, Criterion.all) > SqlStatement.MAX_VARIABLE_NUMBER);
+        assertTrue(database.countAll(TestModel.class) > SqlStatement.MAX_VARIABLE_NUMBER);
 
         Query query = Query.select(TestModel.ID).where(TestModel.ID.in(rowIds));
         testMaxSqlArgRowIds(query, rowIds.size());
@@ -466,7 +530,7 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     private void testMaxSqlArgRowIds(Query query, int expectedSize) {
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, query);
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
         try {
             assertEquals(expectedSize, cursor.getCount());
         } finally {
@@ -485,7 +549,7 @@ public class QueryTest extends DatabaseTestCase {
         query.join(Join.inner(Employee.TABLE, query.getTable().qualifyField(Employee.MANAGER_ID).eq(Employee.ID)))
                 .orderBy(Employee.MANAGER_ID.asc());
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
@@ -505,7 +569,7 @@ public class QueryTest extends DatabaseTestCase {
         long start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
             Query query = Query.select().where(Employee.NAME.eq(values[i % values.length]));
-            dao.query(Employee.class, query);
+            database.query(Employee.class, query);
         }
         long end = System.currentTimeMillis();
         System.err.println("Unoptimized took " + (end - start) + " millis");
@@ -515,7 +579,7 @@ public class QueryTest extends DatabaseTestCase {
         start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
             reference.set(values[i % values.length]);
-            dao.query(Employee.class, query);
+            database.query(Employee.class, query);
         }
         end = System.currentTimeMillis();
         System.err.println("Optimized took " + (end - start) + " millis");
@@ -534,7 +598,7 @@ public class QueryTest extends DatabaseTestCase {
         long start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
             Query query = Query.select().where(Employee.NAME.in(testSets[i % testSets.length]));
-            dao.query(Employee.class, query);
+            database.query(Employee.class, query);
         }
         long end = System.currentTimeMillis();
         System.err.println("Unoptimized took " + (end - start) + " millis");
@@ -549,7 +613,7 @@ public class QueryTest extends DatabaseTestCase {
         start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
             ref.set(testSets[i % testSets.length]);
-            dao.query(Employee.class, query);
+            database.query(Employee.class, query);
         }
         end = System.currentTimeMillis();
         System.err.println("Optimized took " + (end - start) + " millis");
@@ -563,7 +627,7 @@ public class QueryTest extends DatabaseTestCase {
 
         Query fromView = Query.fromView(view).orderBy(view.qualifyField(Employee.ID).asc());
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, fromView);
+        SquidCursor<Employee> cursor = database.query(Employee.class, fromView);
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
@@ -582,16 +646,16 @@ public class QueryTest extends DatabaseTestCase {
         TestModel modelTwo = new TestModel().setFirstName("Kevin").setLastName("Lim");
         TestModel modelThree = new TestModel().setFirstName("Jonathan").setLastName("Koren");
 
-        dao.persist(modelOne);
-        dao.persist(modelTwo);
-        dao.persist(modelThree);
-        assertEquals(3, dao.count(TestModel.class, Criterion.all));
+        database.persist(modelOne);
+        database.persist(modelTwo);
+        database.persist(modelThree);
+        assertEquals(3, database.countAll(TestModel.class));
 
-        dao.deleteWhere(TestModel.class,
+        database.deleteWhere(TestModel.class,
                 TestModel.ID.lt(Query.select(Function.max(TestModel.ID)).from(TestModel.TABLE)));
         SquidCursor<TestModel> cursor = null;
         try {
-            cursor = dao.query(TestModel.class, Query.select());
+            cursor = database.query(TestModel.class, Query.select());
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
             assertEquals(3, cursor.get(TestModel.ID).longValue());
@@ -611,21 +675,21 @@ public class QueryTest extends DatabaseTestCase {
         Thing thingTwo = new Thing().setFoo("Thing2").setBar(-1);
         Thing thingThree = new Thing().setFoo("Thing3").setBar(100);
 
-        dao.persist(modelOne);
-        dao.persist(modelTwo);
-        dao.persist(modelThree);
-        dao.persist(thingOne);
-        dao.persist(thingTwo);
-        dao.persist(thingThree);
+        database.persist(modelOne);
+        database.persist(modelTwo);
+        database.persist(modelThree);
+        database.persist(thingOne);
+        database.persist(thingTwo);
+        database.persist(thingThree);
 
         Query query = Query.select(TestModel.FIRST_NAME, TestModel.LAST_NAME).selectMore(Thing.FOO, Thing.BAR)
                 .from(TestModel.TABLE)
                 .join(Join.inner(Thing.TABLE, Thing.BAR.gt(0)));
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, query);
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, query);
         try {
             assertEquals(6, cursor.getCount());
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertTrue(cursor.get(Thing.BAR).intValue() > 0);
+                assertTrue(cursor.get(Thing.BAR) > 0);
             }
         } finally {
             cursor.close();
@@ -639,7 +703,7 @@ public class QueryTest extends DatabaseTestCase {
     public void testQueryBindingTypes() {
         insertBasicTestModel();
         Field<Integer> one = Field.field("1");
-        SquidCursor<TestModel> cursor = dao.query(TestModel.class, Query.select().where(Function.abs(one).eq(1)));
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select().where(Function.abs(one).eq(1)));
         try {
             assertEquals(1, cursor.getCount());
         } finally {
@@ -654,7 +718,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select(Employee.PROPERTIES)
                 .groupBy(Employee.MANAGER_ID)
                 .having(Function.count(Employee.MANAGER_ID).gt(2));
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -665,14 +729,21 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testJoinWithUsingClause() {
+        testJoinWithUsingClauseInternal(false);
+        testJoinWithUsingClauseInternal(true);
+    }
+
+    private void testJoinWithUsingClauseInternal(boolean leftJoin) {
         final String separator = "|";
         final Map<Long, String> expectedResults = new HashMap<Long, String>();
-        expectedResults.put(bigBird.getId(), "1");
         expectedResults.put(cookieMonster.getId(), "2|3|4");
         expectedResults.put(elmo.getId(), "2|3|4");
         expectedResults.put(oscar.getId(), "2|3|4");
-        expectedResults.put(bert.getId(), "5");
-        expectedResults.put(ernie.getId(), "6");
+        if (!leftJoin) {
+            expectedResults.put(bigBird.getId(), "1");
+            expectedResults.put(bert.getId(), "5");
+            expectedResults.put(ernie.getId(), "6");
+        }
 
         /*
          * select employees._id, employees.name, employees.managerId, subTable.subordinates as coworkers from employees
@@ -685,15 +756,24 @@ public class QueryTest extends DatabaseTestCase {
         LongProperty aliasedManagerId = employeesAlias.qualifyField(Employee.MANAGER_ID);
         StringProperty subordinates = StringProperty.fromFunction(Function.groupConcat(aliasedId, separator),
                 "subordinates");
-        Query subquery = Query.select(aliasedManagerId, subordinates).from(employeesAlias).groupBy(aliasedManagerId);
+        Query subquery = Query.select(aliasedManagerId, subordinates).from(employeesAlias)
+                .groupBy(aliasedManagerId);
+
+        if (leftJoin) {
+            subquery.having(Function.count().gt(1));
+        }
 
         SqlTable<?> subTable = subquery.as("subTable");
         StringProperty coworkers = subTable.qualifyField(subordinates);
         Query query = Query.select(Employee.PROPERTIES).selectMore(coworkers)
-                .from(Employee.TABLE)
-                .join(Join.inner(subTable, Employee.MANAGER_ID));
+                .from(Employee.TABLE);
+        if (leftJoin) {
+            query.leftJoin(subTable, Employee.MANAGER_ID);
+        } else {
+            query.innerJoin(subTable, Employee.MANAGER_ID);
+        }
 
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
 
         try {
             assertEquals(6, cursor.getCount());
@@ -710,7 +790,7 @@ public class QueryTest extends DatabaseTestCase {
     public void testSelectLiteral() {
         StringProperty literal = StringProperty.literal("literal", "name");
         LongProperty literalLong = LongProperty.literal(12, "twelve");
-        SquidCursor<?> c = dao.query(null, Query.select(literal, literalLong));
+        SquidCursor<?> c = database.query(null, Query.select(literal, literalLong));
         try {
             assertEquals(1, c.getCount());
             c.moveToFirst();
@@ -725,9 +805,9 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testBindArgsProtectsInjection() {
         Query q = Query.select().where(Employee.NAME.eq("'Sam'); drop table " + Employee.TABLE.getName() + ";"));
-        SquidCursor<Employee> cursor = dao.query(Employee.class, q);
+        SquidCursor<Employee> cursor = database.query(Employee.class, q);
         try {
-            assertFalse(dao.count(Employee.class, Criterion.all) == 0);
+            assertFalse(database.countAll(Employee.class) == 0);
         } finally {
             cursor.close();
         }
@@ -754,9 +834,9 @@ public class QueryTest extends DatabaseTestCase {
         assertEquals(base.getTable(), fork.getTable());
     }
 
-    public void testFrozenQueryWorksWithDao() {
+    public void testFrozenQueryWorksWithDatabase() {
         Query query = Query.select().limit(2).freeze();
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(2, cursor.getCount());
             assertNull(query.getTable());
@@ -764,7 +844,7 @@ public class QueryTest extends DatabaseTestCase {
             cursor.close();
         }
 
-        Employee employee = dao.fetchByQuery(Employee.class, query);
+        Employee employee = database.fetchByQuery(Employee.class, query);
         assertNotNull(employee);
         assertNull(query.getTable());
         assertEquals(2, query.getLimit());
@@ -776,7 +856,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(Employee.TABLE).where(Employee.MANAGER_ID.eq(1))
                 .union(Query.select().from(Employee.TABLE).where(Employee.ID.eq(2)))
                 .orderBy(Employee.ID.asc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
@@ -794,7 +874,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(Employee.TABLE).where(Employee.MANAGER_ID.eq(1))
                 .unionAll(Query.select().from(Employee.TABLE).where(Employee.ID.eq(2)))
                 .orderBy(Employee.ID.asc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(4, cursor.getCount());
             cursor.moveToFirst();
@@ -814,7 +894,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(Employee.TABLE).where(Employee.MANAGER_ID.eq(1))
                 .except(Query.select().from(Employee.TABLE).where(Employee.ID.eq(2)))
                 .orderBy(Employee.ID.asc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
@@ -830,7 +910,7 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(Employee.TABLE).where(Employee.MANAGER_ID.eq(1))
                 .intersect(Query.select().from(Employee.TABLE).where(Employee.ID.eq(2)))
                 .orderBy(Employee.ID.asc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
@@ -842,7 +922,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testSelectDistinct() {
         Query query = Query.selectDistinct(Employee.MANAGER_ID).orderBy(Employee.MANAGER_ID.asc());
-        SquidCursor<Employee> cursor = dao.query(Employee.class, query);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
             assertEquals(4, cursor.getCount());
             cursor.moveToFirst();
@@ -875,15 +955,15 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testReadAllFieldsIntoModel() {
         TestModel testModel = new TestModel().setFirstName("Sam");
-        dao.persist(testModel);
+        database.persist(testModel);
 
         Thing thing = new Thing().setFoo("Thingy").setBar(5);
-        dao.persist(thing);
+        database.persist(thing);
 
         Query query = Query.select().from(TestViewModel.VIEW)
                 .leftJoin(Thing.TABLE, TestViewModel.TEST_MODEL_ID.eq(Thing.ID));
 
-        TestViewModel model = dao.fetchByQuery(TestViewModel.class, query);
+        TestViewModel model = database.fetchByQuery(TestViewModel.class, query);
         for (Property<?> p : TestViewModel.PROPERTIES) {
             assertTrue(model.containsValue(p));
         }
@@ -900,12 +980,12 @@ public class QueryTest extends DatabaseTestCase {
 
         SubqueryTable subqueryTable = subquery.as("t1");
         SubqueryTable joinTable = joinSubquery.as("t2");
-        Query query = Query.select().from(subqueryTable).innerJoin(joinTable, Criterion.all)
+        Query query = Query.select().from(subqueryTable).innerJoin(joinTable, (Criterion[]) null)
                 .union(compoundSubquery);
 
-        final int queryLength = query.compile().sql.length();
+        final int queryLength = query.compile(database.getSqliteVersion()).sql.length();
 
-        String withValidation = query.sqlForValidation();
+        String withValidation = query.sqlForValidation(database.getSqliteVersion());
         assertEquals(queryLength + 6, withValidation.length());
     }
 
@@ -917,8 +997,8 @@ public class QueryTest extends DatabaseTestCase {
         final Semaphore blockThread = new Semaphore(0);
         Criterion weirdCriterion = new BinaryCriterion(Thing.BAR, Operator.eq, 0) {
             @Override
-            protected void populate(StringBuilder sql, List<Object> selectionArgsBuilder) {
-                super.populate(sql, selectionArgsBuilder);
+            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+                super.populate(builder, forSqlValidation);
                 if (compiledOnce.compareAndSet(false, true)) {
                     try {
                         blockThread.release();
@@ -941,10 +1021,10 @@ public class QueryTest extends DatabaseTestCase {
                 try {
                     blockThread.acquire();
 
-                    Query query2 = Query.select().from(subqueryTable).where(Criterion.all);
+                    Query query2 = Query.select().from(subqueryTable);
                     query2.requestValidation();
 
-                    SquidCursor<Thing> cursor = dao.query(Thing.class, query2);
+                    SquidCursor<Thing> cursor = database.query(Thing.class, query2);
                     cursor.close();
                     blockCriterion.release();
                 } catch (InterruptedException e) {
@@ -954,7 +1034,7 @@ public class QueryTest extends DatabaseTestCase {
         });
         t.start();
 
-        SquidCursor<Thing> cursor = dao.query(Thing.class, query);
+        SquidCursor<Thing> cursor = database.query(Thing.class, query);
         cursor.close();
 
         try {
@@ -964,52 +1044,90 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
-    public void testNeedsValidationUpdatedByMutation() {
-        Query subquery = Query.select(Thing.PROPERTIES).from(Thing.TABLE);
+    public void testNeedsValidationUpdatedBySubqueryTable() {
+        Query subquery = Query.select(Thing.PROPERTIES).from(Thing.TABLE).where(Criterion.literal(123));
         subquery.requestValidation();
+        assertTrue(subquery.compile(database.getSqliteVersion()).sql.contains("WHERE (?)"));
 
         Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
         assertFalse(baseTestQuery.needsValidation());
 
         Query testQuery = baseTestQuery.from(subquery.as("t1"));
-        assertTrue(testQuery.needsValidation());
-        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), Criterion.all);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+
+        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), (Criterion[]) null);
+        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+
         testQuery = baseTestQuery.union(subquery);
-        assertTrue(testQuery.needsValidation());
+        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+    }
+
+    public void testNeedsValidationUpdatedByQueryFunction() {
+        Query subquery = Query.select(Function.max(Thing.ID)).from(Thing.TABLE).where(Criterion.literal(123));
+        subquery.requestValidation();
+        assertTrue(subquery.compile(database.getSqliteVersion()).sql.contains("WHERE (?)"));
+
+        Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
+        assertFalse(baseTestQuery.needsValidation());
+
+        Query testQuery = baseTestQuery.selectMore(subquery.asFunction());
+        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
     }
 
     public void testLiteralCriterions() {
         // null and not null evaluate to false
-        assertEquals(0, dao.count(Employee.class, Criterion.literal(null)));
-        assertEquals(0, dao.count(Employee.class, Criterion.literal(null).negate()));
+        assertEquals(0, database.count(Employee.class, Criterion.literal(null)));
+        assertEquals(0, database.count(Employee.class, Criterion.literal(null).negate()));
 
         // numeric literal; values other than 0 (including negative) evaluate to true
-        assertEquals(0, dao.count(Employee.class, Criterion.literal(0)));
-        assertEquals(6, dao.count(Employee.class, Criterion.literal(10)));
-        assertEquals(6, dao.count(Employee.class, Criterion.literal(-10)));
-        assertEquals(6, dao.count(Employee.class, Criterion.literal(0).negate()));
-        assertEquals(0, dao.count(Employee.class, Criterion.literal(10).negate()));
+        assertEquals(0, database.count(Employee.class, Criterion.literal(0)));
+        assertEquals(6, database.count(Employee.class, Criterion.literal(10)));
+        assertEquals(6, database.count(Employee.class, Criterion.literal(-10)));
+        assertEquals(6, database.count(Employee.class, Criterion.literal(0).negate()));
+        assertEquals(0, database.count(Employee.class, Criterion.literal(10).negate()));
 
         // text literal; SQLite will try to coerce to a number
-        assertEquals(0, dao.count(Employee.class, Criterion.literal("sqlite")));
-        assertEquals(6, dao.count(Employee.class, Criterion.literal("sqlite").negate()));
-        assertEquals(6, dao.count(Employee.class, Criterion.literal("1sqlite"))); // coerces to 1
-        assertEquals(0, dao.count(Employee.class, Criterion.literal("1sqlite").negate()));
+        assertEquals(0, database.count(Employee.class, Criterion.literal("sqlite")));
+        assertEquals(6, database.count(Employee.class, Criterion.literal("sqlite").negate()));
+        assertEquals(6, database.count(Employee.class, Criterion.literal("1sqlite"))); // coerces to 1
+        assertEquals(0, database.count(Employee.class, Criterion.literal("1sqlite").negate()));
 
         // numeric column
         Criterion isHappyCriterion = Employee.IS_HAPPY.asCriterion();
-        assertEquals(5, dao.count(Employee.class, isHappyCriterion));
-        assertEquals(1, dao.count(Employee.class, isHappyCriterion.negate()));
+        assertEquals(5, database.count(Employee.class, isHappyCriterion));
+        assertEquals(1, database.count(Employee.class, isHappyCriterion.negate()));
 
         // text column
         Criterion nameCriterion = Employee.NAME.asCriterion();
-        assertEquals(0, dao.count(Employee.class, nameCriterion));
-        assertEquals(6, dao.count(Employee.class, nameCriterion.negate()));
+        assertEquals(0, database.count(Employee.class, nameCriterion));
+        assertEquals(6, database.count(Employee.class, nameCriterion.negate()));
 
         // function
         Criterion f = Function.functionWithArguments("length", "sqlite").asCriterion();
-        assertEquals(6, dao.count(Employee.class, f));
-        assertEquals(0, dao.count(Employee.class, f.negate()));
+        assertEquals(6, database.count(Employee.class, f));
+        assertEquals(0, database.count(Employee.class, f.negate()));
+    }
+
+    public void testQueryAsFunction() {
+        Table qualifiedTable = Employee.TABLE.as("e1");
+        Query subquery = Query.select(Function.add(qualifiedTable.qualifyField(Employee.ID), 1))
+                .from(qualifiedTable).where(Employee.ID.eq(qualifiedTable.qualifyField(Employee.ID)));
+        Function<Long> fromQuery = subquery.asFunction();
+        LongProperty idPlus1 = LongProperty.fromFunction(fromQuery, "idPlus1");
+        Query baseQuery = Query.select(Employee.ID, idPlus1);
+
+        SquidCursor<Employee> cursor = database.query(Employee.class, baseQuery);
+        try {
+            assertEquals(database.countAll(Employee.class), cursor.getCount());
+            while (cursor.moveToNext()) {
+                assertEquals(cursor.get(Employee.ID) + 1, cursor.get(idPlus1).longValue());
+            }
+        } finally {
+            cursor.close();
+        }
     }
 }

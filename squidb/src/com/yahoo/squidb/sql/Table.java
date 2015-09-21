@@ -7,10 +7,11 @@ package com.yahoo.squidb.sql;
 
 import android.text.TextUtils;
 
-import com.yahoo.squidb.data.AbstractDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A standard SQLite table.
@@ -82,17 +83,15 @@ public class Table extends SqlTable<TableModel> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(" ModelClass=").append(modelClass.getSimpleName())
-                .append(" TableConstraint=").append(tableConstraint);
-        return sb.toString();
+        return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " TableConstraint=" + tableConstraint;
     }
 
     /**
      * Append a CREATE TABLE statement that would create this table and its columns. Users normally should not call
-     * this method and instead let {@link AbstractDatabase} build tables automatically.
+     * this method and instead let {@link SquidDatabase} build tables automatically.
      */
-    public void appendCreateTableSql(StringBuilder sql, PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
+            PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
         boolean needsComma = false;
         for (Property<?> property : properties) {

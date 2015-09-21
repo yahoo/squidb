@@ -7,8 +7,7 @@ package com.yahoo.squidb.sql;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A statement that operates on a {@link SqlTable}
@@ -65,13 +64,17 @@ public abstract class TableStatement extends CompilableWithArguments implements 
     private CompiledArgumentResolver compiledArgumentResolver = null;
 
     @Override
-    public final synchronized CompiledStatement compile() {
+    public final synchronized CompiledStatement compile(VersionCode sqliteVersion) {
         if (compiledArgumentResolver == null) {
-            List<Object> argsOrReferences = new ArrayList<Object>();
-            String compiledSql = toStringWithSelectionArgs(argsOrReferences);
-            compiledArgumentResolver = new CompiledArgumentResolver(compiledSql, argsOrReferences);
+            SqlBuilder builder = buildSql(sqliteVersion, true, false);
+            compiledArgumentResolver = new CompiledArgumentResolver(builder);
         }
         return compiledArgumentResolver.resolveToCompiledStatement();
+    }
+
+    public final String sqlForValidation(VersionCode sqliteVersion) {
+        SqlBuilder builder = buildSql(sqliteVersion, true, true);
+        return new CompiledArgumentResolver(builder).resolveToCompiledStatement().sql;
     }
 
     public abstract SqlTable<?> getTable();

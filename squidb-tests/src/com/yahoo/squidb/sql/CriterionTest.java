@@ -20,7 +20,6 @@ public class CriterionTest extends SquidTestCase {
         assertNegationEqualsTheOther(TestModel.FIRST_NAME.in(Collections.EMPTY_SET),
                 Criterion.not(TestModel.FIRST_NAME.in(Collections.EMPTY_SET)));
         assertNegationEqualsTheOther(TestModel.FIRST_NAME.isNull(), TestModel.FIRST_NAME.isNotNull());
-        assertNegationEqualsTheOther(Criterion.all, Criterion.none);
     }
 
     private void assertNegationEqualsTheOther(Criterion c1, Criterion c2) {
@@ -49,8 +48,38 @@ public class CriterionTest extends SquidTestCase {
         assertEquals(Criterion.or(c1, Criterion.and(c2, c3)), c1.or(c2.and(c3)));
     }
 
-    public void testEmptyRawSelectionIsEquivalentToAll() {
-        assertEquals(Criterion.all, Criterion.fromRawSelection(null, null));
-        assertEquals(Criterion.all, Criterion.fromRawSelection("", null));
+    public void testEmptyRawSelectionReturnsNull() {
+        assertNull(Criterion.fromRawSelection(null, null));
+        assertNull(Criterion.fromRawSelection("", null));
+    }
+
+    public void testNullCriterionsInBadPlacesThrowExceptions() {
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.and(null, TestModel.ID.eq(1));
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.or(null, TestModel.ID.eq(1));
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Function.caseWhen(null, 1);
+            }
+        }, IllegalArgumentException.class);
+
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                Criterion.not(null);
+            }
+        }, IllegalArgumentException.class);
     }
 }
