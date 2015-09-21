@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 
 public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
@@ -88,9 +89,12 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
             Expression reference = Expressions.staticReference(modelSpec.getModelSpecName(),
                     propertyGenerator.getPropertyName());
             if (alias) {
-                Alias aliasAnnotation = propertyGenerator.getField().getAnnotation(Alias.class);
-                if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
-                    reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                VariableElement field = propertyGenerator.getField();
+                if (field != null) {
+                    Alias aliasAnnotation = field.getAnnotation(Alias.class);
+                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
+                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                    }
                 }
             }
             writer.writeExpression(reference);

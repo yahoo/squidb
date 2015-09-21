@@ -36,14 +36,34 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     protected final String camelCasePropertyName;
     protected final String columnName;
 
+    public BasicPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+        this(modelSpec, columnName, columnName, utils);
+    }
+
+    public BasicPropertyGenerator(ModelSpec<?> modelSpec, String columnName, String propertyName, AptUtils utils) {
+        super(modelSpec, null, utils);
+        this.extras = null;
+
+        this.camelCasePropertyName = StringUtils.toCamelCase(propertyName);
+        this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
+        this.columnName = columnName;
+
+        validateColumnName();
+    }
+
     public BasicPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
         this.extras = field.getAnnotation(ColumnSpec.class);
         String name = field.getSimpleName().toString();
+
         this.camelCasePropertyName = StringUtils.toCamelCase(name);
         this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
         this.columnName = getColumnName(extras);
 
+        validateColumnName();
+    }
+
+    private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             utils.getMessager().printMessage(Kind.ERROR, "Column names cannot contain the $ symbol", field);
         } else if (Character.isDigit(columnName.charAt(0))) {

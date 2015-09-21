@@ -35,11 +35,12 @@ public abstract class PropertyGenerator {
         this.modelSpec = modelSpec;
         this.field = field;
         this.utils = utils;
-        this.isDeprecated = field.getAnnotation(Deprecated.class) != null;
+        this.isDeprecated = field != null && field.getAnnotation(Deprecated.class) != null;
     }
 
     /**
-     * @return the {@link VariableElement} this PropertyGenerator was created from
+     * @return the {@link VariableElement} this PropertyGenerator was created from. This may be null if the
+     * PropertyGenerator did not originate from a VariableElement in a model spec
      */
     public VariableElement getField() {
         return field;
@@ -67,8 +68,8 @@ public abstract class PropertyGenerator {
 
     /**
      * Called before {@link #emitPropertyDeclaration(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void beforeEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -76,15 +77,15 @@ public abstract class PropertyGenerator {
 
     /**
      * Called to write the declaration of the property itself
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public abstract void emitPropertyDeclaration(JavaFileWriter writer) throws IOException;
 
     /**
      * Called after {@link #emitPropertyDeclaration(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void afterEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -92,8 +93,8 @@ public abstract class PropertyGenerator {
 
     /**
      * Called before {@link #emitGetter(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void beforeEmitGetter(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -101,15 +102,15 @@ public abstract class PropertyGenerator {
 
     /**
      * Called to write the convenience getter the property itself
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public abstract void emitGetter(JavaFileWriter writer) throws IOException;
 
     /**
      * Called after {@link #emitGetter(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void afterEmitGetter(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -117,8 +118,8 @@ public abstract class PropertyGenerator {
 
     /**
      * Called before {@link #emitSetter(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void beforeEmitSetter(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -126,15 +127,15 @@ public abstract class PropertyGenerator {
 
     /**
      * Called to write the convenience setter the property itself
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public abstract void emitSetter(JavaFileWriter writer) throws IOException;
 
     /**
      * Called after {@link #emitSetter(JavaFileWriter)}
+     *
      * @param writer a {@link JavaFileWriter} for writing to
-     * @throws IOException
      */
     public void afterEmitSetter(JavaFileWriter writer) throws IOException {
         // Subclasses can override
@@ -142,9 +143,9 @@ public abstract class PropertyGenerator {
 
     /**
      * Called to emit a call to ContentValues.put for adding a property default to the model default values
+     *
      * @param writer a {@link JavaFileWriter} for writing to
      * @param contentValuesName the name of the content values variable to call
-     * @throws IOException
      */
     public abstract void emitPutDefault(JavaFileWriter writer, String contentValuesName) throws IOException;
 
