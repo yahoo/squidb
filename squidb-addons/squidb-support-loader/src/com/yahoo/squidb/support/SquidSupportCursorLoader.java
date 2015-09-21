@@ -16,10 +16,10 @@ import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.Query;
 
 /**
- * A {@link CursorLoader} that queries a {@link SquidDatabase}. This version of SquidCursorLoader uses the support
+ * A {@link CursorLoader} that queries a {@link SquidDatabase}. This version of SquidSupportCursorLoader uses the support
  * library instead of the base Android SDK.
  */
-public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<SquidCursor<T>> {
+public class SquidSupportCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<SquidCursor<T>> {
 
     private final Query query;
     private final SquidDatabase database;
@@ -29,7 +29,7 @@ public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<
 
     private final ForceLoadContentObserver observer = new ForceLoadContentObserver();
 
-    public SquidCursorLoader(Context context, SquidDatabase database, Class<T> modelClass, Query query) {
+    public SquidSupportCursorLoader(Context context, SquidDatabase database, Class<T> modelClass, Query query) {
         super(context);
         this.database = database;
         this.query = query;
