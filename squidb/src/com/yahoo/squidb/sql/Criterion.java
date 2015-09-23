@@ -6,6 +6,9 @@
 package com.yahoo.squidb.sql;
 
 import android.text.TextUtils;
+import android.util.Log;
+
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Collections;
 
@@ -76,6 +79,13 @@ public abstract class Criterion extends CompilableWithArguments {
     /**
      * @return a {@link Criterion} that evaluates the raw selection and selection args. If the selection string is
      * empty, this will return null.
+     *
+     * Note: if you use Criterion.fromRawSelection in a SQL statement, you should not call
+     * {@link SqlStatement#toRawSql(VersionCode) toRawSql} on that statement and then execute the resulting SQL, as it
+     * may contain unbound arguments. Instead, execute the statement using e.g.
+     * {@link com.yahoo.squidb.data.SquidDatabase#query(Class, Query) SquidDatabase.query},
+     * {@link com.yahoo.squidb.data.SquidDatabase#update(Update) SquidDatabase.update}, or
+     * {@link com.yahoo.squidb.data.SquidDatabase#delete(Delete) SquidDatabase.delete}
      */
     public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
         if (TextUtils.isEmpty(selection)) {
@@ -90,10 +100,10 @@ public abstract class Criterion extends CompilableWithArguments {
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
-                        throw new UnsupportedOperationException("Raw selection cannot be used in this context--"
-                                + "it cannot converted to raw SQL without bound arguments.");
+                        Log.w("squidb", "Raw selection criterion converted to raw SQL with unbound arguments");
+                    } else {
+                        Collections.addAll(builder.args, selectionArgs);
                     }
-                    Collections.addAll(builder.args, selectionArgs);
                 }
                 if (forSqlValidation) {
                     builder.sql.append(")");
