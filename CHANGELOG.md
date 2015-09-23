@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-Version 2.0.0 *(2015-09-22)*
+Version 2.0.0 *(2015-09-23)*
 ----------------------------
 * Unified DatabaseDao and AbstractDatabase into a single SquidDatabase API
 * Basic RxJava support via the `squidb-reactive` module
