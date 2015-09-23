@@ -25,6 +25,8 @@ import java.util.Collections;
  */
 public class SquidUtilities {
 
+    public static final String LOG_TAG = "squidb";
+
     /**
      * Put an arbitrary object into a {@link ContentValues}
      *
@@ -80,14 +82,14 @@ public class SquidUtilities {
     public static void copyDatabase(Context context, SquidDatabase database, String toFolder) {
         File folderFile = new File(toFolder);
         if (!(folderFile.mkdirs() || folderFile.isDirectory())) {
-            Log.e("squidb", "Error creating directories for database copy");
+            Log.e(LOG_TAG, "Error creating directories for database copy");
             return;
         }
         File dbFile = context.getDatabasePath(database.getName());
         try {
             copyFile(dbFile, new File(folderFile.getAbsolutePath() + File.separator + database.getName()));
         } catch (Exception e) {
-            Log.e("squidb", "Error copying database " + database.getName(), e);
+            Log.e(LOG_TAG, "Error copying database " + database.getName(), e);
         }
     }
 

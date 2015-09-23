@@ -6,9 +6,9 @@
  * See the accompanying LICENSE file for terms.
  *-->
 <manifest package="com.yahoo.squidb.reactive"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:versionCode="3"
-          android:versionName="1.1.0">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionCode="4"
+    android:versionName="2.0.0">
 
     <uses-sdk android:minSdkVersion="14" />
 

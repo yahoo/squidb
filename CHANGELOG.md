@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+Version 2.0.0 *(2015-09-23)*
+----------------------------
+* Unified DatabaseDao and AbstractDatabase into a single SquidDatabase API
+* Basic RxJava support via the `squidb-reactive` module
+* Improved data changed notification mechanism
+* Support connecting to custom SQLite builds instead of stock Android SQLite
+* Enhanced code generation plugin API
+* Add SquidRecyclerAdapter for working with RecyclerView (available in the `squidb-recyclerview` module)
+* Other misc fixes and enhancements
+* See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-2.0) for instructions on how to update from SquiDB 1.x to 2.0
+
 Version 1.1.0 *(2015-07-29)*
 ----------------------------
 
@@ -19,7 +30,7 @@ Version 1.0.1 *(2015-06-18)*
 ----------------------------
 
  * Add a @PrimaryKey annotation. This enables two things that weren't possible before:
-   * Declaring id columns not named "_id"
+   * Declaring id columns not named "\_id"
    * Disabling the `AUTOINCREMENT` behavior with a flag in the @PrimaryKey annotation
 
 Version 1.0.0 *(2015-05-29)*

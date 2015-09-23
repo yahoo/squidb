@@ -7,6 +7,9 @@ SquiDB is a SQLite database layer for Android. It is designed to make it as easy
 
 Add SquiDB to your existing project by following the instructions in [Adding SquiDB as a dependency](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
 
+### Upgrading from SquiDB 1.x
+SquiDB was recently updated to version 2.0, which contains some breaking API changes. Don't worry, they're easy to fix! Just follow the instructions on [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-2.0) to update your code and take advantage of the latest and greatest SquiDB has to offer.
+
 ## Model objects
 SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A SquidDatabase object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
 
