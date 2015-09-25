@@ -55,6 +55,8 @@ public class SquidCursorFactory implements CursorFactory {
             } else if (arg instanceof AtomicBoolean) { // Not a subclass of Number so DatabaseUtils won't handle it
                 arg = ((AtomicBoolean) arg).get() ? 1 : 0;
                 resolved = true;
+            } else if (arg instanceof ThreadLocal) {
+                arg = ((ThreadLocal<?>) arg).get();
             } else {
                 resolved = true;
             }
