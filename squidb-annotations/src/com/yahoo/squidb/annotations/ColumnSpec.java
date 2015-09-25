@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ColumnSpec {
 
-    public static final String DEFAULT_NONE = "!NONE!";
-    public static final String DEFAULT_NULL = "!NULL!";
+    String DEFAULT_NONE = "!NONE!";
+    String DEFAULT_NULL = "!NULL!";
 
     /**
      * Specify a column name here if you want your property to have a different column name in the SQL table than its
