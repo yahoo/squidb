@@ -5,39 +5,41 @@
  */
 package com.yahoo.squidb.sql;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 class ConjunctionCriterion extends Criterion {
 
-    private final Criterion baseCriterion;
-    private final Criterion[] additionalCriterions;
+    private final List<Criterion> criterions = new ArrayList<Criterion>();
 
-    ConjunctionCriterion(Operator operator, Criterion criterion, Criterion... additionalCriterions) {
+    ConjunctionCriterion(Operator operator, Criterion baseCriterion, Criterion... additionalCriterions) {
         super(operator);
-        if (criterion == null) {
-            throw new IllegalArgumentException("Base criterion of a ConjunctionCriterion cannot be null");
+        if (baseCriterion == null) {
+            throw new IllegalArgumentException("First Criterion of a ConjunctionCriterion must not be null");
         }
-        if (additionalCriterions == null) {
-            throw new IllegalArgumentException(
-                    "Can't pass a null array for additional criterions in a ConjunctionCriterion");
+        this.criterions.add(baseCriterion);
+        if (additionalCriterions != null) {
+            Collections.addAll(this.criterions, additionalCriterions);
         }
-        this.baseCriterion = criterion;
-        this.additionalCriterions = additionalCriterions;
     }
 
-    // For internal cloning
-    private ConjunctionCriterion(Criterion baseCriterion, Criterion[] additionalCriterions, Criterion appendToEnd,
-            Operator operator) {
+    ConjunctionCriterion(Operator operator, List<Criterion> criterions) {
         super(operator);
-        this.baseCriterion = baseCriterion;
-        int newLength = additionalCriterions.length + 1;
-        this.additionalCriterions = new Criterion[newLength];
-        System.arraycopy(additionalCriterions, 0, this.additionalCriterions, 0, additionalCriterions.length);
-        this.additionalCriterions[newLength - 1] = appendToEnd;
+        if (criterions == null || criterions.isEmpty()) {
+            throw new IllegalArgumentException("Must specify at least one criterion for a ConjunctionCriterion");
+        }
+        if (criterions.get(0) == null) {
+            throw new NullPointerException("First Criterion of ConjunctionCriterion List must not be null");
+        }
+        this.criterions.addAll(criterions);
     }
 
     @Override
     protected void populate(SqlBuilder builder, boolean forSqlValidation) {
-        baseCriterion.appendToSqlBuilder(builder, forSqlValidation);
-        for (Criterion c : additionalCriterions) {
+        criterions.get(0).appendToSqlBuilder(builder, forSqlValidation);
+        for (int i = 1; i < criterions.size(); i++) {
+            Criterion c = criterions.get(i);
             if (c != null) {
                 builder.sql.append(operator);
                 c.appendToSqlBuilder(builder, forSqlValidation);
@@ -68,7 +70,9 @@ class ConjunctionCriterion extends Criterion {
             return this;
         }
         if (operator.equals(toCheck)) {
-            return new ConjunctionCriterion(baseCriterion, additionalCriterions, criterion, operator);
+            ConjunctionCriterion newCriterion = new ConjunctionCriterion(operator, this.criterions);
+            newCriterion.criterions.add(criterion);
+            return newCriterion;
         }
         return null;
     }

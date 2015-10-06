@@ -8,6 +8,7 @@ package com.yahoo.squidb.sql;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestModel;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 public class CriterionTest extends SquidTestCase {
@@ -29,7 +30,7 @@ public class CriterionTest extends SquidTestCase {
         assertEquals(c2, c2.negate().negate());
     }
 
-    public void testInstanceVsStaticAnd() {
+    public void testInstanceVsStaticConjunction() {
         Criterion c1 = TestModel.FIRST_NAME.eq("Sam");
         Criterion c2 = TestModel.LAST_NAME.eq("Bosley");
         Criterion c3 = TestModel.LUCKY_NUMBER.eq(7);
@@ -39,7 +40,9 @@ public class CriterionTest extends SquidTestCase {
         assertNotSame(c, cand); // Tests immutability of conjunction criterions when appending with the same operator
 
         assertEquals(Criterion.and(c1, c2, c3), c1.and(c2).and(c3));
+        assertEquals(Criterion.and(Arrays.asList(c1, c2, c3)), c1.and(c2).and(c3));
         assertEquals(Criterion.or(c1, c2, c3), c1.or(c2).or(c3));
+        assertEquals(Criterion.or(Arrays.asList(c1, c2, c3)), c1.or(c2).or(c3));
 
         assertEquals(Criterion.or(Criterion.and(c1, c2), c3), c1.and(c2).or(c3));
         assertEquals(Criterion.and(Criterion.or(c1, c2), c3), c1.or(c2).and(c3));
