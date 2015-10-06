@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import android.text.TextUtils;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,6 +15,23 @@ public class SqlUtils {
 
     private SqlUtils() {
         /* no instantiation */
+    }
+
+    public static Object resolveArgReferences(Object arg) {
+        boolean resolved = false;
+        while (!resolved) {
+            if (arg instanceof AtomicReference) {
+                arg = ((AtomicReference<?>) arg).get();
+            } else if (arg instanceof AtomicBoolean) { // Not a subclass of Number so DatabaseUtils won't handle it
+                arg = ((AtomicBoolean) arg).get() ? 1 : 0;
+                resolved = true;
+            } else if (arg instanceof ThreadLocal) {
+                arg = ((ThreadLocal<?>) arg).get();
+            } else {
+                resolved = true;
+            }
+        }
+        return arg;
     }
 
     static void addInlineCollectionToSqlString(StringBuilder sql, Collection<?> values) {
@@ -32,12 +48,17 @@ public class SqlUtils {
      * Convert an arbitrary object to a string. If the object itself is a {@link String}, it will be sanitized.
      */
     static String toSanitizedString(Object value) {
-        if (value instanceof String) {
-            return sanitizeStringAsLiteral((String) value);
-        } else if (value instanceof AtomicReference<?>) {
-            return toSanitizedString(((AtomicReference<?>) value).get());
+        value = resolveArgReferences(value);
+        if (value == null) {
+            return "NULL";
+        } else if (value instanceof Double || value instanceof Float) {
+            return Double.toString(((Number) value).doubleValue());
+        } else if (value instanceof Number) {
+            return Long.toString(((Number) value).longValue());
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? "1" : "0";
         } else {
-            return sanitizeObject(value);
+            return sanitizeStringAsLiteral(String.valueOf(value));
         }
     }
 
@@ -78,22 +99,6 @@ public class SqlUtils {
             return builder.toString();
         } else {
             return "'" + sanitizedLiteral + "'";
-        }
-    }
-
-    private static String sanitizeObject(Object value) {
-        if (value == null) {
-            return "NULL";
-        } else if (value instanceof Double || value instanceof Float || value instanceof BigDecimal) {
-            return Double.toString(((Number) value).doubleValue());
-        } else if (value instanceof Number) {
-            return Long.toString(((Number) value).longValue());
-        } else if (value instanceof Boolean) {
-            return ((Boolean) value) ? "1" : "0";
-        } else if (value instanceof AtomicBoolean) {
-            return ((AtomicBoolean) value).get() ? "1" : "0";
-        } else {
-            return sanitizeStringAsLiteral(String.valueOf(value));
         }
     }
 
