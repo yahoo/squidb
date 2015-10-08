@@ -199,12 +199,11 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
             emitDefaultValuesInitializationBlock();
 
             writer.finishInitializerBlock(false, true).writeNewline();
-
-            writer.writeAnnotation(CoreTypes.OVERRIDE)
-                    .beginMethodDefinition(GET_DEFAULT_VALUES_PARAMS)
-                    .writeStringStatement("return " + DEFAULT_VALUES_NAME)
-                    .finishMethodDefinition();
         }
+        writer.writeAnnotation(CoreTypes.OVERRIDE)
+                .beginMethodDefinition(GET_DEFAULT_VALUES_PARAMS)
+                .writeStringStatement("return " + DEFAULT_VALUES_NAME)
+                .finishMethodDefinition();
     }
 
     protected abstract void emitDefaultValuesInitializationBlock() throws IOException;
