@@ -12,6 +12,7 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Criterions are primarily used to construct the WHERE clause of a SQL statement. Most criterion objects can be
@@ -50,10 +51,24 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     /**
+     * @return a {@link Criterion} that combines the given criterions with AND
+     */
+    public static Criterion and(List<Criterion> criterions) {
+        return new ConjunctionCriterion(Operator.and, criterions);
+    }
+
+    /**
      * @return a {@link Criterion} that combines the given criterions with OR
      */
     public static Criterion or(Criterion criterion, Criterion... criterions) {
         return new ConjunctionCriterion(Operator.or, criterion, criterions);
+    }
+
+    /**
+     * @return a {@link Criterion} that combines the given criterions with OR
+     */
+    public static Criterion or(List<Criterion> criterions) {
+        return new ConjunctionCriterion(Operator.or, criterions);
     }
 
     /**

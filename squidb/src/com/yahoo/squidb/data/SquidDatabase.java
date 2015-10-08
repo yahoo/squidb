@@ -589,6 +589,18 @@ public abstract class SquidDatabase {
     protected long insert(String table, String nullColumnHack, ContentValues values) {
         acquireNonExclusiveLock();
         try {
+            return getDatabase().insert(table, nullColumnHack, values);
+        } finally {
+            releaseNonExclusiveLock();
+        }
+    }
+
+    /**
+     * @see SQLiteDatabase#insertOrThrow(String table, String nullColumnHack, ContentValues values)
+     */
+    protected long insertOrThrow(String table, String nullColumnHack, ContentValues values) {
+        acquireNonExclusiveLock();
+        try {
             return getDatabase().insertOrThrow(table, nullColumnHack, values);
         } finally {
             releaseNonExclusiveLock();
@@ -1684,7 +1696,7 @@ public abstract class SquidDatabase {
             return false;
         }
         if (conflictAlgorithm == null) {
-            newRow = insert(table.getExpression(), null, mergedValues);
+            newRow = insertOrThrow(table.getExpression(), null, mergedValues);
         } else {
             newRow = insertWithOnConflict(table.getExpression(), null, mergedValues,
                     conflictAlgorithm.getAndroidValue());
