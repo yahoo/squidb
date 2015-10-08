@@ -8,11 +8,11 @@ package com.yahoo.squidb.data.android;
 import android.content.ContentValues;
 import android.os.Parcel;
 
-import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.data.ValuesStorage;
+import com.yahoo.squidb.data.ViewModel;
 import com.yahoo.squidb.sql.Property;
 
-public abstract class AndroidTableModel extends TableModel implements ParcelableModel<AndroidTableModel> {
+public abstract class AndroidViewModel extends ViewModel implements ParcelableModel<AndroidViewModel> {
 
     @Override
     protected ValuesStorage newValuesStorage() {

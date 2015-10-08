@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.data.android;
 
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,7 +16,6 @@ public final class ModelCreator<TYPE extends ParcelableModel>
     private final Class<TYPE> cls;
 
     public ModelCreator(Class<TYPE> cls) {
-        super();
         this.cls = cls;
     }
 
@@ -34,9 +32,7 @@ public final class ModelCreator<TYPE extends ParcelableModel>
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
-        ContentValues setValues = source.readParcelable(ContentValues.class.getClassLoader());
-        ContentValues values = source.readParcelable(ContentValues.class.getClassLoader());
-        model.initWithContentValues(setValues, values);
+        model.readFromParcel(source);
         return model;
     }
 
