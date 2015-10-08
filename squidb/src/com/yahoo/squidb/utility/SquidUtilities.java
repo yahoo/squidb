@@ -5,10 +5,10 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.content.ContentValues;
 import android.content.Context;
 
 import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.data.ValuesStorage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,36 +25,14 @@ import java.util.Collections;
 public class SquidUtilities {
 
     /**
-     * Put an arbitrary object into a {@link ContentValues}
+     * Put an arbitrary object into a {@link ValuesStorage}
      *
      * @param target the ContentValues store
      * @param key the key to use
      * @param value the value to store
      */
-    public static void putInto(ContentValues target, String key, Object value, boolean errorOnFail) {
-        if (value == null) {
-            target.putNull(key);
-        } else if (value instanceof Boolean) {
-            target.put(key, (Boolean) value);
-        } else if (value instanceof Byte) {
-            target.put(key, (Byte) value);
-        } else if (value instanceof Double) {
-            target.put(key, (Double) value);
-        } else if (value instanceof Float) {
-            target.put(key, (Float) value);
-        } else if (value instanceof Integer) {
-            target.put(key, (Integer) value);
-        } else if (value instanceof Long) {
-            target.put(key, (Long) value);
-        } else if (value instanceof Short) {
-            target.put(key, (Short) value);
-        } else if (value instanceof String) {
-            target.put(key, (String) value);
-        } else if (value instanceof byte[]) {
-            target.put(key, (byte[]) value);
-        } else if (errorOnFail) {
-            throw new UnsupportedOperationException("Could not handle type " + value.getClass());
-        }
+    public static void putInto(ValuesStorage target, String key, Object value, boolean errorOnFail) {
+
     }
 
     /**

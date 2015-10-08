@@ -5,17 +5,12 @@
  */
 package com.yahoo.squidb.data;
 
-import android.content.ContentValues;
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.utility.SquidUtilities;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -67,7 +62,7 @@ import java.util.Set;
  * @see com.yahoo.squidb.data.TableModel
  * @see com.yahoo.squidb.data.ViewModel
  */
-public abstract class AbstractModel implements Parcelable, Cloneable {
+public abstract class AbstractModel implements Cloneable {
 
     // --- static variables
 
@@ -78,34 +73,34 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     // --- abstract methods
 
     /** Get the default values for this object */
-    public abstract ContentValues getDefaultValues();
+    public abstract ValuesStorage getDefaultValues();
 
     // --- data store variables and management
 
     /** User set values */
-    protected ContentValues setValues = null;
+    protected ValuesStorage setValues = null;
 
     /** Values from database */
-    protected ContentValues values = null;
+    protected ValuesStorage values = null;
 
     /** Transitory Metadata (not saved in database) */
     protected HashMap<String, Object> transitoryData = null;
 
     /** Get the database-read values for this object */
-    public ContentValues getDatabaseValues() {
+    public ValuesStorage getDatabaseValues() {
         return values;
     }
 
     /** Get the user-set values for this object */
-    public ContentValues getSetValues() {
+    public ValuesStorage getSetValues() {
         return setValues;
     }
 
     /** Get a list of all field/value pairs merged across data sources */
-    public ContentValues getMergedValues() {
-        ContentValues mergedValues = new ContentValues();
+    public ValuesStorage getMergedValues() {
+        ValuesStorage mergedValues = newValuesStorage();
 
-        ContentValues defaultValues = getDefaultValues();
+        ValuesStorage defaultValues = getDefaultValues();
         if (defaultValues != null) {
             mergedValues.putAll(defaultValues);
         }
@@ -120,6 +115,8 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
 
         return mergedValues;
     }
+
+    protected abstract ValuesStorage newValuesStorage();
 
     /**
      * Clear all data on this model
@@ -173,11 +170,13 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
         }
 
         if (setValues != null) {
-            clone.setValues = new ContentValues(setValues);
+            clone.setValues = newValuesStorage();
+            clone.setValues.putAll(setValues);
         }
 
         if (values != null) {
-            clone.values = new ContentValues(values);
+            clone.values = newValuesStorage();
+            clone.values.putAll(values);
         }
         return clone;
     }
@@ -192,10 +191,10 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     // --- data retrieval
 
     /**
-     * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
+     * Copies values from the given {@link ValuesStorage} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
+    public void readPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
         prepareToReadProperties();
 
         if (values != null) {
@@ -232,7 +231,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
 
     private void prepareToReadProperties() {
         if (values == null) {
-            values = new ContentValues();
+            values = newValuesStorage();
         }
 
         // clears user-set values
@@ -281,7 +280,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     }
 
     @SuppressWarnings("unchecked")
-    private <TYPE> TYPE getFromValues(Property<TYPE> property, ContentValues values) {
+    private <TYPE> TYPE getFromValues(Property<TYPE> property, ValuesStorage values) {
         Object value = values.get(property.getName());
 
         // Will throw a ClassCastException if the value could not be coerced to the correct type
@@ -314,7 +313,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
         return valuesContainsKey(setValues, property);
     }
 
-    private boolean valuesContainsKey(ContentValues values, Property<?> property) {
+    private boolean valuesContainsKey(ValuesStorage values, Property<?> property) {
         return values != null && values.containsKey(property.getName());
     }
 
@@ -358,7 +357,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     public <TYPE> void set(Property<TYPE> property, TYPE value) {
         if (setValues == null) {
-            setValues = new ContentValues();
+            setValues = newValuesStorage();
         }
 
         if (!shouldSaveValue(property, value)) {
@@ -369,13 +368,13 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     }
 
     /**
-     * Analogous to {@link #readPropertiesFromContentValues(ContentValues, Property[])} but adds the values to the
+     * Analogous to {@link #readPropertiesFromValuesStorage(ValuesStorage, Property[])} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
+    public void setPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
         if (values != null) {
             if (setValues == null) {
-                setValues = new ContentValues();
+                setValues = newValuesStorage();
             }
             for (Property<?> property : properties) {
                 String key = property.getName();
@@ -485,9 +484,9 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     /**
      * Visitor that saves a value into a content values store
      */
-    private static class ContentValuesSavingVisitor implements PropertyWritingVisitor<Void, ContentValues, Object> {
+    private static class ContentValuesSavingVisitor implements PropertyWritingVisitor<Void, ValuesStorage, Object> {
 
-        public void save(Property<?> property, ContentValues newStore, Object value) {
+        public void save(Property<?> property, ValuesStorage newStore, Object value) {
             if (value != null) {
                 property.accept(this, newStore, value);
             } else {
@@ -496,31 +495,31 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
         }
 
         @Override
-        public Void visitDouble(Property<Double> property, ContentValues dst, Object value) {
+        public Void visitDouble(Property<Double> property, ValuesStorage dst, Object value) {
             dst.put(property.getName(), (Double) value);
             return null;
         }
 
         @Override
-        public Void visitInteger(Property<Integer> property, ContentValues dst, Object value) {
+        public Void visitInteger(Property<Integer> property, ValuesStorage dst, Object value) {
             dst.put(property.getName(), (Integer) value);
             return null;
         }
 
         @Override
-        public Void visitLong(Property<Long> property, ContentValues dst, Object value) {
+        public Void visitLong(Property<Long> property, ValuesStorage dst, Object value) {
             dst.put(property.getName(), (Long) value);
             return null;
         }
 
         @Override
-        public Void visitString(Property<String> property, ContentValues dst, Object value) {
+        public Void visitString(Property<String> property, ValuesStorage dst, Object value) {
             dst.put(property.getName(), (String) value);
             return null;
         }
 
         @Override
-        public Void visitBoolean(Property<Boolean> property, ContentValues dst, Object value) {
+        public Void visitBoolean(Property<Boolean> property, ValuesStorage dst, Object value) {
             if (value instanceof Boolean) {
                 dst.put(property.getName(), (Boolean) value);
             } else if (value instanceof Integer) {
@@ -530,7 +529,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
         }
 
         @Override
-        public Void visitBlob(Property<byte[]> property, ContentValues dst, Object value) {
+        public Void visitBlob(Property<byte[]> property, ValuesStorage dst, Object value) {
             dst.put(property.getName(), (byte[]) value);
             return null;
         }
@@ -619,71 +618,4 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
         }
 
     }
-
-    // --- parcelable helpers
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(setValues, 0);
-        dest.writeParcelable(values, 0);
-    }
-
-    /**
-     * In addition to overriding this class, model classes should create a static final variable named "CREATOR" in
-     * order to satisfy the requirements of the Parcelable interface.
-     */
-    protected abstract Parcelable.Creator<? extends AbstractModel> getCreator();
-
-    /**
-     * Parcelable creator helper
-     */
-    protected static final class ModelCreator<TYPE extends AbstractModel>
-            implements Parcelable.Creator<TYPE> {
-
-        private final Class<TYPE> cls;
-
-        public ModelCreator(Class<TYPE> cls) {
-            super();
-            this.cls = cls;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public TYPE createFromParcel(Parcel source) {
-            TYPE model;
-            try {
-                model = cls.newInstance();
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException(e);
-            }
-            model.setValues = source.readParcelable(ContentValues.class.getClassLoader());
-            model.values = source.readParcelable(ContentValues.class.getClassLoader());
-            return model;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        @SuppressWarnings("unchecked")
-        public TYPE[] newArray(int size) {
-            return (TYPE[]) Array.newInstance(cls, size);
-        }
-    }
-
 }

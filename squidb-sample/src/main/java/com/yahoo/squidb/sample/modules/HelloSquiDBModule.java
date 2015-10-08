@@ -10,7 +10,7 @@ import android.net.Uri;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.UriNotifier;
+import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sample.HelloSquiDBApplication;
 import com.yahoo.squidb.sample.TaskListActivity;
 import com.yahoo.squidb.sample.database.TasksDatabase;

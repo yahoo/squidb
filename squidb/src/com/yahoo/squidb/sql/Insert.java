@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
@@ -57,6 +58,13 @@ public class Insert extends TableStatement {
         for (Property<?> column : columns) {
             this.columns.add(column.getExpression());
         }
+        defaultValues = false;
+        invalidateCompileCache();
+        return this;
+    }
+
+    public Insert columns(String... columnNames) {
+        SquidUtilities.addAll(this.columns, columnNames);
         defaultValues = false;
         invalidateCompileCache();
         return this;

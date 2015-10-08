@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import android.content.ContentValues;
-
 import com.yahoo.squidb.sql.Property.LongProperty;
 
 /**
@@ -34,9 +32,9 @@ public abstract class TableModel extends AbstractModel {
         Long id = null;
         String idPropertyName = getIdProperty().getName();
         if (setValues != null && setValues.containsKey(idPropertyName)) {
-            id = setValues.getAsLong(idPropertyName);
+            id = (Long) setValues.get(idPropertyName);
         } else if (values != null && values.containsKey(idPropertyName)) {
-            id = values.getAsLong(idPropertyName);
+            id = (Long) values.get(idPropertyName);
         }
 
         if (id != null) {
@@ -54,7 +52,7 @@ public abstract class TableModel extends AbstractModel {
             clearValue(getIdProperty());
         } else {
             if (setValues == null) {
-                setValues = new ContentValues();
+                setValues = newValuesStorage();
             }
             setValues.put(getIdProperty().getName(), id);
         }

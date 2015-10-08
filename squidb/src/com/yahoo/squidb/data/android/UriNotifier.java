@@ -3,11 +3,14 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data;
+package com.yahoo.squidb.data.android;
 
 import android.content.ContentResolver;
 import android.net.Uri;
 
+import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.data.DataChangedNotifier;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -25,7 +28,7 @@ import java.util.Set;
  * use the no-argument constructor.
  * <p>
  * When an instance of UriNotifier is registered with a SquidDatabase, the db will call {@link
- * #accumulateNotificationObjects(Set, SqlTable, SquidDatabase, DBOperation, AbstractModel, long)} on the
+ * #accumulateNotificationObjects(Set, SqlTable, SquidDatabase, DataChangedNotifier.DBOperation, AbstractModel, long)} on the
  * notifier whenever one of the notifier's relevant tables was modified. Subclasses should override this method to
  * construct a Uri to notify based on the parameters passed to the method.
  *

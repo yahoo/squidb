@@ -5,9 +5,7 @@
  */
 package com.yahoo.squidb.data;
 
-import android.database.ContentObserver;
-import android.net.Uri;
-
+import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -145,6 +143,7 @@ public abstract class DataChangedNotifier<T> {
      * The default implementation of this method iterates over the notifyObjects set and calls
      * {@link #sendNotification(SquidDatabase, Object)} for each of them. Subclasses may override if they want to
      * handle notifying the entire set differently.
+     *
      * @param database the SquidDatabase the change occurred in
      * @param notifyObjects the objects to be used for sending a notification
      */
@@ -157,8 +156,9 @@ public abstract class DataChangedNotifier<T> {
     /**
      * Subclasses override this abstract method to define how to send a notification to the accumulated notifyObject.
      * For example, in UriNotifier, the object is a Uri, so UriNotifier calls
-     * {@link android.content.ContentResolver#notifyChange(Uri, ContentObserver)} with the Uri. If the object were a
-     * Runnable, the caller could simply call {@link Runnable#run() run()}.
+     * {@link android.content.ContentResolver#notifyChange(android.net.Uri, android.database.ContentObserver)
+     * ContentResolver.notifyChange} with the Uri. If the object were a Runnable, the caller could simply call
+     * {@link Runnable#run() run()}.
      *
      * @param database the SquidDatabase the change occurred in
      * @param notifyObject the object to be used for sending a notification

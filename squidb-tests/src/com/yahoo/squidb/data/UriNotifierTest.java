@@ -3,6 +3,7 @@ package com.yahoo.squidb.data;
 import android.database.ContentObserver;
 import android.net.Uri;
 
+import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;

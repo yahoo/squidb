@@ -8,6 +8,7 @@ package com.yahoo.squidb.data;
 import android.net.Uri;
 import android.text.format.DateUtils;
 
+import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.SqlTable;

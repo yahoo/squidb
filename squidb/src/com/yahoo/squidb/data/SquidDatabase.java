@@ -1698,7 +1698,7 @@ public abstract class SquidDatabase {
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
         long newRow;
-        ContentValues mergedValues = item.getMergedValues();
+        ValuesStorage mergedValues = item.getMergedValues();
         if (mergedValues.size() == 0) {
             return false;
         }
