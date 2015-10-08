@@ -5,7 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.Logger;
+import android.util.Log;
+
+import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,9 +106,10 @@ class CompiledArgumentResolver {
             if (!largeArgMode) {
                 compiledSqlCache.put(cacheKey, resultSql);
             } else {
-                Logger.log("The SQL statement \"" + resultSql.substring(0, Math.min(200, resultSql.length()))
-                        + " ...\" had too many arguments to bind, so arguments were inlined into the SQL instead."
-                        + " Consider revising your statement to have fewer arguments.");
+                Log.w(SquidUtilities.LOG_TAG,
+                        "The SQL statement \"" + resultSql.substring(0, Math.min(200, resultSql.length()))
+                                + " ...\" had too many arguments to bind, so arguments were inlined into the SQL instead."
+                                + " Consider revising your statement to have fewer arguments.");
             }
             return resultSql;
         } else {

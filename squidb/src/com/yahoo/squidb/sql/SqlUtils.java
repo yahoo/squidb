@@ -19,6 +19,11 @@ public class SqlUtils {
         return str == null || str.isEmpty();
     }
 
+    public static boolean equals(String a, String b) {
+        return a == b ||
+                (a != null && b != null && a.length() == b.length() && a.equals(b));
+    }
+
     public static Object resolveArgReferences(Object arg) {
         boolean resolved = false;
         while (!resolved) {
