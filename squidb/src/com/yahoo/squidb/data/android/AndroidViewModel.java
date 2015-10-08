@@ -7,12 +7,14 @@ package com.yahoo.squidb.data.android;
 
 import android.content.ContentValues;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.data.ViewModel;
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.utility.Logger;
 
-public abstract class AndroidViewModel extends ViewModel implements ParcelableModel<AndroidViewModel> {
+public abstract class AndroidViewModel extends ViewModel implements Parcelable {
 
     @Override
     protected ValuesStorage newValuesStorage() {
@@ -58,10 +60,15 @@ public abstract class AndroidViewModel extends ViewModel implements ParcelableMo
      * {@inheritDoc}
      */
     @Override
-    public void readFromParcel(Parcel source) {
+    public void readFromParcel(Object source) {
+        if (!(source instanceof Parcel)) {
+            Logger.w("readFromParcel called with non-Parcel argument", new Throwable());
+            return;
+        }
+        Parcel parcel = (Parcel) source;
         this.setValues = new ContentValuesStorage(
-                (ContentValues) source.readParcelable(ContentValues.class.getClassLoader()));
+                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
         this.values = new ContentValuesStorage(
-                (ContentValues) source.readParcelable(ContentValues.class.getClassLoader()));
+                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
     }
 }

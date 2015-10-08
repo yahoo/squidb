@@ -27,17 +27,36 @@ public class TypeConstants {
     public static final String SQUIDB_PACKAGE = "com.yahoo.squidb";
     public static final String SQUIDB_SQL_PACKAGE = SQUIDB_PACKAGE + ".sql";
     public static final String SQUIDB_DATA_PACKAGE = SQUIDB_PACKAGE + ".data";
+    public static final String SQUIDB_ANDROID_DATA_PACKAGE = SQUIDB_DATA_PACKAGE + ".android";
+    public static final String SQUIDB_IOS_DATA_PACKAGE = SQUIDB_DATA_PACKAGE + ".ios";
     public static final String SQUIDB_UTILITY_PACKAGE = SQUIDB_PACKAGE + ".utility";
 
     public static final DeclaredTypeName CREATOR = new DeclaredTypeName("android.os.Parcelable.Creator");
     public static final DeclaredTypeName CONTENT_VALUES = new DeclaredTypeName("android.content.ContentValues");
 
+    public static final DeclaredTypeName VALUES_STORAGE = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "ValuesStorage");
+    public static final DeclaredTypeName CONTENT_VALUES_STORAGE
+            = new DeclaredTypeName(SQUIDB_ANDROID_DATA_PACKAGE, "ContentValuesStorage");
+    public static final DeclaredTypeName HASH_MAP_VALUES_STORAGE
+            = new DeclaredTypeName(SQUIDB_IOS_DATA_PACKAGE, "HashMapValuesStorage");
+
     public static final DeclaredTypeName ABSTRACT_MODEL = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "AbstractModel");
     public static final DeclaredTypeName TABLE_MODEL = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "TableModel");
     public static final DeclaredTypeName VIEW_MODEL = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "ViewModel");
+
+    public static final DeclaredTypeName ANDROID_TABLE_MODEL
+            = new DeclaredTypeName(SQUIDB_ANDROID_DATA_PACKAGE, "AndroidTableModel");
+    public static final DeclaredTypeName ANDROID_VIEW_MODEL
+            = new DeclaredTypeName(SQUIDB_ANDROID_DATA_PACKAGE, "AndroidViewModel");
+
+    public static final DeclaredTypeName IOS_TABLE_MODEL
+            = new DeclaredTypeName(SQUIDB_IOS_DATA_PACKAGE, "IOSTableModel");
+    public static final DeclaredTypeName IOS_VIEW_MODEL
+            = new DeclaredTypeName(SQUIDB_IOS_DATA_PACKAGE, "IOSViewModel");
+
     public static final DeclaredTypeName TABLE_MAPPING_VISITORS = new DeclaredTypeName(VIEW_MODEL.toString(),
             "TableMappingVisitors");
-    public static final DeclaredTypeName MODEL_CREATOR = new DeclaredTypeName(ABSTRACT_MODEL.toString(),
+    public static final DeclaredTypeName MODEL_CREATOR = new DeclaredTypeName(SQUIDB_ANDROID_DATA_PACKAGE,
             "ModelCreator");
     public static final DeclaredTypeName SQUID_CURSOR = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "SquidCursor");
     public static final DeclaredTypeName QUERY = new DeclaredTypeName(SQUIDB_SQL_PACKAGE, "Query");

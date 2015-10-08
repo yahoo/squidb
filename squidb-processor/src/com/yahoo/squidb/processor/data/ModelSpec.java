@@ -56,6 +56,7 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
+    protected final boolean iosModels;
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginEnvironment pluginEnv, AptUtils utils) {
@@ -65,6 +66,7 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
+        this.iosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
@@ -102,7 +104,13 @@ public abstract class ModelSpec<T extends Annotation> {
      */
     public final void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
-        imports.add(TypeConstants.ABSTRACT_MODEL); // For CREATOR
+        imports.add(TypeConstants.VALUES_STORAGE);
+        if (iosModels) {
+            imports.add(TypeConstants.HASH_MAP_VALUES_STORAGE);
+        } else {
+            imports.add(TypeConstants.CONTENT_VALUES_STORAGE);
+            imports.add(TypeConstants.MODEL_CREATOR);
+        }
         imports.add(getModelSuperclass());
         for (PropertyGenerator generator : propertyGenerators) {
             generator.registerRequiredImports(imports);
@@ -179,9 +187,9 @@ public abstract class ModelSpec<T extends Annotation> {
     /**
      * Attach arbitrary metadata to this model spec objects. Plugins can store metadata and then retrieve it later with
      * {@link #getMetadata(String)}
+     *
      * @param metadataKey key for storing/retrieving the metadata
      * @param metadata the metadata to store
-     *
      * @see #hasMetadata(String)
      * @see #getMetadata(String)
      */
@@ -192,7 +200,6 @@ public abstract class ModelSpec<T extends Annotation> {
     /**
      * @param metadataKey the metadata key to look up
      * @return true if there is metadata stored for the given key, false otherwise
-     *
      * @see #putMetadata(String, Object)
      * @see #getMetadata(String)
      */
@@ -202,9 +209,9 @@ public abstract class ModelSpec<T extends Annotation> {
 
     /**
      * Retrieve metadata that was previously attached with {@link #putMetadata(String, Object)}
+     *
      * @param metadataKey key for storing/retrieving metadata
      * @return the metadata object for the given key if one was found, null otherwise
-     *
      * @see #putMetadata(String, Object)
      * @see #hasMetadata(String)
      */

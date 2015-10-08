@@ -21,6 +21,9 @@ public class ContentValuesStorage extends ValuesStorage {
     }
 
     public ContentValuesStorage(ContentValues values) {
+        if (values == null) {
+            throw new IllegalArgumentException("Can't create a ContentValuesStorage with null ContentValues");
+        }
         this.values = values;
     }
 
@@ -99,7 +102,7 @@ public class ContentValuesStorage extends ValuesStorage {
         if (other instanceof ContentValuesStorage) {
             values.putAll(((ContentValuesStorage) other).values);
         } else {
-            Set<Map.Entry<String, Object>> valuesSet = other.valuesSet();
+            Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
             for (Map.Entry<String, Object> entry : valuesSet) {
                 put(entry.getKey(), entry.getValue(), false);
             }
@@ -108,7 +111,18 @@ public class ContentValuesStorage extends ValuesStorage {
     }
 
     @Override
-    public Set<Map.Entry<String, Object>> valuesSet() {
+    public Set<Map.Entry<String, Object>> valueSet() {
         return values.valueSet();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof ContentValuesStorage) &&
+                values.equals(((ContentValuesStorage) o).values);
+    }
+
+    @Override
+    public int hashCode() {
+        return values.hashCode();
     }
 }

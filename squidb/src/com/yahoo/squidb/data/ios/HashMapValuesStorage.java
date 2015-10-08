@@ -90,7 +90,7 @@ public class HashMapValuesStorage extends ValuesStorage {
         if (other instanceof HashMapValuesStorage) {
             values.putAll(((HashMapValuesStorage) other).values);
         } else {
-            Set<Map.Entry<String, Object>> valuesSet = other.valuesSet();
+            Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
             for (Map.Entry<String, Object> entry : valuesSet) {
                 put(entry.getKey(), entry.getValue(), false);
             }
@@ -98,7 +98,18 @@ public class HashMapValuesStorage extends ValuesStorage {
     }
 
     @Override
-    public Set<Map.Entry<String, Object>> valuesSet() {
+    public Set<Map.Entry<String, Object>> valueSet() {
         return values.entrySet();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof HashMapValuesStorage) &&
+                values.equals(((HashMapValuesStorage) o).values);
+    }
+
+    @Override
+    public int hashCode() {
+        return values.hashCode();
     }
 }

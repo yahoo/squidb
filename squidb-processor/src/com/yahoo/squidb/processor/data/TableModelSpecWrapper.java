@@ -46,13 +46,12 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     @Override
     public DeclaredTypeName getModelSuperclass() {
-        return TypeConstants.TABLE_MODEL;
+        return iosModels ? TypeConstants.IOS_TABLE_MODEL : TypeConstants.ANDROID_TABLE_MODEL;
     }
 
     @Override
     protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.LONG_PROPERTY);
-        imports.add(TypeConstants.TABLE_MODEL);
         imports.add(tableType);
     }
 

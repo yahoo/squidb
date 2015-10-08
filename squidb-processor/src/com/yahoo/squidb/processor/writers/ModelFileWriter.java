@@ -7,8 +7,6 @@ package com.yahoo.squidb.processor.writers;
 
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.GenericName;
-import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.JavaFileWriter.Type;
@@ -23,7 +21,6 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,31 +43,23 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
+    private final boolean generateIosModels;
 
-    private static final MethodDeclarationParameters GET_CREATOR_PARAMS;
     private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
 
     static {
-        List<TypeName> extend = new ArrayList<TypeName>();
-        extend.add(TypeConstants.ABSTRACT_MODEL);
-        GenericName returnGeneric = new GenericName(GenericName.WILDCARD_CHAR, extend, null);
-        DeclaredTypeName returnType = TypeConstants.CREATOR.clone();
-        returnType.setTypeArgs(Collections.singletonList(returnGeneric));
-        GET_CREATOR_PARAMS = new MethodDeclarationParameters()
-                .setMethodName("getCreator")
-                .setModifiers(Modifier.PROTECTED)
-                .setReturnType(returnType);
 
         GET_DEFAULT_VALUES_PARAMS = new MethodDeclarationParameters()
                 .setMethodName("getDefaultValues")
                 .setModifiers(Modifier.PUBLIC)
-                .setReturnType(TypeConstants.CONTENT_VALUES);
+                .setReturnType(TypeConstants.VALUES_STORAGE);
     }
 
     public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv, AptUtils utils) {
         this.modelSpec = modelSpec;
         this.pluginEnv = pluginEnv;
         this.utils = utils;
+        this.generateIosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
     }
 
     public final void writeJava(Filer filer) throws IOException {
@@ -111,7 +100,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         plugins.emitMethods(writer);
         plugins.afterEmitMethods(writer);
 
-        emitCreator();
+        if (!generateIosModels) {
+            emitCreator();
+        }
         emitModelSpecificHelpers();
         plugins.emitAdditionalJava(writer);
 
@@ -126,7 +117,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
         modelSpec.addRequiredImports(imports);
         writer.writeImports(imports);
-        writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
+        writer.registerOtherKnownNames(TypeConstants.CREATOR,
                 TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
     }
 
@@ -186,8 +177,10 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");
-        writer.writeFieldDeclaration(TypeConstants.CONTENT_VALUES, DEFAULT_VALUES_NAME,
-                Expressions.callConstructor(TypeConstants.CONTENT_VALUES),
+        DeclaredTypeName valuesStorageType = generateIosModels ?
+                TypeConstants.HASH_MAP_VALUES_STORAGE : TypeConstants.CONTENT_VALUES_STORAGE;
+        writer.writeFieldDeclaration(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
+                Expressions.callConstructor(valuesStorageType),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
         if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
@@ -245,11 +238,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         Expressions.classObject(modelSpec.getGeneratedClassName())),
                 TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(GET_CREATOR_PARAMS)
-                .writeStringStatement("return CREATOR")
-                .finishMethodDefinition();
     }
 
     protected void emitModelSpecificHelpers() throws IOException {

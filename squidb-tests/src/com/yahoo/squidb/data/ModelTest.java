@@ -127,7 +127,7 @@ public class ModelTest extends DatabaseTestCase {
         }
 
         // Check the types stored in the values
-        ContentValues checkTypesOn = useSetValues ? fromValues.getSetValues() : fromValues.getDatabaseValues();
+        ValuesStorage checkTypesOn = useSetValues ? fromValues.getSetValues() : fromValues.getDatabaseValues();
         assertTrue(checkTypesOn.get(TestModel.FIRST_NAME.getName()) instanceof String);
         assertTrue(checkTypesOn.get(TestModel.LAST_NAME.getName()) instanceof String);
         assertTrue(checkTypesOn.get(TestModel.BIRTHDAY.getName()) instanceof Long);

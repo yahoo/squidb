@@ -40,7 +40,7 @@ public abstract class ValuesStorage {
 
     public abstract void putAll(ValuesStorage other);
 
-    public abstract Set<Map.Entry<String, Object>> valuesSet();
+    public abstract Set<Map.Entry<String, Object>> valueSet();
 
     public void put(String key, Object value, boolean errorOnFail) {
         if (value == null) {
@@ -68,4 +68,8 @@ public abstract class ValuesStorage {
         }
     }
 
+    public abstract boolean equals(Object o);
+
+    @Override
+    public abstract int hashCode();
 }

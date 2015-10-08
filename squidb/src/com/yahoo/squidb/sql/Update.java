@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.content.ContentValues;
-
 import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.data.ValuesStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +138,7 @@ public class Update extends TableStatement {
         if (!template.isModified()) {
             throw new IllegalArgumentException("Template has no values set to use for update");
         }
-        ContentValues setValues = template.getSetValues();
+        ValuesStorage setValues = template.getSetValues();
         for (Entry<String, Object> entry : setValues.valueSet()) {
             valuesToUpdate.put(entry.getKey(), entry.getValue());
         }

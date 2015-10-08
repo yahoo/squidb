@@ -8,9 +8,11 @@ package com.yahoo.squidb.data.android;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.yahoo.squidb.data.AbstractModel;
+
 import java.lang.reflect.Array;
 
-public final class ModelCreator<TYPE extends ParcelableModel>
+public final class ModelCreator<TYPE extends AbstractModel>
         implements Parcelable.Creator<TYPE> {
 
     private final Class<TYPE> cls;

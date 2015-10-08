@@ -7,12 +7,14 @@ package com.yahoo.squidb.data.android;
 
 import android.content.ContentValues;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.utility.Logger;
 
-public abstract class AndroidTableModel extends TableModel implements ParcelableModel<AndroidTableModel> {
+public abstract class AndroidTableModel extends TableModel implements Parcelable {
 
     @Override
     protected ValuesStorage newValuesStorage() {
@@ -54,14 +56,16 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
         dest.writeParcelable(((ContentValuesStorage) values).values, 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void readFromParcel(Parcel source) {
+    public void readFromParcel(Object source) {
+        if (!(source instanceof Parcel)) {
+            Logger.w("readFromParcel called with non-Parcel argument", new Throwable());
+            return;
+        }
+        Parcel parcel = (Parcel) source;
         this.setValues = new ContentValuesStorage(
-                (ContentValues) source.readParcelable(ContentValues.class.getClassLoader()));
+                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
         this.values = new ContentValuesStorage(
-                (ContentValues) source.readParcelable(ContentValues.class.getClassLoader()));
+                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
     }
 }
