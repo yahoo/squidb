@@ -6,7 +6,6 @@
 package com.yahoo.squidb.test;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
@@ -14,6 +13,7 @@ import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.jackson.JacksonProperty;
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,7 +84,7 @@ public class TestModelSpec {
 
     @ModelMethod
     public static void run(TestModel instance) {
-        Log.e("TestModel", "Interface method");
+        Logger.e("TestModel: Interface method");
     }
 
     @ModelMethod

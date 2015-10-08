@@ -16,7 +16,6 @@ import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
@@ -39,6 +38,7 @@ import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
+import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
@@ -225,7 +225,7 @@ public abstract class SquidDatabase {
      * @param error the error that was encountered
      */
     protected void onError(String message, Throwable error) {
-        Log.w(getClass().getSimpleName(), message, error);
+        Logger.w(getClass().getSimpleName() + " -- " + message, error);
     }
 
     // --- internal implementation

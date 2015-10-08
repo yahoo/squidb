@@ -8,12 +8,12 @@ package com.yahoo.squidb.test;
 import android.content.Context;
 import android.os.Build;
 import android.test.AndroidTestRunner;
-import android.util.Log;
 
 import com.yahoo.squidb.data.SquidDatabase.OpenHelperDelegate;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelperWrapper;
+import com.yahoo.squidb.utility.Logger;
 
 public class SquidTestRunner extends AndroidTestRunner {
 
@@ -38,7 +38,7 @@ public class SquidTestRunner extends AndroidTestRunner {
     }
 
     private void runTest(SquidbBinding binding) {
-        Log.d("SquidTestRunner", "Running tests with " + binding + " binding");
+        Logger.d("SquidTestRunner running tests with " + binding + " binding");
         selectedBinding = binding;
         super.runTest();
     }

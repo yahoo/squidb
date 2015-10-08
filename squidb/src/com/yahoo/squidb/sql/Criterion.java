@@ -5,9 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.util.Log;
-
-import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Collections;
@@ -115,8 +113,7 @@ public abstract class Criterion extends CompilableWithArguments {
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
-                        Log.w(SquidUtilities.LOG_TAG,
-                                "Raw selection criterion converted to raw SQL with unbound arguments");
+                        Logger.w("Raw selection criterion converted to raw SQL with unbound arguments");
                     } else {
                         Collections.addAll(builder.args, selectionArgs);
                     }
