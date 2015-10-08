@@ -5,10 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Collections;
@@ -104,7 +101,7 @@ public abstract class Criterion extends CompilableWithArguments {
      * {@link com.yahoo.squidb.data.SquidDatabase#delete(Delete) SquidDatabase.delete}
      */
     public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
-        if (TextUtils.isEmpty(selection)) {
+        if (SqlUtils.isEmpty(selection)) {
             return null;
         }
         return new Criterion(null) {
@@ -116,8 +113,7 @@ public abstract class Criterion extends CompilableWithArguments {
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
-                        Log.w(SquidUtilities.LOG_TAG,
-                                "Raw selection criterion converted to raw SQL with unbound arguments");
+                        Logger.log("Raw selection criterion converted to raw SQL with unbound arguments");
                     } else {
                         Collections.addAll(builder.args, selectionArgs);
                     }

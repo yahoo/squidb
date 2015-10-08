@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.utility.VersionCode;
@@ -66,7 +65,7 @@ public class VirtualTable extends Table {
 
     /**
      * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users normally should not
-     * call this method and instead let {@link SquidDatabase} build tables automatically.
+     * call this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
     @Override
     public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,

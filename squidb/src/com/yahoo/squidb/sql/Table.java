@@ -5,9 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.TextUtils;
-
-import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
@@ -88,7 +85,7 @@ public class Table extends SqlTable<TableModel> {
 
     /**
      * Append a CREATE TABLE statement that would create this table and its columns. Users normally should not call
-     * this method and instead let {@link SquidDatabase} build tables automatically.
+     * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
     public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
             PropertyVisitor<Void, StringBuilder> propertyVisitor) {
@@ -101,7 +98,7 @@ public class Table extends SqlTable<TableModel> {
             property.accept(propertyVisitor, sql);
             needsComma = true;
         }
-        if (!TextUtils.isEmpty(getTableConstraint())) {
+        if (!SqlUtils.isEmpty(getTableConstraint())) {
             sql.append(", ").append(getTableConstraint());
         }
         sql.append(')');

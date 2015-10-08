@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.utility.VersionCode;
 
 /**
@@ -20,8 +19,9 @@ import com.yahoo.squidb.utility.VersionCode;
  * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * </pre>
  *
- * This allows the value to be read directly from the cursor using {@link SquidCursor#get(Property) get(Property)}, or
- * to be read from a model instance that was created by reading from the cursor:
+ * This allows the value to be read directly from the cursor using
+ * {@link com.yahoo.squidb.data.SquidCursor#get(Property) get(Property)}, or to be read from a model instance that was
+ * created by reading from the cursor:
  *
  * <pre>
  * cursor.moveToPosition(position);

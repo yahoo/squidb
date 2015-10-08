@@ -5,17 +5,13 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.TextUtils;
-
-import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.data.SquidCursor;
-
 /**
  * Property represents a typed column in a database.
  * <p>
  * Note the column affinities in SQLite do not align exactly to Java types and that SQLite can store any value in any
  * column despite the column's affinity. When a Property is used to read the value of a model (by
- * {@link AbstractModel#get(Property)} or a cursor row (by {@link SquidCursor#get(Property)}), the following
+ * {@link com.yahoo.squidb.data.AbstractModel#get(Property) AbstractModel.get(Property)} or a cursor row
+ * (by {@link com.yahoo.squidb.data.SquidCursor#get(Property) SquidCursor.get(Property)}), the following
  * possibilities can occur:
  * <ol>
  * <li>The column value is null, in which case {@code null} is returned</li>
@@ -144,7 +140,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * @return a clone of this property
      */
     public Property<TYPE> as(String tableAlias, String columnAlias) {
-        if (TextUtils.isEmpty(tableAlias) || function != null) {
+        if (SqlUtils.isEmpty(tableAlias) || function != null) {
             return as(columnAlias);
         }
         SqlTable<?> aliasedTable = table == null ? null : table.as(tableAlias);

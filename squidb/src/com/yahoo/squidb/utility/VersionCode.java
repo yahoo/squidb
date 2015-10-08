@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.text.TextUtils;
+import com.yahoo.squidb.sql.SqlUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,7 +140,7 @@ public class VersionCode implements Comparable<VersionCode> {
      * @throws IllegalArgumentException if the input cannot be parsed.
      */
     public static VersionCode parse(String versionString) {
-        if (TextUtils.isEmpty(versionString)) {
+        if (SqlUtils.isEmpty(versionString)) {
             throw new IllegalArgumentException("Empty versionString");
         }
 
@@ -221,7 +221,7 @@ public class VersionCode implements Comparable<VersionCode> {
         if (nanoVersion > 0) {
             builder.append('.').append(nanoVersion);
         }
-        if (!TextUtils.isEmpty(trailing)) {
+        if (!SqlUtils.isEmpty(trailing)) {
             builder.append(trailing);
         }
 
