@@ -10,7 +10,6 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.utility.Logger;
-import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -212,8 +211,7 @@ public abstract class AbstractModel implements Cloneable {
         if (values != null) {
             for (Property<?> property : properties) {
                 if (values.containsKey(property.getName())) {
-                    SquidUtilities.putInto(this.values, property.getName(),
-                            getFromValues(property, values), true);
+                    this.values.put(property.getName(), getFromValues(property, values), true);
                 }
             }
         }
@@ -393,7 +391,7 @@ public abstract class AbstractModel implements Cloneable {
                 if (values.containsKey(key)) {
                     Object value = property.accept(valueCastingVisitor, values.get(key));
                     if (shouldSaveValue(key, value)) {
-                        SquidUtilities.putInto(this.setValues, property.getName(), value, true);
+                        this.setValues.put(property.getName(), value, true);
                     }
                 }
             }

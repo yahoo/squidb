@@ -8,7 +8,6 @@ package com.yahoo.squidb.utility;
 import android.content.Context;
 
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.ValuesStorage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,17 +22,6 @@ import java.util.Collections;
  * Various utility functions for SquiDB
  */
 public class SquidUtilities {
-
-    /**
-     * Put an arbitrary object into a {@link ValuesStorage}
-     *
-     * @param target the ContentValues store
-     * @param key the key to use
-     * @param value the value to store
-     */
-    public static void putInto(ValuesStorage target, String key, Object value, boolean errorOnFail) {
-
-    }
 
     /**
      * A version of {@link Collection#addAll(Collection)} that works on varargs without calling Arrays.asList, which is
