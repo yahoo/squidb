@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -1358,16 +1357,10 @@ public abstract class SquidDatabase {
         }
 
         public MigrationFailedException(String dbName, int oldVersion, int newVersion, Throwable throwable) {
-            super(throwable);
+            super("Failed to migrate db " + dbName + " from version " + oldVersion + "to " + newVersion, throwable);
             this.dbName = dbName;
             this.oldVersion = oldVersion;
             this.newVersion = newVersion;
-        }
-
-        @Override
-        @SuppressLint("DefaultLocale")
-        public String getMessage() {
-            return String.format("Failed to migrate db \"%s\" from version %d to %d", dbName, oldVersion, newVersion);
         }
     }
 
