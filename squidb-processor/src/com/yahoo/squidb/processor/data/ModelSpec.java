@@ -106,7 +106,7 @@ public abstract class ModelSpec<T extends Annotation> {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
         imports.add(TypeConstants.VALUES_STORAGE);
         if (iosModels) {
-            imports.add(TypeConstants.HASH_MAP_VALUES_STORAGE);
+            imports.add(TypeConstants.MAP_VALUES_STORAGE);
         } else {
             imports.add(TypeConstants.CONTENT_VALUES_STORAGE);
             imports.add(TypeConstants.MODEL_CREATOR);

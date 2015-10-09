@@ -178,7 +178,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");
         DeclaredTypeName valuesStorageType = generateIosModels ?
-                TypeConstants.HASH_MAP_VALUES_STORAGE : TypeConstants.CONTENT_VALUES_STORAGE;
+                TypeConstants.MAP_VALUES_STORAGE : TypeConstants.CONTENT_VALUES_STORAGE;
         writer.writeFieldDeclaration(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
                 Expressions.callConstructor(valuesStorageType),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);

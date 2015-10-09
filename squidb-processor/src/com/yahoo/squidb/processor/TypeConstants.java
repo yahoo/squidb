@@ -32,13 +32,19 @@ public class TypeConstants {
     public static final String SQUIDB_UTILITY_PACKAGE = SQUIDB_PACKAGE + ".utility";
 
     public static final DeclaredTypeName CREATOR = new DeclaredTypeName("android.os.Parcelable.Creator");
-    public static final DeclaredTypeName CONTENT_VALUES = new DeclaredTypeName("android.content.ContentValues");
 
     public static final DeclaredTypeName VALUES_STORAGE = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "ValuesStorage");
     public static final DeclaredTypeName CONTENT_VALUES_STORAGE
             = new DeclaredTypeName(SQUIDB_ANDROID_DATA_PACKAGE, "ContentValuesStorage");
-    public static final DeclaredTypeName HASH_MAP_VALUES_STORAGE
-            = new DeclaredTypeName(SQUIDB_IOS_DATA_PACKAGE, "HashMapValuesStorage");
+    public static final DeclaredTypeName MAP_VALUES_STORAGE
+            = new DeclaredTypeName(SQUIDB_IOS_DATA_PACKAGE, "MapValuesStorage");
+    public static final DeclaredTypeName CONTENT_VALUES = new DeclaredTypeName("android.content.ContentValues");
+    public static final DeclaredTypeName MAP = new DeclaredTypeName("java.util.Map");
+    public static final DeclaredTypeName MAP_VALUES = MAP.clone();
+
+    static {
+        MAP_VALUES.setTypeArgs(Arrays.asList(CoreTypes.JAVA_STRING, CoreTypes.JAVA_OBJECT));
+    }
 
     public static final DeclaredTypeName ABSTRACT_MODEL = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "AbstractModel");
     public static final DeclaredTypeName TABLE_MODEL = new DeclaredTypeName(SQUIDB_DATA_PACKAGE, "TableModel");

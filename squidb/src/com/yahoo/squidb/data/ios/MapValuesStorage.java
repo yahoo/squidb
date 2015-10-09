@@ -12,11 +12,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of {@link ValuesStorage} that stores its values using a {@link HashMap}
+ * Implementation of {@link ValuesStorage} that stores its values using a {@link Map}
  */
-public class HashMapValuesStorage extends ValuesStorage {
+public class MapValuesStorage extends ValuesStorage {
 
-    final Map<String, Object> values = new HashMap<String, Object>();
+    final Map<String, Object> values;
+
+    public MapValuesStorage() {
+        this.values = new HashMap<String, Object>();
+    }
+
+    public MapValuesStorage(Map<String, Object> values) {
+        if (values == null) {
+            throw new IllegalArgumentException("Can't create a MapValuesStorage with null Map");
+        }
+        this.values = values;
+    }
 
     /**
      * {@inheritDoc}
@@ -135,8 +146,8 @@ public class HashMapValuesStorage extends ValuesStorage {
      */
     @Override
     public void putAll(ValuesStorage other) {
-        if (other instanceof HashMapValuesStorage) {
-            values.putAll(((HashMapValuesStorage) other).values);
+        if (other instanceof MapValuesStorage) {
+            values.putAll(((MapValuesStorage) other).values);
         } else {
             Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
             for (Map.Entry<String, Object> entry : valuesSet) {
@@ -155,8 +166,8 @@ public class HashMapValuesStorage extends ValuesStorage {
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof HashMapValuesStorage) &&
-                values.equals(((HashMapValuesStorage) o).values);
+        return (o instanceof MapValuesStorage) &&
+                values.equals(((MapValuesStorage) o).values);
     }
 
     @Override

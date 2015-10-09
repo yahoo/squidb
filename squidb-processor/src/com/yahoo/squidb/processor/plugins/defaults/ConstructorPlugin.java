@@ -31,14 +31,17 @@ import javax.lang.model.element.Modifier;
  */
 public class ConstructorPlugin extends Plugin {
 
+    private final boolean iosModels;
+
     public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
+        this.iosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
     }
 
     @Override
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.SQUID_CURSOR);
-        imports.add(TypeConstants.CONTENT_VALUES);
+        imports.add(iosModels ? TypeConstants.MAP : TypeConstants.CONTENT_VALUES);
     }
 
     @Override
@@ -59,18 +62,22 @@ public class ConstructorPlugin extends Plugin {
                 .writeStringStatement("readPropertiesFromCursor(cursor)")
                 .finishMethodDefinition();
 
-        params.setArgumentTypes(Collections.singletonList(TypeConstants.CONTENT_VALUES))
-                .setArgumentNames("contentValues");
+        String valuesName = iosModels ? "values" : "contentValues";
+        DeclaredTypeName valuesType = iosModels ? TypeConstants.MAP_VALUES : TypeConstants.CONTENT_VALUES;
+
+        params.setArgumentTypes(Collections.singletonList(valuesType))
+                .setArgumentNames(valuesName);
         writer.beginConstructorDeclaration(params)
-                .writeStatement(Expressions.callMethod("this", "contentValues",
+                .writeStatement(Expressions.callMethod("this", valuesName,
                         ModelFileWriter.PROPERTIES_ARRAY_NAME))
                 .finishMethodDefinition();
 
-        params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES, TypeConstants.PROPERTY_VARARGS))
-                .setArgumentNames("contentValues", "withProperties");
+        String methodName = iosModels ? "readPropertiesFromMap" : "readPropertiesFromContentValues";
+        params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
+                .setArgumentNames(valuesName, "withProperties");
         writer.beginConstructorDeclaration(params)
                 .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromContentValues(contentValues, withProperties)")
+                .writeStringStatement(methodName + "(" + valuesName + ", withProperties)")
                 .finishMethodDefinition();
 
         MethodDeclarationParameters cloneParams = new MethodDeclarationParameters()
