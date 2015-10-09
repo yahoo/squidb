@@ -52,13 +52,10 @@ public abstract class AndroidViewModel extends ViewModel implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(((ContentValuesStorage) setValues).values, 0);
-        dest.writeParcelable(((ContentValuesStorage) values).values, 0);
+        dest.writeParcelable((ContentValuesStorage) setValues, 0);
+        dest.writeParcelable((ContentValuesStorage) values, 0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void readFromParcel(Object source) {
         if (!(source instanceof Parcel)) {
@@ -66,9 +63,7 @@ public abstract class AndroidViewModel extends ViewModel implements Parcelable {
             return;
         }
         Parcel parcel = (Parcel) source;
-        this.setValues = new ContentValuesStorage(
-                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
-        this.values = new ContentValuesStorage(
-                (ContentValues) parcel.readParcelable(ContentValues.class.getClassLoader()));
+        this.setValues = parcel.readParcelable(ContentValuesStorage.class.getClassLoader());
+        this.values = parcel.readParcelable(ContentValuesStorage.class.getClassLoader());
     }
 }

@@ -6,6 +6,8 @@
 package com.yahoo.squidb.data.android;
 
 import android.content.ContentValues;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.yahoo.squidb.data.ValuesStorage;
 
@@ -15,7 +17,7 @@ import java.util.Set;
 /**
  * Implementation of {@link ValuesStorage} that stores its values using {@link ContentValues}
  */
-public class ContentValuesStorage extends ValuesStorage {
+public class ContentValuesStorage extends ValuesStorage implements Parcelable {
 
     final ContentValues values;
 
@@ -177,4 +179,30 @@ public class ContentValuesStorage extends ValuesStorage {
     public int hashCode() {
         return values.hashCode();
     }
+
+    @Override
+    public int describeContents() {
+        return values.describeContents();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(values, flags);
+    }
+
+    public static final Parcelable.Creator<ContentValuesStorage> CREATOR = new Creator<ContentValuesStorage>() {
+        @Override
+        public ContentValuesStorage createFromParcel(Parcel source) {
+            ContentValues values = source.readParcelable(ContentValues.class.getClassLoader());
+            if (values == null) {
+                values = new ContentValues();
+            }
+            return new ContentValuesStorage(values);
+        }
+
+        @Override
+        public ContentValuesStorage[] newArray(int size) {
+            return new ContentValuesStorage[size];
+        }
+    };
 }
