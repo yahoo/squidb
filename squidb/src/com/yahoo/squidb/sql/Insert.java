@@ -5,12 +5,14 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Builder class for a SQLite INSERT statement
@@ -99,6 +101,23 @@ public class Insert extends TableStatement {
         this.query = select;
         valuesToInsert.clear();
         defaultValues = false;
+        invalidateCompileCache();
+        return this;
+    }
+
+    /**
+     * Sets columns and values to insert based on the contents of the {@link ValuesStorage}
+     *
+     * @param values a ValuesStorage where keys are column names and values are values to insert
+     * @return this Insert object, to allow chaining method calls
+     */
+    public Insert fromValues(ValuesStorage values) {
+        List<Object> valuesToInsert = new ArrayList<Object>();
+        for (Map.Entry<String, Object> entry : values.valueSet()) {
+            this.columns.add(entry.getKey());
+            valuesToInsert.add(entry.getValue());
+        }
+        this.valuesToInsert.add(valuesToInsert);
         invalidateCompileCache();
         return this;
     }

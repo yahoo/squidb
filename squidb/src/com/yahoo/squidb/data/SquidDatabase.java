@@ -1697,17 +1697,15 @@ public abstract class SquidDatabase {
     protected final boolean insertRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        long newRow;
         ValuesStorage mergedValues = item.getMergedValues();
         if (mergedValues.size() == 0) {
             return false;
         }
-        if (conflictAlgorithm == null) {
-            newRow = insertOrThrow(table.getExpression(), null, mergedValues);
-        } else {
-            newRow = insertWithOnConflict(table.getExpression(), null, mergedValues,
-                    conflictAlgorithm.getAndroidValue());
+        Insert insert = Insert.into(table).fromValues(mergedValues);
+        if (conflictAlgorithm != null) {
+            insert.onConflict(conflictAlgorithm);
         }
+        long newRow = insertInternal(insert);
         boolean result = newRow > 0;
         if (result) {
             notifyForTable(DataChangedNotifier.DBOperation.INSERT, item, table, newRow);
