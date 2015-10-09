@@ -14,7 +14,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.text.TextUtils;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
@@ -32,6 +31,7 @@ import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlStatement;
 import com.yahoo.squidb.sql.SqlTable;
+import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.sql.Update;
@@ -1293,7 +1293,7 @@ public abstract class SquidDatabase {
 
         private Void appendColumnDefinition(String type, Property<?> property, StringBuilder sql) {
             sql.append(property.getName()).append(" ").append(type);
-            if (!TextUtils.isEmpty(property.getColumnDefinition())) {
+            if (!SqlUtils.isEmpty(property.getColumnDefinition())) {
                 sql.append(" ").append(property.getColumnDefinition());
             }
             return null;

@@ -24,8 +24,6 @@ package com.yahoo.squidb.sql;
  */
 public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
 
-    // --- implementation
-
     /** The database table this property represents a column of */
     public final SqlTable<?> table;
 
