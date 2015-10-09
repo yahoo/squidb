@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import android.content.ContentValues;
+import android.os.Parcel;
 
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -203,5 +204,23 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.hasTransitory(key1));
         assertTrue(model.checkAndClearTransitory(key2));
         assertFalse(model.hasTransitory(key2));
+    }
+
+    public void testModelParcelable() {
+        TestModel model = new TestModel()
+                .setFirstName("A")
+                .setLastName("B")
+                .setLuckyNumber(2)
+                .setBirthday(System.currentTimeMillis())
+                .setIsHappy(true);
+
+        Parcel parcel = Parcel.obtain();
+        model.writeToParcel(parcel, 0);
+
+        parcel.setDataPosition(0);
+
+        TestModel createdFromParcel = TestModel.CREATOR.createFromParcel(parcel);
+        assertFalse(model == createdFromParcel);
+        assertEquals(model, createdFromParcel);
     }
 }
