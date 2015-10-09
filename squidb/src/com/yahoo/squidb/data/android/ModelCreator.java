@@ -12,7 +12,7 @@ import com.yahoo.squidb.data.AbstractModel;
 
 import java.lang.reflect.Array;
 
-public final class ModelCreator<TYPE extends AbstractModel>
+public final class ModelCreator<TYPE extends AbstractModel & Parcelable>
         implements Parcelable.Creator<TYPE> {
 
     private final Class<TYPE> cls;
