@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import com.yahoo.squidb.data.adapter.SquidTransactionListener;
-
 public interface ISQLiteDatabase {
 
     void beginTransaction();
@@ -31,11 +29,9 @@ public interface ISQLiteDatabase {
 
     int executeUpdateDelete(String sql, Object[] bindArgs);
 
-    // TODO: throws exception?
-    void execSQL(String sql);
+    void execSQL(String sql) throws SQLExceptionWrapper;
 
-    // TODO: throws exception?
-    void execSQL(String sql, Object[] bindArgs);
+    void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper;
 
     void ensureSqlCompiles(String sql);
 

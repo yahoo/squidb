@@ -8,6 +8,7 @@ package com.yahoo.squidb.utility;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.database.Cursor;
 import android.net.Uri;
 
 import com.yahoo.squidb.data.AbstractModel;
@@ -47,9 +48,10 @@ public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<
         SquidCursor<T> result = database.query(modelClass, query);
         if (result != null) {
             result.getCount(); // Make sure the window is filled
-            result.registerContentObserver(observer);
+            Cursor androidResult = (Cursor) result.getCursor();
+            androidResult.registerContentObserver(observer);
             if (notificationUri != null) {
-                result.setNotificationUri(getContext().getContentResolver(), notificationUri);
+                androidResult.setNotificationUri(getContext().getContentResolver(), notificationUri);
             }
         }
         return result;

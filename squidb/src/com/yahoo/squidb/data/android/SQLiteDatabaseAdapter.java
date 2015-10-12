@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.adapter;
+package com.yahoo.squidb.data.android;
 
 import android.database.Cursor;
 import android.database.SQLException;
@@ -14,10 +14,11 @@ import android.os.Build;
 
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.android.SquidCursorWrapper;
+import com.yahoo.squidb.data.SQLExceptionWrapper;
+import com.yahoo.squidb.data.SquidTransactionListener;
 
 /**
- * Wrapper for the default Android {@link SQLiteDatabase} that implements the common {@link SQLiteDatabaseWrapper}
+ * Wrapper for the default Android {@link SQLiteDatabase} that implements the common {@link ISQLiteDatabase}
  * interface.
  */
 public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
@@ -93,7 +94,7 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
     public void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
         try {
             db.execSQL(sql, bindArgs);
-        } catch (SQLException e) {
+        } catch (android.database.SQLException e) {
             throw new SQLExceptionWrapper(e);
         }
     }

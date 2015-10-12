@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.adapter;
+package com.yahoo.squidb.data;
 
 /**
  * A re-declaration of {@link android.database.sqlite.SQLiteTransactionListener} so that all wrapper/adapter classes

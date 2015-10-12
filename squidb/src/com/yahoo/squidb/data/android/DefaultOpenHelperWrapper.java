@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.adapter;
+package com.yahoo.squidb.data.android;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 /**

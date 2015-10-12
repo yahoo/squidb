@@ -9,8 +9,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 
 import java.util.Collection;
 
@@ -21,12 +21,18 @@ public abstract class AndroidSquidDatabase extends SquidDatabase {
 
     private final Context context;
 
-    public AndroidSquidDatabase(Context context, SQLiteOpenHelperWrapper openHelper) {
-        super(openHelper);
+    public AndroidSquidDatabase(Context context) {
+        super();
         if (context == null) {
             throw new NullPointerException("Null context creating SquidDatabase");
         }
         this.context = context.getApplicationContext();
+    }
+
+    @Override
+    protected SQLiteOpenHelperWrapper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
+            int version) {
+        return new DefaultOpenHelperWrapper(context, databaseName, delegate, version);
     }
 
     /**

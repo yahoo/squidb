@@ -8,7 +8,7 @@ package com.yahoo.squidb.sqlitebindings;
 import android.content.Context;
 
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;

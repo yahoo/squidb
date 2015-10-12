@@ -9,7 +9,7 @@ import android.content.Context;
 
 import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;

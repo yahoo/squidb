@@ -10,8 +10,8 @@ import android.os.Build;
 import android.test.AndroidTestRunner;
 
 import com.yahoo.squidb.data.SquidDatabase.OpenHelperDelegate;
-import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.android.DefaultOpenHelperWrapper;
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelperWrapper;
 import com.yahoo.squidb.utility.Logger;
 
