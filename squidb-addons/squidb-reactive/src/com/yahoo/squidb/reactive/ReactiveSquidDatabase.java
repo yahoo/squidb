@@ -10,6 +10,7 @@ import android.content.Context;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.DataChangedNotifier;
 import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.data.android.AndroidSquidDatabase;
 import com.yahoo.squidb.sql.SqlTable;
 
 import java.util.Collection;
@@ -50,11 +51,12 @@ import rx.subjects.PublishSubject;
  * Note: If data changed notifications are disabled on an instance of ReactiveSquidDatabase using
  * {@link #setDataChangedNotificationsEnabled(boolean)}, the observables created from it won't emit any events either.
  */
-public abstract class ReactiveSquidDatabase extends SquidDatabase {
+public abstract class ReactiveSquidDatabase extends AndroidSquidDatabase {
 
     private final PublishSubject<Set<SqlTable<?>>> changedTablePublisher = PublishSubject.create();
 
     private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<SqlTable<?>>();
+
     static {
         INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
         });

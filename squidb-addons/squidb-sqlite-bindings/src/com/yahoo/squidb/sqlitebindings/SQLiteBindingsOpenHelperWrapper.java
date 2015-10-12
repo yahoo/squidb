@@ -7,9 +7,9 @@ package com.yahoo.squidb.sqlitebindings;
 
 import android.content.Context;
 
-import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.SquidDatabase;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteOpenHelper;
@@ -24,19 +24,30 @@ public class SQLiteBindingsOpenHelperWrapper extends SQLiteOpenHelper implements
         System.loadLibrary("sqliteX");
     }
 
+    private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
     public SQLiteBindingsOpenHelperWrapper(Context context, String name,
             SquidDatabase.OpenHelperDelegate delegate, int version) {
         super(context, name, null, version);
+        this.context = context.getApplicationContext();
         this.delegate = delegate;
     }
 
-
     @Override
-    public SQLiteDatabaseWrapper openForWriting() {
+    public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
         return new SQLiteBindingsAdapter(database);
+    }
+
+    @Override
+    public String getDatabasePath(String databaseName) {
+        return context.getDatabasePath(databaseName).getAbsolutePath();
+    }
+
+    @Override
+    public void deleteDatabase(String databaseName) {
+        context.deleteDatabase(databaseName);
     }
 
     @Override

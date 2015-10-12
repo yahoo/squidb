@@ -214,7 +214,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
 
     @Override
     public boolean isClosed() {
-        return false;
+        return cursor.isClosed();
     }
 
     /**

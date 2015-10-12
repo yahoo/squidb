@@ -6,9 +6,9 @@
 package com.yahoo.squidb.utility;
 
 import android.annotation.SuppressLint;
-import android.database.Cursor;
 import android.provider.BaseColumns;
 
+import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Field;
@@ -186,7 +186,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         }
     }
 
-    private TestModel buildModelFromCursor(Cursor cursor) {
+    private TestModel buildModelFromCursor(ICursor cursor) {
         TestModel model = new TestModel();
         model.setId(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
         model.setFirstName(cursor.getString(cursor.getColumnIndex(COL_GIVEN_NAME)));

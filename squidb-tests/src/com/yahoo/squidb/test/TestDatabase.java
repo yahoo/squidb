@@ -7,15 +7,17 @@ package com.yahoo.squidb.test;
 
 import android.content.Context;
 
-import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.android.AndroidSquidDatabase;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
-public class TestDatabase extends SquidDatabase {
+import org.sqlite.database.sqlite.SQLiteDatabase;
+
+public class TestDatabase extends AndroidSquidDatabase {
 
     public boolean caughtCustomMigrationException;
 
@@ -56,7 +58,7 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+    protected SQLiteOpenHelperWrapper createOpenHelper(String databaseName,
             OpenHelperDelegate delegate, int version) {
         return SquidTestRunner.selectedBinding.getOpenHelper(context, databaseName, delegate, version);
     }
@@ -67,28 +69,33 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected void onTablesCreated(SQLiteDatabaseWrapper db) {
+    protected void onTablesCreated(ISQLiteDatabase db) {
         super.onTablesCreated(db);
     }
 
     @Override
-    protected boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
     }
 
     @Override
-    protected void onOpen(SQLiteDatabaseWrapper db) {
+    protected void onOpen(ISQLiteDatabase db) {
         super.onOpen(db);
     }
 
     @Override
-    protected void onConfigure(SQLiteDatabaseWrapper db) {
+    protected void onConfigure(ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
-        db.enableWriteAheadLogging();
+        Object wrappedObject = db.getWrappedObject();
+        if (wrappedObject instanceof SQLiteDatabase) {
+            ((SQLiteDatabase) wrappedObject).enableWriteAheadLogging();
+        } else if (wrappedObject instanceof android.database.sqlite.SQLiteDatabase) {
+            ((android.database.sqlite.SQLiteDatabase) wrappedObject).enableWriteAheadLogging();
+        }
     }
 
     @Override
-    protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         throw new CustomMigrationException(getName(), oldVersion, newVersion);
     }
 

@@ -7,8 +7,8 @@ package com.yahoo.squidb.sample.database;
 
 import android.content.Context;
 
-import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.android.AndroidSquidDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.Index;
@@ -18,7 +18,7 @@ import com.yahoo.squidb.sql.Table;
  * Implementation of SquidDatabase for this tasks app. Remember--instances of your SquidDatabase
  * subclass should always be singletons!
  */
-public class TasksDatabase extends SquidDatabase {
+public class TasksDatabase extends AndroidSquidDatabase {
 
     private static final int VERSION = 2;
 
@@ -52,7 +52,7 @@ public class TasksDatabase extends SquidDatabase {
     }
 
     @Override
-    protected boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         // Example DB migration if the tags table and tasks.priority columns were added in version 2
         switch (oldVersion) {
             case 1:

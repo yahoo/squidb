@@ -115,6 +115,16 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
+    public int getVersion() {
+        return db.getVersion();
+    }
+
+    @Override
+    public void setVersion(int version) {
+        db.setVersion(version);
+    }
+
+    @Override
     public ICursor rawQuery(String sql, Object[] bindArgs) {
         return new SquidCursorWrapper(db.rawQueryWithFactory(new SquidCursorFactory(bindArgs), sql, null, null));
     }

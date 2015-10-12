@@ -23,6 +23,10 @@ public interface ISQLiteDatabase {
 
     boolean yieldIfContendedSafely();
 
+    int getVersion();
+
+    void setVersion(int version);
+
     ICursor rawQuery(String sql, Object[] bindArgs);
 
     long executeInsert(String sql, Object[] bindArgs);

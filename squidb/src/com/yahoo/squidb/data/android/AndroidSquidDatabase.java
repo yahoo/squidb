@@ -19,7 +19,7 @@ import java.util.Collection;
  */
 public abstract class AndroidSquidDatabase extends SquidDatabase {
 
-    private final Context context;
+    protected final Context context;
 
     public AndroidSquidDatabase(Context context) {
         super();

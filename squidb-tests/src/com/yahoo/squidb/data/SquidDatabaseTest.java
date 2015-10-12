@@ -6,10 +6,8 @@
 package com.yahoo.squidb.data;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -48,7 +46,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testRawQuery() {
         badDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
-        Cursor cursor = null;
+        ICursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
             assertEquals(1, badDatabase.countAll(TestModel.class));
@@ -98,7 +96,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.setShouldRecreate(shouldRecreate);
 
         // set version manually
-        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+        ISQLiteDatabase db = badDatabase.getDatabase();
         final int version = db.getVersion();
         final int previousVersion = upgrade ? version - 1 : version + 1;
         db.setVersion(previousVersion);
@@ -140,7 +138,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testMigrationFailureCalled(upgrade, false, true);
 
         // verify the db was recreated with the appropriate version and no previous data
-        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+        ISQLiteDatabase db = badDatabase.getDatabase();
         assertEquals(badDatabase.getVersion(), db.getVersion());
         assertEquals(0, badDatabase.countAll(Employee.class));
     }
@@ -161,7 +159,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testCustomMigrationException() {
         TestDatabase database = new TestDatabase(getContext());
-        SQLiteDatabaseWrapper db = database.getDatabase();
+        ISQLiteDatabase db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
         final int previousVersion = version + 1;
@@ -206,12 +204,12 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onTablesCreated(SQLiteDatabaseWrapper db) {
+        protected void onTablesCreated(ISQLiteDatabase db) {
             onTablesCreatedCalled = true;
         }
 
         @Override
-        protected final boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+        protected final boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
@@ -222,7 +220,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+        protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
