@@ -281,7 +281,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
     }
 
     public void testNotifierConstructors() {
-        testNotifierConstructorsInternal(new UriNotifier() {
+        testNotifierConstructorsInternal(new UriNotifier(getContext()) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
@@ -295,7 +295,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             }
         });
 
-        testNotifierConstructorsInternal(new UriNotifier(TestModel.TABLE) {
+        testNotifierConstructorsInternal(new UriNotifier(getContext(), TestModel.TABLE) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
@@ -309,7 +309,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             }
         }, TestModel.TABLE);
 
-        testNotifierConstructorsInternal(new UriNotifier(Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
+        testNotifierConstructorsInternal(new UriNotifier(getContext(), Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {

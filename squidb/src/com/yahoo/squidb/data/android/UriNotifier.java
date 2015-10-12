@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data.android;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 
 import com.yahoo.squidb.data.AbstractModel;
@@ -14,7 +15,6 @@ import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
-import com.yahoo.squidb.utility.Logger;
 
 import java.util.Collection;
 import java.util.Set;
@@ -38,25 +38,30 @@ import java.util.Set;
  */
 public abstract class UriNotifier extends DataChangedNotifier<Uri> {
 
+    private final ContentResolver contentResolver;
+
     /**
      * Construct a UriNotifier that will be notified of changes to all tables
      */
-    public UriNotifier() {
+    public UriNotifier(Context context) {
         super();
+        this.contentResolver = context.getContentResolver();
     }
 
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(SqlTable<?>... tables) {
+    public UriNotifier(Context context, SqlTable<?>... tables) {
         super(tables);
+        this.contentResolver = context.getContentResolver();
     }
 
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(Collection<? extends SqlTable<?>> tables) {
+    public UriNotifier(Context context, Collection<? extends SqlTable<?>> tables) {
         super(tables);
+        this.contentResolver = context.getContentResolver();
     }
 
     /**
@@ -97,10 +102,6 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
 
     @Override
     protected void sendNotification(SquidDatabase database, Uri notifyObject) {
-        if (database instanceof AndroidSquidDatabase) {
-            ((AndroidSquidDatabase) database).notifyChange(notifyObject);
-        } else {
-            Logger.w("Used UriNotifier with non-Android SquidDatabase " + database.getName());
-        }
+        contentResolver.notifyChange(notifyObject, null);
     }
 }

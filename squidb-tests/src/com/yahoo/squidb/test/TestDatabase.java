@@ -9,7 +9,7 @@ import android.content.Context;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
-import com.yahoo.squidb.data.android.AndroidSquidDatabase;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
@@ -17,15 +17,18 @@ import com.yahoo.squidb.sql.View;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
-public class TestDatabase extends AndroidSquidDatabase {
+public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
+
+    private final Context context;
 
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
     public TestDatabase(Context context) {
-        super(context);
+        super();
+        this.context = context;
     }
 
     @Override

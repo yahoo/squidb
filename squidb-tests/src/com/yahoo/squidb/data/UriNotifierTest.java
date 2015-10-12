@@ -1,5 +1,6 @@
 package com.yahoo.squidb.data;
 
+import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 
@@ -18,8 +19,8 @@ public class UriNotifierTest extends DatabaseTestCase {
     private static class TestUriNotifier extends UriNotifier {
 
         @SuppressWarnings("unchecked")
-        public TestUriNotifier() {
-            super(TestModel.TABLE);
+        public TestUriNotifier(Context context) {
+            super(context, TestModel.TABLE);
         }
 
         @Override
@@ -58,7 +59,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean notified = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
-        database.registerDataChangedNotifier(new TestUriNotifier());
+        database.registerDataChangedNotifier(new TestUriNotifier(getContext()));
         insertBasicTestModel();
         waitForResolver();
         assertTrue(notified.get());
@@ -82,7 +83,7 @@ public class UriNotifierTest extends DatabaseTestCase {
 
     private void testNotificationsDuringTransactions(boolean setSuccessful, boolean addNestedTransaction,
             boolean nestedSuccessful) {
-        UriNotifier idNotifier = new TestUriNotifier() {
+        UriNotifier idNotifier = new TestUriNotifier(getContext()) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {

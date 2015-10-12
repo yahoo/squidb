@@ -22,8 +22,11 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
+    private final Context context;
+
     public TestReactiveDatabase(Context context) {
-        super(context);
+        super();
+        this.context = context;
     }
 
     @Override
