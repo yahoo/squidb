@@ -5,15 +5,9 @@
  */
 package com.yahoo.squidb.data;
 
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
@@ -65,22 +59,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * if the operation succeeded and false if it failed for any reason. If it fails, there will also be a call to
  * {@link #onError(String, Throwable) onError}.
  * <p>
- * Methods that use String arrays for where clause arguments ({@link #update(String, ContentValues, String, String[])
- * update}, {@link #updateWithOnConflict(String, ContentValues, String, String[], int) updateWithOnConflict}, and
- * {@link #delete(String, String, String[]) delete}) are wrappers around Android's {@link SQLiteDatabase} methods.
- * However, Android's default behavior of binding all arguments as strings can have unexpected bugs, particularly when
- * working with SQLite functions. For example:
  *
- * <pre>
- * select * from t where _id = '1'; // Returns the first row
- * select * from t where abs(_id) = '1'; // Always returns empty set
- * </pre>
- *
- * For this reason, these methods are protected rather than public. You can choose to expose them in your database
- * subclass if you wish, but we recommend that you instead use the typesafe, public, model-bases methods, such as
- * {@link #update(Criterion, TableModel)}, {@link #updateWithOnConflict(Criterion, TableModel,
- * TableStatement.ConflictAlgorithm)}, {@link #delete(Class, long)}, and {@link #deleteWhere(Class, Criterion)}.
- * <p>
  * As a convenience, when calling the {@link #query(Class, Query) query} and {@link #fetchByQuery(Class, Query)
  * fetchByQuery} methods, if the <code>query</code> argument does not have a FROM clause, the table or view to select
  * from will be inferred from the provided <code>modelClass</code> argument (if possible). This allows for invocations
@@ -231,7 +210,7 @@ public abstract class SquidDatabase {
 
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
-    private final Context context;
+    protected final Context context;
 
     private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -377,7 +356,6 @@ public abstract class SquidDatabase {
      * @see SQLiteDatabase#enableWriteAheadLogging()
      */
     @Beta
-    @TargetApi(VERSION_CODES.JELLY_BEAN)
     public final String attachDatabase(SquidDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
@@ -386,18 +364,13 @@ public abstract class SquidDatabase {
             throw new IllegalStateException("Can't attach a database while in a transaction on the current thread");
         }
 
-        boolean walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
-                && getDatabase().isWriteAheadLoggingEnabled();
-        if (walEnabled) {
-            // need to wait for transactions to finish
-            acquireExclusiveLock();
-        }
+        // Some platforms need to wait for transactions to finish,
+        // so we acquire an exclusive lock before attaching
+        acquireExclusiveLock();
         try {
             return other.attachTo(this);
         } finally {
-            if (walEnabled) {
-                releaseExclusiveLock();
-            }
+            releaseExclusiveLock();
         }
     }
 
@@ -590,43 +563,6 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * @see SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
-     */
-    protected long insert(String table, String nullColumnHack, ContentValues values) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().insert(table, nullColumnHack, values);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
-     * @see SQLiteDatabase#insertOrThrow(String table, String nullColumnHack, ContentValues values)
-     */
-    protected long insertOrThrow(String table, String nullColumnHack, ContentValues values) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().insertOrThrow(table, nullColumnHack, values);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
-     * @see SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues, int)
-     */
-    protected long insertWithOnConflict(String table, String nullColumnHack, ContentValues values,
-            int conflictAlgorithm) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
      * Execute a SQL {@link com.yahoo.squidb.sql.Insert} statement
      *
      * @return the row id of the last row inserted on success, -1 on failure
@@ -642,20 +578,6 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
-     * @see SQLiteDatabase#delete(String, String, String[])
-     */
-    protected int delete(String table, String whereClause, String[] whereArgs) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().delete(table, whereClause, whereArgs);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
      * Execute a SQL {@link com.yahoo.squidb.sql.Delete} statement
      *
      * @return the number of rows deleted on success, -1 on failure
@@ -665,36 +587,6 @@ public abstract class SquidDatabase {
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
-     * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
-     * @see SQLiteDatabase#update(String table, ContentValues values, String whereClause, String[] whereArgs)
-     */
-    protected int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().update(table, values, whereClause, whereArgs);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    /**
-     * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
-     * @see SQLiteDatabase#updateWithOnConflict(String table, ContentValues values, String whereClause, String[]
-     * whereArgs, int conflictAlgorithm)
-     */
-    protected int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
-            int conflictAlgorithm) {
-        acquireNonExclusiveLock();
-        try {
-            return getDatabase().updateWithOnConflict(table, values, whereClause, whereArgs, conflictAlgorithm);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -846,31 +738,6 @@ public abstract class SquidDatabase {
      */
     public boolean yieldIfContendedSafely() {
         return getDatabase().yieldIfContendedSafely();
-    }
-
-    /**
-     * Convenience method for calling {@link ContentResolver#notifyChange(Uri, android.database.ContentObserver)
-     * ContentResolver.notifyChange(uri, null)}.
-     *
-     * @param uri the Uri to notify
-     */
-    public void notifyChange(Uri uri) {
-        context.getContentResolver().notifyChange(uri, null);
-    }
-
-    /**
-     * Convenience method for calling {@link ContentResolver#notifyChange(Uri, android.database.ContentObserver)
-     * ContentResolver.notifyChange(uri, null)} on all the provided Uris.
-     *
-     * @param uris the Uris to notify
-     */
-    public void notifyChange(Collection<Uri> uris) {
-        if (uris != null && !uris.isEmpty()) {
-            ContentResolver resolver = context.getContentResolver();
-            for (Uri uri : uris) {
-                resolver.notifyChange(uri, null);
-            }
-        }
     }
 
     /**
