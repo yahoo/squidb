@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
+import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SquidDatabase;
 
 /**
@@ -18,16 +19,18 @@ import com.yahoo.squidb.data.SquidDatabase;
  */
 public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
 
+    private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
     public DefaultOpenHelperWrapper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
             int version) {
         super(context, name, null, version);
+        this.context = context.getApplicationContext();
         this.delegate = delegate;
     }
 
     @Override
-    public SQLiteDatabaseWrapper openForWriting() {
+    public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
         return new SQLiteDatabaseAdapter(database);
     }
@@ -61,4 +64,13 @@ public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLite
         delegate.onOpen(adapter);
     }
 
+    @Override
+    public void deleteDatabase(String databaseName) {
+        context.deleteDatabase(databaseName);
+    }
+
+    @Override
+    public String getDatabasePath(String databaseName) {
+        return context.getDatabasePath(databaseName).getAbsolutePath();
+    }
 }

@@ -5,12 +5,20 @@
  */
 package com.yahoo.squidb.data.adapter;
 
+import com.yahoo.squidb.data.ISQLiteDatabase;
+
 /**
  * Common interface for helper classes that open the database to implement, e.g. {@link DefaultOpenHelperWrapper}
  * wraps {@link android.database.sqlite.SQLiteOpenHelper SQLiteOpenHelper} and implements this interface.
  */
 public interface SQLiteOpenHelperWrapper {
 
-    SQLiteDatabaseWrapper openForWriting();
+    ISQLiteDatabase openForWriting();
+
+    String getDatabasePath(String databaseName);
+
+    void deleteDatabase(String databaseName);
+
+    void close();
 
 }

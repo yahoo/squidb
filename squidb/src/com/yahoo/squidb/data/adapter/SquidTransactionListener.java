@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.data.adapter;
 
-import android.database.sqlite.SQLiteTransactionListener;
-
 /**
  * A re-declaration of {@link android.database.sqlite.SQLiteTransactionListener} so that all wrapper/adapter classes
  * for different versions of {@link android.database.sqlite.SQLiteDatabase SQLiteDatabase} can provide a unified
@@ -15,17 +13,17 @@ import android.database.sqlite.SQLiteTransactionListener;
 public interface SquidTransactionListener {
 
     /**
-     * @see SQLiteTransactionListener#onBegin()
+     * @see android.database.sqlite.SQLiteTransactionListener#onBegin()
      */
     void onBegin();
 
     /**
-     * @see SQLiteTransactionListener#onCommit()
+     * @see android.database.sqlite.SQLiteTransactionListener#onCommit()
      */
     void onCommit();
 
     /**
-     * @see SQLiteTransactionListener#onRollback()
+     * @see android.database.sqlite.SQLiteTransactionListener#onRollback()
      */
     void onRollback();
 
