@@ -3,31 +3,28 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.android;
-
-import android.content.ContentValues;
-import android.os.Parcel;
-import android.os.Parcelable;
+package com.yahoo.squidb.ios;
 
 import com.yahoo.squidb.data.ValuesStorage;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of {@link ValuesStorage} that stores its values using {@link ContentValues}
+ * Implementation of {@link ValuesStorage} that stores its values using a {@link Map}
  */
-public class ContentValuesStorage extends ValuesStorage implements Parcelable {
+public class MapValuesStorage extends ValuesStorage {
 
-    final ContentValues values;
+    final Map<String, Object> values;
 
-    public ContentValuesStorage() {
-        this.values = new ContentValues();
+    public MapValuesStorage() {
+        this.values = new HashMap<String, Object>();
     }
 
-    public ContentValuesStorage(ContentValues values) {
+    public MapValuesStorage(Map<String, Object> values) {
         if (values == null) {
-            throw new IllegalArgumentException("Can't create a ContentValuesStorage with null ContentValues");
+            throw new IllegalArgumentException("Can't create a MapValuesStorage with null Map");
         }
         this.values = values;
     }
@@ -69,7 +66,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      */
     @Override
     public void putNull(String key) {
-        values.putNull(key);
+        values.put(key, null);
     }
 
     /**
@@ -149,14 +146,13 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      */
     @Override
     public void putAll(ValuesStorage other) {
-        if (other instanceof ContentValuesStorage) {
-            values.putAll(((ContentValuesStorage) other).values);
+        if (other instanceof MapValuesStorage) {
+            values.putAll(((MapValuesStorage) other).values);
         } else {
             Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
             for (Map.Entry<String, Object> entry : valuesSet) {
                 put(entry.getKey(), entry.getValue(), false);
             }
-
         }
     }
 
@@ -165,44 +161,17 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      */
     @Override
     public Set<Map.Entry<String, Object>> valueSet() {
-        return values.valueSet();
+        return values.entrySet();
     }
-
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof ContentValuesStorage) &&
-                values.equals(((ContentValuesStorage) o).values);
+        return (o instanceof MapValuesStorage) &&
+                values.equals(((MapValuesStorage) o).values);
     }
 
     @Override
     public int hashCode() {
         return values.hashCode();
     }
-
-    @Override
-    public int describeContents() {
-        return values.describeContents();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(values, flags);
-    }
-
-    public static final Parcelable.Creator<ContentValuesStorage> CREATOR = new Creator<ContentValuesStorage>() {
-        @Override
-        public ContentValuesStorage createFromParcel(Parcel source) {
-            ContentValues values = source.readParcelable(ContentValues.class.getClassLoader());
-            if (values == null) {
-                values = new ContentValues();
-            }
-            return new ContentValuesStorage(values);
-        }
-
-        @Override
-        public ContentValuesStorage[] newArray(int size) {
-            return new ContentValuesStorage[size];
-        }
-    };
 }

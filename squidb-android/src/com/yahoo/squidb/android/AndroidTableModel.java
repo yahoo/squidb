@@ -3,18 +3,18 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.android;
+package com.yahoo.squidb.android;
 
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.data.ValuesStorage;
-import com.yahoo.squidb.data.ViewModel;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
-public abstract class AndroidViewModel extends ViewModel implements Parcelable {
+public abstract class AndroidTableModel extends TableModel implements Parcelable {
 
     @Override
     protected ValuesStorage newValuesStorage() {

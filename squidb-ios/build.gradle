@@ -3,9 +3,9 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-project.ext.artifactId = 'squidb'
+project.ext.artifactId = 'squidb-ios'
 group = 'com.yahoo.squidb'
-version = '2.0.1'
+version = '2.0.0'
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -21,6 +21,10 @@ sourceSets {
     }
 }
 
+dependencies {
+    compile project(':squidb')
+}
+
 def siteUrl = 'https://github.com/yahoo/squidb'
 def gitUrl = 'https://github.com/yahoo/squidb.git'
 
@@ -29,7 +33,7 @@ install {
         pom {
             project {
                 packaging 'jar'
-                name 'SquiDB Core'
+                name 'SquiDB iOS components'
                 url siteUrl
                 licenses {
                     license {

@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.yahoo.squidb.android.SquidCursorLoader;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sample.adapter.TaskListAdapter;
 import com.yahoo.squidb.sample.database.TasksDatabase;
@@ -27,7 +28,6 @@ import com.yahoo.squidb.sample.modules.HelloSquiDBInjector;
 import com.yahoo.squidb.sample.utils.TaskUtils;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
-import com.yahoo.squidb.utility.SquidCursorLoader;
 
 import javax.inject.Inject;
 

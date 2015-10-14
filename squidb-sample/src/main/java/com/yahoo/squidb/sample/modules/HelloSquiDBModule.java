@@ -8,9 +8,9 @@ package com.yahoo.squidb.sample.modules;
 import android.content.Context;
 import android.net.Uri;
 
+import com.yahoo.squidb.android.UriNotifier;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sample.HelloSquiDBApplication;
 import com.yahoo.squidb.sample.TaskListActivity;
 import com.yahoo.squidb.sample.database.TasksDatabase;
@@ -47,7 +47,7 @@ public class HelloSquiDBModule {
         TasksDatabase database = new TasksDatabase(context);
 
         // Setting up a UriNotifier will sent ContentObserver notifications to Uris on table writes
-        database.registerDataChangedNotifier(new UriNotifier(Task.TABLE, Tag.TABLE) {
+        database.registerDataChangedNotifier(new UriNotifier(context, Task.TABLE, Tag.TABLE) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> uris, SqlTable<?> table, SquidDatabase database,
                     DBOperation operation, AbstractModel modelValues, long rowId) {

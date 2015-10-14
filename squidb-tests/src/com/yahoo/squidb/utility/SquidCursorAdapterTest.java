@@ -3,6 +3,7 @@ package com.yahoo.squidb.utility;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.yahoo.squidb.android.SquidCursorAdapter;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Function;

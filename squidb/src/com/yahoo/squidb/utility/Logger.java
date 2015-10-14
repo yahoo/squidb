@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.util.Log;
-
 import java.io.PrintStream;
 
 public abstract class Logger {
@@ -80,27 +78,6 @@ public abstract class Logger {
             stream.println(LOG_TAG + ": " + message);
             if (t != null) {
                 t.printStackTrace(stream);
-            }
-        }
-    }
-
-    public static class AndroidLogger extends Logger {
-
-        @Override
-        public void log(Level level, String message, Throwable t) {
-            switch (level) {
-                case INFO:
-                    Log.i(LOG_TAG, message, t);
-                    break;
-                case DEBUG:
-                    Log.d(LOG_TAG, message, t);
-                    break;
-                case WARN:
-                    Log.w(LOG_TAG, message, t);
-                    break;
-                case ERROR:
-                    Log.e(LOG_TAG, message, t);
-                    break;
             }
         }
     }

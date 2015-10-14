@@ -39,6 +39,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':squidb')
+    compile project(':squidb-android')
     compile project(':squidb-annotations')
     apt project(':squidb-processor')
 

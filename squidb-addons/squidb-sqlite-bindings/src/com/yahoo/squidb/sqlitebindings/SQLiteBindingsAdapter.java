@@ -5,11 +5,11 @@
  */
 package com.yahoo.squidb.sqlitebindings;
 
+import com.yahoo.squidb.android.SquidCursorWrapper;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLExceptionWrapper;
 import com.yahoo.squidb.data.SquidTransactionListener;
-import com.yahoo.squidb.data.android.SquidCursorWrapper;
 
 import org.sqlite.database.SQLException;
 import org.sqlite.database.sqlite.SQLiteDatabase;

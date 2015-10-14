@@ -3,9 +3,9 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-project.ext.artifactId = 'squidb-sqlite-bindings'
+project.ext.artifactId = 'squidb-android'
 group = 'com.yahoo.squidb'
-version = '2.0.1'
+version = '2.0.0'
 
 buildscript {
     repositories {
@@ -25,6 +25,10 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
+dependencies {
+    compile project(':squidb')
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion "22.0.1"
@@ -35,9 +39,6 @@ android {
             java.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
-
-            jniLibs.srcDir 'libs'
-            jni.srcDirs = [] //disable automatic ndk-build call
         }
     }
 
@@ -52,11 +53,6 @@ android {
     }
 }
 
-dependencies {
-    compile project(':squidb')
-    compile project(':squidb-android')
-}
-
 def siteUrl = 'https://github.com/yahoo/squidb'
 def gitUrl = 'https://github.com/yahoo/squidb.git'
 
@@ -65,7 +61,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'SquiDB SQLite Bindings'
+                name 'SquiDB Android components'
                 url siteUrl
                 licenses {
                     license {

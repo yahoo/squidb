@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data.android;
+package com.yahoo.squidb.android;
 
 import android.content.ContentResolver;
 import android.content.Context;

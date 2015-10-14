@@ -43,6 +43,7 @@ android {
 
 dependencies {
     compile project(':squidb')
+    compile project(':squidb-android')
     compile project(':squidb-annotations')
     compile project(':squidb-jackson-plugin')
     compile project(':squidb-jackson-annotations')

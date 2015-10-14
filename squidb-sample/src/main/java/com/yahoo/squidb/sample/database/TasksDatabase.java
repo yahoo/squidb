@@ -7,8 +7,10 @@ package com.yahoo.squidb.sample.database;
 
 import android.content.Context;
 
+import com.yahoo.squidb.android.DefaultOpenHelperWrapper;
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.android.AndroidSquidDatabase;
+import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.Index;
@@ -18,12 +20,14 @@ import com.yahoo.squidb.sql.Table;
  * Implementation of SquidDatabase for this tasks app. Remember--instances of your SquidDatabase
  * subclass should always be singletons!
  */
-public class TasksDatabase extends AndroidSquidDatabase {
+public class TasksDatabase extends SquidDatabase {
 
     private static final int VERSION = 2;
+    private final Context context;
 
     public TasksDatabase(Context context) {
-        super(context);
+        super();
+        this.context = context;
     }
 
     @Override
@@ -61,5 +65,11 @@ public class TasksDatabase extends AndroidSquidDatabase {
                 tryAddColumn(Task.PRIORITY);
         }
         return false;
+    }
+
+    @Override
+    protected SQLiteOpenHelperWrapper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
+            int version) {
+        return new DefaultOpenHelperWrapper(context, databaseName, delegate, version);
     }
 }

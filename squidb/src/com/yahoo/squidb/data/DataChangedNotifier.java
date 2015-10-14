@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import com.yahoo.squidb.data.android.UriNotifier;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -36,8 +35,8 @@ import java.util.Set;
  *
  * @param <T> the type of object/metadata to accumulate for sending notifications
  * @see SquidDatabase#registerDataChangedNotifier(DataChangedNotifier)
- * @see UriNotifier for an example of a DataChangedNotifier that can send ContentObserver notifications to Uris on data
- * changes
+ * @see {com.yahoo.squidb.android.UriNotifier} for an example of a DataChangedNotifier that can send
+ * ContentObserver notifications to Uris on data changes
  */
 public abstract class DataChangedNotifier<T> {
 
