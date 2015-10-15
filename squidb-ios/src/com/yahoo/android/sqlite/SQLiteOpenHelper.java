@@ -18,8 +18,8 @@ package com.yahoo.android.sqlite;
 
 import android.content.Context;
 import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
+import com.yahoo.android.sqlite.SQLiteDatabase.CursorFactory;
 import com.yahoo.squidb.utility.Logger;
 
 /**

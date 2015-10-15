@@ -18,9 +18,10 @@ package com.yahoo.android.sqlite;
 
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
-import android.database.DatabaseUtils;
 import android.os.StrictMode;
 import android.util.Log;
+
+import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "received count(*) from native_fill_window: " + mCount);
+                    Logger.d(TAG + ": received count(*) from native_fill_window: " + mCount);
                 }
             } else {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
@@ -180,7 +181,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         final int periodIndex = columnName.lastIndexOf('.');
         if (periodIndex != -1) {
             Exception e = new Exception();
-            Log.e(TAG, "requesting column name with table name -- " + columnName, e);
+            Logger.e(TAG + ": requesting column name with table name -- " + columnName, e);
             columnName = columnName.substring(periodIndex + 1);
         }
 

@@ -16,7 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.DatabaseUtils;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.provider.BaseColumns;

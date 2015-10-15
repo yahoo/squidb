@@ -17,12 +17,9 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
-import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import android.util.LruCache;
 import android.util.Printer;
 
@@ -677,53 +674,53 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
             mRecentOperations.endOperation(cookie);
         }
     }
-
-    /**
-     * Executes a statement that returns a single BLOB result as a
-     * file descriptor to a shared memory region.
-     *
-     * @param sql The SQL statement to execute.
-     * @param bindArgs The arguments to bind, or null if none.
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * @return The file descriptor for a shared memory region that contains
-     * the value of the first column in the first row of the result set as a BLOB,
-     * or null if none.
-     * @throws SQLiteException if an error occurs, such as a syntax error
-     * or invalid number of bind arguments.
-     * @throws OperationCanceledException if the operation was canceled.
-     */
-    public ParcelFileDescriptor executeForBlobFileDescriptor(String sql, Object[] bindArgs,
-            CancellationSignal cancellationSignal) {
-        if (sql == null) {
-            throw new IllegalArgumentException("sql must not be null.");
-        }
-
-        final int cookie = mRecentOperations.beginOperation("executeForBlobFileDescriptor",
-                sql, bindArgs);
-        try {
-            final PreparedStatement statement = acquirePreparedStatement(sql);
-            try {
-                throwIfStatementForbidden(statement);
-                bindArguments(statement, bindArgs);
-                applyBlockGuardPolicy(statement);
-                attachCancellationSignal(cancellationSignal);
-                try {
-                    int fd = nativeExecuteForBlobFileDescriptor(
-                            mConnectionPtr, statement.mStatementPtr);
-                    return fd >= 0 ? ParcelFileDescriptor.adoptFd(fd) : null;
-                } finally {
-                    detachCancellationSignal(cancellationSignal);
-                }
-            } finally {
-                releasePreparedStatement(statement);
-            }
-        } catch (RuntimeException ex) {
-            mRecentOperations.failOperation(cookie, ex);
-            throw ex;
-        } finally {
-            mRecentOperations.endOperation(cookie);
-        }
-    }
+//
+//    /**
+//     * Executes a statement that returns a single BLOB result as a
+//     * file descriptor to a shared memory region.
+//     *
+//     * @param sql The SQL statement to execute.
+//     * @param bindArgs The arguments to bind, or null if none.
+//     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
+//     * @return The file descriptor for a shared memory region that contains
+//     * the value of the first column in the first row of the result set as a BLOB,
+//     * or null if none.
+//     * @throws SQLiteException if an error occurs, such as a syntax error
+//     * or invalid number of bind arguments.
+//     * @throws OperationCanceledException if the operation was canceled.
+//     */
+//    public ParcelFileDescriptor executeForBlobFileDescriptor(String sql, Object[] bindArgs,
+//            CancellationSignal cancellationSignal) {
+//        if (sql == null) {
+//            throw new IllegalArgumentException("sql must not be null.");
+//        }
+//
+//        final int cookie = mRecentOperations.beginOperation("executeForBlobFileDescriptor",
+//                sql, bindArgs);
+//        try {
+//            final PreparedStatement statement = acquirePreparedStatement(sql);
+//            try {
+//                throwIfStatementForbidden(statement);
+//                bindArguments(statement, bindArgs);
+//                applyBlockGuardPolicy(statement);
+//                attachCancellationSignal(cancellationSignal);
+//                try {
+//                    int fd = nativeExecuteForBlobFileDescriptor(
+//                            mConnectionPtr, statement.mStatementPtr);
+//                    return fd >= 0 ? ParcelFileDescriptor.adoptFd(fd) : null;
+//                } finally {
+//                    detachCancellationSignal(cancellationSignal);
+//                }
+//            } finally {
+//                releasePreparedStatement(statement);
+//            }
+//        } catch (RuntimeException ex) {
+//            mRecentOperations.failOperation(cookie, ex);
+//            throw ex;
+//        } finally {
+//            mRecentOperations.endOperation(cookie);
+//        }
+//    }
 
     /**
      * Executes a statement that returns a count of the number of rows
@@ -1404,7 +1401,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
             if (detail != null) {
                 msg.append(", ").append(detail);
             }
-            Log.d(TAG, msg.toString());
+            Logger.d(TAG + ": " + msg.toString());
         }
 
         private int newOperationCookieLocked(int index) {

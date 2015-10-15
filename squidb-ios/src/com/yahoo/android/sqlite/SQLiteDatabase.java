@@ -19,7 +19,6 @@ package com.yahoo.android.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
-import android.database.DatabaseUtils;
 import android.database.DefaultDatabaseErrorHandler;
 import android.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;

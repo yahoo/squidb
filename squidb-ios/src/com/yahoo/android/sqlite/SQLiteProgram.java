@@ -16,7 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.DatabaseUtils;
 import android.os.CancellationSignal;
 
 import java.util.Arrays;
@@ -28,6 +27,7 @@ import java.util.Arrays;
  * </p>
  */
 public abstract class SQLiteProgram extends SQLiteClosable {
+
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private final SQLiteDatabase mDatabase;
@@ -113,6 +113,7 @@ public abstract class SQLiteProgram extends SQLiteClosable {
 
     /**
      * Unimplemented.
+     *
      * @deprecated This method is deprecated and must not be used.
      */
     @Deprecated
@@ -133,7 +134,8 @@ public abstract class SQLiteProgram extends SQLiteClosable {
     /**
      * Bind a long value to this statement. The value remains bound until
      * {@link #clearBindings} is called.
-     *addToBindArgs
+     * addToBindArgs
+     *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */

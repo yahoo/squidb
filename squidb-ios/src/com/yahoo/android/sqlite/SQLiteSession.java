@@ -17,10 +17,8 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.database.DatabaseUtils;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
-import android.os.ParcelFileDescriptor;
 
 /**
  * Provides a single client the ability to use a database.
@@ -161,6 +159,7 @@ import android.os.ParcelFileDescriptor;
  * @hide
  */
 public final class SQLiteSession {
+
     private final SQLiteConnectionPool mConnectionPool;
 
     private SQLiteConnection mConnection;
@@ -281,12 +280,10 @@ public final class SQLiteSession {
      * @param connectionFlags The connection flags to use if a connection must be
      * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *
      * @throws IllegalStateException if {@link #setTransactionSuccessful} has already been
      * called for the current transaction.
      * @throws SQLiteException if an error occurs.
      * @throws OperationCanceledException if the operation was canceled.
-     *
      * @see #setTransactionSuccessful
      * @see #yieldTransaction
      * @see #endTransaction
@@ -363,7 +360,6 @@ public final class SQLiteSession {
      *
      * @throws IllegalStateException if there is no current transaction, or if
      * {@link #setTransactionSuccessful} has already been called for the current transaction.
-     *
      * @see #beginTransaction
      * @see #endTransaction
      */
@@ -385,11 +381,9 @@ public final class SQLiteSession {
      * </p>
      *
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *
      * @throws IllegalStateException if there is no current transaction.
      * @throws SQLiteException if an error occurs.
      * @throws OperationCanceledException if the operation was canceled.
-     *
      * @see #beginTransaction
      * @see #setTransactionSuccessful
      * @see #yieldTransaction
@@ -489,13 +483,11 @@ public final class SQLiteSession {
      * the transaction has already been marked successful, throws {@link IllegalStateException}.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return True if the transaction was actually yielded.
-     *
      * @throws IllegalStateException if <code>throwIfNested</code> is true and
      * there is no current transaction, there is a nested transaction in progress or
      * if {@link #setTransactionSuccessful} has already been called for the current transaction.
      * @throws SQLiteException if an error occurs.
      * @throws OperationCanceledException if the operation was canceled.
-     *
      * @see #beginTransaction
      * @see #endTransaction
      */
@@ -569,7 +561,6 @@ public final class SQLiteSession {
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @param outStatementInfo The {@link SQLiteStatementInfo} object to populate
      * with information about the statement, or null if none.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error.
      * @throws OperationCanceledException if the operation was canceled.
      */
@@ -599,7 +590,6 @@ public final class SQLiteSession {
      * @param connectionFlags The connection flags to use if a connection must be
      * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -632,7 +622,6 @@ public final class SQLiteSession {
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return The value of the first column in the first row of the result set
      * as a <code>long</code>, or zero if none.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -665,7 +654,6 @@ public final class SQLiteSession {
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return The value of the first column in the first row of the result set
      * as a <code>String</code>, or null if none.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -687,42 +675,41 @@ public final class SQLiteSession {
             releaseConnection(); // might throw
         }
     }
-
-    /**
-     * Executes a statement that returns a single BLOB result as a
-     * file descriptor to a shared memory region.
-     *
-     * @param sql The SQL statement to execute.
-     * @param bindArgs The arguments to bind, or null if none.
-     * @param connectionFlags The connection flags to use if a connection must be
-     * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     * @return The file descriptor for a shared memory region that contains
-     * the value of the first column in the first row of the result set as a BLOB,
-     * or null if none.
-     *
-     * @throws SQLiteException if an error occurs, such as a syntax error
-     * or invalid number of bind arguments.
-     * @throws OperationCanceledException if the operation was canceled.
-     */
-    public ParcelFileDescriptor executeForBlobFileDescriptor(String sql, Object[] bindArgs,
-            int connectionFlags, CancellationSignal cancellationSignal) {
-        if (sql == null) {
-            throw new IllegalArgumentException("sql must not be null.");
-        }
-
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
-            return null;
-        }
-
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
-        try {
-            return mConnection.executeForBlobFileDescriptor(sql, bindArgs,
-                    cancellationSignal); // might throw
-        } finally {
-            releaseConnection(); // might throw
-        }
-    }
+//
+//    /**
+//     * Executes a statement that returns a single BLOB result as a
+//     * file descriptor to a shared memory region.
+//     *
+//     * @param sql The SQL statement to execute.
+//     * @param bindArgs The arguments to bind, or null if none.
+//     * @param connectionFlags The connection flags to use if a connection must be
+//     * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
+//     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
+//     * @return The file descriptor for a shared memory region that contains
+//     * the value of the first column in the first row of the result set as a BLOB,
+//     * or null if none.
+//     * @throws SQLiteException if an error occurs, such as a syntax error
+//     * or invalid number of bind arguments.
+//     * @throws OperationCanceledException if the operation was canceled.
+//     */
+//    public ParcelFileDescriptor executeForBlobFileDescriptor(String sql, Object[] bindArgs,
+//            int connectionFlags, CancellationSignal cancellationSignal) {
+//        if (sql == null) {
+//            throw new IllegalArgumentException("sql must not be null.");
+//        }
+//
+//        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+//            return null;
+//        }
+//
+//        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+//        try {
+//            return mConnection.executeForBlobFileDescriptor(sql, bindArgs,
+//                    cancellationSignal); // might throw
+//        } finally {
+//            releaseConnection(); // might throw
+//        }
+//    }
 
     /**
      * Executes a statement that returns a count of the number of rows
@@ -734,7 +721,6 @@ public final class SQLiteSession {
      * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return The number of rows that were changed.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -768,7 +754,6 @@ public final class SQLiteSession {
      * acquired by this operation.  Refer to {@link SQLiteConnectionPool}.
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return The row id of the last row that was inserted, or 0 if none.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -811,7 +796,6 @@ public final class SQLiteSession {
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return The number of rows that were counted during query execution.  Might
      * not be all rows in the result set unless <code>countAllRows</code> is true.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -857,7 +841,6 @@ public final class SQLiteSession {
      * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
      * @return True if the statement was of a special form that was handled here,
      * false otherwise.
-     *
      * @throws SQLiteException if an error occurs, such as a syntax error
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
@@ -954,6 +937,7 @@ public final class SQLiteSession {
     }
 
     private static final class Transaction {
+
         public Transaction mParent;
         public int mMode;
         public SQLiteTransactionListener mListener;
