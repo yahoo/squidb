@@ -20,7 +20,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.DefaultDatabaseErrorHandler;
-import android.os.CancellationSignal;
 import android.os.Looper;
 import android.os.OperationCanceledException;
 import android.util.EventLog;
@@ -997,43 +996,43 @@ public final class SQLiteDatabase extends SQLiteClosable {
         }
     }
 
-    /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
-     *
-     * @param distinct true if you want each row to be unique, false otherwise.
-     * @param table The table name to compile the query against.
-     * @param columns A list of which columns to return. Passing null will
-     * return all columns, which is discouraged to prevent reading
-     * data from storage that isn't going to be used.
-     * @param selection A filter declaring which rows to return, formatted as an
-     * SQL WHERE clause (excluding the WHERE itself). Passing null
-     * will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     * replaced by the values from selectionArgs, in order that they
-     * appear in the selection. The values will be bound as Strings.
-     * @param groupBy A filter declaring how to group rows, formatted as an SQL
-     * GROUP BY clause (excluding the GROUP BY itself). Passing null
-     * will cause the rows to not be grouped.
-     * @param having A filter declare which row groups to include in the cursor,
-     * if row grouping is being used, formatted as an SQL HAVING
-     * clause (excluding the HAVING itself). Passing null will cause
-     * all row groups to be included, and is required when row
-     * grouping is not being used.
-     * @param orderBy How to order the rows, formatted as an SQL ORDER BY clause
-     * (excluding the ORDER BY itself). Passing null will use the
-     * default sort order, which may be unordered.
-     * @param limit Limits the number of rows returned by the query,
-     * formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    public ICursor query(boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit) {
-        return queryWithFactory(null, distinct, table, columns, selection, selectionArgs,
-                groupBy, having, orderBy, limit, null);
-    }
+//    /**
+//     * Query the given URL, returning a {@link Cursor} over the result set.
+//     *
+//     * @param distinct true if you want each row to be unique, false otherwise.
+//     * @param table The table name to compile the query against.
+//     * @param columns A list of which columns to return. Passing null will
+//     * return all columns, which is discouraged to prevent reading
+//     * data from storage that isn't going to be used.
+//     * @param selection A filter declaring which rows to return, formatted as an
+//     * SQL WHERE clause (excluding the WHERE itself). Passing null
+//     * will return all rows for the given table.
+//     * @param selectionArgs You may include ?s in selection, which will be
+//     * replaced by the values from selectionArgs, in order that they
+//     * appear in the selection. The values will be bound as Strings.
+//     * @param groupBy A filter declaring how to group rows, formatted as an SQL
+//     * GROUP BY clause (excluding the GROUP BY itself). Passing null
+//     * will cause the rows to not be grouped.
+//     * @param having A filter declare which row groups to include in the cursor,
+//     * if row grouping is being used, formatted as an SQL HAVING
+//     * clause (excluding the HAVING itself). Passing null will cause
+//     * all row groups to be included, and is required when row
+//     * grouping is not being used.
+//     * @param orderBy How to order the rows, formatted as an SQL ORDER BY clause
+//     * (excluding the ORDER BY itself). Passing null will use the
+//     * default sort order, which may be unordered.
+//     * @param limit Limits the number of rows returned by the query,
+//     * formatted as LIMIT clause. Passing null denotes no LIMIT clause.
+//     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+//     * {@link Cursor}s are not synchronized, see the documentation for more details.
+//     * @see Cursor
+//     */
+//    public ICursor query(boolean distinct, String table, String[] columns,
+//            String selection, String[] selectionArgs, String groupBy,
+//            String having, String orderBy, String limit) {
+//        return queryWithFactory(null, distinct, table, columns, selection, selectionArgs,
+//                groupBy, having, orderBy, limit, null);
+//    }
 
     /**
      * Query the given URL, returning a {@link Cursor} over the result set.
@@ -1071,50 +1070,50 @@ public final class SQLiteDatabase extends SQLiteClosable {
      */
     public ICursor query(boolean distinct, String table, String[] columns,
             String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit, CancellationSignal cancellationSignal) {
+            String having, String orderBy, String limit/*, CancellationSignal cancellationSignal*/) {
         return queryWithFactory(null, distinct, table, columns, selection, selectionArgs,
-                groupBy, having, orderBy, limit, cancellationSignal);
+                groupBy, having, orderBy, limit/*, cancellationSignal*/);
     }
 
-    /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
-     *
-     * @param cursorFactory the cursor factory to use, or null for the default factory
-     * @param distinct true if you want each row to be unique, false otherwise.
-     * @param table The table name to compile the query against.
-     * @param columns A list of which columns to return. Passing null will
-     * return all columns, which is discouraged to prevent reading
-     * data from storage that isn't going to be used.
-     * @param selection A filter declaring which rows to return, formatted as an
-     * SQL WHERE clause (excluding the WHERE itself). Passing null
-     * will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     * replaced by the values from selectionArgs, in order that they
-     * appear in the selection. The values will be bound as Strings.
-     * @param groupBy A filter declaring how to group rows, formatted as an SQL
-     * GROUP BY clause (excluding the GROUP BY itself). Passing null
-     * will cause the rows to not be grouped.
-     * @param having A filter declare which row groups to include in the cursor,
-     * if row grouping is being used, formatted as an SQL HAVING
-     * clause (excluding the HAVING itself). Passing null will cause
-     * all row groups to be included, and is required when row
-     * grouping is not being used.
-     * @param orderBy How to order the rows, formatted as an SQL ORDER BY clause
-     * (excluding the ORDER BY itself). Passing null will use the
-     * default sort order, which may be unordered.
-     * @param limit Limits the number of rows returned by the query,
-     * formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    public ICursor queryWithFactory(CursorFactory cursorFactory,
-            boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit) {
-        return queryWithFactory(cursorFactory, distinct, table, columns, selection,
-                selectionArgs, groupBy, having, orderBy, limit, null);
-    }
+//    /**
+//     * Query the given URL, returning a {@link Cursor} over the result set.
+//     *
+//     * @param cursorFactory the cursor factory to use, or null for the default factory
+//     * @param distinct true if you want each row to be unique, false otherwise.
+//     * @param table The table name to compile the query against.
+//     * @param columns A list of which columns to return. Passing null will
+//     * return all columns, which is discouraged to prevent reading
+//     * data from storage that isn't going to be used.
+//     * @param selection A filter declaring which rows to return, formatted as an
+//     * SQL WHERE clause (excluding the WHERE itself). Passing null
+//     * will return all rows for the given table.
+//     * @param selectionArgs You may include ?s in selection, which will be
+//     * replaced by the values from selectionArgs, in order that they
+//     * appear in the selection. The values will be bound as Strings.
+//     * @param groupBy A filter declaring how to group rows, formatted as an SQL
+//     * GROUP BY clause (excluding the GROUP BY itself). Passing null
+//     * will cause the rows to not be grouped.
+//     * @param having A filter declare which row groups to include in the cursor,
+//     * if row grouping is being used, formatted as an SQL HAVING
+//     * clause (excluding the HAVING itself). Passing null will cause
+//     * all row groups to be included, and is required when row
+//     * grouping is not being used.
+//     * @param orderBy How to order the rows, formatted as an SQL ORDER BY clause
+//     * (excluding the ORDER BY itself). Passing null will use the
+//     * default sort order, which may be unordered.
+//     * @param limit Limits the number of rows returned by the query,
+//     * formatted as LIMIT clause. Passing null denotes no LIMIT clause.
+//     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+//     * {@link Cursor}s are not synchronized, see the documentation for more details.
+//     * @see Cursor
+//     */
+//    public ICursor queryWithFactory(CursorFactory cursorFactory,
+//            boolean distinct, String table, String[] columns,
+//            String selection, String[] selectionArgs, String groupBy,
+//            String having, String orderBy, String limit) {
+//        return queryWithFactory(cursorFactory, distinct, table, columns, selection,
+//                selectionArgs, groupBy, having, orderBy, limit, null);
+//    }
 
     /**
      * Query the given URL, returning a {@link Cursor} over the result set.
@@ -1154,14 +1153,14 @@ public final class SQLiteDatabase extends SQLiteClosable {
     public ICursor queryWithFactory(CursorFactory cursorFactory,
             boolean distinct, String table, String[] columns,
             String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit, CancellationSignal cancellationSignal) {
+            String having, String orderBy, String limit/*, CancellationSignal cancellationSignal*/) {
         acquireReference();
         try {
             String sql = SQLiteQueryBuilder.buildQueryString(
                     distinct, table, columns, selection, groupBy, having, orderBy, limit);
 
             return rawQueryWithFactory(cursorFactory, sql, selectionArgs,
-                    findEditTable(table), cancellationSignal);
+                    findEditTable(table)/*, cancellationSignal*/);
         } finally {
             releaseReference();
         }
@@ -1241,19 +1240,19 @@ public final class SQLiteDatabase extends SQLiteClosable {
                 having, orderBy, limit);
     }
 
-    /**
-     * Runs the provided SQL and returns a {@link Cursor} over the result set.
-     *
-     * @param sql the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs You may include ?s in where clause in the query,
-     * which will be replaced by the values from selectionArgs. The
-     * values will be bound as Strings.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    public ICursor rawQuery(String sql, String[] selectionArgs) {
-        return rawQueryWithFactory(null, sql, selectionArgs, null, null);
-    }
+//    /**
+//     * Runs the provided SQL and returns a {@link Cursor} over the result set.
+//     *
+//     * @param sql the SQL query. The SQL string must not be ; terminated
+//     * @param selectionArgs You may include ?s in where clause in the query,
+//     * which will be replaced by the values from selectionArgs. The
+//     * values will be bound as Strings.
+//     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+//     * {@link Cursor}s are not synchronized, see the documentation for more details.
+//     */
+//    public ICursor rawQuery(String sql, String[] selectionArgs) {
+//        return rawQueryWithFactory(null, sql, selectionArgs, null, null);
+//    }
 
     /**
      * Runs the provided SQL and returns a {@link Cursor} over the result set.
@@ -1268,28 +1267,28 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      */
-    public ICursor rawQuery(String sql, String[] selectionArgs,
-            CancellationSignal cancellationSignal) {
-        return rawQueryWithFactory(null, sql, selectionArgs, null, cancellationSignal);
+    public ICursor rawQuery(String sql, String[] selectionArgs/*,
+            CancellationSignal cancellationSignal*/) {
+        return rawQueryWithFactory(null, sql, selectionArgs, null/*, cancellationSignal*/);
     }
-
-    /**
-     * Runs the provided SQL and returns a cursor over the result set.
-     *
-     * @param cursorFactory the cursor factory to use, or null for the default factory
-     * @param sql the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs You may include ?s in where clause in the query,
-     * which will be replaced by the values from selectionArgs. The
-     * values will be bound as Strings.
-     * @param editTable the name of the first table, which is editable
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    public ICursor rawQueryWithFactory(
-            CursorFactory cursorFactory, String sql, String[] selectionArgs,
-            String editTable) {
-        return rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable, null);
-    }
+//
+//    /**
+//     * Runs the provided SQL and returns a cursor over the result set.
+//     *
+//     * @param cursorFactory the cursor factory to use, or null for the default factory
+//     * @param sql the SQL query. The SQL string must not be ; terminated
+//     * @param selectionArgs You may include ?s in where clause in the query,
+//     * which will be replaced by the values from selectionArgs. The
+//     * values will be bound as Strings.
+//     * @param editTable the name of the first table, which is editable
+//     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+//     * {@link Cursor}s are not synchronized, see the documentation for more details.
+//     */
+//    public ICursor rawQueryWithFactory(
+//            CursorFactory cursorFactory, String sql, String[] selectionArgs,
+//            String editTable) {
+//        return rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable, null);
+//    }
 
     /**
      * Runs the provided SQL and returns a cursor over the result set.
@@ -1308,11 +1307,11 @@ public final class SQLiteDatabase extends SQLiteClosable {
      */
     public ICursor rawQueryWithFactory(
             CursorFactory cursorFactory, String sql, String[] selectionArgs,
-            String editTable, CancellationSignal cancellationSignal) {
+            String editTable/*, CancellationSignal cancellationSignal*/) {
         acquireReference();
         try {
-            SQLiteCursorDriver driver = new SQLiteDirectCursorDriver(this, sql, editTable,
-                    cancellationSignal);
+            SQLiteCursorDriver driver = new SQLiteDirectCursorDriver(this, sql, editTable/*,
+                    cancellationSignal*/);
             return driver.query(cursorFactory != null ? cursorFactory : mCursorFactory,
                     selectionArgs);
         } finally {

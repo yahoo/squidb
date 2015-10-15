@@ -17,7 +17,6 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 
 import com.yahoo.squidb.utility.Logger;
@@ -33,12 +32,12 @@ public final class SQLiteQuery extends SQLiteProgram {
 
     private static final String TAG = "SQLiteQuery";
 
-    private final CancellationSignal mCancellationSignal;
+//    private final CancellationSignal mCancellationSignal;
 
-    SQLiteQuery(SQLiteDatabase db, String query, CancellationSignal cancellationSignal) {
-        super(db, query, null, cancellationSignal);
+    SQLiteQuery(SQLiteDatabase db, String query/*, CancellationSignal cancellationSignal*/) {
+        super(db, query, null/*, cancellationSignal*/);
 
-        mCancellationSignal = cancellationSignal;
+//        mCancellationSignal = cancellationSignal;
     }
 
     /**
@@ -61,8 +60,8 @@ public final class SQLiteQuery extends SQLiteProgram {
             window.acquireReference();
             try {
                 int numRows = getSession().executeForCursorWindow(getSql(), getBindArgs(),
-                        window, startPos, requiredPos, countAllRows, getConnectionFlags(),
-                        mCancellationSignal);
+                        window, startPos, requiredPos, countAllRows, getConnectionFlags()/*,
+                        mCancellationSignal*/);
                 return numRows;
             } catch (SQLiteDatabaseCorruptException ex) {
                 onCorruption();

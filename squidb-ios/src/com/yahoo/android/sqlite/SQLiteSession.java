@@ -17,7 +17,6 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 
 /**
@@ -289,22 +288,22 @@ public final class SQLiteSession {
      * @see #endTransaction
      */
     public void beginTransaction(int transactionMode,
-            SQLiteTransactionListener transactionListener, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+            SQLiteTransactionListener transactionListener, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         throwIfTransactionMarkedSuccessful();
-        beginTransactionUnchecked(transactionMode, transactionListener, connectionFlags,
-                cancellationSignal);
+        beginTransactionUnchecked(transactionMode, transactionListener, connectionFlags/*,
+                cancellationSignal*/);
     }
 
     private void beginTransactionUnchecked(int transactionMode,
-            SQLiteTransactionListener transactionListener, int connectionFlags,
-            CancellationSignal cancellationSignal) {
-        if (cancellationSignal != null) {
-            cancellationSignal.throwIfCanceled();
-        }
+            SQLiteTransactionListener transactionListener, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
+//        if (cancellationSignal != null) {
+//            cancellationSignal.throwIfCanceled();
+//        }
 
         if (mTransactionStack == null) {
-            acquireConnection(null, connectionFlags, cancellationSignal); // might throw
+            acquireConnection(null, connectionFlags/*, cancellationSignal*/); // might throw
         }
         try {
             // Set up the transaction such that we can back out safely
@@ -313,15 +312,15 @@ public final class SQLiteSession {
                 // Execute SQL might throw a runtime exception.
                 switch (transactionMode) {
                     case TRANSACTION_MODE_IMMEDIATE:
-                        mConnection.execute("BEGIN IMMEDIATE;", null,
-                                cancellationSignal); // might throw
+                        mConnection.execute("BEGIN IMMEDIATE;", null/*,
+                                cancellationSignal*/); // might throw
                         break;
                     case TRANSACTION_MODE_EXCLUSIVE:
-                        mConnection.execute("BEGIN EXCLUSIVE;", null,
-                                cancellationSignal); // might throw
+                        mConnection.execute("BEGIN EXCLUSIVE;", null/*,
+                                cancellationSignal*/); // might throw
                         break;
                     default:
-                        mConnection.execute("BEGIN;", null, cancellationSignal); // might throw
+                        mConnection.execute("BEGIN;", null/*, cancellationSignal*/); // might throw
                         break;
                 }
             }
@@ -332,7 +331,7 @@ public final class SQLiteSession {
                     transactionListener.onBegin(); // might throw
                 } catch (RuntimeException ex) {
                     if (mTransactionStack == null) {
-                        mConnection.execute("ROLLBACK;", null, cancellationSignal); // might throw
+                        mConnection.execute("ROLLBACK;", null/*, cancellationSignal*/); // might throw
                     }
                     throw ex;
                 }
@@ -388,17 +387,17 @@ public final class SQLiteSession {
      * @see #setTransactionSuccessful
      * @see #yieldTransaction
      */
-    public void endTransaction(CancellationSignal cancellationSignal) {
+    public void endTransaction(/*CancellationSignal cancellationSignal*/) {
         throwIfNoTransaction();
         assert mConnection != null;
 
-        endTransactionUnchecked(cancellationSignal, false);
+        endTransactionUnchecked(/*cancellationSignal, */false);
     }
 
-    private void endTransactionUnchecked(CancellationSignal cancellationSignal, boolean yielding) {
-        if (cancellationSignal != null) {
-            cancellationSignal.throwIfCanceled();
-        }
+    private void endTransactionUnchecked(/*CancellationSignal cancellationSignal, */boolean yielding) {
+//        if (cancellationSignal != null) {
+//            cancellationSignal.throwIfCanceled();
+//        }
 
         final Transaction top = mTransactionStack;
         boolean successful = (top.mMarkedSuccessful || yielding) && !top.mChildFailed;
@@ -428,9 +427,9 @@ public final class SQLiteSession {
         } else {
             try {
                 if (successful) {
-                    mConnection.execute("COMMIT;", null, cancellationSignal); // might throw
+                    mConnection.execute("COMMIT;", null/*, cancellationSignal*/); // might throw
                 } else {
-                    mConnection.execute("ROLLBACK;", null, cancellationSignal); // might throw
+                    mConnection.execute("ROLLBACK;", null/*, cancellationSignal*/); // might throw
                 }
             } finally {
                 releaseConnection(); // might throw
@@ -491,8 +490,8 @@ public final class SQLiteSession {
      * @see #beginTransaction
      * @see #endTransaction
      */
-    public boolean yieldTransaction(long sleepAfterYieldDelayMillis, boolean throwIfUnsafe,
-            CancellationSignal cancellationSignal) {
+    public boolean yieldTransaction(long sleepAfterYieldDelayMillis, boolean throwIfUnsafe/*,
+            CancellationSignal cancellationSignal*/) {
         if (throwIfUnsafe) {
             throwIfNoTransaction();
             throwIfTransactionMarkedSuccessful();
@@ -509,15 +508,15 @@ public final class SQLiteSession {
             return false;
         }
 
-        return yieldTransactionUnchecked(sleepAfterYieldDelayMillis,
-                cancellationSignal); // might throw
+        return yieldTransactionUnchecked(sleepAfterYieldDelayMillis/*,
+                cancellationSignal*/); // might throw
     }
 
-    private boolean yieldTransactionUnchecked(long sleepAfterYieldDelayMillis,
-            CancellationSignal cancellationSignal) {
-        if (cancellationSignal != null) {
-            cancellationSignal.throwIfCanceled();
-        }
+    private boolean yieldTransactionUnchecked(long sleepAfterYieldDelayMillis/*,
+            CancellationSignal cancellationSignal*/) {
+//        if (cancellationSignal != null) {
+//            cancellationSignal.throwIfCanceled();
+//        }
 
         if (!mConnectionPool.shouldYieldConnection(mConnection, mConnectionFlags)) {
             return false;
@@ -526,7 +525,7 @@ public final class SQLiteSession {
         final int transactionMode = mTransactionStack.mMode;
         final SQLiteTransactionListener listener = mTransactionStack.mListener;
         final int connectionFlags = mConnectionFlags;
-        endTransactionUnchecked(cancellationSignal, true); // might throw
+        endTransactionUnchecked(/*cancellationSignal, */true); // might throw
 
         if (sleepAfterYieldDelayMillis > 0) {
             try {
@@ -536,8 +535,8 @@ public final class SQLiteSession {
             }
         }
 
-        beginTransactionUnchecked(transactionMode, listener, connectionFlags,
-                cancellationSignal); // might throw
+        beginTransactionUnchecked(transactionMode, listener, connectionFlags/*,
+                cancellationSignal*/); // might throw
         return true;
     }
 
@@ -564,17 +563,17 @@ public final class SQLiteSession {
      * @throws SQLiteException if an error occurs, such as a syntax error.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public void prepare(String sql, int connectionFlags, CancellationSignal cancellationSignal,
+    public void prepare(String sql, int connectionFlags/*, CancellationSignal cancellationSignal*/,
             SQLiteStatementInfo outStatementInfo) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (cancellationSignal != null) {
-            cancellationSignal.throwIfCanceled();
-        }
+//        if (cancellationSignal != null) {
+//            cancellationSignal.throwIfCanceled();
+//        }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
             mConnection.prepare(sql, outStatementInfo); // might throw
         } finally {
@@ -594,19 +593,19 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public void execute(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    public void execute(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             return;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
-            mConnection.execute(sql, bindArgs, cancellationSignal); // might throw
+            mConnection.execute(sql, bindArgs/*, cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -626,19 +625,19 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public long executeForLong(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    public long executeForLong(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             return 0;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
-            return mConnection.executeForLong(sql, bindArgs, cancellationSignal); // might throw
+            return mConnection.executeForLong(sql, bindArgs/*, cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -658,19 +657,19 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public String executeForString(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    public String executeForString(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             return null;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
-            return mConnection.executeForString(sql, bindArgs, cancellationSignal); // might throw
+            return mConnection.executeForString(sql, bindArgs/*, cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -725,20 +724,20 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public int executeForChangedRowCount(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    public int executeForChangedRowCount(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             return 0;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
-            return mConnection.executeForChangedRowCount(sql, bindArgs,
-                    cancellationSignal); // might throw
+            return mConnection.executeForChangedRowCount(sql, bindArgs/*,
+                    cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -758,20 +757,20 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    public long executeForLastInsertedRowId(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    public long executeForLastInsertedRowId(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             return 0;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
-            return mConnection.executeForLastInsertedRowId(sql, bindArgs,
-                    cancellationSignal); // might throw
+            return mConnection.executeForLastInsertedRowId(sql, bindArgs/*,
+                    cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -802,7 +801,7 @@ public final class SQLiteSession {
      */
     public int executeForCursorWindow(String sql, Object[] bindArgs,
             CursorWindow window, int startPos, int requiredPos, boolean countAllRows,
-            int connectionFlags, CancellationSignal cancellationSignal) {
+            int connectionFlags/*, CancellationSignal cancellationSignal*/) {
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
@@ -810,16 +809,16 @@ public final class SQLiteSession {
             throw new IllegalArgumentException("window must not be null.");
         }
 
-        if (executeSpecial(sql, bindArgs, connectionFlags, cancellationSignal)) {
+        if (executeSpecial(sql, bindArgs, connectionFlags/*, cancellationSignal*/)) {
             window.clear();
             return 0;
         }
 
-        acquireConnection(sql, connectionFlags, cancellationSignal); // might throw
+        acquireConnection(sql, connectionFlags/*, cancellationSignal*/); // might throw
         try {
             return mConnection.executeForCursorWindow(sql, bindArgs,
-                    window, startPos, requiredPos, countAllRows,
-                    cancellationSignal); // might throw
+                    window, startPos, requiredPos, countAllRows/*,
+                    cancellationSignal*/); // might throw
         } finally {
             releaseConnection(); // might throw
         }
@@ -845,37 +844,37 @@ public final class SQLiteSession {
      * or invalid number of bind arguments.
      * @throws OperationCanceledException if the operation was canceled.
      */
-    private boolean executeSpecial(String sql, Object[] bindArgs, int connectionFlags,
-            CancellationSignal cancellationSignal) {
-        if (cancellationSignal != null) {
-            cancellationSignal.throwIfCanceled();
-        }
+    private boolean executeSpecial(String sql, Object[] bindArgs, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
+//        if (cancellationSignal != null) {
+//            cancellationSignal.throwIfCanceled();
+//        }
 
         final int type = DatabaseUtils.getSqlStatementType(sql);
         switch (type) {
             case DatabaseUtils.STATEMENT_BEGIN:
-                beginTransaction(TRANSACTION_MODE_EXCLUSIVE, null, connectionFlags,
-                        cancellationSignal);
+                beginTransaction(TRANSACTION_MODE_EXCLUSIVE, null, connectionFlags/*,
+                        cancellationSignal*/);
                 return true;
 
             case DatabaseUtils.STATEMENT_COMMIT:
                 setTransactionSuccessful();
-                endTransaction(cancellationSignal);
+                endTransaction(/*cancellationSignal*/);
                 return true;
 
             case DatabaseUtils.STATEMENT_ABORT:
-                endTransaction(cancellationSignal);
+                endTransaction(/*cancellationSignal*/);
                 return true;
         }
         return false;
     }
 
-    private void acquireConnection(String sql, int connectionFlags,
-            CancellationSignal cancellationSignal) {
+    private void acquireConnection(String sql, int connectionFlags/*,
+            CancellationSignal cancellationSignal*/) {
         if (mConnection == null) {
             assert mConnectionUseCount == 0;
-            mConnection = mConnectionPool.acquireConnection(sql, connectionFlags,
-                    cancellationSignal); // might throw
+            mConnection = mConnectionPool.acquireConnection(sql, connectionFlags/*,
+                    cancellationSignal*/); // might throw
             mConnectionFlags = connectionFlags;
         }
         mConnectionUseCount += 1;

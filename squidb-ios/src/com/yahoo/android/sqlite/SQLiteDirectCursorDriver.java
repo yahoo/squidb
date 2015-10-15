@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.os.CancellationSignal;
-
 import com.yahoo.android.sqlite.SQLiteDatabase.CursorFactory;
 import com.yahoo.squidb.data.ICursor;
 
@@ -31,19 +29,19 @@ public final class SQLiteDirectCursorDriver implements SQLiteCursorDriver {
     private final SQLiteDatabase mDatabase;
     private final String mEditTable;
     private final String mSql;
-    private final CancellationSignal mCancellationSignal;
+    //    private final CancellationSignal mCancellationSignal;
     private SQLiteQuery mQuery;
 
-    public SQLiteDirectCursorDriver(SQLiteDatabase db, String sql, String editTable,
-            CancellationSignal cancellationSignal) {
+    public SQLiteDirectCursorDriver(SQLiteDatabase db, String sql, String editTable/*,
+            CancellationSignal cancellationSignal*/) {
         mDatabase = db;
         mEditTable = editTable;
         mSql = sql;
-        mCancellationSignal = cancellationSignal;
+//        mCancellationSignal = cancellationSignal;
     }
 
     public ICursor query(CursorFactory factory, String[] selectionArgs) {
-        final SQLiteQuery query = new SQLiteQuery(mDatabase, mSql, mCancellationSignal);
+        final SQLiteQuery query = new SQLiteQuery(mDatabase, mSql/*, mCancellationSignal*/);
         final ICursor cursor;
         try {
             query.bindAllArgsAsStrings(selectionArgs);
