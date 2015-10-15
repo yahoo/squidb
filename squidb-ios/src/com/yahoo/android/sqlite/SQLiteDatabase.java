@@ -17,13 +17,8 @@
 package com.yahoo.android.sqlite;
 
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
-import android.database.DefaultDatabaseErrorHandler;
 import android.os.Looper;
-import android.os.OperationCanceledException;
 import android.util.EventLog;
-import android.util.Log;
 import android.util.Printer;
 
 import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
@@ -504,7 +499,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
                     exclusive ? SQLiteSession.TRANSACTION_MODE_EXCLUSIVE :
                             SQLiteSession.TRANSACTION_MODE_IMMEDIATE,
                     transactionListener,
-                    getThreadDefaultConnectionFlags(false /*readOnly*/), null);
+                    getThreadDefaultConnectionFlags(false /*readOnly*/)/*, null*/);
         } finally {
             releaseReference();
         }
@@ -517,7 +512,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
     public void endTransaction() {
         acquireReference();
         try {
-            getThreadSession().endTransaction(null);
+            getThreadSession().endTransaction(/*null*/);
         } finally {
             releaseReference();
         }
@@ -637,7 +632,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
     private boolean yieldIfContendedHelper(boolean throwIfUnsafe, long sleepAfterYieldDelay) {
         acquireReference();
         try {
-            return getThreadSession().yieldTransaction(sleepAfterYieldDelay, throwIfUnsafe, null);
+            return getThreadSession().yieldTransaction(sleepAfterYieldDelay, throwIfUnsafe/*, null*/);
         } finally {
             releaseReference();
         }
@@ -1939,10 +1934,10 @@ public final class SQLiteDatabase extends SQLiteClosable {
             // make sure this database has NO attached databases because sqlite's write-ahead-logging
             // doesn't work for databases with attached databases
             if (mHasAttachedDbsLocked) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Logger.d(TAG + ": this database: " + mConfigurationLocked.label
-                            + " has attached databases. can't  enable WAL.");
-                }
+//                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Logger.d(TAG + ": this database: " + mConfigurationLocked.label
+                        + " has attached databases. can't  enable WAL.");
+//                }
                 return false;
             }
 

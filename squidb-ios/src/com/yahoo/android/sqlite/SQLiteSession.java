@@ -17,7 +17,6 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.os.OperationCanceledException;
 
 /**
  * Provides a single client the ability to use a database.

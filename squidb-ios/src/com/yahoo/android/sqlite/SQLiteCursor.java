@@ -19,7 +19,6 @@ package com.yahoo.android.sqlite;
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
 import android.os.StrictMode;
-import android.util.Log;
 
 import com.yahoo.squidb.utility.Logger;
 
@@ -29,7 +28,7 @@ import java.util.Map;
 /**
  * A Cursor implementation that exposes results from a query on a
  * {@link SQLiteDatabase}.
- *
+ * // *
  * SQLiteCursor is not internally synchronized so code using a SQLiteCursor from multiple
  * threads should perform its own synchronization when using the SQLiteCursor.
  */
@@ -146,9 +145,9 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Logger.d(TAG + ": received count(*) from native_fill_window: " + mCount);
-                }
+//                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Logger.d(TAG + ": received count(*) from native_fill_window: " + mCount);
+//                }
             } else {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
                         mCursorWindowCapacity);
@@ -237,7 +236,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             return super.requery();
         } catch (IllegalStateException e) {
             // for backwards compatibility, just return false
-            Log.w(TAG, "requery() failed " + e.getMessage(), e);
+            Logger.w(TAG + ": requery() failed " + e.getMessage(), e);
             return false;
         }
     }

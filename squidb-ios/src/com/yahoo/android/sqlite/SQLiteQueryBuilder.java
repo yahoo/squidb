@@ -16,9 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.os.OperationCanceledException;
-import android.util.Log;
-
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.utility.Logger;
@@ -293,7 +290,7 @@ public class SQLiteQueryBuilder {
             String selection, String[] selectionArgs, String groupBy,
             String having, String sortOrder) {
         return query(db, projectionIn, selection, selectionArgs, groupBy, having, sortOrder,
-                null /* limit */, null /* cancellationSignal */);
+                null /* limit *//*, null /* cancellationSignal */);
     }
 
 //    /**
@@ -395,9 +392,9 @@ public class SQLiteQueryBuilder {
                 projectionIn, selection, groupBy, having,
                 sortOrder, limit);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Logger.d(TAG + ": Performing query: " + sql);
-        }
+//        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        Logger.d(TAG + ": Performing query: " + sql);
+//        }
         return db.rawQueryWithFactory(
                 mFactory, sql, selectionArgs,
                 SQLiteDatabase.findEditTable(mTables)/*,

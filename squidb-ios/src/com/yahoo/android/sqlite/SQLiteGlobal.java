@@ -35,6 +35,7 @@ import android.os.SystemProperties;
  * @hide
  */
 public final class SQLiteGlobal {
+
     private static final String TAG = "SQLiteGlobal";
 
     private static final Object sLock = new Object();
@@ -73,7 +74,7 @@ public final class SQLiteGlobal {
     public static String getDefaultJournalMode() {
         return SystemProperties.get("debug.sqlite.journalmode",
                 Resources.getSystem().getString(
-                com.android.internal.R.string.db_default_journal_mode));
+                        com.android.internal.R.string.db_default_journal_mode));
     }
 
     /**
@@ -82,7 +83,7 @@ public final class SQLiteGlobal {
     public static int getJournalSizeLimit() {
         return SystemProperties.getInt("debug.sqlite.journalsizelimit",
                 Resources.getSystem().getInteger(
-                com.android.internal.R.integer.db_journal_size_limit));
+                        com.android.internal.R.integer.db_journal_size_limit));
     }
 
     /**
@@ -91,7 +92,7 @@ public final class SQLiteGlobal {
     public static String getDefaultSyncMode() {
         return SystemProperties.get("debug.sqlite.syncmode",
                 Resources.getSystem().getString(
-                com.android.internal.R.string.db_default_sync_mode));
+                        com.android.internal.R.string.db_default_sync_mode));
     }
 
     /**
@@ -100,7 +101,7 @@ public final class SQLiteGlobal {
     public static String getWALSyncMode() {
         return SystemProperties.get("debug.sqlite.wal.syncmode",
                 Resources.getSystem().getString(
-                com.android.internal.R.string.db_wal_sync_mode));
+                        com.android.internal.R.string.db_wal_sync_mode));
     }
 
     /**
@@ -109,7 +110,7 @@ public final class SQLiteGlobal {
     public static int getWALAutoCheckpoint() {
         int value = SystemProperties.getInt("debug.sqlite.wal.autocheckpoint",
                 Resources.getSystem().getInteger(
-                com.android.internal.R.integer.db_wal_autocheckpoint));
+                        com.android.internal.R.integer.db_wal_autocheckpoint));
         return Math.max(1, value);
     }
 
@@ -119,7 +120,7 @@ public final class SQLiteGlobal {
     public static int getWALConnectionPoolSize() {
         int value = SystemProperties.getInt("debug.sqlite.wal.poolsize",
                 Resources.getSystem().getInteger(
-                com.android.internal.R.integer.db_connection_pool_size));
+                        com.android.internal.R.integer.db_connection_pool_size));
         return Math.max(2, value);
     }
 }

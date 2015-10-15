@@ -17,7 +17,6 @@
 package com.yahoo.android.sqlite;
 
 import android.database.CursorWindow;
-import android.os.OperationCanceledException;
 import android.util.LruCache;
 import android.util.Printer;
 

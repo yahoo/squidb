@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.os.OperationCanceledException;
-import android.os.SystemClock;
 import android.util.PrefixPrinter;
 import android.util.Printer;
 
@@ -581,6 +579,10 @@ public final class SQLiteConnectionPool implements Closeable {
         }
     }
 
+    private static native long uptimeMillis() /*-[
+        return (long) [[NSProcessInfo processInfo] systemUptime] * 1000;
+    ]-*/;
+
     // Might throw.
     private SQLiteConnection waitForConnection(String sql, int connectionFlags/*,
             CancellationSignal cancellationSignal*/) {
@@ -612,7 +614,7 @@ public final class SQLiteConnectionPool implements Closeable {
 
             // No connections available.  Enqueue a waiter in priority order.
             final int priority = getPriority(connectionFlags);
-            final long startTime = SystemClock.uptimeMillis();
+            final long startTime = uptimeMillis();
             waiter = obtainConnectionWaiterLocked(Thread.currentThread(), startTime,
                     priority, wantPrimaryConnection, sql, connectionFlags);
             ConnectionWaiter predecessor = null;
@@ -680,7 +682,7 @@ public final class SQLiteConnectionPool implements Closeable {
                         throw ex; // rethrow!
                     }
 
-                    final long now = SystemClock.uptimeMillis();
+                    final long now = uptimeMillis();
                     if (now < nextBusyTimeoutTime) {
                         busyTimeoutMillis = now - nextBusyTimeoutTime;
                     } else {
@@ -697,35 +699,35 @@ public final class SQLiteConnectionPool implements Closeable {
 //            }
         }
     }
-
-    // Can't throw.
-    private void cancelConnectionWaiterLocked(ConnectionWaiter waiter) {
-        if (waiter.mAssignedConnection != null || waiter.mException != null) {
-            // Waiter is done waiting but has not woken up yet.
-            return;
-        }
-
-        // Waiter must still be waiting.  Dequeue it.
-        ConnectionWaiter predecessor = null;
-        ConnectionWaiter current = mConnectionWaiterQueue;
-        while (current != waiter) {
-            assert current != null;
-            predecessor = current;
-            current = current.mNext;
-        }
-        if (predecessor != null) {
-            predecessor.mNext = waiter.mNext;
-        } else {
-            mConnectionWaiterQueue = waiter.mNext;
-        }
-
-        // Send the waiter an exception and unpark it.
-        waiter.mException = new OperationCanceledException();
-        LockSupport.unpark(waiter.mThread);
-
-        // Check whether removing this waiter will enable other waiters to make progress.
-        wakeConnectionWaitersLocked();
-    }
+//
+//    // Can't throw.
+//    private void cancelConnectionWaiterLocked(ConnectionWaiter waiter) {
+//        if (waiter.mAssignedConnection != null || waiter.mException != null) {
+//            // Waiter is done waiting but has not woken up yet.
+//            return;
+//        }
+//
+//        // Waiter must still be waiting.  Dequeue it.
+//        ConnectionWaiter predecessor = null;
+//        ConnectionWaiter current = mConnectionWaiterQueue;
+//        while (current != waiter) {
+//            assert current != null;
+//            predecessor = current;
+//            current = current.mNext;
+//        }
+//        if (predecessor != null) {
+//            predecessor.mNext = waiter.mNext;
+//        } else {
+//            mConnectionWaiterQueue = waiter.mNext;
+//        }
+//
+//        // Send the waiter an exception and unpark it.
+//        waiter.mException = new OperationCanceledException();
+//        LockSupport.unpark(waiter.mThread);
+//
+//        // Check whether removing this waiter will enable other waiters to make progress.
+//        wakeConnectionWaitersLocked();
+//    }
 
     // Can't throw.
     private void logConnectionPoolBusyLocked(long waitMillis, int connectionFlags) {
@@ -1031,7 +1033,7 @@ public final class SQLiteConnectionPool implements Closeable {
             printer.println("  Connection waiters:");
             if (mConnectionWaiterQueue != null) {
                 int i = 0;
-                final long now = SystemClock.uptimeMillis();
+                final long now = uptimeMillis();
                 for (ConnectionWaiter waiter = mConnectionWaiterQueue; waiter != null;
                         waiter = waiter.mNext, i++) {
                     indentedPrinter.println(i + ": waited for "
