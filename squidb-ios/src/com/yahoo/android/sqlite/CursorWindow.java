@@ -45,55 +45,54 @@ public class CursorWindow extends SQLiteClosable {
      *
      * @hide
      */
-    public int mWindowPtr;
+    public long mWindowPtr;
 
     private int mStartPos;
     private final String mName;
 
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
-    private static native int nativeCreate(String name, int cursorWindowSize);
+    private static native long nativeCreate(String name, int cursorWindowSize);
 
 //    private static native int nativeCreateFromParcel(Parcel parcel);
 
-    private static native void nativeDispose(int windowPtr);
+    private static native void nativeDispose(long windowPtr);
 
-//    private static native void nativeWriteToParcel(int windowPtr, Parcel parcel);
+//    private static native void nativeWriteToParcel(long windowPtr, Parcel parcel);
 
-    private static native void nativeClear(int windowPtr);
+    private static native void nativeClear(long windowPtr);
 
-    private static native int nativeGetNumRows(int windowPtr);
+    private static native int nativeGetNumRows(long windowPtr);
 
-    private static native boolean nativeSetNumColumns(int windowPtr, int columnNum);
+    private static native boolean nativeSetNumColumns(long windowPtr, int columnNum);
 
-    private static native boolean nativeAllocRow(int windowPtr);
+    private static native boolean nativeAllocRow(long windowPtr);
 
-    private static native void nativeFreeLastRow(int windowPtr);
+    private static native void nativeFreeLastRow(long windowPtr);
 
-    private static native int nativeGetType(int windowPtr, int row, int column);
+    private static native int nativeGetType(long windowPtr, int row, int column);
 
-    private static native byte[] nativeGetBlob(int windowPtr, int row, int column);
+    private static native byte[] nativeGetBlob(long windowPtr, int row, int column);
 
-    private static native String nativeGetString(int windowPtr, int row, int column);
+    private static native String nativeGetString(long windowPtr, int row, int column);
 
-    private static native long nativeGetLong(int windowPtr, int row, int column);
+    private static native long nativeGetLong(long windowPtr, int row, int column);
 
-    private static native double nativeGetDouble(int windowPtr, int row, int column);
+    private static native double nativeGetDouble(long windowPtr, int row, int column);
 
-    private static native void nativeCopyStringToBuffer(int windowPtr, int row, int column,
-            CharArrayBuffer buffer);
+    private static native void nativeCopyStringToBuffer(long windowPtr, int row, int column, CharArrayBuffer buffer);
 
-    private static native boolean nativePutBlob(int windowPtr, byte[] value, int row, int column);
+    private static native boolean nativePutBlob(long windowPtr, byte[] value, int row, int column);
 
-    private static native boolean nativePutString(int windowPtr, String value, int row, int column);
+    private static native boolean nativePutString(long windowPtr, String value, int row, int column);
 
-    private static native boolean nativePutLong(int windowPtr, long value, int row, int column);
+    private static native boolean nativePutLong(long windowPtr, long value, int row, int column);
 
-    private static native boolean nativePutDouble(int windowPtr, double value, int row, int column);
+    private static native boolean nativePutDouble(long windowPtr, double value, int row, int column);
 
-    private static native boolean nativePutNull(int windowPtr, int row, int column);
+    private static native boolean nativePutNull(long windowPtr, int row, int column);
 
-    private static native String nativeGetName(int windowPtr);
+//    private static native String nativeGetName(long windowPtr);
 
     /**
      * Creates a new empty cursor window and gives it a name.
@@ -779,6 +778,6 @@ public class CursorWindow extends SQLiteClosable {
 
     @Override
     public String toString() {
-        return getName() + " {" + Integer.toHexString(mWindowPtr) + "}";
+        return getName() + " {" + Long.toHexString(mWindowPtr) + "}";
     }
 }
