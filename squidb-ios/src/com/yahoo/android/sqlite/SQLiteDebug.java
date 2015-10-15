@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.os.SystemProperties;
-
 import java.util.ArrayList;
 
 /**
@@ -79,7 +77,8 @@ public final class SQLiteDebug {
      * @hide
      */
     public static final boolean shouldLogSlowQuery(long elapsedTimeMillis) {
-        int slowQueryMillis = SystemProperties.getInt("db.log.slow_query_threshold", -1);
+//        int slowQueryMillis = SystemProperties.getInt("db.log.slow_query_threshold", -1);
+        int slowQueryMillis = 10000;
         return slowQueryMillis >= 0 && elapsedTimeMillis >= slowQueryMillis;
     }
 

@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.content.res.Resources;
-
 import com.yahoo.squidb.data.ICursor;
 
 /**
@@ -38,9 +36,9 @@ public class CursorWindow extends SQLiteClosable {
      * The cursor window size. resource xml file specifies the value in kB.
      * convert it to bytes here by multiplying with 1024.
      */
-    private static final int sCursorWindowSize =
-            Resources.getSystem().getInteger(
-                    com.android.internal.R.integer.config_cursorWindowSize) * 1024;
+    private static final int sCursorWindowSize = 2 * 1024 * 1024;
+//            Resources.getSystem().getInteger(
+//                    com.android.internal.R.integer.config_cursorWindowSize) * 1024;
 
     /**
      * The native CursorWindow object pointer.  (FOR INTERNAL USE ONLY)
