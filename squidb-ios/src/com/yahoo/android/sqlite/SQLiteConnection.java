@@ -16,7 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.CursorWindow;
 import android.util.LruCache;
 import android.util.Printer;
 

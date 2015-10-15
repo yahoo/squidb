@@ -28,7 +28,7 @@ import java.util.ArrayList;
  */
 public final class SQLiteDebug {
 
-    private static native void nativeGetPagerStats(PagerStats stats);
+//    private static native void nativeGetPagerStats(PagerStats stats);
 
     /**
      * Controls the printing of informational SQL log messages.
@@ -149,18 +149,18 @@ public final class SQLiteDebug {
             this.cache = hits + "/" + misses + "/" + cachesize;
         }
     }
-
-    /**
-     * return all pager and database stats for the current process.
-     *
-     * @return {@link PagerStats}
-     */
-    public static PagerStats getDatabaseInfo() {
-        PagerStats stats = new PagerStats();
-        nativeGetPagerStats(stats);
-        stats.dbStats = SQLiteDatabase.getDbStats();
-        return stats;
-    }
+//
+//    /**
+//     * return all pager and database stats for the current process.
+//     *
+//     * @return {@link PagerStats}
+//     */
+//    public static PagerStats getDatabaseInfo() {
+//        PagerStats stats = new PagerStats();
+//        nativeGetPagerStats(stats);
+//        stats.dbStats = SQLiteDatabase.getDbStats();
+//        return stats;
+//    }
 
     /**
      * Dumps detailed information about all databases used by the process.

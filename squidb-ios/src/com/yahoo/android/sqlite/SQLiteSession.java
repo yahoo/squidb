@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.CursorWindow;
-
 /**
  * Provides a single client the ability to use a database.
  *

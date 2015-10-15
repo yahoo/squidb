@@ -16,10 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.AbstractWindowedCursor;
-import android.database.CursorWindow;
-import android.os.StrictMode;
-
 import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
@@ -95,7 +91,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         if (query == null) {
             throw new IllegalArgumentException("query object cannot be null");
         }
-        if (StrictMode.vmSqliteObjectLeaksEnabled()) {
+        if (true /*StrictMode.vmSqliteObjectLeaksEnabled()*/) {
             mStackTrace = new DatabaseObjectNotClosedException().fillInStackTrace();
         } else {
             mStackTrace = null;
@@ -265,7 +261,8 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 if (mStackTrace != null) {
                     String sql = mQuery.getSql();
                     int len = sql.length();
-                    StrictMode.onSqliteObjectLeaked(
+//                    StrictMode.onSqliteObjectLeaked(
+                    Logger.e(
                             "Finalizing a Cursor that has not been deactivated or closed. " +
                                     "database = " + mQuery.getDatabase().getLabel() +
                                     ", table = " + mEditTable +

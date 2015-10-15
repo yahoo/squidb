@@ -16,8 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.CursorWindow;
-
 import com.yahoo.squidb.utility.Logger;
 
 /**
