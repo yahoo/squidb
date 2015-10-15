@@ -18,7 +18,6 @@ package com.yahoo.android.sqlite;
 
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.yahoo.squidb.data.ICursor;
@@ -40,6 +39,8 @@ public class SQLiteQueryBuilder {
     private static final String TAG = "SQLiteQueryBuilder";
     private static final Pattern sLimitPattern =
             Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
+
+    private static final String BASE_COLUMNS_COUNT = "_count";
 
     private Map<String, String> mProjectionMap = null;
     private String mTables = "";
@@ -648,7 +649,7 @@ public class SQLiteQueryBuilder {
                 Entry<String, String> entry = entryIter.next();
 
                 // Don't include the _count column when people ask for no projection.
-                if (entry.getKey().equals(BaseColumns._COUNT)) {
+                if (entry.getKey().equals(BASE_COLUMNS_COUNT)) {
                     continue;
                 }
                 projection[i++] = entry.getValue();

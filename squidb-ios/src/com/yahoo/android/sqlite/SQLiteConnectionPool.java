@@ -16,13 +16,13 @@
 
 package com.yahoo.android.sqlite;
 
-import android.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.SystemClock;
 import android.util.PrefixPrinter;
 import android.util.Printer;
 
+import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
 import com.yahoo.squidb.utility.Logger;
 
 import java.io.Closeable;

@@ -20,15 +20,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.DefaultDatabaseErrorHandler;
-import android.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.Looper;
 import android.os.OperationCanceledException;
 import android.util.EventLog;
 import android.util.Log;
-import android.util.Pair;
 import android.util.Printer;
 
+import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.utility.Logger;
