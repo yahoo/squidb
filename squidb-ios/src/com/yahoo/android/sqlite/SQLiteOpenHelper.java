@@ -16,10 +16,10 @@
 
 package com.yahoo.android.sqlite;
 
-import android.content.Context;
-
 import com.yahoo.android.sqlite.SQLiteDatabase.CursorFactory;
 import com.yahoo.squidb.utility.Logger;
+
+import java.io.File;
 
 /**
  * A helper class to manage database creation and version management.
@@ -51,8 +51,10 @@ public abstract class SQLiteOpenHelper {
     // wanted getWritableDatabase.
     private static final boolean DEBUG_STRICT_READONLY = false;
 
-    private final Context mContext;
+    //    private final Context mContext;
+    private final String mPath;
     private final String mName;
+    private final File mDatabasePath;
     private final CursorFactory mFactory;
     private final int mNewVersion;
 
@@ -74,8 +76,8 @@ public abstract class SQLiteOpenHelper {
      * {@link #onUpgrade} will be used to upgrade the database; if the database is
      * newer, {@link #onDowngrade} will be used to downgrade the database
      */
-    public SQLiteOpenHelper(Context context, String name, CursorFactory factory, int version) {
-        this(context, name, factory, version, null);
+    public SQLiteOpenHelper(String path, String name, CursorFactory factory, int version) {
+        this(path, name, factory, version, null);
     }
 
     /**
@@ -95,14 +97,15 @@ public abstract class SQLiteOpenHelper {
      * @param errorHandler the {@link DatabaseErrorHandler} to be used when sqlite reports database
      * corruption, or null to use the default error handler.
      */
-    public SQLiteOpenHelper(Context context, String name, CursorFactory factory, int version,
+    public SQLiteOpenHelper(String path, String name, CursorFactory factory, int version,
             DatabaseErrorHandler errorHandler) {
         if (version < 1) {
             throw new IllegalArgumentException("Version must be >= 1, was " + version);
         }
 
-        mContext = context;
+        mPath = path;
         mName = name;
+        mDatabasePath = new File(path, name);
         mFactory = factory;
         mNewVersion = version;
         mErrorHandler = errorHandler;
@@ -218,13 +221,20 @@ public abstract class SQLiteOpenHelper {
             } else {
                 try {
                     if (DEBUG_STRICT_READONLY && !writable) {
-                        final String path = mContext.getDatabasePath(mName).getPath();
+                        final String path = mDatabasePath.getPath(); //mContext.getDatabasePath(mName).getPath();
                         db = SQLiteDatabase.openDatabase(path, mFactory,
                                 SQLiteDatabase.OPEN_READONLY, mErrorHandler);
                     } else {
-                        db = mContext.openOrCreateDatabase(mName, mEnableWriteAheadLogging ?
-                                        Context.MODE_ENABLE_WRITE_AHEAD_LOGGING : 0,
-                                mFactory, mErrorHandler);
+                        File databasePath = mDatabasePath;
+                        File databaseParent = databasePath.getParentFile();
+                        if (databaseParent.mkdirs() || databaseParent.isDirectory()) {
+                            final String path = databasePath.getPath();
+                            db = SQLiteDatabase.openOrCreateDatabase(
+                                    path, mFactory, mErrorHandler
+                            );
+                        } else {
+                            throw new SQLiteCantOpenDatabaseException("Failed to create database parent directory");
+                        }
                     }
                 } catch (SQLiteException ex) {
                     if (writable) {
@@ -232,7 +242,7 @@ public abstract class SQLiteOpenHelper {
                     }
                     Logger.e(TAG + ": Couldn't open " + mName
                             + " for writing (will try read-only):", ex);
-                    final String path = mContext.getDatabasePath(mName).getPath();
+                    final String path = mDatabasePath.getPath(); //mContext.getDatabasePath(mName).getPath();
                     db = SQLiteDatabase.openDatabase(path, mFactory,
                             SQLiteDatabase.OPEN_READONLY, mErrorHandler);
                 }
