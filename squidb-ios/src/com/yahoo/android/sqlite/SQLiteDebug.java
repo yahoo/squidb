@@ -17,7 +17,6 @@
 package com.yahoo.android.sqlite;
 
 import android.os.SystemProperties;
-import android.util.Printer;
 
 import java.util.ArrayList;
 

@@ -16,9 +16,6 @@
 
 package com.yahoo.android.sqlite;
 
-import android.util.LruCache;
-import android.util.Printer;
-
 import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.utility.Logger;
