@@ -16,13 +16,11 @@
 
 package com.yahoo.android.sqlite;
 
-import android.content.ContentValues;
-import android.os.Looper;
-import android.util.EventLog;
 import android.util.Printer;
 
 import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
 import com.yahoo.squidb.data.ICursor;
+import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.utility.Logger;
 
@@ -328,7 +326,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * Sends a corruption message to the database error handler.
      */
     void onCorruption() {
-        EventLog.writeEvent(EVENT_DB_CORRUPT, getLabel());
+//        EventLog.writeEvent(EVENT_DB_CORRUPT, getLabel());
         mErrorHandler.onCorruption(this);
     }
 
@@ -377,12 +375,15 @@ public final class SQLiteDatabase extends SQLiteClosable {
         return flags;
     }
 
-    private static boolean isMainThread() {
-        // FIXME: There should be a better way to do this.
-        // Would also be nice to have something that would work across Binder calls.
-        Looper looper = Looper.myLooper();
-        return looper != null && looper == Looper.getMainLooper();
-    }
+    private static native boolean isMainThread() /*-[
+        return [NSThread isMainThread];
+    ]-*/;
+//    {
+//        // FIXME: There should be a better way to do this.
+//        // Would also be nice to have something that would work across Binder calls.
+//        Looper looper = Looper.myLooper();
+//        return looper != null && looper == Looper.getMainLooper();
+//    }
 
     /**
      * Begins a transaction in EXCLUSIVE mode.
@@ -1330,7 +1331,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * column values
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
-    public long insert(String table, String nullColumnHack, ContentValues values) {
+    public long insert(String table, String nullColumnHack, ValuesStorage values) {
         try {
             return insertWithOnConflict(table, nullColumnHack, values, CONFLICT_NONE);
         } catch (SQLException e) {
@@ -1355,7 +1356,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * column values
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
-    public long insertOrThrow(String table, String nullColumnHack, ContentValues values)
+    public long insertOrThrow(String table, String nullColumnHack, ValuesStorage values)
             throws SQLException {
         return insertWithOnConflict(table, nullColumnHack, values, CONFLICT_NONE);
     }
@@ -1375,7 +1376,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * the row.
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
-    public long replace(String table, String nullColumnHack, ContentValues initialValues) {
+    public long replace(String table, String nullColumnHack, ValuesStorage initialValues) {
         try {
             return insertWithOnConflict(table, nullColumnHack, initialValues,
                     CONFLICT_REPLACE);
@@ -1401,7 +1402,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
     public long replaceOrThrow(String table, String nullColumnHack,
-            ContentValues initialValues) throws SQLException {
+            ValuesStorage initialValues) throws SQLException {
         return insertWithOnConflict(table, nullColumnHack, initialValues,
                 CONFLICT_REPLACE);
     }
@@ -1427,7 +1428,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * OR -1 if any error
      */
     public long insertWithOnConflict(String table, String nullColumnHack,
-            ContentValues initialValues, int conflictAlgorithm) {
+            ValuesStorage initialValues, int conflictAlgorithm) {
         acquireReference();
         try {
             StringBuilder sql = new StringBuilder();
@@ -1510,7 +1511,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * will be bound as Strings.
      * @return the number of rows affected
      */
-    public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+    public int update(String table, ValuesStorage values, String whereClause, String[] whereArgs) {
         return updateWithOnConflict(table, values, whereClause, whereArgs, CONFLICT_NONE);
     }
 
@@ -1528,7 +1529,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @param conflictAlgorithm for update conflict resolver
      * @return the number of rows affected
      */
-    public int updateWithOnConflict(String table, ContentValues values,
+    public int updateWithOnConflict(String table, ValuesStorage values,
             String whereClause, String[] whereArgs, int conflictAlgorithm) {
         if (values == null || values.size() == 0) {
             throw new IllegalArgumentException("Empty values");
@@ -1579,8 +1580,8 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * or any other SQL statement that returns data.
      * <p>
      * It has no means to return any data (such as the number of affected rows).
-     * Instead, you're encouraged to use {@link #insert(String, String, ContentValues)},
-     * {@link #update(String, ContentValues, String, String[])}, et al, when possible.
+     * Instead, you're encouraged to use {@link #insert(String, String, ValuesStorage)},
+     * {@link #update(String, ValuesStorage, String, String[])}, et al, when possible.
      * </p>
      * <p>
      * When using {@link #enableWriteAheadLogging()}, journal_mode is
@@ -1602,15 +1603,15 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * <p>
      * For INSERT statements, use any of the following instead.
      * <ul>
-     * <li>{@link #insert(String, String, ContentValues)}</li>
-     * <li>{@link #insertOrThrow(String, String, ContentValues)}</li>
-     * <li>{@link #insertWithOnConflict(String, String, ContentValues, int)}</li>
+     * <li>{@link #insert(String, String, ValuesStorage)}</li>
+     * <li>{@link #insertOrThrow(String, String, ValuesStorage)}</li>
+     * <li>{@link #insertWithOnConflict(String, String, ValuesStorage, int)}</li>
      * </ul>
      * <p>
      * For UPDATE statements, use any of the following instead.
      * <ul>
-     * <li>{@link #update(String, ContentValues, String, String[])}</li>
-     * <li>{@link #updateWithOnConflict(String, ContentValues, String, String[], int)}</li>
+     * <li>{@link #update(String, ValuesStorage, String, String[])}</li>
+     * <li>{@link #updateWithOnConflict(String, ValuesStorage, String, String[], int)}</li>
      * </ul>
      * <p>
      * For DELETE statements, use any of the following instead.

@@ -127,6 +127,11 @@ public abstract class ValuesStorage {
     public abstract Set<Map.Entry<String, Object>> valueSet();
 
     /**
+     * @return a set of all of the keys in the values storage
+     */
+    public abstract Set<String> keySet();
+
+    /**
      * Add a value of unknown type to the set if it is one of the accepted types. Accepted types are any primitive
      * (Integer, Boolean, etc.), String, and byte[].
      *

@@ -168,6 +168,13 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
         return values.valueSet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<String> keySet() {
+        return values.keySet();
+    }
 
     @Override
     public boolean equals(Object o) {

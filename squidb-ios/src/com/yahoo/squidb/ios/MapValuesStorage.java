@@ -164,6 +164,14 @@ public class MapValuesStorage extends ValuesStorage {
         return values.entrySet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<String> keySet() {
+        return values.keySet();
+    }
+
     @Override
     public boolean equals(Object o) {
         return (o instanceof MapValuesStorage) &&
