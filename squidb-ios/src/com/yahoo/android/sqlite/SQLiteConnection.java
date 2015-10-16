@@ -98,7 +98,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     private final OperationLog mRecentOperations = new OperationLog();
 
     // The native SQLiteConnection pointer.  (FOR INTERNAL USE ONLY)
-    private long mConnectionPtr;
+    private Object mConnectionPtr;
 
     private boolean mOnlyAllowReadOnlyOperations;
 
@@ -108,56 +108,56 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     // we can ensure that we detach the signal at the right time.
     private int mCancellationSignalAttachCount;
 
-    private static native long nativeOpen(String path, int openFlags, String label,
+    private static native Object nativeOpen(String path, int openFlags, String label,
             boolean enableTrace, boolean enableProfile);
 
-    private static native void nativeClose(long connectionPtr);
+    private static native void nativeClose(Object connectionPtr);
 
-    private static native void nativeRegisterCustomFunction(long connectionPtr, SQLiteCustomFunction function);
+    private static native void nativeRegisterCustomFunction(Object connectionPtr, SQLiteCustomFunction function);
 
-    private static native void nativeRegisterLocalizedCollators(long connectionPtr, String locale);
+    private static native void nativeRegisterLocalizedCollators(Object connectionPtr, String locale);
 
-    private static native long nativePrepareStatement(long connectionPtr, String sql);
+    private static native Object nativePrepareStatement(Object connectionPtr, String sql);
 
-    private static native void nativeFinalizeStatement(long connectionPtr, long statementPtr);
+    private static native void nativeFinalizeStatement(Object connectionPtr, Object statementPtr);
 
-    private static native int nativeGetParameterCount(long connectionPtr, long statementPtr);
+    private static native int nativeGetParameterCount(Object connectionPtr, Object statementPtr);
 
-    private static native boolean nativeIsReadOnly(long connectionPtr, long statementPtr);
+    private static native boolean nativeIsReadOnly(Object connectionPtr, Object statementPtr);
 
-    private static native int nativeGetColumnCount(long connectionPtr, long statementPtr);
+    private static native int nativeGetColumnCount(Object connectionPtr, Object statementPtr);
 
-    private static native String nativeGetColumnName(long connectionPtr, long statementPtr, int index);
+    private static native String nativeGetColumnName(Object connectionPtr, Object statementPtr, int index);
 
-    private static native void nativeBindNull(long connectionPtr, long statementPtr, int index);
+    private static native void nativeBindNull(Object connectionPtr, Object statementPtr, int index);
 
-    private static native void nativeBindLong(long connectionPtr, long statementPtr, int index, long value);
+    private static native void nativeBindLong(Object connectionPtr, Object statementPtr, int index, long value);
 
-    private static native void nativeBindDouble(long connectionPtr, long statementPtr, int index, double value);
+    private static native void nativeBindDouble(Object connectionPtr, Object statementPtr, int index, double value);
 
-    private static native void nativeBindString(long connectionPtr, long statementPtr, int index, String value);
+    private static native void nativeBindString(Object connectionPtr, Object statementPtr, int index, String value);
 
-    private static native void nativeBindBlob(long connectionPtr, long statementPtr, int index, byte[] value);
+    private static native void nativeBindBlob(Object connectionPtr, Object statementPtr, int index, byte[] value);
 
-    private static native void nativeResetStatementAndClearBindings(long connectionPtr, long statementPtr);
+    private static native void nativeResetStatementAndClearBindings(Object connectionPtr, Object statementPtr);
 
-    private static native void nativeExecute(long connectionPtr, long statementPtr);
+    private static native void nativeExecute(Object connectionPtr, Object statementPtr);
 
-    private static native long nativeExecuteForLong(long connectionPtr, long statementPtr);
+    private static native long nativeExecuteForLong(Object connectionPtr, Object statementPtr);
 
-    private static native String nativeExecuteForString(long connectionPtr, long statementPtr);
+    private static native String nativeExecuteForString(Object connectionPtr, Object statementPtr);
 
 //    private static native int nativeExecuteForBlobFileDescriptor(long connectionPtr, long statementPtr);
 
-    private static native int nativeExecuteForChangedRowCount(long connectionPtr, long statementPtr);
+    private static native int nativeExecuteForChangedRowCount(Object connectionPtr, Object statementPtr);
 
-    private static native long nativeExecuteForLastInsertedRowId(long connectionPtr, long statementPtr);
+    private static native long nativeExecuteForLastInsertedRowId(Object connectionPtr, Object statementPtr);
 
     private static native long nativeExecuteForCursorWindow(
-            long connectionPtr, long statementPtr, long windowPtr,
+            Object connectionPtr, Object statementPtr, long windowPtr,
             int startPos, int requiredPos, boolean countAllRows);
 
-    private static native int nativeGetDbLookaside(long connectionPtr);
+    private static native int nativeGetDbLookaside(Object connectionPtr);
 
 //    private static native void nativeCancel(long connectionPtr);
 //
@@ -179,7 +179,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (mPool != null && mConnectionPtr != 0) {
+            if (mPool != null && mConnectionPtr != null) {
                 mPool.onConnectionLeaked();
             }
 
@@ -239,7 +239,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
             mCloseGuard.close();
         }
 
-        if (mConnectionPtr != 0) {
+        if (mConnectionPtr != null) {
             final int cookie = mRecentOperations.beginOperation("close", null, null);
             try {
                 mPreparedStatementCache.evictAll();
@@ -886,7 +886,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
             skipCache = true;
         }
 
-        final long statementPtr = nativePrepareStatement(mConnectionPtr, sql);
+        final Object statementPtr = nativePrepareStatement(mConnectionPtr, sql);
         try {
             final int numParameters = nativeGetParameterCount(mConnectionPtr, statementPtr);
             final int type = DatabaseUtils.getSqlStatementType(sql);
@@ -987,7 +987,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
             return;
         }
 
-        final long statementPtr = statement.mStatementPtr;
+        final Object statementPtr = statement.mStatementPtr;
         for (int i = 0; i < count; i++) {
             final Object arg = bindArgs[i];
             switch (DatabaseUtils.getTypeOfObject(arg)) {
@@ -1072,7 +1072,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     void dumpUnsafe(Printer printer, boolean verbose) {
         printer.println("Connection #" + mConnectionId + ":");
         if (verbose) {
-            printer.println("  connectionPtr: 0x" + Long.toHexString(mConnectionPtr));
+            printer.println("  connectionPtr: 0x" + Integer.toHexString(System.identityHashCode(mConnectionPtr)));
         }
         printer.println("  isPrimaryConnection: " + mIsPrimaryConnection);
         printer.println("  onlyAllowReadOnlyOperations: " + mOnlyAllowReadOnlyOperations);
@@ -1178,7 +1178,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
         return "SQLiteConnection: " + mConfiguration.path + " (" + mConnectionId + ")";
     }
 
-    private PreparedStatement obtainPreparedStatement(String sql, long statementPtr,
+    private PreparedStatement obtainPreparedStatement(String sql, Object statementPtr,
             int numParameters, int type, boolean readOnly) {
         PreparedStatement statement = mPreparedStatementPool;
         if (statement != null) {
@@ -1226,7 +1226,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 
         // The native sqlite3_stmt object pointer.
         // Lifetime is managed explicitly by the connection.
-        public long mStatementPtr;
+        public Object mStatementPtr;
 
         // The number of parameters that the prepared statement has.
         public int mNumParameters;
@@ -1273,7 +1273,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
                     if (statement.mInCache) { // might be false due to a race with entryRemoved
                         String sql = entry.getKey();
                         printer.println("    " + i + ": statementPtr=0x"
-                                + Long.toHexString(statement.mStatementPtr)
+                                + Integer.toHexString(System.identityHashCode(statement.mStatementPtr))
                                 + ", numParameters=" + statement.mNumParameters
                                 + ", type=" + statement.mType
                                 + ", readOnly=" + statement.mReadOnly
