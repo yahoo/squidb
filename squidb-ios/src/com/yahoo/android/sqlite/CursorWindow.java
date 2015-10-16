@@ -16,6 +16,10 @@
 
 package com.yahoo.android.sqlite;
 
+ /*-[
+ #import "CursorWindow.h"
+ ]-*/
+
 import com.yahoo.squidb.data.ICursor;
 
 /**
@@ -45,52 +49,86 @@ public class CursorWindow extends SQLiteClosable {
      *
      * @hide
      */
-    public long mWindowPtr;
+    public Object mWindowPtr;
 
     private int mStartPos;
     private final String mName;
 
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
-    private static native long nativeCreate(String name, int cursorWindowSize);
+    private static native Object nativeCreate(String name, int cursorWindowSize) /*-[
+        return [CursorWindow nativeCreate:name cursorWindowSize:cursorWindowSize];
+    ]-*/;
 
 //    private static native int nativeCreateFromParcel(Parcel parcel);
 
-    private static native void nativeDispose(long windowPtr);
+    private static native void nativeDispose(Object windowPtr) /*-[
+        [CursorWindow nativeDispose:windowPtr];
+    ]-*/;
 
 //    private static native void nativeWriteToParcel(long windowPtr, Parcel parcel);
 
-    private static native void nativeClear(long windowPtr);
+    private static native void nativeClear(Object windowPtr) /*-[
+        [CursorWindow nativeClear:windowPtr];
+    ]-*/;
 
-    private static native int nativeGetNumRows(long windowPtr);
+    private static native int nativeGetNumRows(Object windowPtr) /*-[
+        return [CursorWindow nativeGetNumRows:windowPtr];
+    ]-*/;
 
-    private static native boolean nativeSetNumColumns(long windowPtr, int columnNum);
+    private static native boolean nativeSetNumColumns(Object windowPtr, int columnNum) /*-[
+        return [CursorWindow nativeSetNumColumns:windowPtr columnNum:columnNum];
+    ]-*/;
 
-    private static native boolean nativeAllocRow(long windowPtr);
+    private static native boolean nativeAllocRow(Object windowPtr) /*-[
+        return [CursorWindow nativeAllocRow:windowPtr];
+    ]-*/;
 
-    private static native void nativeFreeLastRow(long windowPtr);
+    private static native void nativeFreeLastRow(Object windowPtr) /*-[
+        [CursorWindow nativeFreeLastRow:windowPtr];
+    ]-*/;
 
-    private static native int nativeGetType(long windowPtr, int row, int column);
+    private static native int nativeGetType(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativeGetType:windowPtr row:row column:column];
+    ]-*/;
 
-    private static native byte[] nativeGetBlob(long windowPtr, int row, int column);
+    private static native byte[] nativeGetBlob(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativeGetBlob:windowPtr row:row column:column];
+    ]-*/;
 
-    private static native String nativeGetString(long windowPtr, int row, int column);
+    private static native String nativeGetString(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativeGetString:windowPtr row:row column:column];
+    ]-*/;
 
-    private static native long nativeGetLong(long windowPtr, int row, int column);
+    private static native long nativeGetLong(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativeGetLong:windowPtr row:row column:column];
+    ]-*/;
 
-    private static native double nativeGetDouble(long windowPtr, int row, int column);
+    private static native double nativeGetDouble(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativeGetDouble:windowPtr row:row column:column];
+    ]-*/;
 
-    private static native void nativeCopyStringToBuffer(long windowPtr, int row, int column, CharArrayBuffer buffer);
+    private static native void nativeCopyStringToBuffer(Object windowPtr, int row, int column, CharArrayBuffer buffer);
 
-    private static native boolean nativePutBlob(long windowPtr, byte[] value, int row, int column);
+    private static native boolean nativePutBlob(Object windowPtr, byte[] value, int row, int column) /*-[
+        return [CursorWindow nativePutBlob:windowPtr value:value row:row column:column];
+    ]-*/;
 
-    private static native boolean nativePutString(long windowPtr, String value, int row, int column);
+    private static native boolean nativePutString(Object windowPtr, String value, int row, int column) /*-[
+        return [CursorWindow nativePutString:windowPtr value:value row:row column:column];
+    ]-*/;
 
-    private static native boolean nativePutLong(long windowPtr, long value, int row, int column);
+    private static native boolean nativePutLong(Object windowPtr, long value, int row, int column) /*-[
+        return [CursorWindow nativePutLong:windowPtr value:value row:row column:column];
+    ]-*/;
 
-    private static native boolean nativePutDouble(long windowPtr, double value, int row, int column);
+    private static native boolean nativePutDouble(Object windowPtr, double value, int row, int column) /*-[
+        return [CursorWindow nativePutDouble:windowPtr value:value row:row column:column];
+    ]-*/;
 
-    private static native boolean nativePutNull(long windowPtr, int row, int column);
+    private static native boolean nativePutNull(Object windowPtr, int row, int column) /*-[
+        return [CursorWindow nativePutNull:windowPtr row:row column:column];
+    ]-*/;
 
 //    private static native String nativeGetName(long windowPtr);
 
@@ -107,7 +145,7 @@ public class CursorWindow extends SQLiteClosable {
         mStartPos = 0;
         mName = name != null && name.length() != 0 ? name : "<unnamed>";
         mWindowPtr = nativeCreate(mName, sCursorWindowSize);
-        if (mWindowPtr == 0) {
+        if (mWindowPtr == null) {
             throw new CursorWindowAllocationException("Cursor window allocation of " +
                     (sCursorWindowSize / 1024) + " kb failed. "/* + printStats()*/);
         }
@@ -159,7 +197,7 @@ public class CursorWindow extends SQLiteClosable {
         if (mCloseGuard != null) {
             mCloseGuard.close();
         }
-        if (mWindowPtr != 0) {
+        if (mWindowPtr != null) {
 //            recordClosingOfWindow(mWindowPtr);
             nativeDispose(mWindowPtr);
             mWindowPtr = 0;
@@ -778,6 +816,6 @@ public class CursorWindow extends SQLiteClosable {
 
     @Override
     public String toString() {
-        return getName() + " {" + Long.toHexString(mWindowPtr) + "}";
+        return getName() + " {" + Integer.toHexString(System.identityHashCode(mWindowPtr)) + "}";
     }
 }
