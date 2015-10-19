@@ -198,7 +198,10 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 
     private static native long nativeExecuteForCursorWindow(
             Object connectionPtr, Object statementPtr, Object windowPtr,
-            int startPos, int requiredPos, boolean countAllRows);
+            int startPos, int requiredPos, boolean countAllRows) /*-[
+        return [SQLiteConnection nativeExecuteForCursorWindow:connectionPtr statement:statementPtr window:windowPtr
+            startPos:startPos requiredPos:requiredPos countAllRows:countAllRows];
+    ]-*/;
 
     private static native int nativeGetDbLookaside(Object connectionPtr) /*-[
         return [SQLiteConnection nativeGetDbLookaside:connectionPtr];
