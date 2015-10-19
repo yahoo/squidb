@@ -300,4 +300,35 @@ public class DatabaseUtils {
         }
         cursor.moveToPosition(oldPos);
     }
+
+    /**
+     * Binds the given Object to the given SQLiteProgram using the proper
+     * typing. For example, bind numbers as longs/doubles, and everything else
+     * as a string by call toString() on it.
+     *
+     * @param prog the program to bind the object to
+     * @param index the 1-based index to bind at
+     * @param value the value to bind
+     */
+    public static void bindObjectToProgram(SQLiteProgram prog, int index,
+            Object value) {
+        if (value == null) {
+            prog.bindNull(index);
+        } else if (value instanceof Double || value instanceof Float) {
+            prog.bindDouble(index, ((Number) value).doubleValue());
+        } else if (value instanceof Number) {
+            prog.bindLong(index, ((Number) value).longValue());
+        } else if (value instanceof Boolean) {
+            Boolean bool = (Boolean) value;
+            if (bool) {
+                prog.bindLong(index, 1);
+            } else {
+                prog.bindLong(index, 0);
+            }
+        } else if (value instanceof byte[]) {
+            prog.bindBlob(index, (byte[]) value);
+        } else {
+            prog.bindString(index, value.toString());
+        }
+    }
 }

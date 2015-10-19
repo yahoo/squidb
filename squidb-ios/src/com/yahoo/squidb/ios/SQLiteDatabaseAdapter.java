@@ -3,15 +3,12 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.android;
+package com.yahoo.squidb.ios;
 
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
-import android.database.sqlite.SQLiteTransactionListener;
-import android.os.Build;
-
+import com.yahoo.android.sqlite.SQLException;
+import com.yahoo.android.sqlite.SQLiteDatabase;
+import com.yahoo.android.sqlite.SQLiteStatement;
+import com.yahoo.android.sqlite.SQLiteTransactionListener;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLExceptionWrapper;
@@ -126,7 +123,7 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
 
     @Override
     public ICursor rawQuery(String sql, Object[] bindArgs) {
-        return new SquidCursorWrapper(db.rawQueryWithFactory(new SquidCursorFactory(bindArgs), sql, null, null));
+        return db.rawQueryWithFactory(new SquidCursorFactory(bindArgs), sql, null, null);
     }
 
     @Override
@@ -174,19 +171,12 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
 
     @Override
     public void ensureSqlCompiles(String sql) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            SQLiteStatement statement = null;
-            try {
-                statement = db.compileStatement(sql);
-            } finally {
-                if (statement != null) {
-                    statement.close();
-                }
-            }
-        } else {
-            Cursor c = db.rawQuery(sql, null);
-            if (c != null) {
-                c.close();
+        SQLiteStatement statement = null;
+        try {
+            statement = db.compileStatement(sql);
+        } finally {
+            if (statement != null) {
+                statement.close();
             }
         }
     }

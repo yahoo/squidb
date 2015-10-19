@@ -112,6 +112,13 @@ public abstract class SQLiteOpenHelper {
     }
 
     /**
+     * @return the File object representing the database
+     */
+    public File getDatabaseFile() {
+        return mDatabasePath;
+    }
+
+    /**
      * Return the name of the SQLite database being opened, as given to
      * the constructor.
      */

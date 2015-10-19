@@ -7,16 +7,16 @@ package com.yahoo.squidb.data;
 
 /**
  * Common interface for helper classes that open the database to implement, e.g.
- * {@link com.yahoo.squidb.data.android.DefaultOpenHelperWrapper} wraps
+ * {@link com.yahoo.squidb.android.AndroidOpenHelperWrapper} wraps
  * {@link android.database.sqlite.SQLiteOpenHelper SQLiteOpenHelper} and implements this interface.
  */
 public interface SQLiteOpenHelperWrapper {
 
     ISQLiteDatabase openForWriting();
 
-    String getDatabasePath(String databaseName);
+    String getDatabasePath();
 
-    void deleteDatabase(String databaseName);
+    void deleteDatabase();
 
     void close();
 

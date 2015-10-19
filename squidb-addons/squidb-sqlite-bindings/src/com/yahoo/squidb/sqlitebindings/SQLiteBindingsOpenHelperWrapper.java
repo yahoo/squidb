@@ -41,13 +41,13 @@ public class SQLiteBindingsOpenHelperWrapper extends SQLiteOpenHelper implements
     }
 
     @Override
-    public String getDatabasePath(String databaseName) {
-        return context.getDatabasePath(databaseName).getAbsolutePath();
+    public String getDatabasePath() {
+        return context.getDatabasePath(getDatabaseName()).getAbsolutePath();
     }
 
     @Override
-    public void deleteDatabase(String databaseName) {
-        context.deleteDatabase(databaseName);
+    public void deleteDatabase() {
+        context.deleteDatabase(getDatabaseName());
     }
 
     @Override

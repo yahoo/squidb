@@ -7,7 +7,7 @@ package com.yahoo.squidb.sample.database;
 
 import android.content.Context;
 
-import com.yahoo.squidb.android.DefaultOpenHelperWrapper;
+import com.yahoo.squidb.android.AndroidOpenHelperWrapper;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.SquidDatabase;
@@ -70,6 +70,6 @@ public class TasksDatabase extends SquidDatabase {
     @Override
     protected SQLiteOpenHelperWrapper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
             int version) {
-        return new DefaultOpenHelperWrapper(context, databaseName, delegate, version);
+        return new AndroidOpenHelperWrapper(context, databaseName, delegate, version);
     }
 }

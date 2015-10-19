@@ -9,7 +9,7 @@ import android.content.Context;
 import android.os.Build;
 import android.test.AndroidTestRunner;
 
-import com.yahoo.squidb.android.DefaultOpenHelperWrapper;
+import com.yahoo.squidb.android.AndroidOpenHelperWrapper;
 import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.SquidDatabase.OpenHelperDelegate;
 import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelperWrapper;
@@ -48,7 +48,7 @@ public class SquidTestRunner extends AndroidTestRunner {
             @Override
             public SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
                     OpenHelperDelegate delegate, int version) {
-                return new DefaultOpenHelperWrapper(context, databaseName, delegate, version);
+                return new AndroidOpenHelperWrapper(context, databaseName, delegate, version);
             }
         },
         SQLITE {
