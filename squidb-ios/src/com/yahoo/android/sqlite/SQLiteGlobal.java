@@ -16,6 +16,12 @@
 
 package com.yahoo.android.sqlite;
 
+/*-[
+#import <sqlite3.h>
+
+# define SOFT_HEAP_LIMIT 8 * 1024 * 1024;
+]-*/
+
 /**
  * Provides access to SQLite functions that affect all database connection,
  * such as memory management.
@@ -34,10 +40,27 @@ public final class SQLiteGlobal {
 
     private static final String TAG = "SQLiteGlobal";
 
-    private static final Object sLock = new Object();
+//    private static final Object sLock = new Object();
 //    private static int sDefaultPageSize;
 
-    private static native int nativeReleaseMemory();
+    public static native void sqlite3_initialize() /*-[
+        // Enable multi-threaded mode.  In this mode, SQLite is safe to use by multiple
+        // threads as long as no two threads use the same database connection at the same
+        // time (which we guarantee in the SQLite database wrappers).
+        sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
+
+        // The soft heap limit prevents the page cache allocations from growing
+        // beyond the given limit, no matter what the max page cache sizes are
+        // set to. The limit does not, as of 3.5.0, affect any other allocations.
+        sqlite3_soft_heap_limit(SOFT_HEAP_LIMIT);
+
+        // Initialize SQLite.
+        sqlite3_initialize();
+    ]-*/;
+
+    private static native int nativeReleaseMemory() /*-[
+        return sqlite3_release_memory(SOFT_HEAP_LIMIT);
+    ]-*/;
 
     private SQLiteGlobal() {
     }

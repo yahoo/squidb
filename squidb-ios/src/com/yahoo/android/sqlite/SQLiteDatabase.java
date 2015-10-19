@@ -54,6 +54,10 @@ import java.util.WeakHashMap;
  */
 public final class SQLiteDatabase extends SQLiteClosable {
 
+    static {
+        SQLiteGlobal.sqlite3_initialize();
+    }
+
     private static final String TAG = "SQLiteDatabase";
 
     private static final int EVENT_DB_CORRUPT = 75004;
