@@ -166,21 +166,21 @@ public abstract class AbstractCursor implements ICursor {
     }
 
 
-    public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
-        // Default implementation, uses getString
-        String result = getString(columnIndex);
-        if (result != null) {
-            char[] data = buffer.data;
-            if (data == null || data.length < result.length()) {
-                buffer.data = result.toCharArray();
-            } else {
-                result.getChars(0, result.length(), data, 0);
-            }
-            buffer.sizeCopied = result.length();
-        } else {
-            buffer.sizeCopied = 0;
-        }
-    }
+//    public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
+//        // Default implementation, uses getString
+//        String result = getString(columnIndex);
+//        if (result != null) {
+//            char[] data = buffer.data;
+//            if (data == null || data.length < result.length()) {
+//                buffer.data = result.toCharArray();
+//            } else {
+//                result.getChars(0, result.length(), data, 0);
+//            }
+//            buffer.sizeCopied = result.length();
+//        } else {
+//            buffer.sizeCopied = 0;
+//        }
+//    }
 
     /* -------------------------------------------------------- */
     /* Implementation */

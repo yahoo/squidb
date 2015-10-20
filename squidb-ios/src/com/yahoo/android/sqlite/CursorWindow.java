@@ -108,7 +108,7 @@ public class CursorWindow extends SQLiteClosable {
         return [CursorWindowNative nativeGetDouble:windowPtr row:row column:column];
     ]-*/;
 
-    private static native void nativeCopyStringToBuffer(Object windowPtr, int row, int column, CharArrayBuffer buffer);
+//    private static native void nativeCopyStringToBuffer(Object windowPtr, int row, int column, CharArrayBuffer buffer);
 
     private static native boolean nativePutBlob(Object windowPtr, byte[] value, int row, int column) /*-[
         return [CursorWindowNative nativePutBlob:windowPtr value:value row:row column:column];
@@ -482,47 +482,47 @@ public class CursorWindow extends SQLiteClosable {
         }
     }
 
-    /**
-     * Copies the text of the field at the specified row and column index into
-     * a {@link CharArrayBuffer}.
-     * <p>
-     * The buffer is populated as follows:
-     * <ul>
-     * <li>If the buffer is too small for the value to be copied, then it is
-     * automatically resized.</li>
-     * <li>If the field is of type {@link Cursor#FIELD_TYPE_NULL}, then the buffer
-     * is set to an empty string.</li>
-     * <li>If the field is of type {@link Cursor#FIELD_TYPE_STRING}, then the buffer
-     * is set to the contents of the string.</li>
-     * <li>If the field is of type {@link Cursor#FIELD_TYPE_INTEGER}, then the buffer
-     * is set to a string representation of the integer in decimal, obtained by formatting the
-     * value with the <code>printf</code> family of functions using
-     * format specifier <code>%lld</code>.</li>
-     * <li>If the field is of type {@link Cursor#FIELD_TYPE_FLOAT}, then the buffer is
-     * set to a string representation of the floating-point value in decimal, obtained by
-     * formatting the value with the <code>printf</code> family of functions using
-     * format specifier <code>%g</code>.</li>
-     * <li>If the field is of type {@link Cursor#FIELD_TYPE_BLOB}, then a
-     * {@link SQLiteException} is thrown.</li>
-     * </ul>
-     * </p>
-     *
-     * @param row The zero-based row index.
-     * @param column The zero-based column index.
-     * @param buffer The {@link CharArrayBuffer} to hold the string.  It is automatically
-     * resized if the requested string is larger than the buffer's current capacity.
-     */
-    public void copyStringToBuffer(int row, int column, CharArrayBuffer buffer) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("CharArrayBuffer should not be null");
-        }
-        acquireReference();
-        try {
-            nativeCopyStringToBuffer(mWindowPtr, row - mStartPos, column, buffer);
-        } finally {
-            releaseReference();
-        }
-    }
+//    /**
+//     * Copies the text of the field at the specified row and column index into
+//     * a {@link CharArrayBuffer}.
+//     * <p>
+//     * The buffer is populated as follows:
+//     * <ul>
+//     * <li>If the buffer is too small for the value to be copied, then it is
+//     * automatically resized.</li>
+//     * <li>If the field is of type {@link Cursor#FIELD_TYPE_NULL}, then the buffer
+//     * is set to an empty string.</li>
+//     * <li>If the field is of type {@link Cursor#FIELD_TYPE_STRING}, then the buffer
+//     * is set to the contents of the string.</li>
+//     * <li>If the field is of type {@link Cursor#FIELD_TYPE_INTEGER}, then the buffer
+//     * is set to a string representation of the integer in decimal, obtained by formatting the
+//     * value with the <code>printf</code> family of functions using
+//     * format specifier <code>%lld</code>.</li>
+//     * <li>If the field is of type {@link Cursor#FIELD_TYPE_FLOAT}, then the buffer is
+//     * set to a string representation of the floating-point value in decimal, obtained by
+//     * formatting the value with the <code>printf</code> family of functions using
+//     * format specifier <code>%g</code>.</li>
+//     * <li>If the field is of type {@link Cursor#FIELD_TYPE_BLOB}, then a
+//     * {@link SQLiteException} is thrown.</li>
+//     * </ul>
+//     * </p>
+//     *
+//     * @param row The zero-based row index.
+//     * @param column The zero-based column index.
+//     * @param buffer The {@link CharArrayBuffer} to hold the string.  It is automatically
+//     * resized if the requested string is larger than the buffer's current capacity.
+//     */
+//    public void copyStringToBuffer(int row, int column, CharArrayBuffer buffer) {
+//        if (buffer == null) {
+//            throw new IllegalArgumentException("CharArrayBuffer should not be null");
+//        }
+//        acquireReference();
+//        try {
+//            nativeCopyStringToBuffer(mWindowPtr, row - mStartPos, column, buffer);
+//        } finally {
+//            releaseReference();
+//        }
+//    }
 
     /**
      * Gets the value of the field at the specified row and column index as a <code>long</code>.

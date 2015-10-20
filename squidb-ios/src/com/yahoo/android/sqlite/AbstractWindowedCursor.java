@@ -54,11 +54,11 @@ public abstract class AbstractWindowedCursor extends AbstractCursor {
         return mWindow.getString(mPos, columnIndex);
     }
 
-    @Override
-    public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
-        checkPosition();
-        mWindow.copyStringToBuffer(mPos, columnIndex, buffer);
-    }
+//    @Override
+//    public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
+//        checkPosition();
+//        mWindow.copyStringToBuffer(mPos, columnIndex, buffer);
+//    }
 
     @Override
     public short getShort(int columnIndex) {
