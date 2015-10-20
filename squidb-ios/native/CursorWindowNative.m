@@ -140,10 +140,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-        // Convert to UTF-16 here instead of calling NewStringUTF.  NewStringUTF
-        // doesn't like UTF-8 strings with high codepoints.  It actually expects
-        // Modified UTF-8 with encoded surrogate pairs.
-        return [NSString stringWithCString:value encoding:NSUTF16StringEncoding];
+        return [NSString stringWithUTF8String:value];
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];

@@ -1109,11 +1109,15 @@ public abstract class SquidDatabase {
         ICursor cursor = null;
         try {
             cursor = getDatabase().rawQuery("select sqlite_version()", null);
-            if (cursor.moveToFirst()) {
-                String versionString = cursor.getString(0);
-                return VersionCode.parse(versionString);
-            } else {
-                throw new RuntimeException("Query for SQLite version failed");
+            try {
+                if (cursor.moveToFirst()) {
+                    String versionString = cursor.getString(0);
+                    return VersionCode.parse(versionString);
+                } else {
+                    throw new RuntimeException("Query for SQLite version failed");
+                }
+            } finally {
+                cursor.close();
             }
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
