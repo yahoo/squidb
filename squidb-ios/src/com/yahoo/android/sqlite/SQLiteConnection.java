@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 /*-[
 #import "SQLiteConnection.h"
+#import "java/lang/UnsupportedOperationException.h"
 ]-*/
 
 /**
@@ -122,7 +123,9 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
         [SQLiteConnection nativeClose:connectionPtr];
     ]-*/;
 
-    private static native void nativeRegisterCustomFunction(Object connectionPtr, SQLiteCustomFunction function);
+    private static native void nativeRegisterCustomFunction(Object connectionPtr, SQLiteCustomFunction function) /*-[
+         @throw [[[JavaLangUnsupportedOperationException alloc] initWithNSString:@"Registering native custom functions is not yet supported."];
+    ]-*/;
 
 //    private static native void nativeRegisterLocalizedCollators(Object connectionPtr, String locale);
 
