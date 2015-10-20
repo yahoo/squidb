@@ -48,7 +48,6 @@ public class DatabaseUtils {
     /** One of the values returned by {@link #getSqlStatementType(String)}. */
     public static final int STATEMENT_OTHER = 99;
 
-
     /**
      * Returns one of the following which represent the type of the given SQL statement.
      * <ol>
@@ -98,7 +97,6 @@ public class DatabaseUtils {
         return STATEMENT_OTHER;
     }
 
-
     /**
      * Returns data type of the given object's value.
      * <p>
@@ -131,7 +129,6 @@ public class DatabaseUtils {
         }
     }
 
-
     /**
      * Returns column index of "_id" column, or -1 if not found.
      */
@@ -144,7 +141,6 @@ public class DatabaseUtils {
         }
         return -1;
     }
-
 
     /**
      * Picks a start position for {@link Cursor#fillWindow} such that the
@@ -171,7 +167,6 @@ public class DatabaseUtils {
             int cursorPosition, int cursorWindowCapacity) {
         return Math.max(cursorPosition - cursorWindowCapacity / 3, 0);
     }
-
 
     /**
      * Appends an SQL string to the given StringBuilder, including the opening
@@ -230,7 +225,6 @@ public class DatabaseUtils {
         prog.bindAllArgsAsStrings(selectionArgs);
         return prog.simpleQueryForLong();
     }
-
 
     /**
      * Fills the specified cursor window by iterating over the contents of the cursor.

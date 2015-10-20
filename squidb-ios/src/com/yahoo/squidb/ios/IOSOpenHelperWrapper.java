@@ -58,7 +58,7 @@ public class IOSOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpen
     @Override
     public synchronized void deleteDatabase() {
         File file = getDatabaseFile();
-        if (file.exists() && !getDatabaseFile().delete()) {
+        if (file.exists() && !file.delete()) {
             throw new RuntimeException(new IOException("Failed to delete database file"));
         }
     }
