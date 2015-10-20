@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /*-[
-#import "SQLiteConnection.h"
+#import "SQLiteConnectionNative.h"
 #import "java/lang/UnsupportedOperationException.h"
 ]-*/
 
@@ -115,12 +115,12 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 
     private static native Object nativeOpen(String path, int openFlags, String label,
             boolean enableTrace, boolean enableProfile) /*-[
-            return [SQLiteConnection nativeOpen:path openFlags:openFlags
+            return [SQLiteConnectionNative nativeOpen:path openFlags:openFlags
                     label:label enableTrace:enableTrace enableProfile:enableProfile];
     ]-*/;
 
     private static native void nativeClose(Object connectionPtr) /*-[
-        [SQLiteConnection nativeClose:connectionPtr];
+        [SQLiteConnectionNative nativeClose:connectionPtr];
     ]-*/;
 
     private static native void nativeRegisterCustomFunction(Object connectionPtr, SQLiteCustomFunction function) /*-[
@@ -130,84 +130,84 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 //    private static native void nativeRegisterLocalizedCollators(Object connectionPtr, String locale);
 
     private static native Object nativePrepareStatement(Object connectionPtr, String sql) /*-[
-        return [SQLiteConnection nativePrepareStatement:connectionPtr withSql:sql];
+        return [SQLiteConnectionNative nativePrepareStatement:connectionPtr withSql:sql];
     ]-*/;
 
     private static native void nativeFinalizeStatement(Object connectionPtr, Object statementPtr) /*-[
-        [SQLiteConnection nativeFinalizeStatement:connectionPtr statement:statementPtr];
+        [SQLiteConnectionNative nativeFinalizeStatement:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native int nativeGetParameterCount(Object connectionPtr, Object statementPtr)/*-[
-        return [SQLiteConnection nativeGetParameterCount:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeGetParameterCount:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native boolean nativeIsReadOnly(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeIsReadOnly:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeIsReadOnly:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native int nativeGetColumnCount(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeGetColumnCount:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeGetColumnCount:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native String nativeGetColumnName(Object connectionPtr, Object statementPtr, int index) /*-[
-        return [SQLiteConnection nativeGetColumnName:connectionPtr statement:statementPtr index:index];
+        return [SQLiteConnectionNative nativeGetColumnName:connectionPtr statement:statementPtr index:index];
     ]-*/;
 
     private static native void nativeBindNull(Object connectionPtr, Object statementPtr, int index) /*-[
-        [SQLiteConnection nativeBindNull:connectionPtr statement:statementPtr index:index];
+        [SQLiteConnectionNative nativeBindNull:connectionPtr statement:statementPtr index:index];
     ]-*/;
 
     private static native void nativeBindLong(Object connectionPtr, Object statementPtr, int index, long value) /*-[
-        [SQLiteConnection nativeBindLong:connectionPtr statement:statementPtr index:index value:value];
+        [SQLiteConnectionNative nativeBindLong:connectionPtr statement:statementPtr index:index value:value];
     ]-*/;
 
     private static native void nativeBindDouble(Object connectionPtr, Object statementPtr, int index, double value)/*-[
-        [SQLiteConnection nativeBindDouble:connectionPtr statement:statementPtr index:index value:value];
+        [SQLiteConnectionNative nativeBindDouble:connectionPtr statement:statementPtr index:index value:value];
     ]-*/;
 
     private static native void nativeBindString(Object connectionPtr, Object statementPtr, int index, String value) /*-[
-        [SQLiteConnection nativeBindString:connectionPtr statement:statementPtr index:index value:value];
+        [SQLiteConnectionNative nativeBindString:connectionPtr statement:statementPtr index:index value:value];
     ]-*/;
 
     private static native void nativeBindBlob(Object connectionPtr, Object statementPtr, int index, byte[] value) /*-[
-        [SQLiteConnection nativeBindBlob:connectionPtr statement:statementPtr index:index value:value];
+        [SQLiteConnectionNative nativeBindBlob:connectionPtr statement:statementPtr index:index value:value];
     ]-*/;
 
     private static native void nativeResetStatementAndClearBindings(Object connectionPtr, Object statementPtr) /*-[
-        [SQLiteConnection nativeResetStatementAndClearBindings:connectionPtr statement:statementPtr];
+        [SQLiteConnectionNative nativeResetStatementAndClearBindings:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native void nativeExecute(Object connectionPtr, Object statementPtr) /*-[
-        [SQLiteConnection nativeExecute:connectionPtr statement:statementPtr];
+        [SQLiteConnectionNative nativeExecute:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native long nativeExecuteForLong(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeExecuteForLong:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeExecuteForLong:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native String nativeExecuteForString(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeExecuteForLong:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeExecuteForLong:connectionPtr statement:statementPtr];
     ]-*/;
 
 //    private static native int nativeExecuteForBlobFileDescriptor(long connectionPtr, long statementPtr);
 
     private static native int nativeExecuteForChangedRowCount(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeExecuteForChangedRowCount:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeExecuteForChangedRowCount:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native long nativeExecuteForLastInsertedRowId(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnection nativeExecuteForLastInsertedRowId:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeExecuteForLastInsertedRowId:connectionPtr statement:statementPtr];
     ]-*/;
 
     private static native long nativeExecuteForCursorWindow(
             Object connectionPtr, Object statementPtr, Object windowPtr,
             int startPos, int requiredPos, boolean countAllRows) /*-[
-        return [SQLiteConnection nativeExecuteForCursorWindow:connectionPtr statement:statementPtr window:windowPtr
+        return [SQLiteConnectionNative nativeExecuteForCursorWindow:connectionPtr statement:statementPtr window:windowPtr
             startPos:startPos requiredPos:requiredPos countAllRows:countAllRows];
     ]-*/;
 
     private static native int nativeGetDbLookaside(Object connectionPtr) /*-[
-        return [SQLiteConnection nativeGetDbLookaside:connectionPtr];
+        return [SQLiteConnectionNative nativeGetDbLookaside:connectionPtr];
     ]-*/;
 
 //    private static native void nativeCancel(long connectionPtr);

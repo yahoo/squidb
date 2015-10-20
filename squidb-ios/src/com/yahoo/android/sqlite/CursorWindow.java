@@ -17,7 +17,7 @@
 package com.yahoo.android.sqlite;
 
  /*-[
- #import "CursorWindow.h"
+ #import "CursorWindowNative.h"
  ]-*/
 
 import com.yahoo.squidb.data.ICursor;
@@ -57,77 +57,77 @@ public class CursorWindow extends SQLiteClosable {
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
     private static native Object nativeCreate(String name, int cursorWindowSize) /*-[
-        return [CursorWindow nativeCreate:name cursorWindowSize:cursorWindowSize];
+        return [CursorWindowNative nativeCreate:name cursorWindowSize:cursorWindowSize];
     ]-*/;
 
 //    private static native int nativeCreateFromParcel(Parcel parcel);
 
     private static native void nativeDispose(Object windowPtr) /*-[
-        [CursorWindow nativeDispose:windowPtr];
+        [CursorWindowNative nativeDispose:windowPtr];
     ]-*/;
 
 //    private static native void nativeWriteToParcel(long windowPtr, Parcel parcel);
 
     private static native void nativeClear(Object windowPtr) /*-[
-        [CursorWindow nativeClear:windowPtr];
+        [CursorWindowNative nativeClear:windowPtr];
     ]-*/;
 
     private static native int nativeGetNumRows(Object windowPtr) /*-[
-        return [CursorWindow nativeGetNumRows:windowPtr];
+        return [CursorWindowNative nativeGetNumRows:windowPtr];
     ]-*/;
 
     private static native boolean nativeSetNumColumns(Object windowPtr, int columnNum) /*-[
-        return [CursorWindow nativeSetNumColumns:windowPtr columnNum:columnNum];
+        return [CursorWindowNative nativeSetNumColumns:windowPtr columnNum:columnNum];
     ]-*/;
 
     private static native boolean nativeAllocRow(Object windowPtr) /*-[
-        return [CursorWindow nativeAllocRow:windowPtr];
+        return [CursorWindowNative nativeAllocRow:windowPtr];
     ]-*/;
 
     private static native void nativeFreeLastRow(Object windowPtr) /*-[
-        [CursorWindow nativeFreeLastRow:windowPtr];
+        [CursorWindowNative nativeFreeLastRow:windowPtr];
     ]-*/;
 
     private static native int nativeGetType(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativeGetType:windowPtr row:row column:column];
+        return [CursorWindowNative nativeGetType:windowPtr row:row column:column];
     ]-*/;
 
     private static native byte[] nativeGetBlob(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativeGetBlob:windowPtr row:row column:column];
+        return [CursorWindowNative nativeGetBlob:windowPtr row:row column:column];
     ]-*/;
 
     private static native String nativeGetString(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativeGetString:windowPtr row:row column:column];
+        return [CursorWindowNative nativeGetString:windowPtr row:row column:column];
     ]-*/;
 
     private static native long nativeGetLong(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativeGetLong:windowPtr row:row column:column];
+        return [CursorWindowNative nativeGetLong:windowPtr row:row column:column];
     ]-*/;
 
     private static native double nativeGetDouble(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativeGetDouble:windowPtr row:row column:column];
+        return [CursorWindowNative nativeGetDouble:windowPtr row:row column:column];
     ]-*/;
 
     private static native void nativeCopyStringToBuffer(Object windowPtr, int row, int column, CharArrayBuffer buffer);
 
     private static native boolean nativePutBlob(Object windowPtr, byte[] value, int row, int column) /*-[
-        return [CursorWindow nativePutBlob:windowPtr value:value row:row column:column];
+        return [CursorWindowNative nativePutBlob:windowPtr value:value row:row column:column];
     ]-*/;
 
     private static native boolean nativePutString(Object windowPtr, String value, int row, int column) /*-[
-        return [CursorWindow nativePutString:windowPtr value:value row:row column:column];
+        return [CursorWindowNative nativePutString:windowPtr value:value row:row column:column];
     ]-*/;
 
     private static native boolean nativePutLong(Object windowPtr, long value, int row, int column) /*-[
-        return [CursorWindow nativePutLong:windowPtr value:value row:row column:column];
+        return [CursorWindowNative nativePutLong:windowPtr value:value row:row column:column];
     ]-*/;
 
     private static native boolean nativePutDouble(Object windowPtr, double value, int row, int column) /*-[
-        return [CursorWindow nativePutDouble:windowPtr value:value row:row column:column];
+        return [CursorWindowNative nativePutDouble:windowPtr value:value row:row column:column];
     ]-*/;
 
     private static native boolean nativePutNull(Object windowPtr, int row, int column) /*-[
-        return [CursorWindow nativePutNull:windowPtr row:row column:column];
+        return [CursorWindowNative nativePutNull:windowPtr row:row column:column];
     ]-*/;
 
 //    private static native String nativeGetName(long windowPtr);

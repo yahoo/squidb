@@ -19,7 +19,7 @@ package com.yahoo.android.sqlite;
 /*-[
 #import <sqlite3.h>
 
-# define SOFT_HEAP_LIMIT 8 * 1024 * 1024;
+#define SOFT_HEAP_LIMIT 8 * 1024 * 1024
 ]-*/
 
 /**
