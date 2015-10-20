@@ -10,6 +10,7 @@
 #import "SQLiteConnectionNative.h"
 #import "SQLitePreparedStatement.h"
 #import "CursorWindowNative.h"
+#import "NSString+JavaString.h"
 
 @implementation SQLiteConnectionNative
 
@@ -147,11 +148,10 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (NSObject *) nativePrepareStatement:(NSObject *)connectionPtr withSql:(NSString *)sqlString {
     SQLiteConnectionNative* connection = (SQLiteConnectionNative *)(connectionPtr);
     
-    NSUInteger sqlLength = [sqlString length];
-    const char *sql = [sqlString UTF8String]; //env->GetStringCritical(sqlString, NULL);
-    
+    IOSByteArray *sql = [sqlString getBytesWithEncoding:NSUTF16StringEncoding];
+    uint32_t sqlLength = [sql length];
     sqlite3_stmt* statement;
-    int err = sqlite3_prepare_v2(connection.db, sql, (int) sqlLength, &statement, NULL);
+    int err = sqlite3_prepare16_v2(connection->db, [sql buffer], sqlLength, &statement, NULL);
     
     if (err != SQLITE_OK) {
         // Error messages like 'near ")": syntax error' are not
@@ -165,7 +165,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
         }
         throw_sqlite3_exception_message(connection.db, message);
         free(message);
-        return 0;
+        return nil;
     }
     
 //    ALOGV("Prepared statement %p on connection %p", statement, connection->db);
@@ -210,13 +210,14 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 //    SQLiteConnection *connection = (SQLiteConnection *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
     
-    const char *name = sqlite3_column_name(statement.statement, index);
+    const jchar* name = (const jchar *)(sqlite3_column_name16(statement.statement, index));
     if (name) {
-//        size_t length = 0;
-//        while (name[length]) {
-//            length += 1;
-//        }
-        return [NSString stringWithUTF8String:name];
+        size_t length = 0;
+        while (name[length]) {
+            length += 1;
+        }
+        IOSCharArray *chars = [IOSCharArray newArrayWithChars:name count:length];
+        return [NSString stringWithCharacters:chars];
     }
     return nil;
 }
@@ -265,9 +266,9 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (void) nativeBindString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(NSString *)value {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    NSUInteger valueLength = [value length];
-    const char *valueChars = [value UTF8String];
-    int err = sqlite3_bind_text(statement.statement, index, valueChars, (int)valueLength * sizeof(char),
+    
+    const IOSByteArray *bytes = [value getBytesWithEncoding:NSUTF16StringEncoding];
+    int err = sqlite3_bind_text16(statement.statement, index, [bytes buffer], [bytes length],
                                   SQLITE_TRANSIENT);
     if (err != SQLITE_OK) {
         throw_sqlite3_exception_handle(connection.db);
@@ -330,10 +331,11 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     
     int err = [SQLiteConnectionNative executeOneRowQuery:connection statement:statement];
     if (err == SQLITE_ROW && sqlite3_column_count(statement.statement) >= 1) {
-        const char *text = (char *)sqlite3_column_text(statement.statement, 0);
+        const jchar* text = (const jchar *)(sqlite3_column_text16(statement.statement, 0));
         if (text) {
-//            size_t length = sqlite3_column_bytes(statement.statement, 0) / sizeof(unichar);
-            return [NSString stringWithUTF8String:text];
+            size_t length = sqlite3_column_bytes16(statement.statement, 0) / sizeof(jchar);
+            IOSCharArray *chars = [IOSCharArray newArrayWithChars:text count:length];
+            return [NSString stringWithCharacters:chars];
         }
     }
     return NULL;
