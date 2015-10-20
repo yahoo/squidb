@@ -142,7 +142,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
 //                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Logger.d(TAG + ": received count(*) from native_fill_window: " + mCount);
+                Logger.i(TAG + ": received count(*) from native_fill_window: " + mCount);
 //                }
             } else {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,

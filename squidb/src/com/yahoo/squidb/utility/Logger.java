@@ -18,6 +18,7 @@ public abstract class Logger {
         ERROR
     }
 
+    private static Level logLevel = Level.DEBUG;
     private static Logger logger = new DefaultLogger();
 
     public static synchronized void setLogger(Logger newLogger) {
@@ -27,12 +28,18 @@ public abstract class Logger {
         logger = newLogger;
     }
 
+    public static synchronized void setLogLevel(Level newLevel) {
+        logLevel = newLevel;
+    }
+
     public static void i(String message) {
         i(message, null);
     }
 
     public static void i(String message, Throwable t) {
-        logger.log(Level.INFO, message, t);
+        if (logLevel.ordinal() >= Level.INFO.ordinal()) {
+            logger.log(Level.INFO, message, t);
+        }
     }
 
     public static void d(String message) {
@@ -40,7 +47,9 @@ public abstract class Logger {
     }
 
     public static void d(String message, Throwable t) {
-        logger.log(Level.DEBUG, message, t);
+        if (logLevel.ordinal() >= Level.DEBUG.ordinal()) {
+            logger.log(Level.DEBUG, message, t);
+        }
     }
 
     public static void w(String message) {
@@ -48,7 +57,9 @@ public abstract class Logger {
     }
 
     public static void w(String message, Throwable t) {
-        logger.log(Level.WARN, message, t);
+        if (logLevel.ordinal() >= Level.WARN.ordinal()) {
+            logger.log(Level.WARN, message, t);
+        }
     }
 
     public static void e(String message) {
@@ -56,7 +67,9 @@ public abstract class Logger {
     }
 
     public static void e(String message, Throwable t) {
-        logger.log(Level.ERROR, message, t);
+        if (logLevel.ordinal() >= Level.ERROR.ordinal()) {
+            logger.log(Level.ERROR, message, t);
+        }
     }
 
     public static class DefaultLogger extends Logger {
