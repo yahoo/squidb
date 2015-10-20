@@ -25,8 +25,9 @@ package com.yahoo.android.sqlite;
  * </p>
  */
 public final class SQLiteStatement extends SQLiteProgram {
+
     SQLiteStatement(SQLiteDatabase db, String sql, Object[] bindArgs) {
-        super(db, sql, bindArgs, null);
+        super(db, sql, bindArgs/*, null*/);
     }
 
     /**
@@ -34,12 +35,12 @@ public final class SQLiteStatement extends SQLiteProgram {
      * CREATE / DROP table, view, trigger, index etc.
      *
      * @throws android.database.SQLException If the SQL string is invalid for
-     *         some reason
+     * some reason
      */
     public void execute() {
         acquireReference();
         try {
-            getSession().execute(getSql(), getBindArgs(), getConnectionFlags(), null);
+            getSession().execute(getSql(), getBindArgs(), getConnectionFlags()/*, null*/);
         } catch (SQLiteDatabaseCorruptException ex) {
             onCorruption();
             throw ex;
@@ -54,13 +55,13 @@ public final class SQLiteStatement extends SQLiteProgram {
      *
      * @return the number of rows affected by this SQL statement execution.
      * @throws android.database.SQLException If the SQL string is invalid for
-     *         some reason
+     * some reason
      */
     public int executeUpdateDelete() {
         acquireReference();
         try {
             return getSession().executeForChangedRowCount(
-                    getSql(), getBindArgs(), getConnectionFlags(), null);
+                    getSql(), getBindArgs(), getConnectionFlags()/*, null*/);
         } catch (SQLiteDatabaseCorruptException ex) {
             onCorruption();
             throw ex;
@@ -74,15 +75,14 @@ public final class SQLiteStatement extends SQLiteProgram {
      * The SQL statement should be an INSERT for this to be a useful call.
      *
      * @return the row ID of the last row inserted, if this insert is successful. -1 otherwise.
-     *
      * @throws android.database.SQLException If the SQL string is invalid for
-     *         some reason
+     * some reason
      */
     public long executeInsert() {
         acquireReference();
         try {
             return getSession().executeForLastInsertedRowId(
-                    getSql(), getBindArgs(), getConnectionFlags(), null);
+                    getSql(), getBindArgs(), getConnectionFlags()/*, null*/);
         } catch (SQLiteDatabaseCorruptException ex) {
             onCorruption();
             throw ex;
@@ -96,14 +96,13 @@ public final class SQLiteStatement extends SQLiteProgram {
      * For example, SELECT COUNT(*) FROM table;
      *
      * @return The result of the query.
-     *
      * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     public long simpleQueryForLong() {
         acquireReference();
         try {
             return getSession().executeForLong(
-                    getSql(), getBindArgs(), getConnectionFlags(), null);
+                    getSql(), getBindArgs(), getConnectionFlags()/*, null*/);
         } catch (SQLiteDatabaseCorruptException ex) {
             onCorruption();
             throw ex;
@@ -117,14 +116,13 @@ public final class SQLiteStatement extends SQLiteProgram {
      * For example, SELECT COUNT(*) FROM table;
      *
      * @return The result of the query.
-     *
      * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     public String simpleQueryForString() {
         acquireReference();
         try {
             return getSession().executeForString(
-                    getSql(), getBindArgs(), getConnectionFlags(), null);
+                    getSql(), getBindArgs(), getConnectionFlags()/*, null*/);
         } catch (SQLiteDatabaseCorruptException ex) {
             onCorruption();
             throw ex;
