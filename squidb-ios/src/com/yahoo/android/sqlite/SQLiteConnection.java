@@ -115,8 +115,8 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 
     private static native Object nativeOpen(String path, int openFlags, String label,
             boolean enableTrace, boolean enableProfile) /*-[
-            return [SQLiteConnectionNative nativeOpen:path openFlags:openFlags
-                    label:label enableTrace:enableTrace enableProfile:enableProfile];
+            return [SQLiteConnectionNative nativeOpen:path openFlags:openFlags labelStr:label
+                enableTrace:enableTrace enableProfile:enableProfile];
     ]-*/;
 
     private static native void nativeClose(Object connectionPtr) /*-[
@@ -124,7 +124,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     ]-*/;
 
     private static native void nativeRegisterCustomFunction(Object connectionPtr, SQLiteCustomFunction function) /*-[
-         @throw [[[JavaLangUnsupportedOperationException alloc] initWithNSString:@"Registering native custom functions is not yet supported."];
+         @throw [[JavaLangUnsupportedOperationException alloc] initWithNSString:@"Registering native custom functions is not yet supported."];
     ]-*/;
 
 //    private static native void nativeRegisterLocalizedCollators(Object connectionPtr, String locale);
@@ -186,7 +186,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     ]-*/;
 
     private static native String nativeExecuteForString(Object connectionPtr, Object statementPtr) /*-[
-        return [SQLiteConnectionNative nativeExecuteForLong:connectionPtr statement:statementPtr];
+        return [SQLiteConnectionNative nativeExecuteForString:connectionPtr statement:statementPtr];
     ]-*/;
 
 //    private static native int nativeExecuteForBlobFileDescriptor(long connectionPtr, long statementPtr);
