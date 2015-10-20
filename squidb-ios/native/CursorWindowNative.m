@@ -8,6 +8,7 @@
 
 #import "CursorWindowNative.h"
 #import "java/lang/IllegalStateException.h"
+#import "NSString+JavaString.h"
 
 @implementation CursorWindowNative
 
@@ -140,7 +141,10 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-        return [NSString stringWithUTF8String:value];
+        
+        IOSByteArray *bytes = [IOSByteArray newArrayWithBytes:(const jbyte *)value count:sizeIncludingNull - 1];
+        NSString *result = [NSString stringWithBytes:bytes];
+        return result;
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];
@@ -240,7 +244,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (BOOL) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     
-    uint32_t sizeIncludingNull = (uint32_t)[value length] + 1; //env->GetStringUTFLength(valueObj) + 1;
+    uint32_t sizeIncludingNull = (uint32_t)[value lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1; //env->GetStringUTFLength(valueObj) + 1;
     const char* valueStr = [value UTF8String]; //env->GetStringUTFChars(valueObj, NULL);
     if (!valueStr) {
 //        LOG_WINDOW("value can't be transferred to UTFChars");

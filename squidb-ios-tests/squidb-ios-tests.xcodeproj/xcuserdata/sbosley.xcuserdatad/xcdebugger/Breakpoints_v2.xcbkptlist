@@ -114,12 +114,44 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../squidb-ios/native/CursorWindowNative.m"
-            timestampString = "467067965.494572"
+            timestampString = "467074797.430063"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "246"
-            endingLineNumber = "246"
+            startingLineNumber = "253"
+            endingLineNumber = "253"
             landmarkName = "+nativePutString:value:row:column:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../squidb-ios/native/SQLiteConnectionNative.m"
+            timestampString = "467074767.9073"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "374"
+            endingLineNumber = "374"
+            landmarkName = "copyRow()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../squidb-ios/native/CursorWindowNative.m"
+            timestampString = "467074793.514439"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "148"
+            endingLineNumber = "148"
+            landmarkName = "+nativeGetString:row:column:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

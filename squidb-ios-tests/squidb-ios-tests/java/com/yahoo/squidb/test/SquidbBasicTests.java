@@ -9,6 +9,7 @@ public class SquidbBasicTests {
         db = new TestDatabase(path);
         db.clear();
         runTests();
+        testDatabaseWriteWithNullCharactersWorks();
     }
     
     private native String getPath() /*-[ 
@@ -76,6 +77,46 @@ public class SquidbBasicTests {
             throw new RuntimeException("Updated first name mismatch, was " + fetchedModel.getFirstName());
         } else {
             System.err.println("Updated first name matched");
+        }
+    }
+    
+    public void testDatabaseWriteWithNullCharactersWorks() {
+        testBadString("Sam\0B", 5);
+        testBadString("Sam\0\0B", 6);
+        testBadString("\0Sam\0B", 6);
+        testBadString("\0Sam\0B\0", 7);
+    }
+    
+    private void testBadString(String badString, int expectedLength) {
+        assertEquals(expectedLength, badString.length());
+        TestModel model = new TestModel().setFirstName(badString).setLastName("ABCDE").setBirthday(System.currentTimeMillis());
+        db.persist(model);
+        
+        model = db.fetch(TestModel.class, model.getId());
+        assertEquals(badString, model.getFirstName(), "Model first name match");
+        
+        db.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
+        
+        model = db.fetch(TestModel.class, model.getId());
+        assertEquals("Sam", model.getFirstName(), "Updated model first name match");
+        db.delete(TestModel.class, model.getId());
+    }
+    
+    private void assertEquals(int expected, int actual) {
+        if (expected != actual) {
+            throw new RuntimeException("Expected " + expected + " but was " + actual);
+        }
+    }
+    
+    private void assertEquals(String expected, String actual, String successMessage) {
+        if (expected == null && actual != null) {
+            throw new RuntimeException("Expected null but got " + actual);
+        } else if (!expected.equals(actual)) {
+            throw new RuntimeException("Expected " + expected + " but got " + actual);
+        } else {
+            if (successMessage != null) {
+                System.err.println(successMessage);
+            }
         }
     }
 
