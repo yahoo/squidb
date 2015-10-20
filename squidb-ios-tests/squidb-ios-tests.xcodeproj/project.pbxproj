@@ -1,0 +1,1063 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BDB299D41BD690F0005CBF28 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D31BD690F0005CBF28 /* main.m */; };
+		BDB299D71BD690F0005CBF28 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D61BD690F0005CBF28 /* AppDelegate.m */; };
+		BDB299DA1BD690F0005CBF28 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D91BD690F0005CBF28 /* ViewController.m */; };
+		BDB299DD1BD690F0005CBF28 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDB299DB1BD690F0005CBF28 /* Main.storyboard */; };
+		BDB299DF1BD690F0005CBF28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDB299DE1BD690F0005CBF28 /* Assets.xcassets */; };
+		BDB299E21BD690F0005CBF28 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDB299E01BD690F0005CBF28 /* LaunchScreen.storyboard */; };
+		BDB299ED1BD690F0005CBF28 /* squidb_ios_testsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299EC1BD690F0005CBF28 /* squidb_ios_testsTests.m */; };
+		BDB29B461BD6931E005CBF28 /* CursorWindowNative.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB29AFE1BD6931E005CBF28 /* CursorWindowNative.m */; settings = {ASSET_TAGS = (); }; };
+		BDB29B471BD6931E005CBF28 /* Errors.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B001BD6931E005CBF28 /* Errors.m */; settings = {ASSET_TAGS = (); }; };
+		BDB29B481BD6931E005CBF28 /* SQLiteConnectionNative.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B021BD6931E005CBF28 /* SQLiteConnectionNative.m */; settings = {ASSET_TAGS = (); }; };
+		BDB29B491BD6931E005CBF28 /* SQLitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B041BD6931E005CBF28 /* SQLitePreparedStatement.m */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4A1BD6931E005CBF28 /* AbstractCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0A1BD6931E005CBF28 /* AbstractCursor.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4B1BD6931E005CBF28 /* AbstractWindowedCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0B1BD6931E005CBF28 /* AbstractWindowedCursor.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4C1BD6931E005CBF28 /* CloseGuard.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0C1BD6931E005CBF28 /* CloseGuard.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4D1BD6931E005CBF28 /* CursorIndexOutOfBoundsException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0D1BD6931E005CBF28 /* CursorIndexOutOfBoundsException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4E1BD6931E005CBF28 /* CursorWindow.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0E1BD6931E005CBF28 /* CursorWindow.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B4F1BD6931E005CBF28 /* CursorWindowAllocationException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B0F1BD6931E005CBF28 /* CursorWindowAllocationException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B501BD6931E005CBF28 /* DatabaseErrorHandler.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B101BD6931E005CBF28 /* DatabaseErrorHandler.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B511BD6931E005CBF28 /* DatabaseObjectNotClosedException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B111BD6931E005CBF28 /* DatabaseObjectNotClosedException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B521BD6931E005CBF28 /* DatabaseUtils.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B121BD6931E005CBF28 /* DatabaseUtils.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B531BD6931E005CBF28 /* DefaultDatabaseErrorHandler.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B131BD6931E005CBF28 /* DefaultDatabaseErrorHandler.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B541BD6931E005CBF28 /* LruCache.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B141BD6931E005CBF28 /* LruCache.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B551BD6931E005CBF28 /* Pair.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B151BD6931E005CBF28 /* Pair.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B561BD6931E005CBF28 /* PrefixPrinter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B161BD6931E005CBF28 /* PrefixPrinter.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B571BD6931E005CBF28 /* Printer.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B171BD6931E005CBF28 /* Printer.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B581BD6931E005CBF28 /* SQLException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B181BD6931E005CBF28 /* SQLException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B591BD6931E005CBF28 /* SQLiteAbortException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B191BD6931E005CBF28 /* SQLiteAbortException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5A1BD6931E005CBF28 /* SQLiteAccessPermException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1A1BD6931E005CBF28 /* SQLiteAccessPermException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5B1BD6931E005CBF28 /* SQLiteBindOrColumnIndexOutOfRangeException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1B1BD6931E005CBF28 /* SQLiteBindOrColumnIndexOutOfRangeException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5C1BD6931E005CBF28 /* SQLiteBlobTooBigException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1C1BD6931E005CBF28 /* SQLiteBlobTooBigException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5D1BD6931E005CBF28 /* SQLiteCantOpenDatabaseException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1D1BD6931E005CBF28 /* SQLiteCantOpenDatabaseException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5E1BD6931E005CBF28 /* SQLiteClosable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1E1BD6931E005CBF28 /* SQLiteClosable.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B5F1BD6931E005CBF28 /* SQLiteConnection.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B1F1BD6931E005CBF28 /* SQLiteConnection.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B601BD6931E005CBF28 /* SQLiteConnectionPool.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B201BD6931E005CBF28 /* SQLiteConnectionPool.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B611BD6931E005CBF28 /* SQLiteConstraintException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B211BD6931E005CBF28 /* SQLiteConstraintException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B621BD6931E005CBF28 /* SQLiteCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B221BD6931E005CBF28 /* SQLiteCursor.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B631BD6931E005CBF28 /* SQLiteCursorDriver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B231BD6931E005CBF28 /* SQLiteCursorDriver.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B641BD6931E005CBF28 /* SQLiteCustomFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B241BD6931E005CBF28 /* SQLiteCustomFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B651BD6931E005CBF28 /* SQLiteDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B251BD6931E005CBF28 /* SQLiteDatabase.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B661BD6931E005CBF28 /* SQLiteDatabaseConfiguration.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B261BD6931E005CBF28 /* SQLiteDatabaseConfiguration.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B671BD6931E005CBF28 /* SQLiteDatabaseCorruptException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B271BD6931E005CBF28 /* SQLiteDatabaseCorruptException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B681BD6931E005CBF28 /* SQLiteDatabaseLockedException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B281BD6931E005CBF28 /* SQLiteDatabaseLockedException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B691BD6931E005CBF28 /* SQLiteDatatypeMismatchException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B291BD6931E005CBF28 /* SQLiteDatatypeMismatchException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6A1BD6931E005CBF28 /* SQLiteDebug.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2A1BD6931E005CBF28 /* SQLiteDebug.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6B1BD6931E005CBF28 /* SQLiteDirectCursorDriver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2B1BD6931E005CBF28 /* SQLiteDirectCursorDriver.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6C1BD6931E005CBF28 /* SQLiteDiskIOException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2C1BD6931E005CBF28 /* SQLiteDiskIOException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6D1BD6931E005CBF28 /* SQLiteDoneException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2D1BD6931E005CBF28 /* SQLiteDoneException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6E1BD6931E005CBF28 /* SQLiteException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2E1BD6931E005CBF28 /* SQLiteException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B6F1BD6931E005CBF28 /* SQLiteFullException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B2F1BD6931E005CBF28 /* SQLiteFullException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B701BD6931E005CBF28 /* SQLiteGlobal.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B301BD6931E005CBF28 /* SQLiteGlobal.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B711BD6931E005CBF28 /* SQLiteMisuseException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B311BD6931E005CBF28 /* SQLiteMisuseException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B721BD6931E005CBF28 /* SQLiteOpenHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B321BD6931E005CBF28 /* SQLiteOpenHelper.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B731BD6931E005CBF28 /* SQLiteOutOfMemoryException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B331BD6931E005CBF28 /* SQLiteOutOfMemoryException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B741BD6931E005CBF28 /* SQLiteProgram.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B341BD6931E005CBF28 /* SQLiteProgram.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B751BD6931E005CBF28 /* SQLiteQuery.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B351BD6931E005CBF28 /* SQLiteQuery.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B761BD6931E005CBF28 /* SQLiteQueryBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B361BD6931E005CBF28 /* SQLiteQueryBuilder.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B771BD6931E005CBF28 /* SQLiteReadOnlyDatabaseException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B371BD6931E005CBF28 /* SQLiteReadOnlyDatabaseException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B781BD6931E005CBF28 /* SQLiteSession.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B381BD6931E005CBF28 /* SQLiteSession.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B791BD6931E005CBF28 /* SQLiteStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B391BD6931E005CBF28 /* SQLiteStatement.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7A1BD6931E005CBF28 /* SQLiteStatementInfo.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B3A1BD6931E005CBF28 /* SQLiteStatementInfo.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7B1BD6931E005CBF28 /* SQLiteTableLockedException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B3B1BD6931E005CBF28 /* SQLiteTableLockedException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7C1BD6931E005CBF28 /* SQLiteTransactionListener.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B3C1BD6931E005CBF28 /* SQLiteTransactionListener.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7D1BD6931E005CBF28 /* StaleDataException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B3D1BD6931E005CBF28 /* StaleDataException.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7E1BD6931E005CBF28 /* IOSOpenHelperWrapper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B401BD6931E005CBF28 /* IOSOpenHelperWrapper.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B7F1BD6931E005CBF28 /* IOSTableModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B411BD6931E005CBF28 /* IOSTableModel.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B801BD6931E005CBF28 /* IOSViewModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B421BD6931E005CBF28 /* IOSViewModel.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B811BD6931E005CBF28 /* MapValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B431BD6931E005CBF28 /* MapValuesStorage.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B821BD6931E005CBF28 /* SQLiteDatabaseAdapter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B441BD6931E005CBF28 /* SQLiteDatabaseAdapter.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29B831BD6931E005CBF28 /* SquidCursorFactory.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B451BD6931E005CBF28 /* SquidCursorFactory.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC41BD6932F005CBF28 /* Beta.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B881BD6932F005CBF28 /* Beta.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC51BD6932F005CBF28 /* AbstractModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8A1BD6932F005CBF28 /* AbstractModel.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC61BD6932F005CBF28 /* DataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8B1BD6932F005CBF28 /* DataChangedNotifier.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC71BD6932F005CBF28 /* ICursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8C1BD6932F005CBF28 /* ICursor.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC81BD6932F005CBF28 /* ISQLiteDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8D1BD6932F005CBF28 /* ISQLiteDatabase.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BC91BD6932F005CBF28 /* SimpleDataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8E1BD6932F005CBF28 /* SimpleDataChangedNotifier.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCA1BD6932F005CBF28 /* SQLExceptionWrapper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B8F1BD6932F005CBF28 /* SQLExceptionWrapper.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCB1BD6932F005CBF28 /* SQLiteOpenHelperWrapper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B901BD6932F005CBF28 /* SQLiteOpenHelperWrapper.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCC1BD6932F005CBF28 /* SquidCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B911BD6932F005CBF28 /* SquidCursor.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCD1BD6932F005CBF28 /* SquidDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B921BD6932F005CBF28 /* SquidDatabase.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCE1BD6932F005CBF28 /* SquidTransactionListener.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B931BD6932F005CBF28 /* SquidTransactionListener.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BCF1BD6932F005CBF28 /* TableModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B941BD6932F005CBF28 /* TableModel.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD01BD6932F005CBF28 /* ValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B951BD6932F005CBF28 /* ValuesStorage.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD11BD6932F005CBF28 /* ViewModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B961BD6932F005CBF28 /* ViewModel.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD21BD6932F005CBF28 /* ArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B981BD6932F005CBF28 /* ArgumentFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD31BD6932F005CBF28 /* BinaryCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B991BD6932F005CBF28 /* BinaryCriterion.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD41BD6932F005CBF28 /* CaseBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9A1BD6932F005CBF28 /* CaseBuilder.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD51BD6932F005CBF28 /* CompilableWithArguments.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9B1BD6932F005CBF28 /* CompilableWithArguments.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD61BD6932F005CBF28 /* CompiledArgumentResolver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9C1BD6932F005CBF28 /* CompiledArgumentResolver.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD71BD6932F005CBF28 /* CompiledStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9D1BD6932F005CBF28 /* CompiledStatement.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD81BD6932F005CBF28 /* CompoundSelect.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9E1BD6932F005CBF28 /* CompoundSelect.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BD91BD6932F005CBF28 /* ConjunctionCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29B9F1BD6932F005CBF28 /* ConjunctionCriterion.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDA1BD6932F005CBF28 /* Criterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA01BD6932F005CBF28 /* Criterion.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDB1BD6932F005CBF28 /* DBObject.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA11BD6932F005CBF28 /* DBObject.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDC1BD6932F005CBF28 /* Delete.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA21BD6932F005CBF28 /* Delete.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDD1BD6932F005CBF28 /* DistinctArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA31BD6932F005CBF28 /* DistinctArgumentFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDE1BD6932F005CBF28 /* Field.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA41BD6932F005CBF28 /* Field.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BDF1BD6932F005CBF28 /* Function.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA51BD6932F005CBF28 /* Function.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE01BD6932F005CBF28 /* Index.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA61BD6932F005CBF28 /* Index.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE11BD6932F005CBF28 /* Insert.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA71BD6932F005CBF28 /* Insert.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE21BD6932F005CBF28 /* Join.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA81BD6932F005CBF28 /* Join.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE31BD6932F005CBF28 /* MathFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BA91BD6932F005CBF28 /* MathFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE41BD6932F005CBF28 /* MathOperator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAA1BD6932F005CBF28 /* MathOperator.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE51BD6932F005CBF28 /* NegationCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAB1BD6932F005CBF28 /* NegationCriterion.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE61BD6932F005CBF28 /* Operator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAC1BD6932F005CBF28 /* Operator.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE71BD6932F005CBF28 /* Order.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAD1BD6932F005CBF28 /* Order.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE81BD6932F005CBF28 /* Property.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAE1BD6932F005CBF28 /* Property.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BE91BD6932F005CBF28 /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BAF1BD6932F005CBF28 /* Query.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BEA1BD6932F005CBF28 /* QueryFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB01BD6932F005CBF28 /* QueryFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BEB1BD6932F005CBF28 /* QueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB11BD6932F005CBF28 /* QueryTable.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BEC1BD6932F005CBF28 /* RawFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB21BD6932F005CBF28 /* RawFunction.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BED1BD6932F005CBF28 /* SqlBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB31BD6932F005CBF28 /* SqlBuilder.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BEE1BD6932F005CBF28 /* SqlStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB41BD6932F005CBF28 /* SqlStatement.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BEF1BD6932F005CBF28 /* SqlTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB51BD6932F005CBF28 /* SqlTable.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF01BD6932F005CBF28 /* SqlUtils.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB61BD6932F005CBF28 /* SqlUtils.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF11BD6932F005CBF28 /* SubqueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB71BD6932F005CBF28 /* SubqueryTable.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF21BD6932F005CBF28 /* Table.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB81BD6932F005CBF28 /* Table.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF31BD6932F005CBF28 /* TableStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BB91BD6932F005CBF28 /* TableStatement.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF41BD6932F005CBF28 /* Trigger.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BBA1BD6932F005CBF28 /* Trigger.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF51BD6932F005CBF28 /* Update.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BBB1BD6932F005CBF28 /* Update.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF61BD6932F005CBF28 /* View.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BBC1BD6932F005CBF28 /* View.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF71BD6932F005CBF28 /* VirtualTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BBD1BD6932F005CBF28 /* VirtualTable.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF81BD6932F005CBF28 /* ContentProviderQueryBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BBF1BD6932F005CBF28 /* ContentProviderQueryBuilder.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BF91BD6932F005CBF28 /* Logger.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BC01BD6932F005CBF28 /* Logger.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BFA1BD6932F005CBF28 /* ProjectionMap.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BC11BD6932F005CBF28 /* ProjectionMap.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BFB1BD6932F005CBF28 /* SquidUtilities.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BC21BD6932F005CBF28 /* SquidUtilities.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BFC1BD6932F005CBF28 /* VersionCode.java in Sources */ = {isa = PBXBuildFile; fileRef = BDB29BC31BD6932F005CBF28 /* VersionCode.java */; settings = {ASSET_TAGS = (); }; };
+		BDB29BFE1BD693A0005CBF28 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BDB29BFD1BD693A0005CBF28 /* libsqlite3.tbd */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		BDB299F81BD69208005CBF28 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.java;
+			isEditable = 1;
+			outputFiles = (
+				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
+				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
+			);
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/javax.inject-1.jar\" -sourcepath \"${PROJECT_DIR}/../squidb-ios/src:${PROJECT_DIR}/../squidb/src\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXContainerItemProxy section */
+		BDB299E91BD690F0005CBF28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BDB299C71BD690F0005CBF28 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BDB299CE1BD690F0005CBF28;
+			remoteInfo = "squidb-ios-tests";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BDB299CF1BD690F0005CBF28 /* squidb-ios-tests.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-tests.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDB299D31BD690F0005CBF28 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BDB299D51BD690F0005CBF28 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		BDB299D61BD690F0005CBF28 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		BDB299D81BD690F0005CBF28 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		BDB299D91BD690F0005CBF28 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		BDB299DC1BD690F0005CBF28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BDB299DE1BD690F0005CBF28 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BDB299E11BD690F0005CBF28 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		BDB299E31BD690F0005CBF28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BDB299E81BD690F0005CBF28 /* squidb-ios-testsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "squidb-ios-testsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDB299EC1BD690F0005CBF28 /* squidb_ios_testsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = squidb_ios_testsTests.m; sourceTree = "<group>"; };
+		BDB299EE1BD690F0005CBF28 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BDB299F71BD6916B005CBF28 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		BDB29AFD1BD6931E005CBF28 /* CursorWindowNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CursorWindowNative.h; sourceTree = "<group>"; };
+		BDB29AFE1BD6931E005CBF28 /* CursorWindowNative.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CursorWindowNative.m; sourceTree = "<group>"; };
+		BDB29AFF1BD6931E005CBF28 /* Errors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Errors.h; sourceTree = "<group>"; };
+		BDB29B001BD6931E005CBF28 /* Errors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Errors.m; sourceTree = "<group>"; };
+		BDB29B011BD6931E005CBF28 /* SQLiteConnectionNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteConnectionNative.h; sourceTree = "<group>"; };
+		BDB29B021BD6931E005CBF28 /* SQLiteConnectionNative.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQLiteConnectionNative.m; sourceTree = "<group>"; };
+		BDB29B031BD6931E005CBF28 /* SQLitePreparedStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLitePreparedStatement.h; sourceTree = "<group>"; };
+		BDB29B041BD6931E005CBF28 /* SQLitePreparedStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQLitePreparedStatement.m; sourceTree = "<group>"; };
+		BDB29B0A1BD6931E005CBF28 /* AbstractCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = AbstractCursor.java; sourceTree = "<group>"; };
+		BDB29B0B1BD6931E005CBF28 /* AbstractWindowedCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = AbstractWindowedCursor.java; sourceTree = "<group>"; };
+		BDB29B0C1BD6931E005CBF28 /* CloseGuard.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CloseGuard.java; sourceTree = "<group>"; };
+		BDB29B0D1BD6931E005CBF28 /* CursorIndexOutOfBoundsException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CursorIndexOutOfBoundsException.java; sourceTree = "<group>"; };
+		BDB29B0E1BD6931E005CBF28 /* CursorWindow.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CursorWindow.java; sourceTree = "<group>"; };
+		BDB29B0F1BD6931E005CBF28 /* CursorWindowAllocationException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CursorWindowAllocationException.java; sourceTree = "<group>"; };
+		BDB29B101BD6931E005CBF28 /* DatabaseErrorHandler.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DatabaseErrorHandler.java; sourceTree = "<group>"; };
+		BDB29B111BD6931E005CBF28 /* DatabaseObjectNotClosedException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DatabaseObjectNotClosedException.java; sourceTree = "<group>"; };
+		BDB29B121BD6931E005CBF28 /* DatabaseUtils.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DatabaseUtils.java; sourceTree = "<group>"; };
+		BDB29B131BD6931E005CBF28 /* DefaultDatabaseErrorHandler.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DefaultDatabaseErrorHandler.java; sourceTree = "<group>"; };
+		BDB29B141BD6931E005CBF28 /* LruCache.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = LruCache.java; sourceTree = "<group>"; };
+		BDB29B151BD6931E005CBF28 /* Pair.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Pair.java; sourceTree = "<group>"; };
+		BDB29B161BD6931E005CBF28 /* PrefixPrinter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PrefixPrinter.java; sourceTree = "<group>"; };
+		BDB29B171BD6931E005CBF28 /* Printer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Printer.java; sourceTree = "<group>"; };
+		BDB29B181BD6931E005CBF28 /* SQLException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLException.java; sourceTree = "<group>"; };
+		BDB29B191BD6931E005CBF28 /* SQLiteAbortException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteAbortException.java; sourceTree = "<group>"; };
+		BDB29B1A1BD6931E005CBF28 /* SQLiteAccessPermException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteAccessPermException.java; sourceTree = "<group>"; };
+		BDB29B1B1BD6931E005CBF28 /* SQLiteBindOrColumnIndexOutOfRangeException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteBindOrColumnIndexOutOfRangeException.java; sourceTree = "<group>"; };
+		BDB29B1C1BD6931E005CBF28 /* SQLiteBlobTooBigException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteBlobTooBigException.java; sourceTree = "<group>"; };
+		BDB29B1D1BD6931E005CBF28 /* SQLiteCantOpenDatabaseException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteCantOpenDatabaseException.java; sourceTree = "<group>"; };
+		BDB29B1E1BD6931E005CBF28 /* SQLiteClosable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteClosable.java; sourceTree = "<group>"; };
+		BDB29B1F1BD6931E005CBF28 /* SQLiteConnection.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteConnection.java; sourceTree = "<group>"; };
+		BDB29B201BD6931E005CBF28 /* SQLiteConnectionPool.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteConnectionPool.java; sourceTree = "<group>"; };
+		BDB29B211BD6931E005CBF28 /* SQLiteConstraintException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteConstraintException.java; sourceTree = "<group>"; };
+		BDB29B221BD6931E005CBF28 /* SQLiteCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteCursor.java; sourceTree = "<group>"; };
+		BDB29B231BD6931E005CBF28 /* SQLiteCursorDriver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteCursorDriver.java; sourceTree = "<group>"; };
+		BDB29B241BD6931E005CBF28 /* SQLiteCustomFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteCustomFunction.java; sourceTree = "<group>"; };
+		BDB29B251BD6931E005CBF28 /* SQLiteDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabase.java; sourceTree = "<group>"; };
+		BDB29B261BD6931E005CBF28 /* SQLiteDatabaseConfiguration.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabaseConfiguration.java; sourceTree = "<group>"; };
+		BDB29B271BD6931E005CBF28 /* SQLiteDatabaseCorruptException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabaseCorruptException.java; sourceTree = "<group>"; };
+		BDB29B281BD6931E005CBF28 /* SQLiteDatabaseLockedException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabaseLockedException.java; sourceTree = "<group>"; };
+		BDB29B291BD6931E005CBF28 /* SQLiteDatatypeMismatchException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatatypeMismatchException.java; sourceTree = "<group>"; };
+		BDB29B2A1BD6931E005CBF28 /* SQLiteDebug.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDebug.java; sourceTree = "<group>"; };
+		BDB29B2B1BD6931E005CBF28 /* SQLiteDirectCursorDriver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDirectCursorDriver.java; sourceTree = "<group>"; };
+		BDB29B2C1BD6931E005CBF28 /* SQLiteDiskIOException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDiskIOException.java; sourceTree = "<group>"; };
+		BDB29B2D1BD6931E005CBF28 /* SQLiteDoneException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDoneException.java; sourceTree = "<group>"; };
+		BDB29B2E1BD6931E005CBF28 /* SQLiteException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteException.java; sourceTree = "<group>"; };
+		BDB29B2F1BD6931E005CBF28 /* SQLiteFullException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteFullException.java; sourceTree = "<group>"; };
+		BDB29B301BD6931E005CBF28 /* SQLiteGlobal.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteGlobal.java; sourceTree = "<group>"; };
+		BDB29B311BD6931E005CBF28 /* SQLiteMisuseException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteMisuseException.java; sourceTree = "<group>"; };
+		BDB29B321BD6931E005CBF28 /* SQLiteOpenHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteOpenHelper.java; sourceTree = "<group>"; };
+		BDB29B331BD6931E005CBF28 /* SQLiteOutOfMemoryException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteOutOfMemoryException.java; sourceTree = "<group>"; };
+		BDB29B341BD6931E005CBF28 /* SQLiteProgram.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteProgram.java; sourceTree = "<group>"; };
+		BDB29B351BD6931E005CBF28 /* SQLiteQuery.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteQuery.java; sourceTree = "<group>"; };
+		BDB29B361BD6931E005CBF28 /* SQLiteQueryBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteQueryBuilder.java; sourceTree = "<group>"; };
+		BDB29B371BD6931E005CBF28 /* SQLiteReadOnlyDatabaseException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteReadOnlyDatabaseException.java; sourceTree = "<group>"; };
+		BDB29B381BD6931E005CBF28 /* SQLiteSession.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteSession.java; sourceTree = "<group>"; };
+		BDB29B391BD6931E005CBF28 /* SQLiteStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteStatement.java; sourceTree = "<group>"; };
+		BDB29B3A1BD6931E005CBF28 /* SQLiteStatementInfo.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteStatementInfo.java; sourceTree = "<group>"; };
+		BDB29B3B1BD6931E005CBF28 /* SQLiteTableLockedException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteTableLockedException.java; sourceTree = "<group>"; };
+		BDB29B3C1BD6931E005CBF28 /* SQLiteTransactionListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteTransactionListener.java; sourceTree = "<group>"; };
+		BDB29B3D1BD6931E005CBF28 /* StaleDataException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = StaleDataException.java; sourceTree = "<group>"; };
+		BDB29B401BD6931E005CBF28 /* IOSOpenHelperWrapper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperWrapper.java; sourceTree = "<group>"; };
+		BDB29B411BD6931E005CBF28 /* IOSTableModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSTableModel.java; sourceTree = "<group>"; };
+		BDB29B421BD6931E005CBF28 /* IOSViewModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSViewModel.java; sourceTree = "<group>"; };
+		BDB29B431BD6931E005CBF28 /* MapValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MapValuesStorage.java; sourceTree = "<group>"; };
+		BDB29B441BD6931E005CBF28 /* SQLiteDatabaseAdapter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabaseAdapter.java; sourceTree = "<group>"; };
+		BDB29B451BD6931E005CBF28 /* SquidCursorFactory.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidCursorFactory.java; sourceTree = "<group>"; };
+		BDB29B881BD6932F005CBF28 /* Beta.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Beta.java; sourceTree = "<group>"; };
+		BDB29B8A1BD6932F005CBF28 /* AbstractModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = AbstractModel.java; sourceTree = "<group>"; };
+		BDB29B8B1BD6932F005CBF28 /* DataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DataChangedNotifier.java; sourceTree = "<group>"; };
+		BDB29B8C1BD6932F005CBF28 /* ICursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ICursor.java; sourceTree = "<group>"; };
+		BDB29B8D1BD6932F005CBF28 /* ISQLiteDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLiteDatabase.java; sourceTree = "<group>"; };
+		BDB29B8E1BD6932F005CBF28 /* SimpleDataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SimpleDataChangedNotifier.java; sourceTree = "<group>"; };
+		BDB29B8F1BD6932F005CBF28 /* SQLExceptionWrapper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLExceptionWrapper.java; sourceTree = "<group>"; };
+		BDB29B901BD6932F005CBF28 /* SQLiteOpenHelperWrapper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteOpenHelperWrapper.java; sourceTree = "<group>"; };
+		BDB29B911BD6932F005CBF28 /* SquidCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidCursor.java; sourceTree = "<group>"; };
+		BDB29B921BD6932F005CBF28 /* SquidDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidDatabase.java; sourceTree = "<group>"; };
+		BDB29B931BD6932F005CBF28 /* SquidTransactionListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidTransactionListener.java; sourceTree = "<group>"; };
+		BDB29B941BD6932F005CBF28 /* TableModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModel.java; sourceTree = "<group>"; };
+		BDB29B951BD6932F005CBF28 /* ValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ValuesStorage.java; sourceTree = "<group>"; };
+		BDB29B961BD6932F005CBF28 /* ViewModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModel.java; sourceTree = "<group>"; };
+		BDB29B981BD6932F005CBF28 /* ArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ArgumentFunction.java; sourceTree = "<group>"; };
+		BDB29B991BD6932F005CBF28 /* BinaryCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BinaryCriterion.java; sourceTree = "<group>"; };
+		BDB29B9A1BD6932F005CBF28 /* CaseBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CaseBuilder.java; sourceTree = "<group>"; };
+		BDB29B9B1BD6932F005CBF28 /* CompilableWithArguments.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompilableWithArguments.java; sourceTree = "<group>"; };
+		BDB29B9C1BD6932F005CBF28 /* CompiledArgumentResolver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledArgumentResolver.java; sourceTree = "<group>"; };
+		BDB29B9D1BD6932F005CBF28 /* CompiledStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledStatement.java; sourceTree = "<group>"; };
+		BDB29B9E1BD6932F005CBF28 /* CompoundSelect.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompoundSelect.java; sourceTree = "<group>"; };
+		BDB29B9F1BD6932F005CBF28 /* ConjunctionCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ConjunctionCriterion.java; sourceTree = "<group>"; };
+		BDB29BA01BD6932F005CBF28 /* Criterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Criterion.java; sourceTree = "<group>"; };
+		BDB29BA11BD6932F005CBF28 /* DBObject.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DBObject.java; sourceTree = "<group>"; };
+		BDB29BA21BD6932F005CBF28 /* Delete.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Delete.java; sourceTree = "<group>"; };
+		BDB29BA31BD6932F005CBF28 /* DistinctArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DistinctArgumentFunction.java; sourceTree = "<group>"; };
+		BDB29BA41BD6932F005CBF28 /* Field.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Field.java; sourceTree = "<group>"; };
+		BDB29BA51BD6932F005CBF28 /* Function.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Function.java; sourceTree = "<group>"; };
+		BDB29BA61BD6932F005CBF28 /* Index.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Index.java; sourceTree = "<group>"; };
+		BDB29BA71BD6932F005CBF28 /* Insert.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Insert.java; sourceTree = "<group>"; };
+		BDB29BA81BD6932F005CBF28 /* Join.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Join.java; sourceTree = "<group>"; };
+		BDB29BA91BD6932F005CBF28 /* MathFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathFunction.java; sourceTree = "<group>"; };
+		BDB29BAA1BD6932F005CBF28 /* MathOperator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathOperator.java; sourceTree = "<group>"; };
+		BDB29BAB1BD6932F005CBF28 /* NegationCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = NegationCriterion.java; sourceTree = "<group>"; };
+		BDB29BAC1BD6932F005CBF28 /* Operator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Operator.java; sourceTree = "<group>"; };
+		BDB29BAD1BD6932F005CBF28 /* Order.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Order.java; sourceTree = "<group>"; };
+		BDB29BAE1BD6932F005CBF28 /* Property.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Property.java; sourceTree = "<group>"; };
+		BDB29BAF1BD6932F005CBF28 /* Query.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Query.java; sourceTree = "<group>"; };
+		BDB29BB01BD6932F005CBF28 /* QueryFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryFunction.java; sourceTree = "<group>"; };
+		BDB29BB11BD6932F005CBF28 /* QueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryTable.java; sourceTree = "<group>"; };
+		BDB29BB21BD6932F005CBF28 /* RawFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = RawFunction.java; sourceTree = "<group>"; };
+		BDB29BB31BD6932F005CBF28 /* SqlBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlBuilder.java; sourceTree = "<group>"; };
+		BDB29BB41BD6932F005CBF28 /* SqlStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlStatement.java; sourceTree = "<group>"; };
+		BDB29BB51BD6932F005CBF28 /* SqlTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlTable.java; sourceTree = "<group>"; };
+		BDB29BB61BD6932F005CBF28 /* SqlUtils.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlUtils.java; sourceTree = "<group>"; };
+		BDB29BB71BD6932F005CBF28 /* SubqueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SubqueryTable.java; sourceTree = "<group>"; };
+		BDB29BB81BD6932F005CBF28 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Table.java; sourceTree = "<group>"; };
+		BDB29BB91BD6932F005CBF28 /* TableStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableStatement.java; sourceTree = "<group>"; };
+		BDB29BBA1BD6932F005CBF28 /* Trigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Trigger.java; sourceTree = "<group>"; };
+		BDB29BBB1BD6932F005CBF28 /* Update.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Update.java; sourceTree = "<group>"; };
+		BDB29BBC1BD6932F005CBF28 /* View.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = View.java; sourceTree = "<group>"; };
+		BDB29BBD1BD6932F005CBF28 /* VirtualTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VirtualTable.java; sourceTree = "<group>"; };
+		BDB29BBF1BD6932F005CBF28 /* ContentProviderQueryBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ContentProviderQueryBuilder.java; sourceTree = "<group>"; };
+		BDB29BC01BD6932F005CBF28 /* Logger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Logger.java; sourceTree = "<group>"; };
+		BDB29BC11BD6932F005CBF28 /* ProjectionMap.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ProjectionMap.java; sourceTree = "<group>"; };
+		BDB29BC21BD6932F005CBF28 /* SquidUtilities.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidUtilities.java; sourceTree = "<group>"; };
+		BDB29BC31BD6932F005CBF28 /* VersionCode.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VersionCode.java; sourceTree = "<group>"; };
+		BDB29BFD1BD693A0005CBF28 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BDB299CC1BD690F0005CBF28 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDB29BFE1BD693A0005CBF28 /* libsqlite3.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDB299E51BD690F0005CBF28 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BDB299C61BD690F0005CBF28 = {
+			isa = PBXGroup;
+			children = (
+				BDB29BFD1BD693A0005CBF28 /* libsqlite3.tbd */,
+				BDB299F71BD6916B005CBF28 /* Config.xcconfig */,
+				BDB299D11BD690F0005CBF28 /* squidb-ios-tests */,
+				BDB299EB1BD690F0005CBF28 /* squidb-ios-testsTests */,
+				BDB299D01BD690F0005CBF28 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BDB299D01BD690F0005CBF28 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BDB299CF1BD690F0005CBF28 /* squidb-ios-tests.app */,
+				BDB299E81BD690F0005CBF28 /* squidb-ios-testsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BDB299D11BD690F0005CBF28 /* squidb-ios-tests */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29AFB1BD6930B005CBF28 /* squidb-ios */,
+				BDB29AFA1BD69303005CBF28 /* squidb */,
+				BDB299D51BD690F0005CBF28 /* AppDelegate.h */,
+				BDB299D61BD690F0005CBF28 /* AppDelegate.m */,
+				BDB299D81BD690F0005CBF28 /* ViewController.h */,
+				BDB299D91BD690F0005CBF28 /* ViewController.m */,
+				BDB299DB1BD690F0005CBF28 /* Main.storyboard */,
+				BDB299DE1BD690F0005CBF28 /* Assets.xcassets */,
+				BDB299E01BD690F0005CBF28 /* LaunchScreen.storyboard */,
+				BDB299E31BD690F0005CBF28 /* Info.plist */,
+				BDB299D21BD690F0005CBF28 /* Supporting Files */,
+			);
+			path = "squidb-ios-tests";
+			sourceTree = "<group>";
+		};
+		BDB299D21BD690F0005CBF28 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BDB299D31BD690F0005CBF28 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BDB299EB1BD690F0005CBF28 /* squidb-ios-testsTests */ = {
+			isa = PBXGroup;
+			children = (
+				BDB299EC1BD690F0005CBF28 /* squidb_ios_testsTests.m */,
+				BDB299EE1BD690F0005CBF28 /* Info.plist */,
+			);
+			path = "squidb-ios-testsTests";
+			sourceTree = "<group>";
+		};
+		BDB29AFA1BD69303005CBF28 /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B841BD6932F005CBF28 /* src */,
+			);
+			name = squidb;
+			sourceTree = "<group>";
+		};
+		BDB29AFB1BD6930B005CBF28 /* squidb-ios */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29AFC1BD6931E005CBF28 /* native */,
+				BDB29B051BD6931E005CBF28 /* src */,
+			);
+			name = "squidb-ios";
+			sourceTree = "<group>";
+		};
+		BDB29AFC1BD6931E005CBF28 /* native */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29AFD1BD6931E005CBF28 /* CursorWindowNative.h */,
+				BDB29AFE1BD6931E005CBF28 /* CursorWindowNative.m */,
+				BDB29AFF1BD6931E005CBF28 /* Errors.h */,
+				BDB29B001BD6931E005CBF28 /* Errors.m */,
+				BDB29B011BD6931E005CBF28 /* SQLiteConnectionNative.h */,
+				BDB29B021BD6931E005CBF28 /* SQLiteConnectionNative.m */,
+				BDB29B031BD6931E005CBF28 /* SQLitePreparedStatement.h */,
+				BDB29B041BD6931E005CBF28 /* SQLitePreparedStatement.m */,
+			);
+			name = native;
+			path = "../../squidb-ios/native";
+			sourceTree = "<group>";
+		};
+		BDB29B051BD6931E005CBF28 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B061BD6931E005CBF28 /* com */,
+			);
+			name = src;
+			path = "../../squidb-ios/src";
+			sourceTree = "<group>";
+		};
+		BDB29B061BD6931E005CBF28 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B071BD6931E005CBF28 /* yahoo */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		BDB29B071BD6931E005CBF28 /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B081BD6931E005CBF28 /* android */,
+				BDB29B3E1BD6931E005CBF28 /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDB29B081BD6931E005CBF28 /* android */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B091BD6931E005CBF28 /* sqlite */,
+			);
+			path = android;
+			sourceTree = "<group>";
+		};
+		BDB29B091BD6931E005CBF28 /* sqlite */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B0A1BD6931E005CBF28 /* AbstractCursor.java */,
+				BDB29B0B1BD6931E005CBF28 /* AbstractWindowedCursor.java */,
+				BDB29B0C1BD6931E005CBF28 /* CloseGuard.java */,
+				BDB29B0D1BD6931E005CBF28 /* CursorIndexOutOfBoundsException.java */,
+				BDB29B0E1BD6931E005CBF28 /* CursorWindow.java */,
+				BDB29B0F1BD6931E005CBF28 /* CursorWindowAllocationException.java */,
+				BDB29B101BD6931E005CBF28 /* DatabaseErrorHandler.java */,
+				BDB29B111BD6931E005CBF28 /* DatabaseObjectNotClosedException.java */,
+				BDB29B121BD6931E005CBF28 /* DatabaseUtils.java */,
+				BDB29B131BD6931E005CBF28 /* DefaultDatabaseErrorHandler.java */,
+				BDB29B141BD6931E005CBF28 /* LruCache.java */,
+				BDB29B151BD6931E005CBF28 /* Pair.java */,
+				BDB29B161BD6931E005CBF28 /* PrefixPrinter.java */,
+				BDB29B171BD6931E005CBF28 /* Printer.java */,
+				BDB29B181BD6931E005CBF28 /* SQLException.java */,
+				BDB29B191BD6931E005CBF28 /* SQLiteAbortException.java */,
+				BDB29B1A1BD6931E005CBF28 /* SQLiteAccessPermException.java */,
+				BDB29B1B1BD6931E005CBF28 /* SQLiteBindOrColumnIndexOutOfRangeException.java */,
+				BDB29B1C1BD6931E005CBF28 /* SQLiteBlobTooBigException.java */,
+				BDB29B1D1BD6931E005CBF28 /* SQLiteCantOpenDatabaseException.java */,
+				BDB29B1E1BD6931E005CBF28 /* SQLiteClosable.java */,
+				BDB29B1F1BD6931E005CBF28 /* SQLiteConnection.java */,
+				BDB29B201BD6931E005CBF28 /* SQLiteConnectionPool.java */,
+				BDB29B211BD6931E005CBF28 /* SQLiteConstraintException.java */,
+				BDB29B221BD6931E005CBF28 /* SQLiteCursor.java */,
+				BDB29B231BD6931E005CBF28 /* SQLiteCursorDriver.java */,
+				BDB29B241BD6931E005CBF28 /* SQLiteCustomFunction.java */,
+				BDB29B251BD6931E005CBF28 /* SQLiteDatabase.java */,
+				BDB29B261BD6931E005CBF28 /* SQLiteDatabaseConfiguration.java */,
+				BDB29B271BD6931E005CBF28 /* SQLiteDatabaseCorruptException.java */,
+				BDB29B281BD6931E005CBF28 /* SQLiteDatabaseLockedException.java */,
+				BDB29B291BD6931E005CBF28 /* SQLiteDatatypeMismatchException.java */,
+				BDB29B2A1BD6931E005CBF28 /* SQLiteDebug.java */,
+				BDB29B2B1BD6931E005CBF28 /* SQLiteDirectCursorDriver.java */,
+				BDB29B2C1BD6931E005CBF28 /* SQLiteDiskIOException.java */,
+				BDB29B2D1BD6931E005CBF28 /* SQLiteDoneException.java */,
+				BDB29B2E1BD6931E005CBF28 /* SQLiteException.java */,
+				BDB29B2F1BD6931E005CBF28 /* SQLiteFullException.java */,
+				BDB29B301BD6931E005CBF28 /* SQLiteGlobal.java */,
+				BDB29B311BD6931E005CBF28 /* SQLiteMisuseException.java */,
+				BDB29B321BD6931E005CBF28 /* SQLiteOpenHelper.java */,
+				BDB29B331BD6931E005CBF28 /* SQLiteOutOfMemoryException.java */,
+				BDB29B341BD6931E005CBF28 /* SQLiteProgram.java */,
+				BDB29B351BD6931E005CBF28 /* SQLiteQuery.java */,
+				BDB29B361BD6931E005CBF28 /* SQLiteQueryBuilder.java */,
+				BDB29B371BD6931E005CBF28 /* SQLiteReadOnlyDatabaseException.java */,
+				BDB29B381BD6931E005CBF28 /* SQLiteSession.java */,
+				BDB29B391BD6931E005CBF28 /* SQLiteStatement.java */,
+				BDB29B3A1BD6931E005CBF28 /* SQLiteStatementInfo.java */,
+				BDB29B3B1BD6931E005CBF28 /* SQLiteTableLockedException.java */,
+				BDB29B3C1BD6931E005CBF28 /* SQLiteTransactionListener.java */,
+				BDB29B3D1BD6931E005CBF28 /* StaleDataException.java */,
+			);
+			path = sqlite;
+			sourceTree = "<group>";
+		};
+		BDB29B3E1BD6931E005CBF28 /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B3F1BD6931E005CBF28 /* ios */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDB29B3F1BD6931E005CBF28 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B401BD6931E005CBF28 /* IOSOpenHelperWrapper.java */,
+				BDB29B411BD6931E005CBF28 /* IOSTableModel.java */,
+				BDB29B421BD6931E005CBF28 /* IOSViewModel.java */,
+				BDB29B431BD6931E005CBF28 /* MapValuesStorage.java */,
+				BDB29B441BD6931E005CBF28 /* SQLiteDatabaseAdapter.java */,
+				BDB29B451BD6931E005CBF28 /* SquidCursorFactory.java */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		BDB29B841BD6932F005CBF28 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B851BD6932F005CBF28 /* com */,
+			);
+			name = src;
+			path = ../../squidb/src;
+			sourceTree = "<group>";
+		};
+		BDB29B851BD6932F005CBF28 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B861BD6932F005CBF28 /* yahoo */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		BDB29B861BD6932F005CBF28 /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B871BD6932F005CBF28 /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDB29B871BD6932F005CBF28 /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B881BD6932F005CBF28 /* Beta.java */,
+				BDB29B891BD6932F005CBF28 /* data */,
+				BDB29B971BD6932F005CBF28 /* sql */,
+				BDB29BBE1BD6932F005CBF28 /* utility */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDB29B891BD6932F005CBF28 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B8A1BD6932F005CBF28 /* AbstractModel.java */,
+				BDB29B8B1BD6932F005CBF28 /* DataChangedNotifier.java */,
+				BDB29B8C1BD6932F005CBF28 /* ICursor.java */,
+				BDB29B8D1BD6932F005CBF28 /* ISQLiteDatabase.java */,
+				BDB29B8E1BD6932F005CBF28 /* SimpleDataChangedNotifier.java */,
+				BDB29B8F1BD6932F005CBF28 /* SQLExceptionWrapper.java */,
+				BDB29B901BD6932F005CBF28 /* SQLiteOpenHelperWrapper.java */,
+				BDB29B911BD6932F005CBF28 /* SquidCursor.java */,
+				BDB29B921BD6932F005CBF28 /* SquidDatabase.java */,
+				BDB29B931BD6932F005CBF28 /* SquidTransactionListener.java */,
+				BDB29B941BD6932F005CBF28 /* TableModel.java */,
+				BDB29B951BD6932F005CBF28 /* ValuesStorage.java */,
+				BDB29B961BD6932F005CBF28 /* ViewModel.java */,
+			);
+			path = data;
+			sourceTree = "<group>";
+		};
+		BDB29B971BD6932F005CBF28 /* sql */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29B981BD6932F005CBF28 /* ArgumentFunction.java */,
+				BDB29B991BD6932F005CBF28 /* BinaryCriterion.java */,
+				BDB29B9A1BD6932F005CBF28 /* CaseBuilder.java */,
+				BDB29B9B1BD6932F005CBF28 /* CompilableWithArguments.java */,
+				BDB29B9C1BD6932F005CBF28 /* CompiledArgumentResolver.java */,
+				BDB29B9D1BD6932F005CBF28 /* CompiledStatement.java */,
+				BDB29B9E1BD6932F005CBF28 /* CompoundSelect.java */,
+				BDB29B9F1BD6932F005CBF28 /* ConjunctionCriterion.java */,
+				BDB29BA01BD6932F005CBF28 /* Criterion.java */,
+				BDB29BA11BD6932F005CBF28 /* DBObject.java */,
+				BDB29BA21BD6932F005CBF28 /* Delete.java */,
+				BDB29BA31BD6932F005CBF28 /* DistinctArgumentFunction.java */,
+				BDB29BA41BD6932F005CBF28 /* Field.java */,
+				BDB29BA51BD6932F005CBF28 /* Function.java */,
+				BDB29BA61BD6932F005CBF28 /* Index.java */,
+				BDB29BA71BD6932F005CBF28 /* Insert.java */,
+				BDB29BA81BD6932F005CBF28 /* Join.java */,
+				BDB29BA91BD6932F005CBF28 /* MathFunction.java */,
+				BDB29BAA1BD6932F005CBF28 /* MathOperator.java */,
+				BDB29BAB1BD6932F005CBF28 /* NegationCriterion.java */,
+				BDB29BAC1BD6932F005CBF28 /* Operator.java */,
+				BDB29BAD1BD6932F005CBF28 /* Order.java */,
+				BDB29BAE1BD6932F005CBF28 /* Property.java */,
+				BDB29BAF1BD6932F005CBF28 /* Query.java */,
+				BDB29BB01BD6932F005CBF28 /* QueryFunction.java */,
+				BDB29BB11BD6932F005CBF28 /* QueryTable.java */,
+				BDB29BB21BD6932F005CBF28 /* RawFunction.java */,
+				BDB29BB31BD6932F005CBF28 /* SqlBuilder.java */,
+				BDB29BB41BD6932F005CBF28 /* SqlStatement.java */,
+				BDB29BB51BD6932F005CBF28 /* SqlTable.java */,
+				BDB29BB61BD6932F005CBF28 /* SqlUtils.java */,
+				BDB29BB71BD6932F005CBF28 /* SubqueryTable.java */,
+				BDB29BB81BD6932F005CBF28 /* Table.java */,
+				BDB29BB91BD6932F005CBF28 /* TableStatement.java */,
+				BDB29BBA1BD6932F005CBF28 /* Trigger.java */,
+				BDB29BBB1BD6932F005CBF28 /* Update.java */,
+				BDB29BBC1BD6932F005CBF28 /* View.java */,
+				BDB29BBD1BD6932F005CBF28 /* VirtualTable.java */,
+			);
+			path = sql;
+			sourceTree = "<group>";
+		};
+		BDB29BBE1BD6932F005CBF28 /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				BDB29BBF1BD6932F005CBF28 /* ContentProviderQueryBuilder.java */,
+				BDB29BC01BD6932F005CBF28 /* Logger.java */,
+				BDB29BC11BD6932F005CBF28 /* ProjectionMap.java */,
+				BDB29BC21BD6932F005CBF28 /* SquidUtilities.java */,
+				BDB29BC31BD6932F005CBF28 /* VersionCode.java */,
+			);
+			path = utility;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BDB299CE1BD690F0005CBF28 /* squidb-ios-tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDB299F11BD690F0005CBF28 /* Build configuration list for PBXNativeTarget "squidb-ios-tests" */;
+			buildPhases = (
+				BDB299CB1BD690F0005CBF28 /* Sources */,
+				BDB299CC1BD690F0005CBF28 /* Frameworks */,
+				BDB299CD1BD690F0005CBF28 /* Resources */,
+			);
+			buildRules = (
+				BDB299F81BD69208005CBF28 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "squidb-ios-tests";
+			productName = "squidb-ios-tests";
+			productReference = BDB299CF1BD690F0005CBF28 /* squidb-ios-tests.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BDB299E71BD690F0005CBF28 /* squidb-ios-testsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDB299F41BD690F0005CBF28 /* Build configuration list for PBXNativeTarget "squidb-ios-testsTests" */;
+			buildPhases = (
+				BDB299E41BD690F0005CBF28 /* Sources */,
+				BDB299E51BD690F0005CBF28 /* Frameworks */,
+				BDB299E61BD690F0005CBF28 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BDB299EA1BD690F0005CBF28 /* PBXTargetDependency */,
+			);
+			name = "squidb-ios-testsTests";
+			productName = "squidb-ios-testsTests";
+			productReference = BDB299E81BD690F0005CBF28 /* squidb-ios-testsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BDB299C71BD690F0005CBF28 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = Yahoo;
+				TargetAttributes = {
+					BDB299CE1BD690F0005CBF28 = {
+						CreatedOnToolsVersion = 7.0.1;
+					};
+					BDB299E71BD690F0005CBF28 = {
+						CreatedOnToolsVersion = 7.0.1;
+						TestTargetID = BDB299CE1BD690F0005CBF28;
+					};
+				};
+			};
+			buildConfigurationList = BDB299CA1BD690F0005CBF28 /* Build configuration list for PBXProject "squidb-ios-tests" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BDB299C61BD690F0005CBF28;
+			productRefGroup = BDB299D01BD690F0005CBF28 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BDB299CE1BD690F0005CBF28 /* squidb-ios-tests */,
+				BDB299E71BD690F0005CBF28 /* squidb-ios-testsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BDB299CD1BD690F0005CBF28 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDB299E21BD690F0005CBF28 /* LaunchScreen.storyboard in Resources */,
+				BDB299DF1BD690F0005CBF28 /* Assets.xcassets in Resources */,
+				BDB299DD1BD690F0005CBF28 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDB299E61BD690F0005CBF28 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BDB299CB1BD690F0005CBF28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDB29BDF1BD6932F005CBF28 /* Function.java in Sources */,
+				BDB29BCC1BD6932F005CBF28 /* SquidCursor.java in Sources */,
+				BDB29B5F1BD6931E005CBF28 /* SQLiteConnection.java in Sources */,
+				BDB29BE91BD6932F005CBF28 /* Query.java in Sources */,
+				BDB29BC41BD6932F005CBF28 /* Beta.java in Sources */,
+				BDB29B471BD6931E005CBF28 /* Errors.m in Sources */,
+				BDB29B681BD6931E005CBF28 /* SQLiteDatabaseLockedException.java in Sources */,
+				BDB29B661BD6931E005CBF28 /* SQLiteDatabaseConfiguration.java in Sources */,
+				BDB29BD31BD6932F005CBF28 /* BinaryCriterion.java in Sources */,
+				BDB29BCB1BD6932F005CBF28 /* SQLiteOpenHelperWrapper.java in Sources */,
+				BDB29BE31BD6932F005CBF28 /* MathFunction.java in Sources */,
+				BDB29B6F1BD6931E005CBF28 /* SQLiteFullException.java in Sources */,
+				BDB29B591BD6931E005CBF28 /* SQLiteAbortException.java in Sources */,
+				BDB29B731BD6931E005CBF28 /* SQLiteOutOfMemoryException.java in Sources */,
+				BDB29B5E1BD6931E005CBF28 /* SQLiteClosable.java in Sources */,
+				BDB29B461BD6931E005CBF28 /* CursorWindowNative.m in Sources */,
+				BDB29BC51BD6932F005CBF28 /* AbstractModel.java in Sources */,
+				BDB29BD71BD6932F005CBF28 /* CompiledStatement.java in Sources */,
+				BDB29BF21BD6932F005CBF28 /* Table.java in Sources */,
+				BDB29B581BD6931E005CBF28 /* SQLException.java in Sources */,
+				BDB29B5C1BD6931E005CBF28 /* SQLiteBlobTooBigException.java in Sources */,
+				BDB29B7E1BD6931E005CBF28 /* IOSOpenHelperWrapper.java in Sources */,
+				BDB29BC81BD6932F005CBF28 /* ISQLiteDatabase.java in Sources */,
+				BDB29B7A1BD6931E005CBF28 /* SQLiteStatementInfo.java in Sources */,
+				BDB29BD11BD6932F005CBF28 /* ViewModel.java in Sources */,
+				BDB29BCA1BD6932F005CBF28 /* SQLExceptionWrapper.java in Sources */,
+				BDB29B551BD6931E005CBF28 /* Pair.java in Sources */,
+				BDB29BFC1BD6932F005CBF28 /* VersionCode.java in Sources */,
+				BDB29B4D1BD6931E005CBF28 /* CursorIndexOutOfBoundsException.java in Sources */,
+				BDB29B4B1BD6931E005CBF28 /* AbstractWindowedCursor.java in Sources */,
+				BDB29BE51BD6932F005CBF28 /* NegationCriterion.java in Sources */,
+				BDB29B5B1BD6931E005CBF28 /* SQLiteBindOrColumnIndexOutOfRangeException.java in Sources */,
+				BDB29BC91BD6932F005CBF28 /* SimpleDataChangedNotifier.java in Sources */,
+				BDB29B4F1BD6931E005CBF28 /* CursorWindowAllocationException.java in Sources */,
+				BDB29B831BD6931E005CBF28 /* SquidCursorFactory.java in Sources */,
+				BDB29BDD1BD6932F005CBF28 /* DistinctArgumentFunction.java in Sources */,
+				BDB29B481BD6931E005CBF28 /* SQLiteConnectionNative.m in Sources */,
+				BDB29B631BD6931E005CBF28 /* SQLiteCursorDriver.java in Sources */,
+				BDB29B6C1BD6931E005CBF28 /* SQLiteDiskIOException.java in Sources */,
+				BDB29BE01BD6932F005CBF28 /* Index.java in Sources */,
+				BDB29BD21BD6932F005CBF28 /* ArgumentFunction.java in Sources */,
+				BDB29BF41BD6932F005CBF28 /* Trigger.java in Sources */,
+				BDB29B6E1BD6931E005CBF28 /* SQLiteException.java in Sources */,
+				BDB29B711BD6931E005CBF28 /* SQLiteMisuseException.java in Sources */,
+				BDB29BF91BD6932F005CBF28 /* Logger.java in Sources */,
+				BDB29B541BD6931E005CBF28 /* LruCache.java in Sources */,
+				BDB29B561BD6931E005CBF28 /* PrefixPrinter.java in Sources */,
+				BDB29BDA1BD6932F005CBF28 /* Criterion.java in Sources */,
+				BDB299DA1BD690F0005CBF28 /* ViewController.m in Sources */,
+				BDB29BF31BD6932F005CBF28 /* TableStatement.java in Sources */,
+				BDB29B701BD6931E005CBF28 /* SQLiteGlobal.java in Sources */,
+				BDB29BEE1BD6932F005CBF28 /* SqlStatement.java in Sources */,
+				BDB29B491BD6931E005CBF28 /* SQLitePreparedStatement.m in Sources */,
+				BDB29BDE1BD6932F005CBF28 /* Field.java in Sources */,
+				BDB29BD61BD6932F005CBF28 /* CompiledArgumentResolver.java in Sources */,
+				BDB29B751BD6931E005CBF28 /* SQLiteQuery.java in Sources */,
+				BDB29B621BD6931E005CBF28 /* SQLiteCursor.java in Sources */,
+				BDB29B601BD6931E005CBF28 /* SQLiteConnectionPool.java in Sources */,
+				BDB29B5A1BD6931E005CBF28 /* SQLiteAccessPermException.java in Sources */,
+				BDB29B521BD6931E005CBF28 /* DatabaseUtils.java in Sources */,
+				BDB29BCF1BD6932F005CBF28 /* TableModel.java in Sources */,
+				BDB29BE71BD6932F005CBF28 /* Order.java in Sources */,
+				BDB29BEB1BD6932F005CBF28 /* QueryTable.java in Sources */,
+				BDB29B651BD6931E005CBF28 /* SQLiteDatabase.java in Sources */,
+				BDB29B531BD6931E005CBF28 /* DefaultDatabaseErrorHandler.java in Sources */,
+				BDB29BE11BD6932F005CBF28 /* Insert.java in Sources */,
+				BDB29BD91BD6932F005CBF28 /* ConjunctionCriterion.java in Sources */,
+				BDB29BD41BD6932F005CBF28 /* CaseBuilder.java in Sources */,
+				BDB29B611BD6931E005CBF28 /* SQLiteConstraintException.java in Sources */,
+				BDB29B7D1BD6931E005CBF28 /* StaleDataException.java in Sources */,
+				BDB29BD51BD6932F005CBF28 /* CompilableWithArguments.java in Sources */,
+				BDB29B791BD6931E005CBF28 /* SQLiteStatement.java in Sources */,
+				BDB29BF11BD6932F005CBF28 /* SubqueryTable.java in Sources */,
+				BDB29B641BD6931E005CBF28 /* SQLiteCustomFunction.java in Sources */,
+				BDB29BE41BD6932F005CBF28 /* MathOperator.java in Sources */,
+				BDB29B741BD6931E005CBF28 /* SQLiteProgram.java in Sources */,
+				BDB29B691BD6931E005CBF28 /* SQLiteDatatypeMismatchException.java in Sources */,
+				BDB29BCD1BD6932F005CBF28 /* SquidDatabase.java in Sources */,
+				BDB29B4E1BD6931E005CBF28 /* CursorWindow.java in Sources */,
+				BDB29BDB1BD6932F005CBF28 /* DBObject.java in Sources */,
+				BDB29BCE1BD6932F005CBF28 /* SquidTransactionListener.java in Sources */,
+				BDB29B671BD6931E005CBF28 /* SQLiteDatabaseCorruptException.java in Sources */,
+				BDB29B7B1BD6931E005CBF28 /* SQLiteTableLockedException.java in Sources */,
+				BDB29B4C1BD6931E005CBF28 /* CloseGuard.java in Sources */,
+				BDB29B7F1BD6931E005CBF28 /* IOSTableModel.java in Sources */,
+				BDB29BF71BD6932F005CBF28 /* VirtualTable.java in Sources */,
+				BDB29BD81BD6932F005CBF28 /* CompoundSelect.java in Sources */,
+				BDB29BE21BD6932F005CBF28 /* Join.java in Sources */,
+				BDB29B771BD6931E005CBF28 /* SQLiteReadOnlyDatabaseException.java in Sources */,
+				BDB29BF01BD6932F005CBF28 /* SqlUtils.java in Sources */,
+				BDB29B571BD6931E005CBF28 /* Printer.java in Sources */,
+				BDB29BEC1BD6932F005CBF28 /* RawFunction.java in Sources */,
+				BDB29B6A1BD6931E005CBF28 /* SQLiteDebug.java in Sources */,
+				BDB29BC61BD6932F005CBF28 /* DataChangedNotifier.java in Sources */,
+				BDB29BFA1BD6932F005CBF28 /* ProjectionMap.java in Sources */,
+				BDB29BED1BD6932F005CBF28 /* SqlBuilder.java in Sources */,
+				BDB29B501BD6931E005CBF28 /* DatabaseErrorHandler.java in Sources */,
+				BDB29B821BD6931E005CBF28 /* SQLiteDatabaseAdapter.java in Sources */,
+				BDB29BE81BD6932F005CBF28 /* Property.java in Sources */,
+				BDB29B811BD6931E005CBF28 /* MapValuesStorage.java in Sources */,
+				BDB29BF61BD6932F005CBF28 /* View.java in Sources */,
+				BDB29B4A1BD6931E005CBF28 /* AbstractCursor.java in Sources */,
+				BDB29B721BD6931E005CBF28 /* SQLiteOpenHelper.java in Sources */,
+				BDB29BEF1BD6932F005CBF28 /* SqlTable.java in Sources */,
+				BDB29B6B1BD6931E005CBF28 /* SQLiteDirectCursorDriver.java in Sources */,
+				BDB29B7C1BD6931E005CBF28 /* SQLiteTransactionListener.java in Sources */,
+				BDB29B761BD6931E005CBF28 /* SQLiteQueryBuilder.java in Sources */,
+				BDB29BDC1BD6932F005CBF28 /* Delete.java in Sources */,
+				BDB29B511BD6931E005CBF28 /* DatabaseObjectNotClosedException.java in Sources */,
+				BDB29BEA1BD6932F005CBF28 /* QueryFunction.java in Sources */,
+				BDB29B5D1BD6931E005CBF28 /* SQLiteCantOpenDatabaseException.java in Sources */,
+				BDB299D71BD690F0005CBF28 /* AppDelegate.m in Sources */,
+				BDB29BE61BD6932F005CBF28 /* Operator.java in Sources */,
+				BDB29BF81BD6932F005CBF28 /* ContentProviderQueryBuilder.java in Sources */,
+				BDB29BC71BD6932F005CBF28 /* ICursor.java in Sources */,
+				BDB29B801BD6931E005CBF28 /* IOSViewModel.java in Sources */,
+				BDB29BFB1BD6932F005CBF28 /* SquidUtilities.java in Sources */,
+				BDB29B6D1BD6931E005CBF28 /* SQLiteDoneException.java in Sources */,
+				BDB29BD01BD6932F005CBF28 /* ValuesStorage.java in Sources */,
+				BDB29B781BD6931E005CBF28 /* SQLiteSession.java in Sources */,
+				BDB299D41BD690F0005CBF28 /* main.m in Sources */,
+				BDB29BF51BD6932F005CBF28 /* Update.java in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDB299E41BD690F0005CBF28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDB299ED1BD690F0005CBF28 /* squidb_ios_testsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BDB299EA1BD690F0005CBF28 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BDB299CE1BD690F0005CBF28 /* squidb-ios-tests */;
+			targetProxy = BDB299E91BD690F0005CBF28 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		BDB299DB1BD690F0005CBF28 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BDB299DC1BD690F0005CBF28 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		BDB299E01BD690F0005CBF28 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BDB299E11BD690F0005CBF28 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		BDB299EF1BD690F0005CBF28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BDB299F71BD6916B005CBF28 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BDB299F01BD690F0005CBF28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BDB299F71BD6916B005CBF28 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BDB299F21BD690F0005CBF28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "squidb-ios-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BDB299F31BD690F0005CBF28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "squidb-ios-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		BDB299F51BD690F0005CBF28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "squidb-ios-testsTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-testsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/squidb-ios-tests.app/squidb-ios-tests";
+			};
+			name = Debug;
+		};
+		BDB299F61BD690F0005CBF28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "squidb-ios-testsTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-testsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/squidb-ios-tests.app/squidb-ios-tests";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BDB299CA1BD690F0005CBF28 /* Build configuration list for PBXProject "squidb-ios-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDB299EF1BD690F0005CBF28 /* Debug */,
+				BDB299F01BD690F0005CBF28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BDB299F11BD690F0005CBF28 /* Build configuration list for PBXNativeTarget "squidb-ios-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDB299F21BD690F0005CBF28 /* Debug */,
+				BDB299F31BD690F0005CBF28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		BDB299F41BD690F0005CBF28 /* Build configuration list for PBXNativeTarget "squidb-ios-testsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDB299F51BD690F0005CBF28 /* Debug */,
+				BDB299F61BD690F0005CBF28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BDB299C71BD690F0005CBF28 /* Project object */;
+}
