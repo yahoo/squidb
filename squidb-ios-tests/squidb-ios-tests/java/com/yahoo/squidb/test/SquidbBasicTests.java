@@ -6,7 +6,6 @@ public class SquidbBasicTests {
     
     public SquidbBasicTests() {
         String path = getPath();
-        System.err.println("Database path " + path);
         db = new TestDatabase(path);
         db.clear();
         runTests();

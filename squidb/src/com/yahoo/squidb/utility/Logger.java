@@ -12,10 +12,10 @@ public abstract class Logger {
     public static final String LOG_TAG = "squidb";
 
     public enum Level {
-        INFO,
+        ERROR,
         DEBUG,
         WARN,
-        ERROR
+        INFO,
     }
 
     private static Level logLevel = Level.DEBUG;
