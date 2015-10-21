@@ -603,7 +603,7 @@ public abstract class SquidDatabase {
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
-     * @see ISQLiteDatabase#beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener)
+     * @see ISQLiteDatabase#beginTransactionWithListener(SquidTransactionListener)
      */
     public void beginTransactionWithListener(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -616,7 +616,7 @@ public abstract class SquidDatabase {
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
-     * @see ISQLiteDatabase#beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener)
+     * @see ISQLiteDatabase#beginTransactionWithListenerNonExclusive(SquidTransactionListener)
      */
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -1037,7 +1037,7 @@ public abstract class SquidDatabase {
      * Execute a raw SQL statement
      *
      * @param sql the statement to execute
-     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see ISQLiteDatabase#execSQL(String)
      */
     public void execSqlOrThrow(String sql) throws SQLExceptionWrapper {
@@ -1077,7 +1077,7 @@ public abstract class SquidDatabase {
      *
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
-     * @throws SQLException if there is an error parsing the SQL or some other error
+     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see ISQLiteDatabase#execSQL(String, Object[])
      */
     public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
