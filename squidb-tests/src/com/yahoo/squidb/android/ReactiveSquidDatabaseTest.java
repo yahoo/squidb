@@ -12,7 +12,6 @@ import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
-import com.yahoo.squidb.android.TestReactiveDatabase;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
