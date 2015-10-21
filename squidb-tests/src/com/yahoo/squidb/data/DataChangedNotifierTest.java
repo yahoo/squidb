@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Update;
+import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
@@ -160,7 +161,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         };
         testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.DELETE, null, 0);
 
-        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis() + 600000);
+        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis() + Constants.DAY_IN_MILLIS);
         toRun = new Runnable() {
             @Override
             public void run() {

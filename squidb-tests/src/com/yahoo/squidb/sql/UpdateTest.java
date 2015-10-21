@@ -7,6 +7,7 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm;
+import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 
@@ -30,19 +31,19 @@ public class UpdateTest extends DatabaseTestCase {
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
-                .setBirthday(now - 60 * 60 * 24 * 7)
+                .setBirthday(now - Constants.WEEK_IN_MILLIS)
                 .setLuckyNumber(314);
         database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
-                .setBirthday(now + 60 * 60)
+                .setBirthday(now + Constants.HOUR_IN_MILLIS)
                 .setLuckyNumber(3);
         database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
-                .setBirthday(now - 60 * 60 * 24 * 2)
+                .setBirthday(now - Constants.DAY_IN_MILLIS * 2)
                 .setLuckyNumber(-5);
         database.persist(scott);
     }

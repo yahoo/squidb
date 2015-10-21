@@ -11,6 +11,7 @@ import com.yahoo.squidb.sql.Property.DoubleProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
+import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
@@ -37,13 +38,13 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         model2 = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
-                .setBirthday(now - 60 * 60 * 24 * 7)
+                .setBirthday(now - Constants.WEEK_IN_MILLIS)
                 .setLuckyNumber(0);
         database.persist(model2);
         model3 = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
-                .setBirthday(now - 60 * 60);
+                .setBirthday(now - Constants.HOUR_IN_MILLIS);
         database.persist(model3);
     }
 

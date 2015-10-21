@@ -7,6 +7,7 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm;
+import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
@@ -26,7 +27,7 @@ public class InsertTest extends DatabaseTestCase {
         thingOne = new Thing()
                 .setFoo("Thing1")
                 .setBar(123)
-                .setBaz(60L * 60 * 24 * 7)
+                .setBaz(Constants.WEEK_IN_MILLIS)
                 .setQux(5.5)
                 .setIsAlive(true);
         database.persist(thingOne);
