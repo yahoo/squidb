@@ -5,17 +5,14 @@
  */
 package com.yahoo.squidb.data;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteException;
-
+import com.yahoo.squidb.android.SquidTestRunner;
+import com.yahoo.squidb.android.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
-import com.yahoo.squidb.test.SquidTestRunner;
-import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -34,7 +31,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     @Override
     protected void setupDatabase() {
         super.setupDatabase();
-        badDatabase = new BadDatabase(getContext());
+        badDatabase = new BadDatabase();
         badDatabase.getDatabase(); // init
     }
 
@@ -158,7 +155,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testCustomMigrationException() {
-        TestDatabase database = new TestDatabase(getContext());
+        TestDatabase database = new TestDatabase();
         ISQLiteDatabase db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
@@ -189,8 +186,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         private boolean shouldThrowDuringMigration = false;
         private boolean shouldRecreate = false;
 
-        public BadDatabase(Context context) {
-            super(context);
+        public BadDatabase() {
+            super();
         }
 
         @Override
@@ -212,7 +209,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         protected final boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
-                throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
+                throw new SQLExceptionWrapper(
+                        new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?"));
             } else if (shouldRecreate) {
                 recreate();
             }
@@ -223,7 +221,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
-                throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
+                throw new SQLExceptionWrapper(
+                        new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?"));
             } else if (shouldRecreate) {
                 recreate();
             }

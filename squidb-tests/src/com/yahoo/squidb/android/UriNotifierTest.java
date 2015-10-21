@@ -1,15 +1,18 @@
-package com.yahoo.squidb.data;
+package com.yahoo.squidb.android;
 
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 
-import com.yahoo.squidb.android.UriNotifier;
+import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,7 +21,6 @@ public class UriNotifierTest extends DatabaseTestCase {
 
     private static class TestUriNotifier extends UriNotifier {
 
-        @SuppressWarnings("unchecked")
         public TestUriNotifier(Context context) {
             super(context, TestModel.TABLE);
         }
@@ -37,7 +39,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         super.setUp();
         database.unregisterAllDataChangedNotifiers();
         for (ContentObserver observer : observers) {
-            getContext().getContentResolver().unregisterContentObserver(observer);
+            ContextProvider.getContext().getContentResolver().unregisterContentObserver(observer);
         }
     }
 
@@ -51,7 +53,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         };
         observers.add(observer);
-        getContext().getContentResolver().registerContentObserver(uri, notifyForDescendants, observer);
+        ContextProvider.getContext().getContentResolver().registerContentObserver(uri, notifyForDescendants, observer);
         return gotUriNotification;
     }
 
@@ -59,7 +61,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean notified = listenTo(TestModel.CONTENT_URI, false);
         waitForResolver();
 
-        database.registerDataChangedNotifier(new TestUriNotifier(getContext()));
+        database.registerDataChangedNotifier(new TestUriNotifier(ContextProvider.getContext()));
         insertBasicTestModel();
         waitForResolver();
         assertTrue(notified.get());
@@ -83,7 +85,7 @@ public class UriNotifierTest extends DatabaseTestCase {
 
     private void testNotificationsDuringTransactions(boolean setSuccessful, boolean addNestedTransaction,
             boolean nestedSuccessful) {
-        UriNotifier idNotifier = new TestUriNotifier(getContext()) {
+        UriNotifier idNotifier = new TestUriNotifier(ContextProvider.getContext()) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
@@ -146,17 +148,18 @@ public class UriNotifierTest extends DatabaseTestCase {
         AtomicBoolean notifyCalled = listenTo(Uri.withAppendedPath(TestModel.CONTENT_URI, "1"), true);
         waitForResolver();
 
-        getContext().getContentResolver().notifyChange(TestModel.CONTENT_URI, null);
+        ContextProvider.getContext().getContentResolver().notifyChange(TestModel.CONTENT_URI, null);
         waitForResolver();
         assertTrue(notifyCalled.get());
         notifyCalled.set(false);
 
-        getContext().getContentResolver().notifyChange(Uri.withAppendedPath(TestModel.CONTENT_URI, "1"), null);
+        ContextProvider.getContext().getContentResolver()
+                .notifyChange(Uri.withAppendedPath(TestModel.CONTENT_URI, "1"), null);
         waitForResolver();
         assertTrue(notifyCalled.get());
         notifyCalled.set(false);
 
-        getContext().getContentResolver()
+        ContextProvider.getContext().getContentResolver()
                 .notifyChange(Uri.withAppendedPath(TestModel.CONTENT_URI, "1/directory"), null);
         waitForResolver();
         assertTrue(notifyCalled.get());
@@ -170,5 +173,37 @@ public class UriNotifierTest extends DatabaseTestCase {
         } catch (InterruptedException e) {
             //
         }
+    }
+
+    public void testUriNotifierConstructors() {
+        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext()) {
+            @Override
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                return false;
+            }
+        });
+        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext(), TestModel.TABLE) {
+            @Override
+            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                return false;
+            }
+        }, TestModel.TABLE);
+
+        testNotifierConstructorsInternal(
+                new UriNotifier(ContextProvider.getContext(), Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
+                    @Override
+                    protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
+                            SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                        return false;
+                    }
+                }, TestModel.TABLE, Employee.TABLE);
+    }
+
+    private void testNotifierConstructorsInternal(UriNotifier notifier, SqlTable<?>... tables) {
+        Set<SqlTable<?>> whichTables = notifier.whichTables();
+        assertEquals(tables.length, whichTables.size());
+        assertTrue(whichTables.containsAll(Arrays.asList(tables)));
     }
 }

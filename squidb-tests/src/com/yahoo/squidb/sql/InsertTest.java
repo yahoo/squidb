@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.format.DateUtils;
-
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -28,7 +26,7 @@ public class InsertTest extends DatabaseTestCase {
         thingOne = new Thing()
                 .setFoo("Thing1")
                 .setBar(123)
-                .setBaz(DateUtils.WEEK_IN_MILLIS)
+                .setBaz(60L * 60 * 24 * 7)
                 .setQux(5.5)
                 .setIsAlive(true);
         database.persist(thingOne);

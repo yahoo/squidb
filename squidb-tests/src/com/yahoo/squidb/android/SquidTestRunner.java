@@ -3,16 +3,16 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.test;
+package com.yahoo.squidb.android;
 
 import android.content.Context;
 import android.os.Build;
 import android.test.AndroidTestRunner;
 
-import com.yahoo.squidb.android.AndroidOpenHelper;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase.OpenHelperDelegate;
 import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelper;
+import com.yahoo.squidb.test.SQLiteBindingProvider;
 import com.yahoo.squidb.utility.Logger;
 
 public class SquidTestRunner extends AndroidTestRunner {
@@ -21,13 +21,13 @@ public class SquidTestRunner extends AndroidTestRunner {
 
     public static SquidbBinding selectedBinding;
 
-    public SquidTestRunner(final Context context, SquidbBinding binding) {
+    public SquidTestRunner(SquidbBinding binding) {
         selectedBinding = binding;
         SQLiteBindingProvider.setSQLiteBindingProvider(new SQLiteBindingProvider() {
             @Override
             public ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
                     int version) {
-                return selectedBinding.getOpenHelper(context, databaseName, delegate, version);
+                return selectedBinding.getOpenHelper(ContextProvider.getContext(), databaseName, delegate, version);
             }
         });
     }

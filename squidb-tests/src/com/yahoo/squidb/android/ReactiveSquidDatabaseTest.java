@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data;
+package com.yahoo.squidb.android;
 
 import com.yahoo.squidb.reactive.ReactiveSquidDatabase;
 import com.yahoo.squidb.sql.Query;
@@ -12,7 +12,7 @@ import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
-import com.yahoo.squidb.test.TestReactiveDatabase;
+import com.yahoo.squidb.android.TestReactiveDatabase;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +38,7 @@ public class ReactiveSquidDatabaseTest extends SquidTestCase {
      * operations.
      */
     protected void setupDatabase() {
-        database = new TestReactiveDatabase(getContext());
+        database = new TestReactiveDatabase();
         database.clear();
     }
 

@@ -5,10 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import android.net.Uri;
-import android.text.format.DateUtils;
-
-import com.yahoo.squidb.android.UriNotifier;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.SqlTable;
@@ -164,7 +160,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         };
         testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.DELETE, null, 0);
 
-        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
+        insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis() + 600000);
         toRun = new Runnable() {
             @Override
             public void run() {
@@ -281,13 +277,6 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
     }
 
     public void testNotifierConstructors() {
-        testNotifierConstructorsInternal(new UriNotifier(getContext()) {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                return false;
-            }
-        });
         testNotifierConstructorsInternal(new SimpleDataChangedNotifier() {
             @Override
             protected void onDataChanged() {
@@ -295,13 +284,6 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             }
         });
 
-        testNotifierConstructorsInternal(new UriNotifier(getContext(), TestModel.TABLE) {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                return false;
-            }
-        }, TestModel.TABLE);
         testNotifierConstructorsInternal(new SimpleDataChangedNotifier(TestModel.TABLE) {
             @Override
             protected void onDataChanged() {
@@ -309,13 +291,6 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             }
         }, TestModel.TABLE);
 
-        testNotifierConstructorsInternal(new UriNotifier(getContext(), Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
-            @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                return false;
-            }
-        }, TestModel.TABLE, Employee.TABLE);
         testNotifierConstructorsInternal(new SimpleDataChangedNotifier(Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
             @Override
             protected void onDataChanged() {

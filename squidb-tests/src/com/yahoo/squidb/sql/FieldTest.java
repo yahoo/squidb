@@ -14,10 +14,8 @@ import java.util.List;
 public class FieldTest extends DatabaseTestCase {
 
     public void testInCriterionWithEmptyListExecutesValidSql() {
-        List<Long> values = null;
-        database.query(TestModel.class, Query.select().where(TestModel.ID.in(values)));
-        values = new ArrayList<Long>();
-        database.query(TestModel.class, Query.select().where(TestModel.ID.in(values)));
+        database.query(TestModel.class, Query.select().where(TestModel.ID.in((List<Long>) null)));
+        database.query(TestModel.class, Query.select().where(TestModel.ID.in(new ArrayList<Long>())));
     }
 
 }

@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.format.DateUtils;
-
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -39,19 +37,19 @@ public class TriggerTest extends DatabaseTestCase {
         kevin = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
-                .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
+                .setBirthday(now - 60 * 60 * 24 * 7)
                 .setLuckyNumber(314);
         database.persist(kevin);
         jonathan = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
-                .setBirthday(now + DateUtils.HOUR_IN_MILLIS)
+                .setBirthday(now + 60 * 60)
                 .setLuckyNumber(3);
         database.persist(jonathan);
         scott = new TestModel()
                 .setFirstName("Scott")
                 .setLastName("Serrano")
-                .setBirthday(now - DateUtils.DAY_IN_MILLIS * 2)
+                .setBirthday(now - 60 * 60 * 24 * 2)
                 .setLuckyNumber(-5);
         database.persist(scott);
 

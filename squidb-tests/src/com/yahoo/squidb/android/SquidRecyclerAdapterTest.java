@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.utility;
+package com.yahoo.squidb.android;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -80,7 +80,7 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
 
             @Override
             public void testRecyclerAdapter(TestRecyclerAdapter adapter) {
-                FrameLayout parent = new FrameLayout(getContext());
+                FrameLayout parent = new FrameLayout(ContextProvider.getContext());
                 TestViewHolder holder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(0));
 
                 adapter.onBindViewHolder(holder, 0);

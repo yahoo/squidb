@@ -25,7 +25,7 @@ public class AttachDetachTest extends DatabaseTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        database2 = new TestDatabase(getContext()) {
+        database2 = new TestDatabase() {
             @Override
             public String getName() {
                 return "db2.db";

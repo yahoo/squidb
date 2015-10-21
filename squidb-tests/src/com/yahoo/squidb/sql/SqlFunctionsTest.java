@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.format.DateUtils;
-
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.BooleanProperty;
 import com.yahoo.squidb.sql.Property.DoubleProperty;
@@ -39,13 +37,13 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         model2 = new TestModel()
                 .setFirstName("Kevin")
                 .setLastName("Lim")
-                .setBirthday(now - DateUtils.WEEK_IN_MILLIS)
+                .setBirthday(now - 60 * 60 * 24 * 7)
                 .setLuckyNumber(0);
         database.persist(model2);
         model3 = new TestModel()
                 .setFirstName("Jonathan")
                 .setLastName("Koren")
-                .setBirthday(now - DateUtils.HOUR_IN_MILLIS);
+                .setBirthday(now - 60 * 60);
         database.persist(model3);
     }
 

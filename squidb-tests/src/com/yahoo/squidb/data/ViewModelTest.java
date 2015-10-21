@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import android.annotation.SuppressLint;
-
 import com.yahoo.squidb.sql.Join;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -18,7 +16,6 @@ import com.yahoo.squidb.test.ViewlessViewModel;
 
 import java.util.List;
 
-@SuppressLint("DefaultLocale")
 public class ViewModelTest extends DatabaseTestCase {
 
     private TestModel t1;
@@ -46,7 +43,6 @@ public class ViewModelTest extends DatabaseTestCase {
         database.persist(e2);
     }
 
-    @SuppressLint("DefaultLocale")
     public void testBasicSelectFromView() {
         SquidCursor<TestViewModel> cursor = null;
         try {
@@ -75,7 +71,6 @@ public class ViewModelTest extends DatabaseTestCase {
         }
     }
 
-    @SuppressLint("DefaultLocale")
     public void testBasicSelectFromSubquery() {
         SquidCursor<TestSubqueryModel> cursor = null;
         try {

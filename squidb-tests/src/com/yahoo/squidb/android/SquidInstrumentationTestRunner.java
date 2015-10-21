@@ -3,13 +3,13 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.test;
+package com.yahoo.squidb.android;
 
 import android.os.Bundle;
 import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 
-import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
+import com.yahoo.squidb.android.SquidTestRunner.SquidbBinding;
 
 public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
@@ -35,11 +35,12 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
             binding = arguments.getString(KEY_SQUIDB_BINDING, binding);
         }
         this.binding = SquidbBinding.valueOf(binding.toUpperCase());
+        ContextProvider.setContext(getTargetContext());
         super.onCreate(arguments);
     }
 
     @Override
     protected AndroidTestRunner getAndroidTestRunner() {
-        return new SquidTestRunner(getTargetContext(), binding);
+        return new SquidTestRunner(binding);
     }
 }

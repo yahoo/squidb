@@ -5,12 +5,12 @@
  */
 package com.yahoo.squidb.test;
 
-import android.test.AndroidTestCase;
-
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.SqlStatement;
 
-public class SquidTestCase extends AndroidTestCase {
+import junit.framework.TestCase;
+
+public class SquidTestCase extends TestCase {
 
     protected int getReplaceableArgCount(String sql) {
         int argCount = 0;

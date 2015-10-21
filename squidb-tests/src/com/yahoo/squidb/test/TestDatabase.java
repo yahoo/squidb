@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.test;
 
-import android.content.Context;
-
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
@@ -21,14 +19,11 @@ public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
 
-    private final Context context;
-
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
-    public TestDatabase(Context context) {
+    public TestDatabase() {
         super();
-        this.context = context;
     }
 
     @Override

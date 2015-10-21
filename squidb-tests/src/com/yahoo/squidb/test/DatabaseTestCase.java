@@ -52,7 +52,7 @@ public class DatabaseTestCase extends SquidTestCase {
      * operations.
      */
     protected void setupDatabase() {
-        database = new TestDatabase(getContext());
+        database = new TestDatabase();
         database.clear();
     }
 

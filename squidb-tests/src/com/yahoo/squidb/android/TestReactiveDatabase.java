@@ -3,9 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.test;
-
-import android.content.Context;
+package com.yahoo.squidb.android;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
@@ -14,6 +12,14 @@ import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
+import com.yahoo.squidb.test.BasicData;
+import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.SQLiteBindingProvider;
+import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.TestViewModel;
+import com.yahoo.squidb.test.TestVirtualModel;
+import com.yahoo.squidb.test.Thing;
+import com.yahoo.squidb.test.TriggerTester;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
@@ -22,11 +28,8 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
-    private final Context context;
-
-    public TestReactiveDatabase(Context context) {
+    public TestReactiveDatabase() {
         super();
-        this.context = context;
     }
 
     @Override
