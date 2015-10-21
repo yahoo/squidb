@@ -11,19 +11,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 /**
  * SQLiteOpenHelperWrapper implementation for a standard Android SQLiteOpenHelper. By default, SquidDatabase uses
  * this class to access a standard Android SQLiteDatabase.
  */
-public class AndroidOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
+public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper {
 
     private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public AndroidOpenHelperWrapper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
+    public AndroidOpenHelper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
             int version) {
         super(context, name, null, version);
         this.context = context.getApplicationContext();

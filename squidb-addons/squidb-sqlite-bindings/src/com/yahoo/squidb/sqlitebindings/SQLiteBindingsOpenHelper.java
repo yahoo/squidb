@@ -8,7 +8,7 @@ package com.yahoo.squidb.sqlitebindings;
 import android.content.Context;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
@@ -18,7 +18,7 @@ import org.sqlite.database.sqlite.SQLiteOpenHelper;
  * SQLiteOpenHelper implementation that extends {@link org.sqlite.database.sqlite.SQLiteOpenHelper} from the Android
  * SQLite bindings project (https://www.sqlite.org/android/doc/trunk/www/index.wiki)
  */
-public class SQLiteBindingsOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
+public class SQLiteBindingsOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper {
 
     static {
         System.loadLibrary("sqliteX");
@@ -27,7 +27,7 @@ public class SQLiteBindingsOpenHelperWrapper extends SQLiteOpenHelper implements
     private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public SQLiteBindingsOpenHelperWrapper(Context context, String name,
+    public SQLiteBindingsOpenHelper(Context context, String name,
             SquidDatabase.OpenHelperDelegate delegate, int version) {
         super(context, name, null, version);
         this.context = context.getApplicationContext();

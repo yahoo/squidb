@@ -207,7 +207,7 @@ public abstract class SquidDatabase {
     /**
      * SQLiteOpenHelperWrapper that takes care of database operations
      */
-    private SQLiteOpenHelperWrapper helper = null;
+    private ISQLiteOpenHelper helper = null;
 
     /**
      * Internal pointer to open database. Hides the fact that there is a database and a wrapper by making a single
@@ -246,14 +246,14 @@ public abstract class SquidDatabase {
         }
     }
 
-    private synchronized SQLiteOpenHelperWrapper getOpenHelper() {
+    private synchronized ISQLiteOpenHelper getOpenHelper() {
         if (helper == null) {
             helper = createOpenHelper(getName(), new OpenHelperDelegate(), getVersion());
         }
         return helper;
     }
 
-    protected abstract SQLiteOpenHelperWrapper createOpenHelper(String databaseName,
+    protected abstract ISQLiteOpenHelper createOpenHelper(String databaseName,
             OpenHelperDelegate delegate, int version);
 
     /**
@@ -756,7 +756,7 @@ public abstract class SquidDatabase {
     // --- helper classes
 
     /**
-     * Delegate class passed to a {@link SQLiteOpenHelperWrapper} instance that allows the SQLiteOpenHelperWrapper to call back
+     * Delegate class passed to a {@link ISQLiteOpenHelper} instance that allows the SQLiteOpenHelperWrapper to call back
      * into its owning SquidDatabase after the database has been created or opened.
      */
     public final class OpenHelperDelegate {

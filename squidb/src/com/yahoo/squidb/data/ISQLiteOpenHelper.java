@@ -10,7 +10,7 @@ package com.yahoo.squidb.data;
  * {@link com.yahoo.squidb.android.AndroidOpenHelperWrapper} wraps
  * {@link android.database.sqlite.SQLiteOpenHelper SQLiteOpenHelper} and implements this interface.
  */
-public interface SQLiteOpenHelperWrapper {
+public interface ISQLiteOpenHelper {
 
     ISQLiteDatabase openForWriting();
 

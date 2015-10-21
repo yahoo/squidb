@@ -9,10 +9,10 @@ import android.content.Context;
 import android.os.Build;
 import android.test.AndroidTestRunner;
 
-import com.yahoo.squidb.android.AndroidOpenHelperWrapper;
-import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.android.AndroidOpenHelper;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase.OpenHelperDelegate;
-import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelperWrapper;
+import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelper;
 import com.yahoo.squidb.utility.Logger;
 
 public class SquidTestRunner extends AndroidTestRunner {
@@ -21,8 +21,15 @@ public class SquidTestRunner extends AndroidTestRunner {
 
     public static SquidbBinding selectedBinding;
 
-    public SquidTestRunner(SquidbBinding binding) {
+    public SquidTestRunner(final Context context, SquidbBinding binding) {
         selectedBinding = binding;
+        SQLiteBindingProvider.setSQLiteBindingProvider(new SQLiteBindingProvider() {
+            @Override
+            public ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
+                    int version) {
+                return selectedBinding.getOpenHelper(context, databaseName, delegate, version);
+            }
+        });
     }
 
     @Override
@@ -46,20 +53,20 @@ public class SquidTestRunner extends AndroidTestRunner {
     public enum SquidbBinding {
         ANDROID {
             @Override
-            public SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+            public ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
                     OpenHelperDelegate delegate, int version) {
-                return new AndroidOpenHelperWrapper(context, databaseName, delegate, version);
+                return new AndroidOpenHelper(context, databaseName, delegate, version);
             }
         },
         SQLITE {
             @Override
-            public SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+            public ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
                     OpenHelperDelegate delegate, int version) {
-                return new SQLiteBindingsOpenHelperWrapper(context, databaseName, delegate, version);
+                return new SQLiteBindingsOpenHelper(context, databaseName, delegate, version);
             }
         };
 
-        abstract public SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
+        abstract ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
                 OpenHelperDelegate delegate, int version);
     }
 }

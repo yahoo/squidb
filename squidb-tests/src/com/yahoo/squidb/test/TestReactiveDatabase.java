@@ -8,7 +8,7 @@ package com.yahoo.squidb.test;
 import android.content.Context;
 
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.reactive.ReactiveSquidDatabase;
 import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
@@ -59,9 +59,8 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     }
 
     @Override
-    protected SQLiteOpenHelperWrapper createOpenHelper(String databaseName,
-            OpenHelperDelegate delegate, int version) {
-        return SquidTestRunner.selectedBinding.getOpenHelper(context, databaseName, delegate, version);
+    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
+        return SQLiteBindingProvider.provideOpenHelper(databaseName, delegate, version);
     }
 
     @Override

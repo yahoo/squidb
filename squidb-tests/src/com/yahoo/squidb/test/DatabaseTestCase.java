@@ -9,7 +9,6 @@ import com.yahoo.squidb.data.SquidDatabase;
 
 import java.util.Calendar;
 
-
 public class DatabaseTestCase extends SquidTestCase {
 
     protected SquidDatabase database;

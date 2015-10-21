@@ -3,17 +3,17 @@ package com.yahoo.squidb.ios;
 import com.yahoo.android.sqlite.SQLiteDatabase;
 import com.yahoo.android.sqlite.SQLiteOpenHelper;
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLiteOpenHelperWrapper;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
 import java.io.IOException;
 
-public class IOSOpenHelperWrapper extends SQLiteOpenHelper implements SQLiteOpenHelperWrapper {
+public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper {
 
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public IOSOpenHelperWrapper(String path, String name, SquidDatabase.OpenHelperDelegate delegate,
+    public IOSOpenHelper(String path, String name, SquidDatabase.OpenHelperDelegate delegate,
             int version) {
         super(path, name, null, version);
         this.delegate = delegate;

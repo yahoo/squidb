@@ -40,6 +40,6 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
     @Override
     protected AndroidTestRunner getAndroidTestRunner() {
-        return new SquidTestRunner(binding);
+        return new SquidTestRunner(getTargetContext(), binding);
     }
 }
