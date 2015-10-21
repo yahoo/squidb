@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD79BE811BD7EC3500E8A1EB /* OperationCanceledException.java in Sources */ = {isa = PBXBuildFile; fileRef = BD79BE801BD7EC3500E8A1EB /* OperationCanceledException.java */; settings = {ASSET_TAGS = (); }; };
 		BDB299D41BD690F0005CBF28 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D31BD690F0005CBF28 /* main.m */; };
 		BDB299D71BD690F0005CBF28 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D61BD690F0005CBF28 /* AppDelegate.m */; };
 		BDB299DA1BD690F0005CBF28 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDB299D91BD690F0005CBF28 /* ViewController.m */; };
@@ -165,6 +166,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BD79BE801BD7EC3500E8A1EB /* OperationCanceledException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = OperationCanceledException.java; sourceTree = "<group>"; };
 		BDB299CF1BD690F0005CBF28 /* squidb-ios-tests.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-tests.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDB299D31BD690F0005CBF28 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDB299D51BD690F0005CBF28 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -454,6 +456,7 @@
 		BDB29B091BD6931E005CBF28 /* sqlite */ = {
 			isa = PBXGroup;
 			children = (
+				BD79BE801BD7EC3500E8A1EB /* OperationCanceledException.java */,
 				BDB29B0A1BD6931E005CBF28 /* AbstractCursor.java */,
 				BDB29B0B1BD6931E005CBF28 /* AbstractWindowedCursor.java */,
 				BDB29B0C1BD6931E005CBF28 /* CloseGuard.java */,
@@ -860,6 +863,7 @@
 				BDB29BD91BD6932F005CBF28 /* ConjunctionCriterion.java in Sources */,
 				BDB29BD41BD6932F005CBF28 /* CaseBuilder.java in Sources */,
 				BDB29B611BD6931E005CBF28 /* SQLiteConstraintException.java in Sources */,
+				BD79BE811BD7EC3500E8A1EB /* OperationCanceledException.java in Sources */,
 				BDB29B7D1BD6931E005CBF28 /* StaleDataException.java in Sources */,
 				BDB29BD51BD6932F005CBF28 /* CompilableWithArguments.java in Sources */,
 				BDB29B791BD6931E005CBF28 /* SQLiteStatement.java in Sources */,
@@ -1104,6 +1108,7 @@
 				BDB299F31BD690F0005CBF28 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BDB299F41BD690F0005CBF28 /* Build configuration list for PBXNativeTarget "squidb-ios-testsTests" */ = {
 			isa = XCConfigurationList;
@@ -1112,6 +1117,7 @@
 				BDB299F61BD690F0005CBF28 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
