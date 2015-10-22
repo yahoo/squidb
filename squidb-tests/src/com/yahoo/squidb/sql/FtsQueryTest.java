@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestVirtualModel;
@@ -56,6 +57,19 @@ public class FtsQueryTest extends DatabaseTestCase {
     }
 
     public void testMatchCriterion() {
+        boolean enhancedQuerySyntax = false;
+        ICursor compileOptions = database.rawQuery("PRAGMA compile_options", null);
+        try {
+            while (compileOptions.moveToNext()) {
+                String option = compileOptions.getString(0);
+                if ("ENABLE_FTS3_PARENTHESIS".equals(option)) {
+                    enhancedQuerySyntax = true;
+                    break;
+                }
+            }
+        } finally {
+            compileOptions.close();
+        }
         // match a column
         testQueryResults(TestVirtualModel.BODY.match("programmer"), model2, model3);
         // match any column
@@ -67,7 +81,8 @@ public class FtsQueryTest extends DatabaseTestCase {
         // OR
         testQueryResults(TestVirtualModel.BODY.match("java OR sql"), model2, model5);
         // NOT
-        testQueryResults(TestVirtualModel.BODY.match("program* -java"), model3, model4);
+        String notMatch = "program* " + (enhancedQuerySyntax ? "NOT " : "-") + "java";
+        testQueryResults(TestVirtualModel.BODY.match(notMatch), model3, model4);
         // scoped terms
         testQueryResults(TestVirtualModel.BODY.match("programmer title:java"), model2);
         testQueryResults(TestVirtualModel.TABLE.match("body:code"), model1);
