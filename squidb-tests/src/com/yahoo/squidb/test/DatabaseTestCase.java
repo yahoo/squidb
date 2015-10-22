@@ -5,13 +5,11 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.data.SquidDatabase;
-
 import java.util.Calendar;
 
 public class DatabaseTestCase extends SquidTestCase {
 
-    protected SquidDatabase database;
+    protected TestDatabase database;
 
     protected final long testDate;
 

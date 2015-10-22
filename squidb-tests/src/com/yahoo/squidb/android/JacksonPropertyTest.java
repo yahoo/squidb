@@ -12,6 +12,11 @@ import java.util.List;
 
 public class JacksonPropertyTest extends DatabaseTestCase {
 
+    @Override
+    protected void setupDatabase() {
+        database = new AndroidTestDatabase();
+    }
+
     public void testListProperty() {
         AndroidTestModel model = new AndroidTestModel();
         List<String> numbers = Arrays.asList("0", "1", "2", "3");
