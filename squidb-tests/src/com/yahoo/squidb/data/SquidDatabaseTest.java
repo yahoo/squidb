@@ -281,24 +281,32 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     public void testQueriesWithBooleanPropertiesWork() {
         insertBasicTestModel();
 
+        TestModel model;
         SquidCursor<TestModel> result = database.query(TestModel.class,
                 Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isTrue()));
-        assertEquals(1, result.getCount());
-        result.moveToFirst();
-        TestModel model = new TestModel(result);
-        assertTrue(model.isHappy());
+        try {
+            assertEquals(1, result.getCount());
+            result.moveToFirst();
+            model = new TestModel(result);
+            assertTrue(model.isHappy());
 
-        model.setIsHappy(false);
-        database.persist(model);
-        result.close();
+            model.setIsHappy(false);
+            database.persist(model);
+        } finally {
+            result.close();
+        }
 
         result = database.query(TestModel.class,
                 Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
 
-        assertEquals(1, result.getCount());
-        result.moveToFirst();
-        model = new TestModel(result);
-        assertFalse(model.isHappy());
+        try {
+            assertEquals(1, result.getCount());
+            result.moveToFirst();
+            model = new TestModel(result);
+            assertFalse(model.isHappy());
+        } finally {
+            result.close();
+        }
     }
 
     public void testConflict() {

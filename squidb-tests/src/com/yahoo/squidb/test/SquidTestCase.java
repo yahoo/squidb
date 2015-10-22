@@ -12,6 +12,11 @@ import junit.framework.TestCase;
 
 public class SquidTestCase extends TestCase {
 
+    public void testSquidTestCaseSetUpProperly() {
+        // JUnit doesn't like it if a test class has no tests in it
+        assertNotNull(this);
+    }
+
     protected int getReplaceableArgCount(String sql) {
         int argCount = 0;
         int index = 0;
