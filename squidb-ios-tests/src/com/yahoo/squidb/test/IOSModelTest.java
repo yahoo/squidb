@@ -3,45 +3,26 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.android;
-
-import android.content.ContentValues;
-import android.os.Parcel;
+package com.yahoo.squidb.test;
 
 import com.yahoo.squidb.data.ValuesStorage;
-import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 
-public class AndroidModelTest extends DatabaseTestCase {
+import java.util.HashMap;
+import java.util.Map;
 
-    public void testModelParcelable() {
-        TestModel model = new TestModel()
-                .setFirstName("A")
-                .setLastName("B")
-                .setLuckyNumber(2)
-                .setBirthday(System.currentTimeMillis())
-                .setIsHappy(true);
+public class IOSModelTest extends DatabaseTestCase {
 
-        Parcel parcel = Parcel.obtain();
-        model.writeToParcel(parcel, 0);
-
-        parcel.setDataPosition(0);
-
-        TestModel createdFromParcel = TestModel.CREATOR.createFromParcel(parcel);
-        assertFalse(model == createdFromParcel);
-        assertEquals(model, createdFromParcel);
+    public void testTypesafeReadFromMapValues() {
+        testMapValuesTypes(false);
     }
 
-    public void testTypesafeReadFromContentValues() {
-        testContentValuesTypes(false);
+    public void testTypesafeSetFromMapValues() {
+        testMapValuesTypes(true);
     }
 
-    public void testTypesafeSetFromContentValues() {
-        testContentValuesTypes(true);
-    }
-
-    private void testContentValuesTypes(final boolean useSetValues) {
-        final ContentValues values = new ContentValues();
+    private void testMapValuesTypes(final boolean useSetValues) {
+        final Map<String, Object> values = new HashMap<String, Object>();
         values.put(TestModel.FIRST_NAME.getName(), "A");
         values.put(TestModel.LAST_NAME.getName(), "B");
         values.put(TestModel.BIRTHDAY.getName(), 1); // Putting an int where long expected
@@ -52,7 +33,7 @@ public class AndroidModelTest extends DatabaseTestCase {
         TestModel fromValues;
         if (useSetValues) {
             fromValues = new TestModel();
-            fromValues.setPropertiesFromContentValues(values, TestModel.PROPERTIES);
+            fromValues.setPropertiesFromMap(values, TestModel.PROPERTIES);
         } else {
             fromValues = new TestModel(values);
         }
@@ -80,7 +61,7 @@ public class AndroidModelTest extends DatabaseTestCase {
             @Override
             public void run() {
                 if (useSetValues) {
-                    new TestModel().setPropertiesFromContentValues(values, TestModel.IS_HAPPY);
+                    new TestModel().setPropertiesFromMap(values, TestModel.IS_HAPPY);
                 } else {
                     new TestModel(values);
                 }
@@ -90,10 +71,10 @@ public class AndroidModelTest extends DatabaseTestCase {
 
     public void testValueCoercionAppliesToAllValues() {
         // Make sure the model is initialized with values and setValues
-        ContentValues values = new ContentValues();
+        Map<String, Object> values = new HashMap<String, Object>();
         values.put(TestModel.FIRST_NAME.getName(), "A");
         TestModel model = new TestModel();
-        model.readPropertiesFromContentValues(values, TestModel.FIRST_NAME);
+        model.readPropertiesFromMap(values, TestModel.FIRST_NAME);
         model.setFirstName("B");
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);
