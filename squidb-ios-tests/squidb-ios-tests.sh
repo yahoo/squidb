@@ -1,5 +1,6 @@
 #!/bin/zsh
 if [ ! -f "${J2OBJC_HOME}/j2objc" ]; then echo "J2OBJC_HOME not correctly defined, currently set to '${J2OBJC_HOME}'"; exit 1; fi;
+rm *.o
 if [ -d bin ]
 then
     rm -r bin
