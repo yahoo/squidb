@@ -12,6 +12,7 @@
 bin/
 gen/
 out/
+intermediate/
 .apt_generated/
 
 # lint
