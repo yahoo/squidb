@@ -122,11 +122,12 @@ public class SquidbTestRunner {
      * Runs the test classes given in {@param classes}.
      * @returns Zero if all tests pass, non-zero otherwise.
      */
-    public static int run(Class[] classes, RunListener listener) {
+    public static int run(Class[] classes, RunListener listener, PrintStream out) {
         JUnitCore junitCore = new JUnitCore();
         junitCore.addListener(listener);
         boolean hasError = false;
         for (@AutoreleasePool Class c : classes) {
+            out.println("Running " + c.getName());
             Result result = junitCore.run(c);
             hasError = hasError || !result.wasSuccessful();
         }
@@ -141,7 +142,7 @@ public class SquidbTestRunner {
         Class[] classes = (Class[]) getTestClasses().toArray();
         sortClasses(classes, sortOrder);
         RunListener listener = newRunListener(outputFormat);
-        return run(classes, listener);
+        return run(classes, listener, out);
     }
     
     /**
