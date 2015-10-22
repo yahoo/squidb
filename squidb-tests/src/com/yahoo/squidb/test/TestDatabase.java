@@ -12,8 +12,10 @@ import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
+import com.yahoo.squidb.utility.Logger;
 
-import org.sqlite.database.sqlite.SQLiteDatabase;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class TestDatabase extends SquidDatabase {
 
@@ -84,10 +86,20 @@ public class TestDatabase extends SquidDatabase {
     protected void onConfigure(ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         Object wrappedObject = db.getWrappedObject();
-        if (wrappedObject instanceof SQLiteDatabase) {
-            ((SQLiteDatabase) wrappedObject).enableWriteAheadLogging();
-        } else if (wrappedObject instanceof android.database.sqlite.SQLiteDatabase) {
-            ((android.database.sqlite.SQLiteDatabase) wrappedObject).enableWriteAheadLogging();
+        Method enableWAL = null;
+        try {
+            enableWAL = wrappedObject.getClass().getMethod("enableWriteAheadLogging");
+        } catch (NoSuchMethodException e) {
+            Logger.e("Couldn't find enableWriteAheadLogging method");
+        }
+        if (enableWAL != null) {
+            try {
+                enableWAL.invoke(wrappedObject);
+            } catch (IllegalAccessException e) {
+                Logger.e("Failed to invoke enableWriteAheadLogging", e);
+            } catch (InvocationTargetException e) {
+                Logger.e("Failed to invoke enableWriteAheadLogging", e);
+            }
         }
     }
 
