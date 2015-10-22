@@ -151,7 +151,7 @@
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
 			);
-			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/javax.inject-1.jar:${J2OBJC_HOME}/lib/j2objc_junit.jar:${PROJECT_DIR}/squidb-ios-tests/squidb-annotations-2.0.0.jar\" -sourcepath \"${PROJECT_DIR}/../squidb-ios/src:${PROJECT_DIR}/../squidb/src:${PROJECT_DIR}/../squidb-tests/src:${PROJECT_DIR}/squidb-ios-tests/java\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/j2objc_junit.jar:${PROJECT_DIR}/squidb-ios-tests/squidb-annotations-2.0.0.jar\" -sourcepath \"${PROJECT_DIR}/../squidb-ios/src:${PROJECT_DIR}/../squidb/src:${PROJECT_DIR}/../squidb-tests/src:${PROJECT_DIR}/squidb-ios-tests/java\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
