@@ -1,10 +1,24 @@
 #!/bin/zsh
 J2OBJC_HOME="${HOME}/workspace/j2objc-dist"
-rm -r bin
-rm -r intermediate
-rm -r gen
+if [ -d bin ]
+then
+    rm -r bin
+fi
 
-rm invoke_ios_tests
+if [ -d intermediate ]
+then
+    rm -r intermediate
+fi
+
+if [ -d gen ]
+then
+    rm -r gen
+fi
+
+if [ -f invoke_ios_tests ]
+then
+    rm invoke_ios_tests
+fi
 
 mkdir bin
 mkdir intermediate
@@ -36,10 +50,15 @@ ${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar" -d interm
 
 #"${J2OBJC_HOME}/j2objc" -d ${DERIVED_FILES_DIR} -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${PROJECT_DIR}/squidb-ios-tests/squidb-annotations-2.0.0.jar" -sourcepath "${PROJECT_DIR}/../squidb-ios/src:${PROJECT_DIR}/../squidb/src:${PROJECT_DIR}/../squidb-tests/src:${PROJECT_DIR}/squidb-ios-tests/java" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};
 
-${J2OBJC_HOME}/j2objcc -fobjc-arc -Iintermediate -I../squidb-ios/native -c ../squidb-ios/native/**/*.m **/*.m # output to bin folder
+for f in ../squidb-ios/native/**/*.m **/*.m
+do
+    echo "Compiling $f"
+    ${J2OBJC_HOME}/j2objcc -fobjc-arc -Iintermediate -I../squidb-ios/native -c $f # output to bin folder
+done
 
 mv *.o bin/
 
-#j2objcc -o invoke_ios_tests bin/*.o # link with libraries
+${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -l jre_emul -l junit -l sqlite3 -ObjC -o invoke_ios_tests bin/*.o # link with libraries
 
-#./invoke_ios_tests com.yahoo.squidb.test.SquidbTestRunner
+./invoke_ios_tests com.yahoo.squidb.test.SquidbTestRunner
+rm invoke_ios_tests

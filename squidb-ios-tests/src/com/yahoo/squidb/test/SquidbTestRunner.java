@@ -66,7 +66,7 @@ import java.util.Set;
 // Forked from com.google.j2objc.testing.JUnitTestRunner to do some static initialization before running tests
 public class SquidbTestRunner {
     
-    private static final String PROPERTIES_FILE_NAME = "JUnitTestRunner.properties";
+//    private static final String PROPERTIES_FILE_NAME = "JUnitTestRunner.properties";
     
     /**
      * Specifies the output format for tests.
@@ -114,7 +114,7 @@ public class SquidbTestRunner {
         SQLiteBindingProvider.setSQLiteBindingProvider(new IOSSQLiteBindingProvider());
         
         SquidbTestRunner runner = new SquidbTestRunner();
-        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
+//        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
         return runner.run();
     }
     
