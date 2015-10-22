@@ -15,9 +15,6 @@ import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 
-import java.util.Arrays;
-import java.util.List;
-
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -324,21 +321,6 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             expected = e;
         }
         assertNotNull(expected);
-    }
-
-    public void testListProperty() {
-        TestModel model = insertBasicTestModel();
-        List<String> numbers = Arrays.asList("0", "1", "2", "3");
-        model.setSomeList(numbers);
-
-        database.persist(model);
-
-        model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
-        List<String> readNumbers = model.getSomeList();
-        assertEquals(numbers.size(), readNumbers.size());
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(numbers.get(i), readNumbers.get(i));
-        }
     }
 
     public void testFetchByQueryResetsLimitAndTable() {

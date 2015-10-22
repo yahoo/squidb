@@ -5,19 +5,15 @@
  */
 package com.yahoo.squidb.test;
 
-import android.net.Uri;
-
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.jackson.JacksonProperty;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 @TableModelSpec(className = "TestModel", tableName = "testModels",
@@ -35,8 +31,6 @@ public class TestModelSpec {
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
 
-    public static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb/testModels");
-
     @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
     String firstName;
 
@@ -49,10 +43,6 @@ public class TestModelSpec {
     @ColumnSpec(defaultValue = "true")
     boolean isHappy;
 
-    @ColumnSpec(defaultValue = "[]")
-    @JacksonProperty
-    List<String> someList;
-
     @ColumnSpec(defaultValue = "7")
     int luckyNumber;
 
@@ -63,9 +53,6 @@ public class TestModelSpec {
 
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
-
-    @JacksonProperty
-    Map<String, Integer> someMap;
 
     @ModelMethod
     public static String getDisplayName(TestModel instance) {
