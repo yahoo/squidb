@@ -115,7 +115,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      * Create a Function that computes a substring starting at {@code start}. Note that substring in SQLite is
      * 1-indexed, i.e. the leftmost character is index 1.
      */
-    public static Function<String> substr(Field<String> field, int start) {
+    public static Function<String> substr(Field<String> field, Object start) {
         return new ArgumentFunction<String>("SUBSTR", field, start);
     }
 
@@ -123,7 +123,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      * Create a Function that computes a substring starting at {@code start} and with {@code length} number of
      * characters. Note that substring in SQLite is 1-indexed, i.e. the leftmost character is index 1.
      */
-    public static Function<String> substr(Field<String> field, int start, int length) {
+    public static Function<String> substr(Field<String> field, Object start, Object length) {
         return new ArgumentFunction<String>("SUBSTR", field, start, length);
     }
 

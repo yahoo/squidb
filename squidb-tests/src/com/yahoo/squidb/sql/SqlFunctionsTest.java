@@ -144,6 +144,22 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         testSubstrInternal(2, 0);
         testSubstrInternal(2, 2);
         testSubstrInternal(3, 4);
+
+        String literal = "ABC/DEF";
+        StringProperty prefix = StringProperty.literal(literal.substring(0, literal.indexOf('/') + 1), "prefix");
+        StringProperty full = StringProperty.literal(literal, "full");
+
+        Field<String> fullField = Field.field(full.getName());
+        Field<String> prefixField = Field.field(prefix.getName());
+        SquidCursor<?> cursor = database.query(null,
+                Query.select(Function.substr(fullField, Function.add(Function.length(prefixField), 1)))
+                        .from(Query.select(full, prefix).as("subquery")));
+        try {
+            assertTrue(cursor.moveToFirst());
+            assertEquals("DEF", cursor.getString(0));
+        } finally {
+            cursor.close();
+        }
     }
 
     private void testSubstrInternal(int offset, int length) {
