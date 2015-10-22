@@ -11,10 +11,6 @@ import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
-import com.yahoo.squidb.utility.Logger;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class TestDatabase extends SquidDatabase {
 
@@ -84,22 +80,7 @@ public class TestDatabase extends SquidDatabase {
     @Override
     protected void onConfigure(ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
-        Object wrappedObject = db.getWrappedObject();
-        Method enableWAL = null;
-        try {
-            enableWAL = wrappedObject.getClass().getMethod("enableWriteAheadLogging");
-        } catch (NoSuchMethodException e) {
-            Logger.e("Couldn't find enableWriteAheadLogging method");
-        }
-        if (enableWAL != null) {
-            try {
-                enableWAL.invoke(wrappedObject);
-            } catch (IllegalAccessException e) {
-                Logger.e("Failed to invoke enableWriteAheadLogging", e);
-            } catch (InvocationTargetException e) {
-                Logger.e("Failed to invoke enableWriteAheadLogging", e);
-            }
-        }
+        db.enableWriteAheadLogging();
     }
 
     @Override

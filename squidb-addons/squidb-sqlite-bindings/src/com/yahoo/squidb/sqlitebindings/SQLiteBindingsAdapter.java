@@ -136,8 +136,83 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
+    public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
+        return db.yieldIfContendedSafely(sleepAfterYieldDelay);
+    }
+
+    @Override
     public void close() {
         db.close();
+    }
+
+    @Override
+    public void disableWriteAheadLogging() {
+        db.disableWriteAheadLogging();
+    }
+
+    @Override
+    public boolean enableWriteAheadLogging() {
+        return db.enableWriteAheadLogging();
+    }
+
+    @Override
+    public boolean isWriteAheadLoggingEnabled() {
+        return db.isWriteAheadLoggingEnabled();
+    }
+
+    @Override
+    public long getMaximumSize() {
+        return db.getMaximumSize();
+    }
+
+    @Override
+    public long getPageSize() {
+        return db.getPageSize();
+    }
+
+    @Override
+    public String getPath() {
+        return db.getPath();
+    }
+
+    @Override
+    public boolean isDatabaseIntegrityOk() {
+        return db.isDatabaseIntegrityOk();
+    }
+
+    @Override
+    public boolean isDbLockedByCurrentThread() {
+        return db.isDbLockedByCurrentThread();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return db.isReadOnly();
+    }
+
+    @Override
+    public boolean needUpgrade(int newVersion) {
+        return db.needUpgrade(newVersion);
+    }
+
+    @Override
+    public void setForeignKeyConstraintsEnabled(boolean enable) {
+        db.setForeignKeyConstraintsEnabled(enable);
+    }
+
+    @Override
+    public void setMaxSqlCacheSize(int cacheSize) {
+        db.setMaxSqlCacheSize(cacheSize);
+    }
+
+    @Override
+    public void setMaximumSize(long numBytes) {
+        db.setMaximumSize(numBytes);
+    }
+
+    @Override
+    public void setPageSize(long numBytes) {
+        db.setPageSize(numBytes);
     }
 
     @Override

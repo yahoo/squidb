@@ -23,6 +23,8 @@ public interface ISQLiteDatabase {
 
     boolean yieldIfContendedSafely();
 
+    boolean yieldIfContendedSafely(long sleepAfterYieldDelay);
+
     int getVersion();
 
     void setVersion(int version);
@@ -42,6 +44,34 @@ public interface ISQLiteDatabase {
     boolean isOpen();
 
     void close();
+
+    void disableWriteAheadLogging();
+
+    boolean enableWriteAheadLogging();
+
+    boolean isWriteAheadLoggingEnabled();
+
+    long getMaximumSize();
+
+    long getPageSize();
+
+    String getPath();
+
+    boolean isDatabaseIntegrityOk();
+
+    boolean isDbLockedByCurrentThread();
+
+    boolean isReadOnly();
+
+    boolean needUpgrade(int newVersion);
+
+    void setForeignKeyConstraintsEnabled(boolean enable);
+
+    void setMaxSqlCacheSize(int cacheSize);
+
+    void setMaximumSize(long numBytes);
+
+    void setPageSize(long numBytes);
 
     Object getWrappedObject();
 
