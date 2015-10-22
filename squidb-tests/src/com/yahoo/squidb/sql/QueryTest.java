@@ -603,39 +603,39 @@ public class QueryTest extends DatabaseTestCase {
         System.err.println("Optimized took " + (end - start) + " millis");
     }
 
-    public void x_testReusableListQueryPerformance() {
-        List<?>[] testSets = {
-                Arrays.asList(new String[]{"bigBird", "cookieMonster", "elmo"}),
-                Arrays.asList(new String[]{"bigBird", "cookieMonster"}),
-                Arrays.asList(new String[]{"bert", "ernie"}),
-                Arrays.asList(new String[]{"oscar"}),
-                Arrays.asList(new String[]{})
-        };
-
-        int numIterations = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            Query query = Query.select().where(Employee.NAME.in(testSets[i % testSets.length]));
-            database.query(Employee.class, query);
-        }
-        long end = System.currentTimeMillis();
-        System.err.println("Unoptimized took " + (end - start) + " millis");
-        System.gc();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        AtomicReference<Collection<?>> ref = new AtomicReference<Collection<?>>();
-        Query query = Query.select().where(Employee.NAME.in(ref));
-        start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            ref.set(testSets[i % testSets.length]);
-            database.query(Employee.class, query);
-        }
-        end = System.currentTimeMillis();
-        System.err.println("Optimized took " + (end - start) + " millis");
-    }
+//    public void x_testReusableListQueryPerformance() {
+//        List<?>[] testSets = {
+//                Arrays.asList(new String[]{"bigBird", "cookieMonster", "elmo"}),
+//                Arrays.asList(new String[]{"bigBird", "cookieMonster"}),
+//                Arrays.asList(new String[]{"bert", "ernie"}),
+//                Arrays.asList(new String[]{"oscar"}),
+//                Arrays.asList(new String[]{})
+//        };
+//
+//        int numIterations = 10000;
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            Query query = Query.select().where(Employee.NAME.in(testSets[i % testSets.length]));
+//            database.query(Employee.class, query);
+//        }
+//        long end = System.currentTimeMillis();
+//        System.err.println("Unoptimized took " + (end - start) + " millis");
+//        System.gc();
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        AtomicReference<Collection<?>> ref = new AtomicReference<Collection<?>>();
+//        Query query = Query.select().where(Employee.NAME.in(ref));
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            ref.set(testSets[i % testSets.length]);
+//            database.query(Employee.class, query);
+//        }
+//        end = System.currentTimeMillis();
+//        System.err.println("Optimized took " + (end - start) + " millis");
+//    }
 
     public void testSelectFromView() {
         View view = View.fromQuery(Query.select(Employee.PROPERTIES)
