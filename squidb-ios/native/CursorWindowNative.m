@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2006-2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 //
 //  CursorWindow.m
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/16/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  squidb-ios
+//  This file is a fork/port of AOSP CursowWindow.cpp (https://github.com/android/platform_frameworks_base/blob/master/libs/androidfw/CursorWindow.cpp)
+//  The core logic/structures defined in the file have been left intact; this is just a translation to use Objective-C
+//  syntax instead of C++ to make working with the j2objc tool easier.
 //
 
 #import "CursorWindowNative.h"
@@ -65,7 +80,7 @@ static void throwUnknownTypeException(jint type) {
 + (int) nativeGetType:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("returning column type affinity for %d,%d from %p", row, column, window);
-    
+
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         // FIXME: This is really broken but we have CTS tests that depend
@@ -92,13 +107,13 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (IOSByteArray *)nativeGetBlob:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting blob for %d,%d from %p", row, column, window);
-    
+
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
         return NULL;
     }
-    
+
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_BLOB || type == FIELD_TYPE_STRING) {
         uint32_t size;
@@ -127,13 +142,13 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (NSString *)nativeGetString:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting string for %d,%d from %p", row, column, window);
-    
+
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
         return NULL;
     }
-    
+
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_STRING) {
         uint32_t sizeIncludingNull;
@@ -141,7 +156,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-        
+
         IOSByteArray *bytes = [IOSByteArray newArrayWithBytes:(const jbyte *)value count:sizeIncludingNull - 1];
         NSString *result = [NSString stringWithBytes:bytes];
         return result;
@@ -165,13 +180,13 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (long) nativeGetLong:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting long for %d,%d from %p", row, column, window);
-    
+
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
         return 0;
     }
-    
+
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_INTEGER) {
         return fieldSlot->data.l;
@@ -196,13 +211,13 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (double) nativeGetDouble:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting double for %d,%d from %p", row, column, window);
-    
+
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
         return 0.0;
     }
-    
+
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_FLOAT) {
         return fieldSlot->data.d;
@@ -227,23 +242,23 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (BOOL) nativePutBlob:(NSObject *)windowPtr value:(IOSByteArray *)value row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     jint len = [value length];
-    
+
     void* buffer = [value buffer]; //env->GetPrimitiveArrayCritical(valueObj, NULL);
     status_t status = [window putBlobInRow:row column:column value:buffer size:len];
 //    env->ReleasePrimitiveArrayCritical(valueObj, buffer, JNI_ABORT);
-    
+
     if (status) {
 //        LOG_WINDOW("Failed to put blob. error=%d", status);
         return false;
     }
-    
+
 //    LOG_WINDOW("%d,%d is BLOB with %u bytes", row, column, len);
     return true;
 }
 
 + (BOOL) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
-    
+
     uint32_t sizeIncludingNull = (uint32_t)[value lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1; //env->GetStringUTFLength(valueObj) + 1;
     const char* valueStr = [value UTF8String]; //env->GetStringUTFChars(valueObj, NULL);
     if (!valueStr) {
@@ -252,12 +267,12 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
     }
     status_t status = [window putStringInRow:row column:column value:valueStr size:sizeIncludingNull];
 //    env->ReleaseStringUTFChars(valueObj, valueStr);
-    
+
     if (status) {
 //        LOG_WINDOW("Failed to put string. error=%d", status);
         return false;
     }
-    
+
 //    LOG_WINDOW("%d,%d is TEXT with %u bytes", row, column, sizeIncludingNull);
     return true;
 }
@@ -265,12 +280,12 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (BOOL) nativePutLong:(NSObject *)windowPtr value:(long)value row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putLongInRow:row column:column value:value];
-    
+
     if (status) {
 //        LOG_WINDOW("Failed to put long. error=%d", status);
         return false;
     }
-    
+
 //    LOG_WINDOW("%d,%d is INTEGER 0x%016llx", row, column, value);
     return true;
 }
@@ -278,12 +293,12 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (BOOL) nativePutDouble:(NSObject *)windowPtr value:(double)value row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putDoubleInRow:row column:column value:value];
-    
+
     if (status) {
 //        LOG_WINDOW("Failed to put double. error=%d", status);
         return false;
     }
-    
+
 //    LOG_WINDOW("%d,%d is FLOAT %lf", row, column, value);
     return true;
 }
@@ -291,12 +306,12 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 + (BOOL) nativePutNull:(NSObject *)windowPtr row:(int)row column:(int)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putNullInRow:row column:column];
-    
+
     if (status) {
 //        LOG_WINDOW("Failed to put null. error=%d", status);
         return false;
     }
-    
+
 //    LOG_WINDOW("%d,%d is NULL", row, column);
     return true;
 }
@@ -331,12 +346,12 @@ void* offsetToPtr(uint32_t offset) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     mHeader->freeOffset = sizeof(struct Header) + sizeof(struct RowSlotChunk);
     mHeader->firstChunkOffset = sizeof(struct Header);
     mHeader->numRows = 0;
     mHeader->numColumns = 0;
-    
+
     struct RowSlotChunk* firstChunk = (struct RowSlotChunk *)(offsetToPtr(mHeader->firstChunkOffset));
     firstChunk->nextChunkOffset = 0;
     return OK;
@@ -346,7 +361,7 @@ void* offsetToPtr(uint32_t offset) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     uint32_t cur = mHeader->numColumns;
     if ((cur > 0 || mHeader->numRows > 0) && cur != numColumns) {
 //        ALOGE("Trying to go from %d columns to %d", cur, numColumns);
@@ -364,7 +379,7 @@ uint32_t alloc(uint32_t _size, uint32_t mSize, bool aligned) {
     } else {
         padding = 0;
     }
-    
+
     uint32_t offset = mHeader->freeOffset + padding;
     uint32_t nextFreeOffset = offset + _size;
     if (nextFreeOffset > mSize) {
@@ -373,7 +388,7 @@ uint32_t alloc(uint32_t _size, uint32_t mSize, bool aligned) {
 //              size, freeSpace(), mSize);
         return 0;
     }
-    
+
     mHeader->freeOffset = nextFreeOffset;
     return offset;
 }
@@ -405,13 +420,13 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     // Fill in the row slot
     struct RowSlot* rowSlot = allocRowSlot(self.mSize);
     if (rowSlot == NULL) {
         return NO_MEMORY;
     }
-    
+
     // Allocate the slots for the field directory
     uint32_t fieldDirSize = mHeader->numColumns * sizeof(struct FieldSlot);
     uint32_t fieldDirOffset = alloc(fieldDirSize, self.mSize, true /*aligned*/);
@@ -423,7 +438,7 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     }
     struct FieldSlot* fieldDir = (struct FieldSlot *)(offsetToPtr(fieldDirOffset));
     memset(fieldDir, 0, fieldDirSize);
-    
+
 //    LOG_WINDOW("Allocated row %u, rowSlot is at offset %u, fieldDir is %d bytes at offset %u\n",
 //               mHeader->numRows - 1, offsetFromPtr(rowSlot), fieldDirSize, fieldDirOffset);
     rowSlot->offset = fieldDirOffset;
@@ -434,7 +449,7 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     if (mHeader->numRows > 0) {
         mHeader->numRows--;
     }
@@ -513,19 +528,19 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     struct FieldSlot* fieldSlot = [self getFieldSlot:row column:column];
     if (!fieldSlot) {
         return BAD_VALUE;
     }
-    
+
     uint32_t offset = alloc(size, self.mSize, false);
     if (!offset) {
         return NO_MEMORY;
     }
-    
+
     memcpy(offsetToPtr(offset), value, size);
-    
+
     fieldSlot->type = type;
     fieldSlot->data.buffer.offset = offset;
     fieldSlot->data.buffer.size = (uint32_t)size;
@@ -536,12 +551,12 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     struct FieldSlot* fieldSlot = [self getFieldSlot:row column:column];
     if (!fieldSlot) {
         return BAD_VALUE;
     }
-    
+
     fieldSlot->type = FIELD_TYPE_INTEGER;
     fieldSlot->data.l = value;
     return OK;
@@ -551,12 +566,12 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     struct FieldSlot* fieldSlot = [self getFieldSlot:row column:column];
     if (!fieldSlot) {
         return BAD_VALUE;
     }
-    
+
     fieldSlot->type = FIELD_TYPE_FLOAT;
     fieldSlot->data.d = value;
     return OK;
@@ -566,12 +581,12 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
-    
+
     struct FieldSlot* fieldSlot = [self getFieldSlot:row column:column];
     if (!fieldSlot) {
         return BAD_VALUE;
     }
-    
+
     fieldSlot->type = FIELD_TYPE_NULL;
     fieldSlot->data.buffer.offset = 0;
     fieldSlot->data.buffer.size = 0;

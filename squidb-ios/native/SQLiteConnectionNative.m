@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2006-2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 //
-//  SQLiteConnection.m
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/16/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  SQLiteConnectionNative.m
+//  squidb-ios
+//  This file is a fork/port of AOSP SQLiteConnection.cpp (https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_database_SQLiteConnection.cpp)
+//  The core logic/structures defined in the file have been left intact; this is just a translation to use Objective-C
+//  syntax instead of C++ to make working with the j2objc tool easier.
 //
 
 #import <Foundation/Foundation.h>
@@ -73,9 +88,9 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     } else {
         sqliteFlags = SQLITE_OPEN_READWRITE;
     }
-    
+
     const char* pathChars = [pathStr UTF8String];
-    
+
     sqlite3* db;
     int err = sqlite3_open_v2(pathChars, &db, sqliteFlags, NULL);
     if (err != SQLITE_OK) {
@@ -88,14 +103,14 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
         sqlite3_close(db);
         return 0;
     }
-    
+
     // Check that the database is really read/write when that is what we asked for.
     if ((sqliteFlags & SQLITE_OPEN_READWRITE) && sqlite3_db_readonly(db, NULL)) {
         throw_sqlite3_exception_message(db, "Could not open the database in read/write mode.");
         sqlite3_close(db);
         return 0;
     }
-    
+
     // Set the default busy handler to retry automatically before returning SQLITE_BUSY.
     err = sqlite3_busy_timeout(db, BUSY_TIMEOUT_MS);
     if (err != SQLITE_OK) {
@@ -103,7 +118,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
         sqlite3_close(db);
         return 0;
     }
-    
+
     // Register custom Android functions.
 #if 0
     err = register_android_functions(db, UTF16_STORAGE);
@@ -120,7 +135,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     connection.label = labelStr;
     connection.openFlags = openFlags;
     connection.db = db;
-    
+
     // Enable tracing and profiling if requested.
     if (enableTrace) {
         sqlite3_trace(db, &sqliteTraceCallback, (__bridge void *)(connection));
@@ -128,7 +143,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     if (enableProfile) {
         sqlite3_profile(db, &sqliteProfileCallback, (__bridge void *)(connection));
     }
-    
+
 //    ALOGV("Opened connection %p with label '%s'", db, label.c_str());
     return connection;
 }
@@ -147,12 +162,12 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 
 + (NSObject *) nativePrepareStatement:(NSObject *)connectionPtr withSql:(NSString *)sqlString {
     SQLiteConnectionNative* connection = (SQLiteConnectionNative *)(connectionPtr);
-    
+
     IOSByteArray *sql = [sqlString getBytesWithEncoding:NSUTF16StringEncoding];
     uint32_t sqlLength = [sql length];
     sqlite3_stmt* statement;
     int err = sqlite3_prepare16_v2(connection->db, [sql buffer], sqlLength, &statement, NULL);
-    
+
     if (err != SQLITE_OK) {
         // Error messages like 'near ")": syntax error' are not
         // always helpful enough, so construct an error string that
@@ -167,7 +182,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
         free(message);
         return nil;
     }
-    
+
 //    ALOGV("Prepared statement %p on connection %p", statement, connection->db);
     return [[SQLitePreparedStatement alloc] initWithStatement:statement];
 }
@@ -176,7 +191,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 //    SQLiteConnection* connection = (SQLiteConnection *)(connectionPtr);
     SQLitePreparedStatement *preparedStatement = (SQLitePreparedStatement *)(statementPtr);
     sqlite3_stmt* statement = preparedStatement.statement;
-    
+
     // We ignore the result of sqlite3_finalize because it is really telling us about
     // whether any errors occurred while executing the statement.  The statement itself
     // is always finalized regardless.
@@ -188,28 +203,28 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (int) nativeGetParameterCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
 //    SQLiteConnection* connection = (SQLiteConnection *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     return sqlite3_bind_parameter_count(statement.statement);
 }
 
 + (BOOL) nativeIsReadOnly:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
 //    SQLiteConnection *connection = (SQLiteConnection* )(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     return sqlite3_stmt_readonly(statement.statement) != 0;
 }
 
 + (int) nativeGetColumnCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
 //    SQLiteConnection *connection = (SQLiteConnection *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     return sqlite3_column_count(statement.statement);
 }
 
 + (NSString *) nativeGetColumnName:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index {
 //    SQLiteConnection *connection = (SQLiteConnection *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     const jchar* name = (const jchar *)(sqlite3_column_name16(statement.statement, index));
     if (name) {
         size_t length = 0;
@@ -252,7 +267,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (void) nativeBindBlob:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(IOSByteArray *)value {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int valueLength = [value length];
     void * buffer = [value buffer];
 //    jbyte* value = static_cast<jbyte*>(env->GetPrimitiveArrayCritical(valueArray, NULL));
@@ -266,7 +281,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (void) nativeBindString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(NSString *)value {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     const IOSByteArray *bytes = [value getBytesWithEncoding:NSUTF16StringEncoding];
     int err = sqlite3_bind_text16(statement.statement, index, [bytes buffer], [bytes length],
                                   SQLITE_TRANSIENT);
@@ -278,7 +293,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (void) nativeResetStatementAndClearBindings:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int err = sqlite3_reset(statement.statement);
     if (err == SQLITE_OK) {
         err = sqlite3_clear_bindings(statement.statement);
@@ -302,7 +317,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (void) nativeExecute:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     [SQLiteConnectionNative executeNonQuery:connection statement:statement];
 }
 
@@ -317,7 +332,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (long) nativeExecuteForLong:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int err = [SQLiteConnectionNative executeOneRowQuery:connection statement:statement];
     if (err == SQLITE_ROW && sqlite3_column_count(statement.statement) >= 1) {
         return sqlite3_column_int64(statement.statement, 0);
@@ -328,7 +343,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (NSString *) nativeExecuteForString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int err = [SQLiteConnectionNative executeOneRowQuery:connection statement:statement];
     if (err == SQLITE_ROW && sqlite3_column_count(statement.statement) >= 1) {
         const jchar* text = (const jchar *)(sqlite3_column_text16(statement.statement, 0));
@@ -344,7 +359,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (int) nativeExecuteForChangedRowCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int err = [SQLiteConnectionNative executeNonQuery:connection statement:statement];
     return err == SQLITE_DONE ? sqlite3_changes(connection.db) : -1;
 }
@@ -352,7 +367,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (long) nativeExecuteForLastInsertedRowId:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
-    
+
     int err = [SQLiteConnectionNative executeNonQuery:connection statement:statement];
     return err == SQLITE_DONE && sqlite3_changes(connection.db) > 0
     ? sqlite3_last_insert_rowid(connection->db) : -1;
@@ -367,7 +382,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
 //                   startPos, addedRows, status);
         return CPR_FULL;
     }
-    
+
     // Pack the row into the window.
     enum CopyRowResult result = CPR_OK;
     for (int i = 0; i < numColumns; i++) {
@@ -432,7 +447,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
                 result = CPR_FULL;
                 break;
             }
-            
+
 //            LOG_WINDOW("%d,%d is NULL", startPos + addedRows, i);
         } else {
             // Unknown data
@@ -442,7 +457,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
             break;
         }
     }
-    
+
     // Free the last row if if was not successfully copied.
     if (result != CPR_OK) {
         [window freeLastRow];
@@ -451,18 +466,18 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
 }
 
 + (long) nativeExecuteForCursorWindow:(NSObject *)connectionPtr statement:(NSObject *)statementPtr window:(NSObject *)windowPtr startPos:(int)startPos requiredPos:(int)requiredPos countAllRows:(BOOL)countAllRows {
-    
+
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
-    
+
     status_t status = [window clear];
     if (status) {
         NSString *message = [NSString stringWithFormat:@"Failed to clear the cursor window, status=%d", status];
         throw_sqlite3_exception_message(connection.db, [message UTF8String]);
         return 0;
     }
-    
+
     int numColumns = sqlite3_column_count(statement.statement);
     status = [window setNumColumns:numColumns];
     if (status) {
@@ -471,7 +486,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
         throw_sqlite3_exception_message(connection.db, [message UTF8String]);
         return 0;
     }
-    
+
     int retryCount = 0;
     int totalRows = 0;
     int addedRows = 0;
@@ -483,12 +498,12 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
 //            LOG_WINDOW("Stepped statement %p to row %d", statement, totalRows);
             retryCount = 0;
             totalRows += 1;
-            
+
             // Skip the row if the window is full or we haven't reached the start position yet.
             if (startPos >= totalRows || windowFull) {
                 continue;
             }
-            
+
             enum CopyRowResult cpr = copyRow(window, statement.statement, numColumns, startPos, addedRows);
             if (cpr == CPR_FULL && addedRows && startPos + addedRows <= requiredPos) {
                 // We filled the window before we got to the one row that we really wanted.
@@ -500,7 +515,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
                 addedRows = 0;
                 cpr = copyRow(window, statement.statement, numColumns, startPos, addedRows);
             }
-            
+
             if (cpr == CPR_OK) {
                 addedRows += 1;
             } else if (cpr == CPR_FULL) {
@@ -529,12 +544,12 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
             gotException = true;
         }
     }
-    
+
 //    LOG_WINDOW("Resetting statement %p after fetching %d rows and adding %d rows"
 //               "to the window in %d bytes",
 //               statement, totalRows, addedRows, window->size() - window->freeSpace());
     sqlite3_reset(statement.statement);
-    
+
     // Report the total number of rows on request.
     if (startPos > totalRows) {
 //        ALOGE("startPos %d > actual rows %d", startPos, totalRows);
@@ -545,7 +560,7 @@ static enum CopyRowResult copyRow(CursorWindowNative* window,
 
 + (int) nativeGetDbLookaside:(NSObject *)connectionPtr {
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
-    
+
     int cur = -1;
     int unused;
     sqlite3_db_status(connection.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &unused, 0);

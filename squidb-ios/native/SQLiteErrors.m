@@ -1,13 +1,28 @@
+/*
+ * Copyright (C) 2006-2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 //
-//  Errors.m
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/19/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  SQLiteErrors.m
+//  squidb-ios
+//  This file extracts portions of AOSP SQLiteCommon.cpp (https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_database_SQLiteCommon.cpp)
+//  The core logic/structures defined in the file have been left intact; this is just a translation to use Objective-C
+//  syntax instead of C++ to make working with the j2objc tool easier.
 //
 
 #import <Foundation/Foundation.h>
-#import "Errors.h"
+#import "SQLiteErrors.h"
 #import "SQLiteException.h"
 #import "SQLiteDiskIOException.h"
 #import "SQLiteDatabaseCorruptException.h"
@@ -61,12 +76,12 @@ void throw_sqlite3_exception_errcode(int errcode, const char* message) {
  user message
  */
 void throw_sqlite3_exception(int errcode, const char* sqlite3Message, const char* message) {
-    
+
     int errcodeMask = errcode & 0xff; /* mask off extended error code */
     if (errcodeMask == SQLITE_DONE) {
         sqlite3Message = NULL; // SQLite error message is irrelevant in this case
     }
-    
+
     NSString *exceptionMessage;
     if (sqlite3Message) {
         char *zFullmsg = sqlite3_mprintf(

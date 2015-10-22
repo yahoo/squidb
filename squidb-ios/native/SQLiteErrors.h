@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2006-2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 //
-//  Errors.h
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/19/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  SQLiteErrors.h
+//  squidb-ios
+//  This file extracts portions of AOSP SQLiteCommon.cpp (https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_database_SQLiteCommon.cpp)
+//  The core logic/structures defined in the file have been left intact; this is just a translation to use Objective-C
+//  syntax instead of C++ to make working with the j2objc tool easier.
 //
 
 #import <sqlite3.h>
@@ -13,9 +28,9 @@ typedef int32_t     status_t;
 enum {
     OK                = 0,    // Everything's swell.
     NO_ERROR          = 0,    // No errors.
-    
+
     UNKNOWN_ERROR       = 0x80000000,
-    
+
     NO_MEMORY           = -ENOMEM,
     INVALID_OPERATION   = -ENOSYS,
     BAD_VALUE           = -EINVAL,

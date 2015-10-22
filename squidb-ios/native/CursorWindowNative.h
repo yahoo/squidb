@@ -1,14 +1,29 @@
+/*
+ * Copyright (C) 2006-2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 //
 //  CursorWindow.h
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/16/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  squidb-ios
+//  This file is a fork/port of AOSP CursorWindow.h (https://github.com/android/platform_frameworks_base/blob/master/include/androidfw/CursorWindow.h)
+//  The core logic/structures defined in the file have been left intact; this is just a translation to use Objective-C
+//  syntax instead of C++ to make working with the j2objc tool easier.
 //
 
 #import <Foundation/Foundation.h>
 #import "IOSPrimitiveArray.h"
-#import "Errors.h"
+#import "SQLiteErrors.h"
 
 static const uint32_t ROW_SLOT_CHUNK_NUM_ROWS = 100;
 
@@ -25,10 +40,10 @@ enum {
 struct Header {
     // Offset of the lowest unused byte in the window.
     uint32_t freeOffset;
-    
+
     // Offset of the first row slot chunk.
     uint32_t firstChunkOffset;
-    
+
     uint32_t numRows;
     uint32_t numColumns;
 };

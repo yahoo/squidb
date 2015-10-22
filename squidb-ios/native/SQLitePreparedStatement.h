@@ -1,9 +1,11 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
 //
 //  SQLitePreparedStatement.h
-//  j2objc-squidb-experiments
-//
-//  Created by Sam Bosley on 10/16/15.
-//  Copyright © 2015 Sam Bosley. All rights reserved.
+//  squidb-ios
 //
 
 #import <Foundation/Foundation.h>
