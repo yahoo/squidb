@@ -188,9 +188,16 @@ public abstract class SquidDatabase {
 
     /**
      * Called when the database connection is being configured, to enable features such as write-ahead logging or
-     * foreign key support. This method is called before {@link #onTablesCreated(SQLiteDatabaseWrapper) onTablesCreated},
-     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade}, {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)
-     * onDowngrade}, and {@link #onOpen(SQLiteDatabaseWrapper) onOpen}.
+     * foreign key support.
+     *
+     * This method may be called at different points in the database lifecycle depending on the environment. When using
+     * a custom SQLite build with the squidb-sqlite-bindings project, or when running on Android API >= 16, it is
+     * called before {@link #onTablesCreated(SQLiteDatabaseWrapper) onTablesCreated},
+     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade},
+     * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade},
+     * and {@link #onOpen(SQLiteDatabaseWrapper) onOpen}. If it is running on stock Android SQLite and API < 16, it
+     * is called after onConfigure. The discrepancy is because onConfigure was only introduced as a callback in API 16,
+     * but the ordering should not matter much for most use cases.
      * <p>
      * This method should only call methods that configure the parameters of the database connection, such as
      * {@link SQLiteDatabaseWrapper#enableWriteAheadLogging}, {@link SQLiteDatabaseWrapper#setForeignKeyConstraintsEnabled},
