@@ -26,6 +26,9 @@ import com.yahoo.squidb.utility.VersionCode;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SquidDatabaseTest extends DatabaseTestCase {
 
     private BadDatabase badDatabase;
@@ -446,5 +449,55 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(2, database.countAll(TestModel.class));
         database.deleteAll(TestModel.class);
         assertEquals(0, database.countAll(TestModel.class));
+    }
+
+    public void testConcurrentReadsWithWAL() {
+        // Tests that concurrent reads can happen when using WAL, but only committed changes will be visible
+        // on other threads
+        insertBasicTestModel();
+        final Semaphore sema1 = new Semaphore(0);
+        final Semaphore sema2 = new Semaphore(0);
+        final AtomicInteger countBeforeCommit = new AtomicInteger();
+        final AtomicInteger countAfterCommit = new AtomicInteger();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    sema2.acquire();
+                } catch (InterruptedException e) {
+                    fail(e.getMessage());
+                }
+                countBeforeCommit.set(database.countAll(TestModel.class));
+                sema1.release();
+                try {
+                    sema2.acquire();
+                } catch (InterruptedException e) {
+                    fail(e.getMessage());
+                }
+                countAfterCommit.set(database.countAll(TestModel.class));
+            }
+        });
+        database.beginTransactionNonExclusive();
+        try {
+            thread.start();
+            insertBasicTestModel("A", "B", System.currentTimeMillis() + 100);
+            sema2.release();
+            try {
+                sema1.acquire();
+            } catch (InterruptedException e) {
+                fail(e.getMessage());
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+            sema2.release();
+        }
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+        assertEquals(1, countBeforeCommit.get());
+        assertEquals(2, countAfterCommit.get());
     }
 }

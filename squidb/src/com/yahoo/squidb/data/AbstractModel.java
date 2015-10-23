@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
@@ -213,7 +214,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
     public void readPropertiesFromCursor(SquidCursor<?> cursor) {
         prepareToReadProperties();
 
-        for (com.yahoo.squidb.sql.Field<?> field : cursor.getFields()) {
+        for (Field<?> field : cursor.getFields()) {
             readFieldIntoModel(cursor, field);
         }
     }
