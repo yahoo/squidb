@@ -169,11 +169,12 @@ public abstract class SquidDatabase {
      * only introduced as a callback in API 16, but the ordering should not matter much for most use cases.
      * <p>
      *
+     * This method should only call methods that configure the parameters of the database connection, such as
+     * {@link ISQLiteDatabase#enableWriteAheadLogging}, {@link ISQLiteDatabase#setForeignKeyConstraintsEnabled},
+     * {@link ISQLiteDatabase#setMaximumSize}, or executing PRAGMA statements.
+     *
      * @param db the {@link ISQLiteDatabase} being configured
      */
-//        * This method should only call methods that configure the parameters of the database connection, such as
-//        * {@link SQLiteDatabaseWrapper#enableWriteAheadLogging}, {@link SQLiteDatabaseWrapper#setForeignKeyConstraintsEnabled},
-//        * {@link SQLiteDatabaseWrapper#setLocale}, {@link SQLiteDatabaseWrapper#setMaximumSize}, or executing PRAGMA statements.
     protected void onConfigure(ISQLiteDatabase db) {
     }
 
@@ -1106,9 +1107,8 @@ public abstract class SquidDatabase {
 
     private VersionCode readSqliteVersion() {
         acquireNonExclusiveLock();
-        ICursor cursor = null;
         try {
-            cursor = getDatabase().rawQuery("select sqlite_version()", null);
+            ICursor cursor = getDatabase().rawQuery("select sqlite_version()", null);
             try {
                 if (cursor.moveToFirst()) {
                     String versionString = cursor.getString(0);
