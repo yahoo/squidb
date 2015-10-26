@@ -55,10 +55,10 @@ public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLite
     @Override
     public void onOpen(SQLiteDatabase db) {
         SQLiteDatabaseAdapter adapter = new SQLiteDatabaseAdapter(db);
-        delegate.onOpen(adapter);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             delegate.onConfigure(adapter);
         }
+        delegate.onOpen(adapter);
     }
 
 }

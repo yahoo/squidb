@@ -196,8 +196,8 @@ public abstract class SquidDatabase {
      * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade},
      * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade},
      * and {@link #onOpen(SQLiteDatabaseWrapper) onOpen}. If it is running on stock Android SQLite and API < 16, it
-     * is called after onConfigure. The discrepancy is because onConfigure was only introduced as a callback in API 16,
-     * but the ordering should not matter much for most use cases.
+     * is called immediately before onOpen but after the other callbacks. The discrepancy is because onConfigure was
+     * only introduced as a callback in API 16, but the ordering should not matter much for most use cases.
      * <p>
      * This method should only call methods that configure the parameters of the database connection, such as
      * {@link SQLiteDatabaseWrapper#enableWriteAheadLogging}, {@link SQLiteDatabaseWrapper#setForeignKeyConstraintsEnabled},
