@@ -8,6 +8,7 @@ package com.yahoo.squidb.data.adapter;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 import com.yahoo.squidb.data.SquidDatabase;
 
@@ -53,7 +54,11 @@ public class DefaultOpenHelperWrapper extends SQLiteOpenHelper implements SQLite
 
     @Override
     public void onOpen(SQLiteDatabase db) {
-        delegate.onOpen(new SQLiteDatabaseAdapter(db));
+        SQLiteDatabaseAdapter adapter = new SQLiteDatabaseAdapter(db);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            delegate.onConfigure(adapter);
+        }
+        delegate.onOpen(adapter);
     }
 
 }
