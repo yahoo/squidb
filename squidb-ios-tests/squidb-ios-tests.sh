@@ -44,7 +44,7 @@ SOURCEPATH="${GEN_SRC}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}
 #echo ${SOURCEPATH}
 
 # invoke annotation processing, output to gen folder
-javac -AsquidbOptions=iosModels -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:./squidb-annotations-2.0.0.jar:./squidb-processor-2.0.0.jar:./apt-utils-1.0.0.jar" -s gen/ -proc:only -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
+javac -AsquidbOptions=iosModels -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:./squidb-annotations-2.0.1.jar:./squidb-processor-2.0.1.jar:./apt-utils-1.0.0.jar" -s gen/ -proc:only -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 
 # invoke j2objc to translate java sources
 ${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/jre_emul.jar" -d intermediate --no-package-directories -use-arc -sourcepath "${SOURCEPATH}" ${SQUIDB_SRC}/**/*.java \
