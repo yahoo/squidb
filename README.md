@@ -150,6 +150,16 @@ Long birthday = personCursor.get(Person.BIRTHDAY);
 
 These are simple examples that only use a single table, but it's still easy to work with model objects even if you need to join across multiple tables.
 
+## Data change notifications
+SquiDB supports listening for database changes and sending notifications or callbacks after write operations. The notification mechanism is extremely flexible and is customizable via user-defined objects subclassing `DataChangedNotifier`. DataChangedNotifier objects accumulate notifications based on metadata from the writes occurring during write operations or transactions (e.g. which tables have changed or which single row was updated). These notifications will then be sent if and only if the operation or transaction completes successfully.
+
+Implementations of notifier objects that cover some of the most common use cases are provided:
+* `UriNotifier` supports sending notifications to Uris for use with Android's ContentObserver mechanism. This can be useful when using SquiDB to implement a ContentProvider.
+* `SimpleDataChangedNotifier` supports running an arbitrary callback after a successful write to the table or tables being listened to.
+* For those who prefer Reactive architecture, the `squidb-reactive` module provides ReactiveSquidDatabase. ReactiveSquidDatabase is an extension of a standard SquidDatabase that supports creating RxJava Observables that will be notified when the given table(s) are written to.
+
+See the [Listening for data changes](https://github.com/yahoo/squidb/wiki/Listening-for-data-changes) wiki page for examples of DataChangedNotifier, or the [Observing with RxJava](https://github.com/yahoo/squidb/wiki/Observing-with-RxJava) for examples of how to use the `squidb-reactive` module.
+
 ## And more!
 We've shown several simple examples here, but there's a lot that SquiDB can do to make more complicated use cases easy too--it can help you work with SQL views using model objects, write database migrations, implement flexible ContentProviders backed by your SQLite database, and more. For an in-depth look at all you can do with SquiDB, check out the wiki at https://github.com/yahoo/squidb/wiki.
 
