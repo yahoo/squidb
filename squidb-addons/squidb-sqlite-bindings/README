@@ -1,0 +1,11 @@
+When building from source, the jni/sqlite directory should also include the SQLite amalgamation source files, sqlite3.h and sqlite3.c.
+They are not checked into version control, but can be downloaded from http://sqlite.org/download.html.
+Pre-built binaries from the latest version of SQLite are included in the libs directory. If you are including your own amalgamation files that use a different or altered version of SQLite, invoke ndk-build from the jni directory to rebuild the native libraries.
+
+How to add and build SQLite sources:
+Download and unzip the SQLite amalgamation from http://sqlite.org/download.html
+# cp path_to_amalgamation/sqlite3.h squidb/squidb-addons/squidb-sqlite-bindings/jni/sqlite
+# cp path_to_amalgamation/sqlite3.c squidb/squidb-addons/squidb-sqlite-bindings/jni/sqlite
+# cd squidb/squidb-addons/squidb-sqlite-bindings/jni
+# ndk-build clean
+# ndk-build
