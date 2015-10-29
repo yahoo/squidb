@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 2.0.1 *(2015-10-29)*
+----------------------------
+* SquidDatabase will now call onConfigure before onOpen for Android API level < 16
+* Function.substr can now get its start and length arguments from arbitrary expressions, not just integers
+* Support using ThreadLocals as arguments in SQL statements. This can make reusing a precompiled query or other SQL grammar object easier in a multi-threaded environment
+* Add versions of Criterion.or and Criterion.and that work on List&lt;Criterion&gt;
+* Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.9.1
+* Fixed an issue where SquidDatabase called insertOrThrow when wrapping SQLiteDatabase.insert
+* Fix a bug in the code generator that could cause a necessary abstract method to be omitted
+
 Version 2.0.0 *(2015-09-23)*
 ----------------------------
 * Unified DatabaseDao and AbstractDatabase into a single SquidDatabase API
