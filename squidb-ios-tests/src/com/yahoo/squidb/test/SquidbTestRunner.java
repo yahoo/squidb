@@ -17,6 +17,8 @@ package com.yahoo.squidb.test;
 import com.google.j2objc.annotations.AutoreleasePool;
 import com.google.j2objc.annotations.WeakOuter;
 
+import com.yahoo.squidb.utility.Logger;
+
 import junit.framework.Test;
 import junit.runner.Version;
 
@@ -36,10 +38,10 @@ import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -65,9 +67,9 @@ import java.util.Set;
 
 // Forked from com.google.j2objc.testing.JUnitTestRunner to do some static initialization before running tests
 public class SquidbTestRunner {
-    
+
 //    private static final String PROPERTIES_FILE_NAME = "JUnitTestRunner.properties";
-    
+
     /**
      * Specifies the output format for tests.
      */
@@ -75,7 +77,7 @@ public class SquidbTestRunner {
         JUNIT,            // JUnit style output.
         GTM_UNIT_TESTING  // Google Toolkit for Mac unit test output format.
     }
-    
+
     /**
      * Specifies the sort order for tests.
      */
@@ -83,7 +85,7 @@ public class SquidbTestRunner {
         ALPHABETICAL,  // Sorted alphabetically
         RANDOM         // Sorted randomly (differs with each run)
     }
-    
+
     /**
      * Specifies whether a pattern includes or excludes test classes.
      */
@@ -91,7 +93,7 @@ public class SquidbTestRunner {
         INCLUDE,  // Includes test classes matching the pattern
         EXCLUDE   // Excludes test classes matching the pattern
     }
-    
+
     private final PrintStream out;
     private final Set<String> includePatterns = new HashSet<String>();
     private final Set<String> excludePatterns = new HashSet<String>();
@@ -100,26 +102,30 @@ public class SquidbTestRunner {
     private final Random random = new Random(System.currentTimeMillis());
     private OutputFormat outputFormat = OutputFormat.JUNIT;
     private SortOrder sortOrder = SortOrder.ALPHABETICAL;
-    
+
     public SquidbTestRunner() {
         this(System.out);
     }
-    
+
     public SquidbTestRunner(PrintStream out) {
         this.out = out;
     }
-    
+
     public static int main(String[] args) {
         // Create JUnit test runner.
         SQLiteBindingProvider.setSQLiteBindingProvider(new IOSSQLiteBindingProvider());
-        
+
+        // Don't need squidb logs for unit tests
+        Logger.setLogLevel(Logger.Level.ASSERT);
+
         SquidbTestRunner runner = new SquidbTestRunner();
 //        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
         return runner.run();
     }
-    
+
     /**
      * Runs the test classes given in {@param classes}.
+     *
      * @returns Zero if all tests pass, non-zero otherwise.
      */
     public static int run(Class[] classes, RunListener listener, PrintStream out) {
@@ -133,9 +139,10 @@ public class SquidbTestRunner {
         }
         return hasError ? 1 : 0;
     }
-    
+
     /**
      * Runs the test classes that match settings in {@link #PROPERTIES_FILE_NAME}.
+     *
      * @returns Zero if all tests pass, non-zero otherwise.
      */
     public int run() {
@@ -144,7 +151,7 @@ public class SquidbTestRunner {
         RunListener listener = newRunListener(outputFormat);
         return run(classes, listener, out);
     }
-    
+
     /**
      * Returns a new {@link RunListener} instance for the given {@param outputFormat}.
      */
@@ -159,7 +166,7 @@ public class SquidbTestRunner {
                 throw new IllegalArgumentException("outputFormat");
         }
     }
-    
+
     /**
      * Sorts the classes given in {@param classes} according to {@param sortOrder}.
      */
@@ -172,7 +179,7 @@ public class SquidbTestRunner {
             }
         });
     }
-    
+
     private String replaceAll(String value) {
         for (Map.Entry<String, String> entry : nameMappings.entrySet()) {
             String pattern = entry.getKey();
@@ -181,7 +188,7 @@ public class SquidbTestRunner {
         }
         return value;
     }
-    
+
     private String getSortKey(Class cls, SortOrder sortOrder) {
         String className = cls.getName();
         switch (sortOrder) {
@@ -212,7 +219,7 @@ public class SquidbTestRunner {
      return NO;
      }
      ]-*/
-    
+
     /**
      * Returns the set of all loaded JUnit test classes.
      */
@@ -238,14 +245,14 @@ public class SquidbTestRunner {
                                                    free(classes);
                                                    return result;
                                                    ]-*/;
-    
+
     /**
      * @return true if {@param cls} is either a JUnit 3 or JUnit 4 test.
      */
     protected boolean isJUnitTestClass(Class cls) {
         return isJUnit3TestClass(cls) || isJUnit4TestClass(cls);
     }
-    
+
     /**
      * @return true if {@param cls} derives from {@link Test} and is not part of the
      * {@link junit.framework} package.
@@ -254,11 +261,11 @@ public class SquidbTestRunner {
         if (Test.class.isAssignableFrom(cls)) {
             String packageName = getPackageName(cls);
             return !packageName.startsWith("junit.framework")
-            && !packageName.startsWith("junit.extensions");
+                    && !packageName.startsWith("junit.extensions");
         }
         return false;
     }
-    
+
     /**
      * @return true if {@param cls} is {@link JUnit4} annotated.
      */
@@ -278,7 +285,7 @@ public class SquidbTestRunner {
         }
         return false;
     }
-    
+
     /**
      * Returns the name of a class's package or "" for the default package
      * or (for Foundation classes) no package object.
@@ -287,14 +294,14 @@ public class SquidbTestRunner {
         Package pkg = cls.getPackage();
         return pkg != null ? pkg.getName() : "";
     }
-    
+
     /**
      * Returns the set of test classes that match settings in {@link #PROPERTIES_FILE_NAME}.
      */
     private Set<Class> getTestClasses() {
         Set<Class> allTestClasses = getAllTestClasses();
         Set<Class> includedClasses = new HashSet<Class>();
-        
+
         if (includePatterns.isEmpty()) {
             // Include all tests if no include patterns specified.
             includedClasses = allTestClasses;
@@ -309,7 +316,7 @@ public class SquidbTestRunner {
                 }
             }
         }
-        
+
         // Search included tests for tests to exclude.
         Iterator<Class> includedClassesIterator = includedClasses.iterator();
         while (includedClassesIterator.hasNext()) {
@@ -321,14 +328,14 @@ public class SquidbTestRunner {
                 }
             }
         }
-        
+
         return includedClasses;
     }
-    
+
     private boolean matchesPattern(Class testClass, String pattern) {
         return testClass.getCanonicalName().contains(pattern);
     }
-    
+
     private void loadProperties(InputStream stream) {
         Properties properties = new Properties();
         try {
@@ -357,7 +364,7 @@ public class SquidbTestRunner {
             }
         }
     }
-    
+
     private void loadPropertiesFromResource(String resourcePath) {
         try {
             InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(resourcePath);
@@ -370,27 +377,27 @@ public class SquidbTestRunner {
             onError(e);
         }
     }
-    
+
     private void onError(Exception e) {
         e.printStackTrace(out);
     }
-    
+
     @WeakOuter
     private class GtmUnitTestingTextListener extends RunListener {
-        
+
         private int numTests = 0;
         private int numFailures = 0;
         private final int numUnexpected = 0; // Never changes, but required in output.
-        
+
         private Failure testFailure;
         private double testStartTime;
-        
+
         @Override
         public void testRunFinished(Result result) throws Exception {
             out.printf("Executed %d tests, with %d failures (%d unexpected)\n", numTests, numFailures,
-                       numUnexpected);
+                    numUnexpected);
         }
-        
+
         @Override
         public void testStarted(Description description) throws Exception {
             numTests++;
@@ -398,7 +405,7 @@ public class SquidbTestRunner {
             testStartTime = System.currentTimeMillis();
             out.printf("Test Case '-[%s]' started.\n", parseDescription(description));
         }
-        
+
         @Override
         public void testFinished(Description description) throws Exception {
             double testEndTime = System.currentTimeMillis();
@@ -409,15 +416,15 @@ public class SquidbTestRunner {
                 out.print(testFailure.getTrace());
             }
             out.printf("Test Case '-[%s]' %s (%.3f seconds).\n\n",
-                       parseDescription(description), statusMessage, elapsedSeconds);
+                    parseDescription(description), statusMessage, elapsedSeconds);
         }
-        
+
         @Override
         public void testFailure(Failure failure) throws Exception {
             testFailure = failure;
             numFailures++;
         }
-        
+
         private String parseDescription(Description description) {
             String displayName = description.getDisplayName();
             int p1 = displayName.indexOf("(");

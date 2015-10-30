@@ -7,11 +7,17 @@ package com.yahoo.squidb.utility;
 
 import java.io.PrintStream;
 
+/**
+ * This class duplicates some of the concepts and interfaces of android.util.Log to facilitate logging in a
+ * platform-independent way. The default logger logs to System.out or System.err depending on the log level,
+ * but alternative loggers can be used using {@link #setLogger(Logger)}
+ */
 public abstract class Logger {
 
     public static final String LOG_TAG = "squidb";
 
     public enum Level {
+        ASSERT,
         ERROR,
         WARN,
         DEBUG,
@@ -76,6 +82,16 @@ public abstract class Logger {
         }
     }
 
+    public static void wtf(String tag, String message) {
+        wtf(tag, message, null);
+    }
+
+    public static void wtf(String tag, String message, Throwable t) {
+        if (isLoggable(tag, Level.ASSERT)) {
+            logger.log(Level.ASSERT, tag, message, t);
+        }
+    }
+
     public static class DefaultLogger extends Logger {
 
         @Override
@@ -88,6 +104,7 @@ public abstract class Logger {
                     stream = System.out;
                     break;
                 case ERROR:
+                case ASSERT:
                 default:
                     stream = System.err;
                     break;

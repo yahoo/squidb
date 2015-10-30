@@ -195,7 +195,7 @@ public abstract class SquidDatabase {
      * @param error the error that was encountered
      */
     protected void onError(String message, Throwable error) {
-        Logger.w(Logger.LOG_TAG, getClass().getSimpleName() + " -- " + message, error);
+        Logger.e(Logger.LOG_TAG, getClass().getSimpleName() + " -- " + message, error);
     }
 
     // --- internal implementation
