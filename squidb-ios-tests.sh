@@ -8,13 +8,10 @@ if [ -f run_squidb_ios_tests ]; then rm run_squidb_ios_tests; fi;
 
 mkdir -p $BUILD_DIR
 
-BIN="$BUILD_DIR/bin"
-INTERMEDIATE="$BUILD_DIR/intermediate"
-GEN="$BUILD_DIR/gen"
-
-mkdir $BIN
-mkdir $INTERMEDIATE
-mkdir $GEN
+BIN="$BUILD_DIR/bin"; mkdir $BIN;
+INTERMEDIATE="$BUILD_DIR/intermediate"; mkdir $INTERMEDIATE;
+GEN="$BUILD_DIR/gen"; mkdir $GEN;
+JARS="$BUILD_DIR/jars"; mkdir $JARS;
 
 SQUIDB_SRC="squidb/src"
 SQUIDB_ANNOTATIONS_SRC="squidb-annotations/src"
@@ -33,8 +30,15 @@ SQUIDB_TESTS_UTILITY_SRC="${SQUIDB_TESTS_SRC}/utility"
 SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
 #echo ${SOURCEPATH}
 
+# Build annotation and processor jars
+./gradlew squidb-annotations:clean squidb-annotations:jar
+./gradlew squidb-processor:clean squidb-processor:jar
+cp squidb-annotations/build/libs/*.jar $JARS
+cp squidb-processor/build/libs/*.jar $JARS
+cp $SQUIDB_IOS_TESTS/apt-utils*.jar $JARS
+
 # invoke annotation processing, output to gen folder
-javac -AsquidbOptions=iosModels -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$SQUIDB_IOS_TESTS/squidb-annotations-2.0.1.jar:$SQUIDB_IOS_TESTS/squidb-processor-2.0.1.jar:$SQUIDB_IOS_TESTS/apt-utils-1.0.0.jar" \
+javac -AsquidbOptions=iosModels -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
     -s $GEN -proc:only -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 javacResult=$?
 if [ ! $javacResult -eq 0 ]
