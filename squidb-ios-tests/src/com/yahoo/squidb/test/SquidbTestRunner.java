@@ -128,11 +128,16 @@ public class SquidbTestRunner {
         JUnitCore junitCore = new JUnitCore();
         junitCore.addListener(listener);
         boolean hasError = false;
+        int numTests = 0;
+        int numFailures = 0;
         for (@AutoreleasePool Class c : classes) {
             out.println("Running " + c.getName());
             Result result = junitCore.run(c);
+            numTests += result.getRunCount();
+            numFailures += result.getFailureCount();
             hasError = hasError || !result.wasSuccessful();
         }
+        out.println("Ran " + numTests + " tests, " + numFailures + " failures");
         return hasError ? 1 : 0;
     }
 
