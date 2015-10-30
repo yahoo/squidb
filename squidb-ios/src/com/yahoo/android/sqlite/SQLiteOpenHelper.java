@@ -247,7 +247,7 @@ public abstract class SQLiteOpenHelper {
                     if (writable) {
                         throw ex;
                     }
-                    Logger.e(TAG + ": Couldn't open " + mName
+                    Logger.e(TAG, "Couldn't open " + mName
                             + " for writing (will try read-only):", ex);
                     final String path = mDatabasePath.getPath(); //mContext.getDatabasePath(mName).getPath();
                     db = SQLiteDatabase.openDatabase(path, mFactory,
@@ -285,7 +285,7 @@ public abstract class SQLiteOpenHelper {
             onOpen(db);
 
             if (db.isReadOnly()) {
-                Logger.w(TAG + ": Opened " + mName + " in read-only mode");
+                Logger.w(TAG, "Opened " + mName + " in read-only mode");
             }
 
             mDatabase = db;

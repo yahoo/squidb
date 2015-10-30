@@ -45,7 +45,7 @@ public class SquidTestRunner extends AndroidTestRunner {
     }
 
     private void runTest(SquidbBinding binding) {
-        Logger.d("SquidTestRunner running tests with " + binding + " binding");
+        Logger.d(Logger.LOG_TAG, "SquidTestRunner running tests with " + binding + " binding");
         selectedBinding = binding;
         super.runTest();
     }

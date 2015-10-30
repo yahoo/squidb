@@ -141,9 +141,9 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
-//                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Logger.i(TAG + ": received count(*) from native_fill_window: " + mCount);
-//                }
+                if (Logger.isLoggable(TAG, Logger.Level.INFO)) {
+                    Logger.i(TAG, "received count(*) from native_fill_window: " + mCount);
+                }
             } else {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
                         mCursorWindowCapacity);
@@ -176,7 +176,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         final int periodIndex = columnName.lastIndexOf('.');
         if (periodIndex != -1) {
             Exception e = new Exception();
-            Logger.e(TAG + ": requesting column name with table name -- " + columnName, e);
+            Logger.e(TAG, "requesting column name with table name -- " + columnName, e);
             columnName = columnName.substring(periodIndex + 1);
         }
 
@@ -232,7 +232,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             return super.requery();
         } catch (IllegalStateException e) {
             // for backwards compatibility, just return false
-            Logger.w(TAG + ": requery() failed " + e.getMessage(), e);
+            Logger.w(TAG, "requery() failed " + e.getMessage(), e);
             return false;
         }
     }
@@ -262,7 +262,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                     String sql = mQuery.getSql();
                     int len = sql.length();
 //                    StrictMode.onSqliteObjectLeaked(
-                    Logger.e(
+                    Logger.e(TAG,
                             "Finalizing a Cursor that has not been deactivated or closed. " +
                                     "database = " + mQuery.getDatabase().getLabel() +
                                     ", table = " + mEditTable +

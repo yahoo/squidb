@@ -42,14 +42,14 @@ public class SquidUtilities {
     public static void copyDatabase(SquidDatabase database, String toFolder) {
         File folderFile = new File(toFolder);
         if (!(folderFile.mkdirs() || folderFile.isDirectory())) {
-            Logger.e("Error creating directories for database copy");
+            Logger.e(Logger.LOG_TAG, "Error creating directories for database copy");
             return;
         }
         File dbFile = new File(database.getDatabasePath());
         try {
             copyFile(dbFile, new File(folderFile.getAbsolutePath() + File.separator + database.getName()));
         } catch (Exception e) {
-            Logger.e("Error copying database " + database.getName(), e);
+            Logger.e(Logger.LOG_TAG, "Error copying database " + database.getName(), e);
         }
     }
 

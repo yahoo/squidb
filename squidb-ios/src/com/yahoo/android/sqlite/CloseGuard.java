@@ -234,7 +234,7 @@ public final class CloseGuard {
 
         @Override
         public void report(String message, Throwable allocationSite) {
-            Logger.w(message, allocationSite);
+            Logger.w(Logger.LOG_TAG, message, allocationSite);
         }
     }
 }

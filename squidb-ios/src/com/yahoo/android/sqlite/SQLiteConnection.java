@@ -399,7 +399,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
             // If we don't change the journal mode, nothing really bad happens.
             // In the worst case, an application that enables WAL might not actually
             // get it, although it can still use connection pooling.
-            Logger.w(TAG + ": Could not change the database journal mode of '"
+            Logger.w(TAG, "Could not change the database journal mode of '"
                     + mConfiguration.label + "' from '" + value + "' to '" + newValue
                     + "' because the database is locked.  This usually means that "
                     + "there are other open connections to the database which prevents "
@@ -970,7 +970,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
                 // which will in turn call finalizePreparedStatement() to finalize and
                 // recycle the statement.
                 if (DEBUG) {
-                    Logger.d(TAG + ": Could not reset prepared statement due to an exception.  "
+                    Logger.d(TAG, "Could not reset prepared statement due to an exception.  "
                             + "Removing it from the cache.  SQL: "
                             + trimSqlForDisplay(statement.mSql), ex);
                 }
@@ -1435,7 +1435,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
             if (detail != null) {
                 msg.append(", ").append(detail);
             }
-            Logger.d(TAG + ": " + msg.toString());
+            Logger.d(TAG, msg.toString());
         }
 
         private int newOperationCookieLocked(int index) {

@@ -189,7 +189,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param source a Parcel object to read from
      */
     public void readFromParcel(Object source) {
-        Logger.w("Called readFromParcel on a non-parcelable model", new Throwable());
+        Logger.w(Logger.LOG_TAG, "Called readFromParcel on a non-parcelable model", new Throwable());
     }
 
     /**

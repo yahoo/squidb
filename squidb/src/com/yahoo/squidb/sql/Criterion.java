@@ -113,7 +113,7 @@ public abstract class Criterion extends CompilableWithArguments {
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
-                        Logger.w("Raw selection criterion converted to raw SQL with unbound arguments");
+                        Logger.w(Logger.LOG_TAG, "Raw selection criterion converted to raw SQL with unbound arguments");
                     } else {
                         Collections.addAll(builder.args, selectionArgs);
                     }

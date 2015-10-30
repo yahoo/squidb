@@ -64,7 +64,7 @@ public final class SQLiteQuery extends SQLiteProgram {
                 onCorruption();
                 throw ex;
             } catch (SQLiteException ex) {
-                Logger.e(TAG + ": exception: " + ex.getMessage() + "; query: " + getSql());
+                Logger.e(TAG, "exception: " + ex.getMessage() + "; query: " + getSql());
                 throw ex;
             } finally {
                 window.releaseReference();

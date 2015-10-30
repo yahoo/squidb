@@ -71,7 +71,7 @@ public class TestModelSpec {
 
     @ModelMethod
     public static void run(TestModel instance) {
-        Logger.e("TestModel: Interface method");
+        Logger.e(Logger.LOG_TAG, "TestModel: Interface method");
     }
 
     @ModelMethod

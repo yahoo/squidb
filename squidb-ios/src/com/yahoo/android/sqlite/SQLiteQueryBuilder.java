@@ -392,9 +392,9 @@ public class SQLiteQueryBuilder {
                 projectionIn, selection, groupBy, having,
                 sortOrder, limit);
 
-//        if (Log.isLoggable(TAG, Log.DEBUG)) {
-        Logger.d(TAG + ": Performing query: " + sql);
-//        }
+        if (Logger.isLoggable(TAG, Logger.Level.DEBUG)) {
+            Logger.d(TAG, "Performing query: " + sql);
+        }
         return db.rawQueryWithFactory(
                 mFactory, sql, selectionArgs,
                 SQLiteDatabase.findEditTable(mTables)/*,

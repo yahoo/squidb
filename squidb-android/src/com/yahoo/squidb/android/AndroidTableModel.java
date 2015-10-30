@@ -59,7 +59,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
     @Override
     public void readFromParcel(Object source) {
         if (!(source instanceof Parcel)) {
-            Logger.w("readFromParcel called with non-Parcel argument", new Throwable());
+            Logger.w(Logger.LOG_TAG, "readFromParcel called with non-Parcel argument", new Throwable());
             return;
         }
         Parcel parcel = (Parcel) source;

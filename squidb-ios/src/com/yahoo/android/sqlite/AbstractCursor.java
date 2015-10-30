@@ -165,7 +165,6 @@ public abstract class AbstractCursor implements ICursor {
         return true;
     }
 
-
 //    public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
 //        // Default implementation, uses getString
 //        String result = getString(columnIndex);
@@ -279,7 +278,7 @@ public abstract class AbstractCursor implements ICursor {
         final int periodIndex = columnName.lastIndexOf('.');
         if (periodIndex != -1) {
             Exception e = new Exception();
-            Logger.e(TAG + ": requesting column name with table name -- " + columnName, e);
+            Logger.e(TAG, "requesting column name with table name -- " + columnName, e);
             columnName = columnName.substring(periodIndex + 1);
         }
 
@@ -293,7 +292,7 @@ public abstract class AbstractCursor implements ICursor {
 
         if (false) {
             if (getCount() > 0) {
-                Logger.w("AbstractCursor: Unknown column " + columnName);
+                Logger.w("AbstractCursor", "Unknown column " + columnName);
             }
         }
         return -1;

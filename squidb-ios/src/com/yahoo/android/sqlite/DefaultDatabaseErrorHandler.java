@@ -49,7 +49,7 @@ public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
      * is detected.
      */
     public void onCorruption(SQLiteDatabase dbObj) {
-        Logger.e(TAG + ": Corruption reported by sqlite on database: " + dbObj.getPath());
+        Logger.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
 
         // is the corruption detected even before database could be 'opened'?
         if (!dbObj.isOpen()) {
@@ -95,12 +95,12 @@ public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
         if (fileName.equalsIgnoreCase(":memory:") || fileName.trim().length() == 0) {
             return;
         }
-        Logger.e(TAG + ": deleting the database file: " + fileName);
+        Logger.e(TAG, "deleting the database file: " + fileName);
         try {
             SQLiteDatabase.deleteDatabase(new File(fileName));
         } catch (Exception e) {
             /* print warning and ignore exception */
-            Logger.w(TAG + ": delete failed: " + e.getMessage());
+            Logger.w(TAG, "delete failed: " + e.getMessage());
         }
     }
 }

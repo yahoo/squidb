@@ -791,7 +791,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
                 openInner();
             }
         } catch (SQLiteException ex) {
-            Logger.e(TAG + ": Failed to open database '" + getLabel() + "'.", ex);
+            Logger.e(TAG, "Failed to open database '" + getLabel() + "'.", ex);
             close();
             throw ex;
         }
@@ -1337,7 +1337,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
         try {
             return insertWithOnConflict(table, nullColumnHack, values, CONFLICT_NONE);
         } catch (SQLException e) {
-            Logger.e(TAG + ": Error inserting " + values, e);
+            Logger.e(TAG, "Error inserting " + values, e);
             return -1;
         }
     }
@@ -1383,7 +1383,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
             return insertWithOnConflict(table, nullColumnHack, initialValues,
                     CONFLICT_REPLACE);
         } catch (SQLException e) {
-            Logger.e(TAG + ": Error inserting " + initialValues, e);
+            Logger.e(TAG, "Error inserting " + initialValues, e);
             return -1;
         }
     }
@@ -1930,17 +1930,17 @@ public final class SQLiteDatabase extends SQLiteClosable {
             }
 
             if (mConfigurationLocked.isInMemoryDb()) {
-                Logger.i(TAG + ": can't enable WAL for memory databases.");
+                Logger.i(TAG, "can't enable WAL for memory databases.");
                 return false;
             }
 
             // make sure this database has NO attached databases because sqlite's write-ahead-logging
             // doesn't work for databases with attached databases
             if (mHasAttachedDbsLocked) {
-//                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Logger.d(TAG + ": this database: " + mConfigurationLocked.label
-                        + " has attached databases. can't  enable WAL.");
-//                }
+                if (Logger.isLoggable(TAG, Logger.Level.DEBUG)) {
+                    Logger.d(TAG, "this database: " + mConfigurationLocked.label
+                            + " has attached databases. can't  enable WAL.");
+                }
                 return false;
             }
 
@@ -2135,7 +2135,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
                     String rslt = prog.simpleQueryForString();
                     if (!rslt.equalsIgnoreCase("ok")) {
                         // integrity_checker failed on main or attached databases
-                        Logger.e(TAG + ": PRAGMA integrity_check on " + p.second + " returned: " + rslt);
+                        Logger.e(TAG, "PRAGMA integrity_check on " + p.second + " returned: " + rslt);
                         return false;
                     }
                 } finally {

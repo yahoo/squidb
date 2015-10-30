@@ -13,8 +13,8 @@ public abstract class Logger {
 
     public enum Level {
         ERROR,
-        DEBUG,
         WARN,
+        DEBUG,
         INFO,
     }
 
@@ -28,54 +28,58 @@ public abstract class Logger {
         logger = newLogger;
     }
 
+    public static boolean isLoggable(String tag, Level level) {
+        return logLevel.ordinal() >= level.ordinal();
+    }
+
     public static synchronized void setLogLevel(Level newLevel) {
         logLevel = newLevel;
     }
 
-    public static void i(String message) {
-        i(message, null);
+    public static void i(String tag, String message) {
+        i(tag, message, null);
     }
 
-    public static void i(String message, Throwable t) {
-        if (logLevel.ordinal() >= Level.INFO.ordinal()) {
-            logger.log(Level.INFO, message, t);
+    public static void i(String tag, String message, Throwable t) {
+        if (isLoggable(tag, Level.INFO)) {
+            logger.log(Level.INFO, tag, message, t);
         }
     }
 
-    public static void d(String message) {
-        d(message, null);
+    public static void d(String tag, String message) {
+        d(tag, message, null);
     }
 
-    public static void d(String message, Throwable t) {
-        if (logLevel.ordinal() >= Level.DEBUG.ordinal()) {
-            logger.log(Level.DEBUG, message, t);
+    public static void d(String tag, String message, Throwable t) {
+        if (isLoggable(tag, Level.DEBUG)) {
+            logger.log(Level.DEBUG, tag, message, t);
         }
     }
 
-    public static void w(String message) {
-        w(message, null);
+    public static void w(String tag, String message) {
+        w(tag, message, null);
     }
 
-    public static void w(String message, Throwable t) {
-        if (logLevel.ordinal() >= Level.WARN.ordinal()) {
-            logger.log(Level.WARN, message, t);
+    public static void w(String tag, String message, Throwable t) {
+        if (isLoggable(tag, Level.WARN)) {
+            logger.log(Level.WARN, tag, message, t);
         }
     }
 
-    public static void e(String message) {
-        e(message, null);
+    public static void e(String tag, String message) {
+        e(tag, message, null);
     }
 
-    public static void e(String message, Throwable t) {
-        if (logLevel.ordinal() >= Level.ERROR.ordinal()) {
-            logger.log(Level.ERROR, message, t);
+    public static void e(String tag, String message, Throwable t) {
+        if (isLoggable(tag, Level.ERROR)) {
+            logger.log(Level.ERROR, tag, message, t);
         }
     }
 
     public static class DefaultLogger extends Logger {
 
         @Override
-        public void log(Level level, String message, Throwable t) {
+        public void log(Level level, String tag, String message, Throwable t) {
             PrintStream stream;
             switch (level) {
                 case INFO:
@@ -88,12 +92,16 @@ public abstract class Logger {
                     stream = System.err;
                     break;
             }
-            stream.println(LOG_TAG + ": " + message);
+            if (tag != null) {
+                stream.print(tag);
+                stream.print(": ");
+            }
+            stream.println(message);
             if (t != null) {
                 t.printStackTrace(stream);
             }
         }
     }
 
-    public abstract void log(Level level, String message, Throwable t);
+    public abstract void log(Level level, String tag, String message, Throwable t);
 }
