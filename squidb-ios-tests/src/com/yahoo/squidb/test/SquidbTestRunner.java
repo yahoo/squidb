@@ -17,8 +17,6 @@ package com.yahoo.squidb.test;
 import com.google.j2objc.annotations.AutoreleasePool;
 import com.google.j2objc.annotations.WeakOuter;
 
-import com.yahoo.squidb.utility.Logger;
-
 import junit.framework.Test;
 import junit.runner.Version;
 
@@ -115,11 +113,9 @@ public class SquidbTestRunner {
         // Create JUnit test runner.
         SQLiteBindingProvider.setSQLiteBindingProvider(new IOSSQLiteBindingProvider());
 
-        // Don't need squidb logs for unit tests
-        Logger.setLogLevel(Logger.Level.ASSERT);
-
         SquidbTestRunner runner = new SquidbTestRunner();
 //        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
+
         return runner.run();
     }
 
@@ -205,7 +201,7 @@ public class SquidbTestRunner {
                 throw new IllegalArgumentException("sortOrder");
         }
     }
-    
+
     /*-[
      // Returns true if |cls| conforms to the NSObject protocol.
      BOOL IsNSObjectClass(Class cls) {
