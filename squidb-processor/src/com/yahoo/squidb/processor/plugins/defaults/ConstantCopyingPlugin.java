@@ -53,7 +53,7 @@ public class ConstantCopyingPlugin extends Plugin {
     }
 
     @Override
-    public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
+    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
         writer.writeComment("--- constants");
         for (VariableElement constant : constantElements) {
             writer.writeFieldDeclaration(
