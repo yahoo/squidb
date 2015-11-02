@@ -25,7 +25,7 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec> {
 
     @Override
     public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
-        return visitor.visitInheritedModel(data);
+        return visitor.visitInheritedModel(this, data);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     @Override
     public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
-        return visitor.visitTableModel(data);
+        return visitor.visitTableModel(this, data);
     }
 
     /**

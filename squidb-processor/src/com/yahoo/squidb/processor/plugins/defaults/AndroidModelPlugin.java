@@ -10,7 +10,10 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
+import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
@@ -33,17 +36,17 @@ public class AndroidModelPlugin extends Plugin {
     private static final ModelSpec.ModelSpecVisitor<DeclaredTypeName, Void> superclassVisitor
             = new ModelSpec.ModelSpecVisitor<DeclaredTypeName, Void>() {
         @Override
-        public DeclaredTypeName visitTableModel(Void data) {
+        public DeclaredTypeName visitTableModel(TableModelSpecWrapper modelSpec, Void data) {
             return TypeConstants.ANDROID_TABLE_MODEL;
         }
 
         @Override
-        public DeclaredTypeName visitViewModel(Void data) {
+        public DeclaredTypeName visitViewModel(ViewModelSpecWrapper modelSpec, Void data) {
             return TypeConstants.ANDROID_VIEW_MODEL;
         }
 
         @Override
-        public DeclaredTypeName visitInheritedModel(Void data) {
+        public DeclaredTypeName visitInheritedModel(InheritedModelSpecWrapper modelSpec, Void data) {
             return null;
         }
     };

@@ -61,11 +61,11 @@ public abstract class ModelSpec<T extends Annotation> {
 
     public interface ModelSpecVisitor<RETURN, PARAMETER> {
 
-        RETURN visitTableModel(PARAMETER data);
+        RETURN visitTableModel(TableModelSpecWrapper modelSpec, PARAMETER data);
 
-        RETURN visitViewModel(PARAMETER data);
+        RETURN visitViewModel(ViewModelSpecWrapper modelSpec, PARAMETER data);
 
-        RETURN visitInheritedModel(PARAMETER data);
+        RETURN visitInheritedModel(InheritedModelSpecWrapper modelSpec, PARAMETER data);
     }
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,

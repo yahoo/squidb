@@ -28,7 +28,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
 
     @Override
     public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
-        return visitor.visitViewModel(data);
+        return visitor.visitViewModel(this, data);
     }
 
     @Override
