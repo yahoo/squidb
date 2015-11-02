@@ -3,9 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.ios;
-
-import com.yahoo.squidb.data.ValuesStorage;
+package com.yahoo.squidb.data;
 
 import java.util.HashMap;
 import java.util.Map;

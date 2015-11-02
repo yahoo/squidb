@@ -33,7 +33,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
 
     @Override
     public DeclaredTypeName getModelSuperclass() {
-        return iosModels ? TypeConstants.IOS_VIEW_MODEL : TypeConstants.ANDROID_VIEW_MODEL;
+        return androidModels ? TypeConstants.ANDROID_VIEW_MODEL : TypeConstants.VIEW_MODEL;
     }
 
     /**

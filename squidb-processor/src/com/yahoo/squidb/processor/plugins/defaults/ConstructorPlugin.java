@@ -31,17 +31,17 @@ import javax.lang.model.element.Modifier;
  */
 public class ConstructorPlugin extends Plugin {
 
-    private final boolean iosModels;
+    private final boolean androidModels;
 
     public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
-        this.iosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
+        this.androidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
     }
 
     @Override
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.SQUID_CURSOR);
-        imports.add(iosModels ? TypeConstants.MAP : TypeConstants.CONTENT_VALUES);
+        imports.add(androidModels ? TypeConstants.CONTENT_VALUES : TypeConstants.MAP);
     }
 
     @Override
@@ -62,8 +62,8 @@ public class ConstructorPlugin extends Plugin {
                 .writeStringStatement("readPropertiesFromCursor(cursor)")
                 .finishMethodDefinition();
 
-        String valuesName = iosModels ? "values" : "contentValues";
-        DeclaredTypeName valuesType = iosModels ? TypeConstants.MAP_VALUES : TypeConstants.CONTENT_VALUES;
+        String valuesName = androidModels ? "contentValues" : "values";
+        DeclaredTypeName valuesType = androidModels ? TypeConstants.CONTENT_VALUES : TypeConstants.MAP_VALUES;
 
         params.setArgumentTypes(Collections.singletonList(valuesType))
                 .setArgumentNames(valuesName);
@@ -72,7 +72,7 @@ public class ConstructorPlugin extends Plugin {
                         ModelFileWriter.PROPERTIES_ARRAY_NAME))
                 .finishMethodDefinition();
 
-        String methodName = iosModels ? "readPropertiesFromMap" : "readPropertiesFromContentValues";
+        String methodName = androidModels ? "readPropertiesFromContentValues" : "readPropertiesFromMap";
         params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
                 .setArgumentNames(valuesName, "withProperties");
         writer.beginConstructorDeclaration(params)

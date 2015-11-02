@@ -57,5 +57,6 @@ dependencies {
 apt {
     arguments {
         squidbPlugins 'com.yahoo.squidb.jackson.JacksonFieldPlugin'
+        squidbOptions 'androidModels'
     }
 }

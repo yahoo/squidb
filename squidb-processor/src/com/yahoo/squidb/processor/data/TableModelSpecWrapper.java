@@ -46,7 +46,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     @Override
     public DeclaredTypeName getModelSuperclass() {
-        return iosModels ? TypeConstants.IOS_TABLE_MODEL : TypeConstants.ANDROID_TABLE_MODEL;
+        return androidModels ? TypeConstants.ANDROID_TABLE_MODEL : TypeConstants.TABLE_MODEL;
     }
 
     @Override

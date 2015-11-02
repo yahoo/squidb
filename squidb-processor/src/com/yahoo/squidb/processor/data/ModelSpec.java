@@ -56,7 +56,7 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
-    protected final boolean iosModels;
+    protected final boolean androidModels;
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginEnvironment pluginEnv, AptUtils utils) {
@@ -66,7 +66,7 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
-        this.iosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
+        this.androidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
@@ -105,11 +105,10 @@ public abstract class ModelSpec<T extends Annotation> {
     public final void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
         imports.add(TypeConstants.VALUES_STORAGE);
-        if (iosModels) {
-            imports.add(TypeConstants.MAP_VALUES_STORAGE);
-        } else {
-            imports.add(TypeConstants.CONTENT_VALUES_STORAGE);
+        if (androidModels) {
             imports.add(TypeConstants.MODEL_CREATOR);
+        } else {
+            imports.add(TypeConstants.MAP_VALUES_STORAGE);
         }
         imports.add(getModelSuperclass());
         for (PropertyGenerator generator : propertyGenerators) {

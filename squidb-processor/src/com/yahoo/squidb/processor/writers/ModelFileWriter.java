@@ -43,7 +43,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
-    private final boolean generateIosModels;
+    private final boolean generateAndroidModels;
 
     private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
 
@@ -59,7 +59,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         this.modelSpec = modelSpec;
         this.pluginEnv = pluginEnv;
         this.utils = utils;
-        this.generateIosModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_IOS_MODELS);
+        this.generateAndroidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
     }
 
     public final void writeJava(Filer filer) throws IOException {
@@ -100,7 +100,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         plugins.emitMethods(writer);
         plugins.afterEmitMethods(writer);
 
-        if (!generateIosModels) {
+        if (generateAndroidModels) {
             emitCreator();
         }
         emitModelSpecificHelpers();
@@ -177,10 +177,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");
-        DeclaredTypeName valuesStorageType = generateIosModels ?
-                TypeConstants.MAP_VALUES_STORAGE : TypeConstants.CONTENT_VALUES_STORAGE;
         writer.writeFieldDeclaration(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
-                Expressions.callConstructor(valuesStorageType),
+                Expressions.callMethodOn(
+                        Expressions.callConstructor(modelSpec.getGeneratedClassName()), "newValuesStorage"),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
         if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {

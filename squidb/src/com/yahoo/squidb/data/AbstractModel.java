@@ -12,6 +12,7 @@ import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -116,7 +117,14 @@ public abstract class AbstractModel implements Cloneable {
         return mergedValues;
     }
 
-    protected abstract ValuesStorage newValuesStorage();
+    /**
+     * This method should construct a new ValuesStorage object for the model instance to use. By default, this object
+     * will be a {@link MapValuesStorage}, but other implementations can be used for other platforms if appropriate
+     * by overriding this method.
+     */
+    protected ValuesStorage newValuesStorage() {
+        return new MapValuesStorage();
+    }
 
     /**
      * Clear all data on this model
@@ -215,6 +223,22 @@ public abstract class AbstractModel implements Cloneable {
                 }
             }
         }
+    }
+
+    /**
+     * Copies values from the given Map. The values will be added to the model as read values (i.e. will not be
+     * considered set values or mark the model as dirty).
+     */
+    public void readPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        readPropertiesFromValuesStorage(new MapValuesStorage(values), properties);
+    }
+
+    /**
+     * Analogous to {@link #readPropertiesFromMap(Map, Property[])} but adds the values to the model as set values,
+     * i.e. marks the model as dirty with these values.
+     */
+    public void setPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        setPropertiesFromValuesStorage(new MapValuesStorage(values), properties);
     }
 
     /**

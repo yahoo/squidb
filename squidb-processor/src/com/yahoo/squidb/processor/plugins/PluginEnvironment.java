@@ -92,9 +92,9 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS = "disableGettersAndSetters";
 
     /**
-     * Option for generating models that work on iOS using j2objc
+     * Option for generating models that have Android-specific features
      */
-    public static final String OPTIONS_GENERATE_IOS_MODELS = "iosModels";
+    public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
     /**
      * @param utils annotation processing utilities class
