@@ -700,10 +700,22 @@ public abstract class SquidDatabase {
     /**
      * Yield the current transaction
      *
+     * @return true if the transaction was yielded
      * @see ISQLiteDatabase#yieldIfContendedSafely()
      */
     public boolean yieldIfContendedSafely() {
         return getDatabase().yieldIfContendedSafely();
+    }
+
+    /**
+     * Yield the current transaction
+     *
+     * @param sleepAfterYieldDelay milliseconds to sleep before restarting the transaction
+     * (if it was yielded successfully)
+     * @return true if the transaction was yielded
+     */
+    public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
+        return getDatabase().yieldIfContendedSafely(sleepAfterYieldDelay);
     }
 
     /**
