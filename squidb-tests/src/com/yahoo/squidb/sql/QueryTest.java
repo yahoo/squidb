@@ -580,29 +580,29 @@ public class QueryTest extends DatabaseTestCase {
             cursor.close();
         }
     }
-
-    public void x_testReusableQueryPerformance() {
-        String[] values = {"bigBird", "cookieMonster", "elmo", "oscar"};
-        int numIterations = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            Query query = Query.select().where(Employee.NAME.eq(values[i % values.length]));
-            database.query(Employee.class, query);
-        }
-        long end = System.currentTimeMillis();
-        System.err.println("Unoptimized took " + (end - start) + " millis");
-
-        AtomicReference<String> reference = new AtomicReference<String>();
-        Query query = Query.select().where(Employee.NAME.eq(reference));
-        start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            reference.set(values[i % values.length]);
-            database.query(Employee.class, query);
-        }
-        end = System.currentTimeMillis();
-        System.err.println("Optimized took " + (end - start) + " millis");
-    }
-
+//
+//    public void x_testReusableQueryPerformance() {
+//        String[] values = {"bigBird", "cookieMonster", "elmo", "oscar"};
+//        int numIterations = 10000;
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            Query query = Query.select().where(Employee.NAME.eq(values[i % values.length]));
+//            database.query(Employee.class, query);
+//        }
+//        long end = System.currentTimeMillis();
+//        System.err.println("Unoptimized took " + (end - start) + " millis");
+//
+//        AtomicReference<String> reference = new AtomicReference<String>();
+//        Query query = Query.select().where(Employee.NAME.eq(reference));
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            reference.set(values[i % values.length]);
+//            database.query(Employee.class, query);
+//        }
+//        end = System.currentTimeMillis();
+//        System.err.println("Optimized took " + (end - start) + " millis");
+//    }
+//
 //    public void x_testReusableListQueryPerformance() {
 //        List<?>[] testSets = {
 //                Arrays.asList(new String[]{"bigBird", "cookieMonster", "elmo"}),
