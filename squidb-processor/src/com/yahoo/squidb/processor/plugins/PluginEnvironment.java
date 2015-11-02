@@ -7,6 +7,7 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
@@ -119,6 +120,10 @@ public class PluginEnvironment {
     }
 
     private void initializeDefaultPlugins() {
+        if (hasOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
+            normalPriorityPlugins.add(AndroidModelPlugin.class);
+        }
+
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             normalPriorityPlugins.add(ConstructorPlugin.class);
         }

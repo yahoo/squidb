@@ -34,6 +34,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#processVariableElement(VariableElement, DeclaredTypeName)} on all the bundled plugins until
      * one of them returns true to "claim" the field
+     *
      * @param field a {@link VariableElement} field in a model spec
      * @param fieldType the type name of the field
      * @return true if any of the bundled plugins claimed the field for processing, false otherwise
@@ -56,6 +57,22 @@ public class PluginBundle {
                 plugin.afterProcessVariableElements();
             }
         }
+    }
+
+    /**
+     * Calls {@link Plugin#getModelSuperclass()} on all the bundled plugins, returning the first non-null value returned
+     * by any plugin
+     *
+     * @return the name of a class to use as the model superclass, or null if no plugin provided one
+     */
+    public DeclaredTypeName getModelSuperclass() {
+        for (Plugin plugin : plugins) {
+            DeclaredTypeName modelSuperclass = plugin.getModelSuperclass();
+            if (modelSuperclass != null) {
+                return modelSuperclass;
+            }
+        }
+        return null;
     }
 
     /**

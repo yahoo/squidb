@@ -57,6 +57,16 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
     protected final boolean androidModels;
+    private final DeclaredTypeName modelSuperclass;
+
+    public interface ModelSpecVisitor<RETURN, PARAMETER> {
+
+        RETURN visitTableModel(PARAMETER data);
+
+        RETURN visitViewModel(PARAMETER data);
+
+        RETURN visitInheritedModel(PARAMETER data);
+    }
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginEnvironment pluginEnv, AptUtils utils) {
@@ -70,6 +80,7 @@ public abstract class ModelSpec<T extends Annotation> {
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
+        modelSuperclass = initializeModelSuperclass();
     }
 
     private void processVariableElements() {
@@ -90,12 +101,29 @@ public abstract class ModelSpec<T extends Annotation> {
         }
     }
 
+    private DeclaredTypeName initializeModelSuperclass() {
+        DeclaredTypeName pluginSuperclass = pluginBundle.getModelSuperclass();
+        if (pluginSuperclass != null) {
+            return pluginSuperclass;
+        }
+        return getDefaultModelSuperclass();
+    }
+
+    public abstract <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data);
+
     protected abstract String getGeneratedClassNameString();
+
+    /**
+     * @return the name of the default superclass for the generated model. This may be overridden by a plugin
+     */
+    protected abstract DeclaredTypeName getDefaultModelSuperclass();
 
     /**
      * @return the name of the superclass for the generated model
      */
-    public abstract DeclaredTypeName getModelSuperclass();
+    public final DeclaredTypeName getModelSuperclass() {
+        return modelSuperclass;
+    }
 
     /**
      * Adds imports required by this model spec to the given accumulator set
@@ -105,11 +133,6 @@ public abstract class ModelSpec<T extends Annotation> {
     public final void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
         imports.add(TypeConstants.VALUES_STORAGE);
-        if (androidModels) {
-            imports.add(TypeConstants.MODEL_CREATOR);
-        } else {
-            imports.add(TypeConstants.MAP_VALUES_STORAGE);
-        }
         imports.add(getModelSuperclass());
         for (PropertyGenerator generator : propertyGenerators) {
             generator.registerRequiredImports(imports);

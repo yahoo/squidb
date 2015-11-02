@@ -27,13 +27,18 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
     }
 
     @Override
+    public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        return visitor.visitViewModel(data);
+    }
+
+    @Override
     protected String getGeneratedClassNameString() {
         return modelSpecAnnotation.className();
     }
 
     @Override
-    public DeclaredTypeName getModelSuperclass() {
-        return androidModels ? TypeConstants.ANDROID_VIEW_MODEL : TypeConstants.VIEW_MODEL;
+    protected DeclaredTypeName getDefaultModelSuperclass() {
+        return TypeConstants.VIEW_MODEL;
     }
 
     /**

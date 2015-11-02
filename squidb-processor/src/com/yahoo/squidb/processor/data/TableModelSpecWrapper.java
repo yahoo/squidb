@@ -32,6 +32,11 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         }
     }
 
+    @Override
+    public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        return visitor.visitTableModel(data);
+    }
+
     /**
      * @return true if the table model is for a virtual table, false otherwise
      */
@@ -45,8 +50,8 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     }
 
     @Override
-    public DeclaredTypeName getModelSuperclass() {
-        return androidModels ? TypeConstants.ANDROID_TABLE_MODEL : TypeConstants.TABLE_MODEL;
+    protected DeclaredTypeName getDefaultModelSuperclass() {
+        return TypeConstants.TABLE_MODEL;
     }
 
     @Override

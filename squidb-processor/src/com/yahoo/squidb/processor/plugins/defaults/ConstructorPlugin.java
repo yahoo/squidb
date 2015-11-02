@@ -31,17 +31,14 @@ import javax.lang.model.element.Modifier;
  */
 public class ConstructorPlugin extends Plugin {
 
-    private final boolean androidModels;
-
     public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
-        this.androidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
     }
 
     @Override
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.SQUID_CURSOR);
-        imports.add(androidModels ? TypeConstants.CONTENT_VALUES : TypeConstants.MAP);
+        imports.add(TypeConstants.MAP);
     }
 
     @Override
@@ -62,8 +59,8 @@ public class ConstructorPlugin extends Plugin {
                 .writeStringStatement("readPropertiesFromCursor(cursor)")
                 .finishMethodDefinition();
 
-        String valuesName = androidModels ? "contentValues" : "values";
-        DeclaredTypeName valuesType = androidModels ? TypeConstants.CONTENT_VALUES : TypeConstants.MAP_VALUES;
+        String valuesName = "values";
+        DeclaredTypeName valuesType = TypeConstants.MAP_VALUES;
 
         params.setArgumentTypes(Collections.singletonList(valuesType))
                 .setArgumentNames(valuesName);
@@ -72,7 +69,7 @@ public class ConstructorPlugin extends Plugin {
                         ModelFileWriter.PROPERTIES_ARRAY_NAME))
                 .finishMethodDefinition();
 
-        String methodName = androidModels ? "readPropertiesFromContentValues" : "readPropertiesFromMap";
+        String methodName = "readPropertiesFromMap";
         params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
                 .setArgumentNames(valuesName, "withProperties");
         writer.beginConstructorDeclaration(params)

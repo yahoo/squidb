@@ -90,6 +90,23 @@ public class Plugin {
     }
 
     /**
+     * Plugin subclasses can override this method to declare a custom superclass for the generated model to extend.
+     * Only one plugin may specify a superclass for any given model, so the first plugin to return a non-null value will
+     * take priority. If no plugins return a non-null value, the default superclass for that model type will be used.
+     * <p>
+     * Note that the returned superclass should be of an appropriate type for that kind of model -- e.g. for table
+     * models, the superclass should itself be a subclass of TableModel, etc. Users can use
+     * {@link com.yahoo.squidb.processor.data.ModelSpec.ModelSpecVisitor} as one way to determine what kind of model
+     * spec the plugin is currently operating on.
+     *
+     * @return the name of a class to use as the model superclass, or null if N/A
+     */
+    public DeclaredTypeName getModelSuperclass() {
+        // Stub for subclasses to override
+        return null;
+    }
+
+    /**
      * Plugin subclasses can override this method to add any imports required by the code they generate to the generated
      * model class
      *

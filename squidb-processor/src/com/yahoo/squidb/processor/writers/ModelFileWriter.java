@@ -22,7 +22,6 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,12 +42,10 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
-    private final boolean generateAndroidModels;
 
     private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
 
     static {
-
         GET_DEFAULT_VALUES_PARAMS = new MethodDeclarationParameters()
                 .setMethodName("getDefaultValues")
                 .setModifiers(Modifier.PUBLIC)
@@ -59,7 +56,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         this.modelSpec = modelSpec;
         this.pluginEnv = pluginEnv;
         this.utils = utils;
-        this.generateAndroidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
     }
 
     public final void writeJava(Filer filer) throws IOException {
@@ -100,9 +96,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         plugins.emitMethods(writer);
         plugins.afterEmitMethods(writer);
 
-        if (generateAndroidModels) {
-            emitCreator();
-        }
         emitModelSpecificHelpers();
         plugins.emitAdditionalJava(writer);
 
@@ -222,21 +215,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         generator.beforeEmitSetter(writer);
         generator.emitSetter(writer);
         generator.afterEmitSetter(writer);
-    }
-
-    private void emitCreator() throws IOException {
-        writer.writeComment("--- parcelable helpers");
-        List<DeclaredTypeName> genericList = Collections.singletonList(modelSpec.getGeneratedClassName());
-        DeclaredTypeName creatorType = TypeConstants.CREATOR.clone();
-        DeclaredTypeName modelCreatorType = TypeConstants.MODEL_CREATOR.clone();
-        creatorType.setTypeArgs(genericList);
-        modelCreatorType.setTypeArgs(genericList);
-
-        writer.writeFieldDeclaration(creatorType,
-                "CREATOR", Expressions.callConstructor(modelCreatorType,
-                        Expressions.classObject(modelSpec.getGeneratedClassName())),
-                TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
     }
 
     protected void emitModelSpecificHelpers() throws IOException {
