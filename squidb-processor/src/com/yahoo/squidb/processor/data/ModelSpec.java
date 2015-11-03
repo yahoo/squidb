@@ -71,8 +71,7 @@ public abstract class ModelSpec<T extends Annotation> {
     }
 
     private void processVariableElements() {
-        List<? extends Element> enclosedElements = modelSpecElement.getEnclosedElements();
-        for (Element e : enclosedElements) {
+        for (Element e : modelSpecElement.getEnclosedElements()) {
             if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
                 TypeName typeName = utils.getTypeNameFromTypeMirror(e.asType());
                 if (!(typeName instanceof DeclaredTypeName)) {
@@ -95,7 +94,6 @@ public abstract class ModelSpec<T extends Annotation> {
      * @return the name of the superclass for the generated model
      */
     public abstract DeclaredTypeName getModelSuperclass();
-
 
     /**
      * Adds imports required by this model spec to the given accumulator set

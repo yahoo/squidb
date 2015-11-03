@@ -5,9 +5,11 @@
  */
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.annotations.Constants;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.sql.Function;
+import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -32,5 +34,10 @@ public class TestViewModelSpec {
 
     public static final StringProperty UPPERCASE_NAME = StringProperty
             .fromFunction(Function.upper(EMPLOYEE_NAME), "uppercase_name");
+
+    @Constants
+    public static class Const {
+        public static final Order DEFAULT_ORDER = TestViewModel.EMPLOYEE_MODEL_ID.asc();
+    }
 
 }
