@@ -1,0 +1,17 @@
+//
+//  Settings.xcconfig
+//  squidb-ios-sample
+//
+
+// Change J2OBJC_HOME to point to the path of the binaries of the j2objc distribution directory.
+// If building j2objc from source, that would be j2objc/dist.
+
+// You can also leave J2OBJC_HOME as-is and create a symbolic link
+// with the name “j2objc-dist” to the parent directory of this project.
+
+// The path should be written without quotes, when modified use Xcode's Product -> Clean
+J2OBJC_HOME = ${SRCROOT}/../j2objc-dist;
+
+HEADER_SEARCH_PATHS = $(inherited) "${J2OBJC_HOME}/include" "${DERIVED_FILES_DIR}";
+LIBRARY_SEARCH_PATHS = $(inherited) "${J2OBJC_HOME}/lib";
+OTHER_LDFLAGS = $(inherited) -l"z" -l"jre_emul" -l"icucore";

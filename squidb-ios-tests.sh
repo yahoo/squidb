@@ -38,7 +38,7 @@ cp squidb-processor/build/libs/*.jar $JARS
 cp $SQUIDB_IOS_TESTS/apt-utils*.jar $JARS
 
 # invoke annotation processing, output to gen folder
-javac -AsquidbOptions=iosModels -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
+javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
     -s $GEN -proc:only -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 javacResult=$?
 if [ ! $javacResult -eq 0 ]
