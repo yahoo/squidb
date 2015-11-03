@@ -3,7 +3,10 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-sample', ':squidb-tests', ':squidb-android', ':squidb-ios'
+include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-tests', ':squidb-android', ':squidb-ios'
+
+include ':squidb-sample'
+project(':squidb-sample').projectDir = new File(settingsDir, 'samples/squidb-sample')
 
 include ':squidb-jackson-plugin'
 project(':squidb-jackson-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-plugin')
