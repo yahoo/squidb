@@ -302,7 +302,7 @@ public abstract class SquidDatabase {
      *
      * <pre>
      * public void execSql(String sql) {
-     *     aquireNonExclusiveLock();
+     *     acquireNonExclusiveLock();
      *     try {
      *         getDatabase().execSQL(sql);
      *     } finally {
