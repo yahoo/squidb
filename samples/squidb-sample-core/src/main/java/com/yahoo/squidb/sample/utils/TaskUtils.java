@@ -15,13 +15,25 @@ import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
 public class TaskUtils {
 
-    @Inject TasksDatabase mTasksDatabase;
+    private static TaskUtils sInstance = null;
+
+    public static TaskUtils getInstance() {
+        if (sInstance == null) {
+            synchronized (TaskUtils.class) {
+                if (sInstance == null) {
+                    sInstance = new TaskUtils();
+                }
+            }
+        }
+        return sInstance;
+    }
+
+    private TasksDatabase mTasksDatabase = TasksDatabase.getInstance();
+
+    private TaskUtils() {
+    }
 
     public static final StringProperty TAGS_CONCAT = StringProperty.fromFunction(
             Function.groupConcat(Tag.TAG, " | "), "tags_concat");

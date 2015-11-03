@@ -5,9 +5,6 @@
  */
 package com.yahoo.squidb.sample.database;
 
-import android.content.Context;
-
-import com.yahoo.squidb.android.AndroidOpenHelper;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
@@ -23,11 +20,22 @@ import com.yahoo.squidb.sql.Table;
 public class TasksDatabase extends SquidDatabase {
 
     private static final int VERSION = 2;
-    private final Context context;
 
-    public TasksDatabase(Context context) {
+    private static TasksDatabase instance = null;
+
+    public static TasksDatabase getInstance() {
+        if (instance == null) {
+            synchronized (TasksDatabase.class) {
+                if (instance == null) {
+                    instance = new TasksDatabase();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private TasksDatabase() {
         super();
-        this.context = context;
     }
 
     @Override
@@ -70,6 +78,6 @@ public class TasksDatabase extends SquidDatabase {
     @Override
     protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
             int version) {
-        return new AndroidOpenHelper(context, databaseName, delegate, version);
+        return OpenHelperCreator.getCreator().createOpenHelper(databaseName, delegate, version);
     }
 }

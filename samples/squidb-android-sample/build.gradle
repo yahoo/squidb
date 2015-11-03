@@ -41,11 +41,8 @@ dependencies {
     compile project(':squidb')
     compile project(':squidb-android')
     compile project(':squidb-annotations')
+    compile project(':squidb-sample-core')
     apt project(':squidb-processor')
-
-    compile 'javax.inject:javax.inject:1'
-    compile 'com.squareup.dagger:dagger:1.2.2'
-    apt 'com.squareup.dagger:dagger-compiler:1.2.2'
 }
 
 apt {

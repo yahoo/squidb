@@ -5,8 +5,11 @@
  */
 include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-tests', ':squidb-android', ':squidb-ios'
 
-include ':squidb-sample'
-project(':squidb-sample').projectDir = new File(settingsDir, 'samples/squidb-sample')
+include ':squidb-android-sample'
+project(':squidb-android-sample').projectDir = new File(settingsDir, 'samples/squidb-android-sample')
+
+include ':squidb-sample-core'
+project(':squidb-sample-core').projectDir = new File(settingsDir, 'samples/squidb-sample-core')
 
 include ':squidb-jackson-plugin'
 project(':squidb-jackson-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-plugin')

@@ -5,16 +5,12 @@
  */
 package com.yahoo.squidb.sample.models;
 
-import android.net.Uri;
-
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "Task", tableName = "tasks")
 public class TaskSpec {
-
-    public static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb.sample/tasks");
 
     @ColumnSpec(constraints = "NOT NULL")
     String title;

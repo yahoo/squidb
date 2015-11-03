@@ -21,30 +21,23 @@ import android.widget.TextView;
 
 import com.yahoo.squidb.android.SquidCursorLoader;
 import com.yahoo.squidb.data.SquidCursor;
-import com.yahoo.squidb.sample.adapter.TaskListAdapter;
 import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Task;
-import com.yahoo.squidb.sample.modules.HelloSquiDBInjector;
 import com.yahoo.squidb.sample.utils.TaskUtils;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
-
-import javax.inject.Inject;
 
 public class TaskListActivity extends Activity implements LoaderManager.LoaderCallbacks<SquidCursor<Task>> {
 
     private static final int LOADER_ID_TASKS = 1;
 
-    @Inject TaskUtils mTaskUtils;
-    @Inject TasksDatabase mTasksDatabase;
-
+    private TaskUtils mTaskUtils = TaskUtils.getInstance();
     private ListView mTaskListView;
     private TaskListAdapter mTaskListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        HelloSquiDBInjector.getInstance().inject(this);
         setContentView(R.layout.activity_task_list);
         mTaskListView = (ListView) findViewById(R.id.task_list);
 
@@ -133,8 +126,9 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
                 .or(sinceCompletion.lt(DateUtils.MINUTE_IN_MILLIS * 5)))
                 .orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
 
-        SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, mTasksDatabase, Task.class, query);
-        loader.setNotificationUri(Task.CONTENT_URI);
+        SquidCursorLoader<Task> loader = new SquidCursorLoader<Task>(this, TasksDatabase.getInstance(), Task.class,
+                query);
+        loader.setNotificationUri(HelloSquiDBApplication.CONTENT_URI);
         return loader;
     }
 

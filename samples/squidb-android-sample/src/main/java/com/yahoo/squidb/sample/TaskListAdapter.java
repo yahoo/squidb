@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.sample.adapter;
+package com.yahoo.squidb.sample;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yahoo.squidb.android.SquidCursorAdapter;
-import com.yahoo.squidb.sample.R;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sample.utils.TaskUtils;
 
