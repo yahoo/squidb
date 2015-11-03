@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import "OpenHelperCreator.h"
+#import "IOSOpenHelperCreator.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +19,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    ComYahooSquidbSampleIosIOSOpenHelperCreator *creator = [[ComYahooSquidbSampleIosIOSOpenHelperCreator alloc] init];
+    [ComYahooSquidbSampleDatabaseOpenHelperCreator setCreatorWithComYahooSquidbSampleDatabaseOpenHelperCreator:creator];
     return YES;
 }
 
