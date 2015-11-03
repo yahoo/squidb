@@ -10,8 +10,19 @@
 // with the name “j2objc-dist” to the parent directory of this project.
 
 // The path should be written without quotes, when modified use Xcode's Product -> Clean
-J2OBJC_HOME = ${SRCROOT}/../j2objc-dist;
+J2OBJC_HOME = ${SRCROOT}/../../../j2objc-dist;
 
-HEADER_SEARCH_PATHS = $(inherited) "${J2OBJC_HOME}/include" "${DERIVED_FILES_DIR}";
-LIBRARY_SEARCH_PATHS = $(inherited) "${J2OBJC_HOME}/lib";
+SQUIDB_ROOT = ${SRCROOT}/../..;
+
+GEN=${SRCROOT}/squidb-ios-sample/gen;
+
+SQUIDB_SRC=${SQUIDB_ROOT}/squidb/src;
+SQUIDB_ANNOTATIONS_SRC=${SQUIDB_ROOT}/squidb-annotations/src;
+SQUIDB_CORE_SRC=${SQUIDB_ROOT}/samples/squidb-sample-core/src/main/java;
+SQUIDB_IOS_SRC=${SQUIDB_ROOT}/squidb-ios/src;
+
+SOURCEPATH=${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_CORE_SRC}:${SQUIDB_IOS_SRC};
+
+HEADER_SEARCH_PATHS = $(inherited) ${J2OBJC_HOME}/include ${DERIVED_FILES_DIR};
+LIBRARY_SEARCH_PATHS = $(inherited) ${J2OBJC_HOME}/lib;
 OTHER_LDFLAGS = $(inherited) -l"z" -l"jre_emul" -l"icucore";

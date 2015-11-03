@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sample.utils;
 
-import android.text.TextUtils;
-
 import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
@@ -61,7 +59,7 @@ public class TaskUtils {
                     .setDueDate(dueDate);
             if (mTasksDatabase.persist(task)) {
                 for (String tag : tags) {
-                    if (!TextUtils.isEmpty(tag)) {
+                    if (tag != null && !tag.isEmpty()) {
                         if (!mTasksDatabase.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
                             return false;
                         }

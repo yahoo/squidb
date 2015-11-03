@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BDBF18531BE96CB70025045D /* Tag.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18511BE96CB70025045D /* Tag.java */; };
+		BDBF18541BE96CB70025045D /* Task.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18521BE96CB70025045D /* Task.java */; };
 		BDC8C91E1BE92DD300F7E9E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C91D1BE92DD300F7E9E6 /* main.m */; };
 		BDC8C9211BE92DD300F7E9E6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */; };
 		BDC8C9241BE92DD300F7E9E6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* ViewController.m */; };
@@ -160,11 +162,13 @@
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
 			);
-			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -sourcepath \"${PROJECT_DIR}/Classes\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar\" -sourcepath \"${SOURCEPATH}\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
+		BDBF18511BE96CB70025045D /* Tag.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Tag.java; sourceTree = "<group>"; };
+		BDBF18521BE96CB70025045D /* Task.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Task.java; sourceTree = "<group>"; };
 		BDC8C9191BE92DD300F7E9E6 /* squidb-ios-sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC8C91D1BE92DD300F7E9E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -328,6 +332,55 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BDBF184B1BE96CB70025045D /* gen */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF184C1BE96CB70025045D /* com */,
+			);
+			path = gen;
+			sourceTree = "<group>";
+		};
+		BDBF184C1BE96CB70025045D /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF184D1BE96CB70025045D /* yahoo */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		BDBF184D1BE96CB70025045D /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF184E1BE96CB70025045D /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDBF184E1BE96CB70025045D /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF184F1BE96CB70025045D /* sample */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDBF184F1BE96CB70025045D /* sample */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF18501BE96CB70025045D /* models */,
+			);
+			path = sample;
+			sourceTree = "<group>";
+		};
+		BDBF18501BE96CB70025045D /* models */ = {
+			isa = PBXGroup;
+			children = (
+				BDBF18511BE96CB70025045D /* Tag.java */,
+				BDBF18521BE96CB70025045D /* Task.java */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
 		BDC8C9101BE92DD300F7E9E6 = {
 			isa = PBXGroup;
 			children = (
@@ -374,6 +427,7 @@
 		BDC8C9371BE9311900F7E9E6 /* java */ = {
 			isa = PBXGroup;
 			children = (
+				BDBF184B1BE96CB70025045D /* gen */,
 				BDC8CA531BE931FB00F7E9E6 /* squidb-sample-core */,
 				BDC8C9CE1BE9319C00F7E9E6 /* squidb-ios */,
 				BDC8C9B41BE9315000F7E9E6 /* squidb-annotations */,
@@ -860,6 +914,7 @@
 				BDC8C9241BE92DD300F7E9E6 /* ViewController.m in Sources */,
 				BDC8CA4F1BE931B000F7E9E6 /* StaleDataException.java in Sources */,
 				BDC8C9AE1BE9313100F7E9E6 /* ContentProviderQueryBuilder.java in Sources */,
+				BDBF18531BE96CB70025045D /* Tag.java in Sources */,
 				BDC8CA3B1BE931B000F7E9E6 /* SQLiteDatatypeMismatchException.java in Sources */,
 				BDC8CA441BE931B000F7E9E6 /* SQLiteOpenHelper.java in Sources */,
 				BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */,
@@ -913,6 +968,7 @@
 				BDC8CA341BE931B000F7E9E6 /* SQLiteCursor.java in Sources */,
 				BDC8C9A31BE9313100F7E9E6 /* SqlBuilder.java in Sources */,
 				BDC8CA1B1BE931B000F7E9E6 /* AbstractCursor.java in Sources */,
+				BDBF18541BE96CB70025045D /* Task.java in Sources */,
 				BDC8C9CA1BE9316700F7E9E6 /* PrimaryKey.java in Sources */,
 				BDC8C9941BE9313100F7E9E6 /* Field.java in Sources */,
 				BDC8CA401BE931B000F7E9E6 /* SQLiteException.java in Sources */,
@@ -1132,6 +1188,7 @@
 				BDC8C9321BE92DD300F7E9E6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
