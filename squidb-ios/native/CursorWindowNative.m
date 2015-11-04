@@ -25,7 +25,10 @@
 #import "java/lang/IllegalStateException.h"
 #import "NSString+JavaString.h"
 
-@implementation CursorWindowNative
+@implementation CursorWindowNative {
+    void *data;
+    struct Header *mHeader;
+}
 
 static void throwExceptionWithRowCol(jint row, jint column) {
     @throw [[JavaLangIllegalStateException alloc]
@@ -93,15 +96,15 @@ static void throwUnknownTypeException(jint type) {
 
 // NATIVE GETTERS HERE
 
-const char* getFieldSlotValueString(struct FieldSlot* fieldSlot,
+const char* getFieldSlotValueString(CursorWindowNative *window, struct FieldSlot* fieldSlot,
                                            uint32_t* outSizeIncludingNull) {
     *outSizeIncludingNull = fieldSlot->data.buffer.size;
-    return (char *)(offsetToPtr(fieldSlot->data.buffer.offset));
+    return (char *)[window offsetToPtr:fieldSlot->data.buffer.offset];
 }
 
-const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize) {
+const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* fieldSlot, uint32_t* outSize) {
     *outSize = fieldSlot->data.buffer.size;
-    return offsetToPtr(fieldSlot->data.buffer.offset);
+    return [window offsetToPtr:fieldSlot->data.buffer.offset];
 }
 
 + (IOSByteArray *)nativeGetBlob:(NSObject *)windowPtr row:(int)row column:(int)column {
@@ -117,7 +120,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_BLOB || type == FIELD_TYPE_STRING) {
         uint32_t size;
-        const void* value = getFieldSlotValueBlob(fieldSlot, &size);
+        const void* value = getFieldSlotValueBlob(window, fieldSlot, &size);
         IOSByteArray *byteArray = [IOSByteArray newArrayWithBytes:value count:size];
 //        jbyteArray byteArray = env->NewByteArray(size);
         if (!byteArray) {
@@ -152,7 +155,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
     int32_t type = fieldSlot->type;
     if (type == FIELD_TYPE_STRING) {
         uint32_t sizeIncludingNull;
-        const char* value = getFieldSlotValueString(fieldSlot, &sizeIncludingNull);
+        const char* value = getFieldSlotValueString(window, fieldSlot, &sizeIncludingNull);
         if (sizeIncludingNull <= 1) {
             return @"";
         }
@@ -192,7 +195,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
         return fieldSlot->data.l;
     } else if (type == FIELD_TYPE_STRING) {
         uint32_t sizeIncludingNull;
-        const char* value = getFieldSlotValueString(fieldSlot, &sizeIncludingNull);
+        const char* value = getFieldSlotValueString(window, fieldSlot, &sizeIncludingNull);
         return sizeIncludingNull > 1 ? strtoll(value, NULL, 0) : 0L;
     } else if (type == FIELD_TYPE_FLOAT) {
         double fieldValue = fieldSlot->data.d;
@@ -223,7 +226,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
         return fieldSlot->data.d;
     } else if (type == FIELD_TYPE_STRING) {
         uint32_t sizeIncludingNull;
-        const char* value = getFieldSlotValueString(fieldSlot, &sizeIncludingNull);
+        const char* value = getFieldSlotValueString(window, fieldSlot, &sizeIncludingNull);
         return sizeIncludingNull > 1 ? strtod(value, NULL) : 0.0;
     } else if (type == FIELD_TYPE_INTEGER) {
         long fieldValue = fieldSlot->data.l;
@@ -321,10 +324,7 @@ const void* getFieldSlotValueBlob(struct FieldSlot* fieldSlot, uint32_t* outSize
 @synthesize mSize;
 @synthesize mIsReadOnly;
 
-void *data = NULL;
-struct Header *mHeader;
-
-void* offsetToPtr(uint32_t offset) {
+- (void *) offsetToPtr:(uint32_t) offset {
     return (uint8_t *)(data) + offset;
 }
 
@@ -352,7 +352,7 @@ void* offsetToPtr(uint32_t offset) {
     mHeader->numRows = 0;
     mHeader->numColumns = 0;
 
-    struct RowSlotChunk* firstChunk = (struct RowSlotChunk *)(offsetToPtr(mHeader->firstChunkOffset));
+    struct RowSlotChunk* firstChunk = (struct RowSlotChunk *)[self offsetToPtr:mHeader->firstChunkOffset];
     firstChunk->nextChunkOffset = 0;
     return OK;
 }
@@ -371,7 +371,7 @@ void* offsetToPtr(uint32_t offset) {
     return OK;
 }
 
-uint32_t alloc(uint32_t _size, uint32_t mSize, bool aligned) {
+- (uint32_t) alloc:(uint32_t)_size aligned:(bool)aligned {
     uint32_t padding;
     if (aligned) {
         // 4 byte alignment
@@ -393,22 +393,21 @@ uint32_t alloc(uint32_t _size, uint32_t mSize, bool aligned) {
     return offset;
 }
 
-struct RowSlot* allocRowSlot(uint32_t size) {
+- (struct RowSlot*) allocRowSlot {
     uint32_t chunkPos = mHeader->numRows;
-    struct RowSlotChunk* chunk = (struct RowSlotChunk *)(
-                                                     offsetToPtr(mHeader->firstChunkOffset));
+    struct RowSlotChunk* chunk = (struct RowSlotChunk *)[self offsetToPtr:mHeader->firstChunkOffset];
     while (chunkPos > ROW_SLOT_CHUNK_NUM_ROWS) {
-        chunk = (struct RowSlotChunk *)(offsetToPtr(chunk->nextChunkOffset));
+        chunk = (struct RowSlotChunk *)[self offsetToPtr:chunk->nextChunkOffset];
         chunkPos -= ROW_SLOT_CHUNK_NUM_ROWS;
     }
     if (chunkPos == ROW_SLOT_CHUNK_NUM_ROWS) {
         if (!chunk->nextChunkOffset) {
-            chunk->nextChunkOffset = alloc(sizeof(struct RowSlotChunk), size, true /*aligned*/);
+            chunk->nextChunkOffset = [self alloc:sizeof(struct RowSlotChunk) aligned:true];
             if (!chunk->nextChunkOffset) {
                 return NULL;
             }
         }
-        chunk = (struct RowSlotChunk *)(offsetToPtr(chunk->nextChunkOffset));
+        chunk = (struct RowSlotChunk *)[self offsetToPtr:chunk->nextChunkOffset];
         chunk->nextChunkOffset = 0;
         chunkPos = 0;
     }
@@ -422,21 +421,21 @@ struct RowSlot* allocRowSlot(uint32_t size) {
     }
 
     // Fill in the row slot
-    struct RowSlot* rowSlot = allocRowSlot(self.mSize);
+    struct RowSlot* rowSlot = [self allocRowSlot];
     if (rowSlot == NULL) {
         return NO_MEMORY;
     }
 
     // Allocate the slots for the field directory
     uint32_t fieldDirSize = mHeader->numColumns * sizeof(struct FieldSlot);
-    uint32_t fieldDirOffset = alloc(fieldDirSize, self.mSize, true /*aligned*/);
+    uint32_t fieldDirOffset = [self alloc:fieldDirSize aligned:true];
     if (!fieldDirOffset) {
         mHeader->numRows--;
 //        LOG_WINDOW("The row failed, so back out the new row accounting "
 //                   "from allocRowSlot %d", mHeader->numRows);
         return NO_MEMORY;
     }
-    struct FieldSlot* fieldDir = (struct FieldSlot *)(offsetToPtr(fieldDirOffset));
+    struct FieldSlot* fieldDir = (struct FieldSlot *)[self offsetToPtr:fieldDirOffset];
     memset(fieldDir, 0, fieldDirSize);
 
 //    LOG_WINDOW("Allocated row %u, rowSlot is at offset %u, fieldDir is %d bytes at offset %u\n",
@@ -466,35 +465,11 @@ struct RowSlot* allocRowSlot(uint32_t size) {
 
 - (struct RowSlot *) getRowSlot:(uint32_t)row {
     uint32_t chunkPos = row;
-    struct RowSlotChunk* chunk = (struct RowSlotChunk *)(
-                                                     offsetToPtr(mHeader->firstChunkOffset));
+    struct RowSlotChunk* chunk = (struct RowSlotChunk *)[self offsetToPtr:mHeader->firstChunkOffset];
     while (chunkPos >= ROW_SLOT_CHUNK_NUM_ROWS) {
-        chunk = (struct RowSlotChunk *)(offsetToPtr(chunk->nextChunkOffset));
+        chunk = (struct RowSlotChunk *)[self offsetToPtr:chunk->nextChunkOffset];
         chunkPos -= ROW_SLOT_CHUNK_NUM_ROWS;
     }
-    return &chunk->slots[chunkPos];
-}
-
-- (struct RowSlot *)allocRowSlot {
-    uint32_t chunkPos = mHeader->numRows;
-    struct RowSlotChunk *chunk = (struct RowSlotChunk *)(
-                                                     offsetToPtr(mHeader->firstChunkOffset));
-    while (chunkPos > ROW_SLOT_CHUNK_NUM_ROWS) {
-        chunk = (struct RowSlotChunk *)(offsetToPtr(chunk->nextChunkOffset));
-        chunkPos -= ROW_SLOT_CHUNK_NUM_ROWS;
-    }
-    if (chunkPos == ROW_SLOT_CHUNK_NUM_ROWS) {
-        if (!chunk->nextChunkOffset) {
-            chunk->nextChunkOffset = alloc(sizeof(struct RowSlotChunk), self.mSize, true /*aligned*/);
-            if (!chunk->nextChunkOffset) {
-                return NULL;
-            }
-        }
-        chunk = (struct RowSlotChunk *)(offsetToPtr(chunk->nextChunkOffset));
-        chunk->nextChunkOffset = 0;
-        chunkPos = 0;
-    }
-    mHeader->numRows += 1;
     return &chunk->slots[chunkPos];
 }
 
@@ -510,7 +485,7 @@ struct RowSlot* allocRowSlot(uint32_t size) {
 //        ALOGE("Failed to find rowSlot for row %d.", row);
         return NULL;
     }
-    struct FieldSlot* fieldDir = (struct FieldSlot *)(offsetToPtr(rowSlot->offset));
+    struct FieldSlot* fieldDir = (struct FieldSlot *)[self offsetToPtr:rowSlot->offset];
     return &fieldDir[column];
 }
 
@@ -534,12 +509,12 @@ struct RowSlot* allocRowSlot(uint32_t size) {
         return BAD_VALUE;
     }
 
-    uint32_t offset = alloc(size, self.mSize, false);
+    uint32_t offset = [self alloc:size aligned:false];
     if (!offset) {
         return NO_MEMORY;
     }
 
-    memcpy(offsetToPtr(offset), value, size);
+    memcpy([self offsetToPtr:offset], value, size);
 
     fieldSlot->type = type;
     fieldSlot->data.buffer.offset = offset;
