@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.yahoo.squidb.data;
+
 /**
  * This class is a fork of android.database.Cursor free of any Android-specific dependencies. It is used to provide
  * a common interface that various SQLite adapters can conform to when returning query results
  */
-package com.yahoo.squidb.data;
-
 public interface ICursor {
     /*
      * Values returned by {@link #getType(int)}.

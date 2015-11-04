@@ -13,8 +13,6 @@ import java.util.Map;
 // This class was generated from the model spec at com.yahoo.squidb.sample.models.TagSpec
 public class Tag extends TableModel {
 
-    // --- constants
-
     // --- allocate properties array
     public static final Property<?>[] PROPERTIES = new Property<?>[3];
 
@@ -52,6 +50,8 @@ public class Tag extends TableModel {
     public ValuesStorage getDefaultValues() {
         return defaultValues;
     }
+
+    // --- constants
 
     // --- default constructors
     public Tag() {

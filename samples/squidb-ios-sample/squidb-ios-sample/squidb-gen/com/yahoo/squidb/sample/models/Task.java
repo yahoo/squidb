@@ -14,8 +14,6 @@ import java.util.Map;
 // This class was generated from the model spec at com.yahoo.squidb.sample.models.TaskSpec
 public class Task extends TableModel {
 
-    // --- constants
-
     // --- allocate properties array
     public static final Property<?>[] PROPERTIES = new Property<?>[5];
 
@@ -62,6 +60,8 @@ public class Task extends TableModel {
     public ValuesStorage getDefaultValues() {
         return defaultValues;
     }
+
+    // --- constants
 
     // --- default constructors
     public Task() {
