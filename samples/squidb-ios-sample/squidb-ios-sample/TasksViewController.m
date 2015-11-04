@@ -24,7 +24,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addTask)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
+                                                                                           target:self
+                                                                                           action:@selector(addTask)];
     [self requery];
 }
 
@@ -45,7 +47,9 @@
     UIAlertAction *createTaskAction = [UIAlertAction actionWithTitle:@"Create task"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {
-                                                                 [[ComYahooSquidbSampleUtilsTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
+                                                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
+                                                                     [[ComYahooSquidbSampleUtilsTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
+                                                                 });
                                                              }];
     
     [alert addAction:cancelAction];
@@ -65,14 +69,14 @@
     [self.tableView reloadData];
 }
 
-- (void) requeryInBackground {
-    ComYahooSquidbDataSquidCursor *cursor = [[ComYahooSquidbSampleUtilsTaskUtils getInstance] getTasksCursor];
-    [cursor getCount];
-    [self performSelectorOnMainThread:@selector(deliverResult:) withObject:cursor waitUntilDone:NO];
-}
-
 - (void) requery {
-    [self performSelectorInBackground:@selector(requeryInBackground) withObject:nil];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
+        ComYahooSquidbDataSquidCursor *cursor = [[ComYahooSquidbSampleUtilsTaskUtils getInstance] getTasksCursor];
+        [cursor getCount];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self deliverResult:cursor];
+        });
+    });
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
