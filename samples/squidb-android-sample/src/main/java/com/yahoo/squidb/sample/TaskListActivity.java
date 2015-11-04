@@ -101,8 +101,8 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            String tags = taskTags.getText().toString();
-                            mTaskUtils.insertNewTask(taskTitle.getText().toString(), 0, 0, tags);
+                            mTaskUtils.insertNewTask(taskTitle.getText().toString(), 0, 0,
+                                    taskTags.getText().toString());
                         }
                     });
             return builder.create();
