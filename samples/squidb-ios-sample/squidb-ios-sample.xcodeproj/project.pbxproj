@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BDBF18531BE96CB70025045D /* Tag.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18511BE96CB70025045D /* Tag.java */; };
-		BDBF18541BE96CB70025045D /* Task.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18521BE96CB70025045D /* Task.java */; };
 		BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */; };
 		BDBF185D1BE980210025045D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDBF185C1BE980210025045D /* Main.storyboard */; };
 		BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2BA1BEA722900F429FE /* TaskCell.m */; };
 		BDC0E2BE1BEA770600F429FE /* SimpleTasksNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2BD1BEA770600F429FE /* SimpleTasksNotifier.m */; };
+		BDC0E2C11BEA96AA00F429FE /* generate-models.sh in Resources */ = {isa = PBXBuildFile; fileRef = BDC0E2C01BEA96AA00F429FE /* generate-models.sh */; };
+		BDC0E2CA1BEA981A00F429FE /* Tag.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2C81BEA981A00F429FE /* Tag.java */; };
+		BDC0E2CB1BEA981A00F429FE /* Task.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2C91BEA981A00F429FE /* Task.java */; };
 		BDC8C91E1BE92DD300F7E9E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C91D1BE92DD300F7E9E6 /* main.m */; };
 		BDC8C9211BE92DD300F7E9E6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */; };
 		BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */; };
@@ -170,14 +171,15 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		BDBF18511BE96CB70025045D /* Tag.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Tag.java; sourceTree = "<group>"; };
-		BDBF18521BE96CB70025045D /* Task.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Task.java; sourceTree = "<group>"; };
 		BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperCreator.java; sourceTree = "<group>"; };
 		BDBF185C1BE980210025045D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDC0E2B91BEA722900F429FE /* TaskCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskCell.h; sourceTree = "<group>"; };
 		BDC0E2BA1BEA722900F429FE /* TaskCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaskCell.m; sourceTree = "<group>"; };
 		BDC0E2BC1BEA770600F429FE /* SimpleTasksNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleTasksNotifier.h; sourceTree = "<group>"; };
 		BDC0E2BD1BEA770600F429FE /* SimpleTasksNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleTasksNotifier.m; sourceTree = "<group>"; };
+		BDC0E2C01BEA96AA00F429FE /* generate-models.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "generate-models.sh"; sourceTree = "<group>"; };
+		BDC0E2C81BEA981A00F429FE /* Tag.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Tag.java; sourceTree = "<group>"; };
+		BDC0E2C91BEA981A00F429FE /* Task.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Task.java; sourceTree = "<group>"; };
 		BDC8C9191BE92DD300F7E9E6 /* squidb-ios-sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC8C91D1BE92DD300F7E9E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -340,55 +342,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BDBF184B1BE96CB70025045D /* gen */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF184C1BE96CB70025045D /* com */,
-			);
-			path = gen;
-			sourceTree = "<group>";
-		};
-		BDBF184C1BE96CB70025045D /* com */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF184D1BE96CB70025045D /* yahoo */,
-			);
-			path = com;
-			sourceTree = "<group>";
-		};
-		BDBF184D1BE96CB70025045D /* yahoo */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF184E1BE96CB70025045D /* squidb */,
-			);
-			path = yahoo;
-			sourceTree = "<group>";
-		};
-		BDBF184E1BE96CB70025045D /* squidb */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF184F1BE96CB70025045D /* sample */,
-			);
-			path = squidb;
-			sourceTree = "<group>";
-		};
-		BDBF184F1BE96CB70025045D /* sample */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF18501BE96CB70025045D /* models */,
-			);
-			path = sample;
-			sourceTree = "<group>";
-		};
-		BDBF18501BE96CB70025045D /* models */ = {
-			isa = PBXGroup;
-			children = (
-				BDBF18511BE96CB70025045D /* Tag.java */,
-				BDBF18521BE96CB70025045D /* Task.java */,
-			);
-			path = models;
-			sourceTree = "<group>";
-		};
 		BDBF18551BE976500025045D /* com */ = {
 			isa = PBXGroup;
 			children = (
@@ -430,9 +383,59 @@
 			path = ios;
 			sourceTree = "<group>";
 		};
+		BDC0E2C21BEA981A00F429FE /* squidb-gen */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C31BEA981A00F429FE /* com */,
+			);
+			path = "squidb-gen";
+			sourceTree = "<group>";
+		};
+		BDC0E2C31BEA981A00F429FE /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C41BEA981A00F429FE /* yahoo */,
+			);
+			path = com;
+			sourceTree = "<group>";
+		};
+		BDC0E2C41BEA981A00F429FE /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C51BEA981A00F429FE /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDC0E2C51BEA981A00F429FE /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C61BEA981A00F429FE /* sample */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDC0E2C61BEA981A00F429FE /* sample */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C71BEA981A00F429FE /* models */,
+			);
+			path = sample;
+			sourceTree = "<group>";
+		};
+		BDC0E2C71BEA981A00F429FE /* models */ = {
+			isa = PBXGroup;
+			children = (
+				BDC0E2C81BEA981A00F429FE /* Tag.java */,
+				BDC0E2C91BEA981A00F429FE /* Task.java */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
 		BDC8C9101BE92DD300F7E9E6 = {
 			isa = PBXGroup;
 			children = (
+				BDC0E2C01BEA96AA00F429FE /* generate-models.sh */,
 				BDC8CA691BE9352100F7E9E6 /* libsqlite3.tbd */,
 				BDC8CA661BE9333300F7E9E6 /* Settings.xcconfig */,
 				BDC8C91B1BE92DD300F7E9E6 /* squidb-ios-sample */,
@@ -481,8 +484,8 @@
 			isa = PBXGroup;
 			children = (
 				BDBF18551BE976500025045D /* com */,
-				BDBF184B1BE96CB70025045D /* gen */,
 				BDC8CA531BE931FB00F7E9E6 /* squidb-sample-core */,
+				BDC0E2C21BEA981A00F429FE /* squidb-gen */,
 				BDC8C9CE1BE9319C00F7E9E6 /* squidb-ios */,
 				BDC8C9B41BE9315000F7E9E6 /* squidb-annotations */,
 				BDC8C9B31BE9313700F7E9E6 /* squidb */,
@@ -891,6 +894,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BDC8C9301BE92DD300F7E9E6 /* Build configuration list for PBXNativeTarget "squidb-ios-sample" */;
 			buildPhases = (
+				BDC0E2BF1BEA968300F429FE /* ShellScript */,
 				BDC8C9151BE92DD300F7E9E6 /* Sources */,
 				BDC8C9161BE92DD300F7E9E6 /* Frameworks */,
 				BDC8C9171BE92DD300F7E9E6 /* Resources */,
@@ -945,11 +949,28 @@
 				BDC8C92C1BE92DD300F7E9E6 /* LaunchScreen.storyboard in Resources */,
 				BDC8CA671BE9333300F7E9E6 /* Settings.xcconfig in Resources */,
 				BDBF185D1BE980210025045D /* Main.storyboard in Resources */,
+				BDC0E2C11BEA96AA00F429FE /* generate-models.sh in Resources */,
 				BDC8C9291BE92DD300F7E9E6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BDC0E2BF1BEA968300F429FE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${SRCROOT}/generate-models.sh";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		BDC8C9151BE92DD300F7E9E6 /* Sources */ = {
@@ -968,7 +989,6 @@
 				BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */,
 				BDC8CA4F1BE931B000F7E9E6 /* StaleDataException.java in Sources */,
 				BDC8C9AE1BE9313100F7E9E6 /* ContentProviderQueryBuilder.java in Sources */,
-				BDBF18531BE96CB70025045D /* Tag.java in Sources */,
 				BDC8CA3B1BE931B000F7E9E6 /* SQLiteDatatypeMismatchException.java in Sources */,
 				BDC8CA441BE931B000F7E9E6 /* SQLiteOpenHelper.java in Sources */,
 				BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */,
@@ -987,6 +1007,7 @@
 				BDC8CA4C1BE931B000F7E9E6 /* SQLiteStatementInfo.java in Sources */,
 				BDC8CA191BE931B000F7E9E6 /* SQLiteErrors.m in Sources */,
 				BDC8C9B01BE9313100F7E9E6 /* ProjectionMap.java in Sources */,
+				BDC0E2CB1BEA981A00F429FE /* Task.java in Sources */,
 				BDC8CA321BE931B000F7E9E6 /* SQLiteConnectionPool.java in Sources */,
 				BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */,
 				BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */,
@@ -1024,7 +1045,6 @@
 				BDC8CA341BE931B000F7E9E6 /* SQLiteCursor.java in Sources */,
 				BDC8C9A31BE9313100F7E9E6 /* SqlBuilder.java in Sources */,
 				BDC8CA1B1BE931B000F7E9E6 /* AbstractCursor.java in Sources */,
-				BDBF18541BE96CB70025045D /* Task.java in Sources */,
 				BDC8C9CA1BE9316700F7E9E6 /* PrimaryKey.java in Sources */,
 				BDC8C9941BE9313100F7E9E6 /* Field.java in Sources */,
 				BDC8CA401BE931B000F7E9E6 /* SQLiteException.java in Sources */,
@@ -1070,6 +1090,7 @@
 				BDC8C97A1BE9313100F7E9E6 /* AbstractModel.java in Sources */,
 				BDC8CA201BE931B000F7E9E6 /* CursorWindowAllocationException.java in Sources */,
 				BDC8CA511BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java in Sources */,
+				BDC0E2CA1BEA981A00F429FE /* Tag.java in Sources */,
 				BDC8CA421BE931B000F7E9E6 /* SQLiteGlobal.java in Sources */,
 				BDC8CA331BE931B000F7E9E6 /* SQLiteConstraintException.java in Sources */,
 				BDC8C9911BE9313100F7E9E6 /* DBObject.java in Sources */,

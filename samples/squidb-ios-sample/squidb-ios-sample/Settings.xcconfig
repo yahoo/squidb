@@ -14,7 +14,7 @@ J2OBJC_HOME = ${SRCROOT}/../../../j2objc-dist;
 
 SQUIDB_ROOT = ${SRCROOT}/../..;
 
-GEN=${SRCROOT}/squidb-ios-sample/gen;
+GEN=${SRCROOT}/squidb-ios-sample/squidb-gen;
 
 SQUIDB_SRC=${SQUIDB_ROOT}/squidb/src;
 SQUIDB_ANNOTATIONS_SRC=${SQUIDB_ROOT}/squidb-annotations/src;

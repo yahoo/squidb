@@ -1,10 +1,10 @@
-#!/bin/zsh
-GEN="./squidb-ios-sample/gen"
-JARS="./jars"
-SQUIDB_ROOT="../.."
+#!/bin/sh
+GEN="${SRCROOT}/squidb-ios-sample/squidb-gen"
+JARS="${SRCROOT}/jars"
+SQUIDB_ROOT="${SRCROOT}/../.."
 SQUIDB_SRC="$SQUIDB_ROOT/squidb/src"
 SQUIDB_ANNOTATIONS_SRC="$SQUIDB_ROOT/squidb-annotations/src"
-SQUIDB_SAMPLE_CORE_SRC="../squidb-sample-core/src/main/java"
+SQUIDB_SAMPLE_CORE_SRC="${SRCROOT}/../squidb-sample-core/src/main/java"
 
 SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_SAMPLE_CORE_SRC}"
 echo $SOURCEPATH
