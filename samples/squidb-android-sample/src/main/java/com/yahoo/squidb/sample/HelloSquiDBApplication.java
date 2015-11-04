@@ -8,6 +8,7 @@ package com.yahoo.squidb.sample;
 import android.app.Application;
 import android.net.Uri;
 
+import com.yahoo.squidb.android.AndroidLogger;
 import com.yahoo.squidb.android.AndroidOpenHelper;
 import com.yahoo.squidb.android.UriNotifier;
 import com.yahoo.squidb.data.AbstractModel;
@@ -17,6 +18,7 @@ import com.yahoo.squidb.sample.database.OpenHelperCreator;
 import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.SqlTable;
+import com.yahoo.squidb.utility.Logger;
 
 import java.util.Set;
 
@@ -27,6 +29,7 @@ public class HelloSquiDBApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Logger.setLogger(new AndroidLogger());
         OpenHelperCreator.setCreator(new OpenHelperCreator() {
             @Override
             protected ISQLiteOpenHelper createOpenHelper(String databaseName, SquidDatabase.OpenHelperDelegate delegate,
