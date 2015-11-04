@@ -59,8 +59,9 @@
 }
 
 - (void) deliverResult:(ComYahooSquidbDataSquidCursor *)cursor {
-    [self.tasksCursor close];
+    ComYahooSquidbDataSquidCursor *oldCursor = self.tasksCursor;
     self.tasksCursor = cursor;
+    [oldCursor close];
     [self.tableView reloadData];
 }
 
@@ -75,7 +76,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [tasksCursor getCount];
+    return [self.tasksCursor getCount];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
