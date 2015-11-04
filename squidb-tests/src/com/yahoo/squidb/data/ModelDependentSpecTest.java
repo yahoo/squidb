@@ -6,18 +6,18 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.test.DatabaseTestCase;
-import com.yahoo.squidb.test.ModelDependent;
+import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 
 public class ModelDependentSpecTest extends DatabaseTestCase {
 
     public void testModelDependentConstantIsAccessible() {
         try {
-            ModelDependent.DEFAULT_ORDER.getClass();
+            TestModel.DEFAULT_ORDER.getClass();
         } catch (ExceptionInInitializerError e) {
             fail("The generated model must define constants that depend on other constants after " +
-                 "their dependencies. Fields marked `static final` are initialised in the order " +
-                 "they appear in the source.");
+                    "their dependencies. Fields marked `static final` are initialised in the order " +
+                    "they appear in the source.");
         }
     }
 

@@ -9,6 +9,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
@@ -27,6 +28,7 @@ public class TestModelSpec {
     public static final int ANOTHER_INT_CONST = 1;
     public static final String STRING_CONST = "Hello";
     public static final Map<String, Property<?>> CONST_MAP = new HashMap<String, Property<?>>();
+    public static final Order DEFAULT_ORDER = TestModel.FIRST_NAME.asc();
 
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
