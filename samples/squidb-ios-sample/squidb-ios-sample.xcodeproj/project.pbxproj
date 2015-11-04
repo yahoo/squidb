@@ -10,10 +10,10 @@
 		BDBF18531BE96CB70025045D /* Tag.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18511BE96CB70025045D /* Tag.java */; };
 		BDBF18541BE96CB70025045D /* Task.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18521BE96CB70025045D /* Task.java */; };
 		BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */; };
+		BDBF185D1BE980210025045D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDBF185C1BE980210025045D /* Main.storyboard */; };
 		BDC8C91E1BE92DD300F7E9E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C91D1BE92DD300F7E9E6 /* main.m */; };
 		BDC8C9211BE92DD300F7E9E6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */; };
-		BDC8C9241BE92DD300F7E9E6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* ViewController.m */; };
-		BDC8C9271BE92DD300F7E9E6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDC8C9251BE92DD300F7E9E6 /* Main.storyboard */; };
+		BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */; };
 		BDC8C9291BE92DD300F7E9E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */; };
 		BDC8C92C1BE92DD300F7E9E6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */; };
 		BDC8C9791BE9313100F7E9E6 /* Beta.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C93C1BE9313000F7E9E6 /* Beta.java */; };
@@ -171,13 +171,13 @@
 		BDBF18511BE96CB70025045D /* Tag.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Tag.java; sourceTree = "<group>"; };
 		BDBF18521BE96CB70025045D /* Task.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Task.java; sourceTree = "<group>"; };
 		BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperCreator.java; sourceTree = "<group>"; };
+		BDBF185C1BE980210025045D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDC8C9191BE92DD300F7E9E6 /* squidb-ios-sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC8C91D1BE92DD300F7E9E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		BDC8C9221BE92DD300F7E9E6 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		BDC8C9231BE92DD300F7E9E6 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		BDC8C9261BE92DD300F7E9E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BDC8C9221BE92DD300F7E9E6 /* TasksViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TasksViewController.h; sourceTree = "<group>"; };
+		BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TasksViewController.m; sourceTree = "<group>"; };
 		BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BDC8C92B1BE92DD300F7E9E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BDC8C92D1BE92DD300F7E9E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -448,10 +448,10 @@
 				BDC8C9371BE9311900F7E9E6 /* java */,
 				BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */,
 				BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */,
-				BDC8C9221BE92DD300F7E9E6 /* ViewController.h */,
-				BDC8C9231BE92DD300F7E9E6 /* ViewController.m */,
-				BDC8C9251BE92DD300F7E9E6 /* Main.storyboard */,
+				BDC8C9221BE92DD300F7E9E6 /* TasksViewController.h */,
+				BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */,
 				BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */,
+				BDBF185C1BE980210025045D /* Main.storyboard */,
 				BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */,
 				BDC8C92D1BE92DD300F7E9E6 /* Info.plist */,
 				BDC8C91C1BE92DD300F7E9E6 /* Supporting Files */,
@@ -934,8 +934,8 @@
 			files = (
 				BDC8C92C1BE92DD300F7E9E6 /* LaunchScreen.storyboard in Resources */,
 				BDC8CA671BE9333300F7E9E6 /* Settings.xcconfig in Resources */,
+				BDBF185D1BE980210025045D /* Main.storyboard in Resources */,
 				BDC8C9291BE92DD300F7E9E6 /* Assets.xcassets in Resources */,
-				BDC8C9271BE92DD300F7E9E6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -955,7 +955,7 @@
 				BDC8CA491BE931B000F7E9E6 /* SQLiteReadOnlyDatabaseException.java in Sources */,
 				BDC8C9A11BE9313100F7E9E6 /* QueryTable.java in Sources */,
 				BDC8C98D1BE9313100F7E9E6 /* CompiledStatement.java in Sources */,
-				BDC8C9241BE92DD300F7E9E6 /* ViewController.m in Sources */,
+				BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */,
 				BDC8CA4F1BE931B000F7E9E6 /* StaleDataException.java in Sources */,
 				BDC8C9AE1BE9313100F7E9E6 /* ContentProviderQueryBuilder.java in Sources */,
 				BDBF18531BE96CB70025045D /* Tag.java in Sources */,
@@ -1091,14 +1091,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		BDC8C9251BE92DD300F7E9E6 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				BDC8C9261BE92DD300F7E9E6 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

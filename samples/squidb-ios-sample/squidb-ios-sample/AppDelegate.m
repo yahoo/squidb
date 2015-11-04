@@ -9,6 +9,10 @@
 #import "AppDelegate.h"
 #import "OpenHelperCreator.h"
 #import "IOSOpenHelperCreator.h"
+#import "TasksDatabase.h"
+#import "TasksViewController.h"
+
+#import "Task.h"
 
 @interface AppDelegate ()
 
@@ -19,8 +23,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+//    UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
+//    TasksViewController *rootViewController = (TasksViewController *)navController.viewControllers[0];
+    
     ComYahooSquidbSampleIosIOSOpenHelperCreator *creator = [[ComYahooSquidbSampleIosIOSOpenHelperCreator alloc] init];
     [ComYahooSquidbSampleDatabaseOpenHelperCreator setCreatorWithComYahooSquidbSampleDatabaseOpenHelperCreator:creator];
+    
+    [[ComYahooSquidbSampleDatabaseTasksDatabase getInstance] registerDataChangedNotifierWithComYahooSquidbDataDataChangedNotifier:nil];
+    
     return YES;
 }
 

@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+#import "SquidCursor.h"
 
+@interface TasksViewController : UITableViewController
+
+@property (nonatomic, strong) ComYahooSquidbDataSquidCursor *tasksCursor;
 
 @end
 

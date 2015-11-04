@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.sample.utils;
 
+import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sample.database.TasksDatabase;
 import com.yahoo.squidb.sample.models.Tag;
 import com.yahoo.squidb.sample.models.Task;
@@ -50,7 +51,20 @@ public class TaskUtils {
         return TASKS_WITH_TAGS.where(filterBy);
     }
 
-    public boolean insertNewTask(String title, int priority, long dueDate, String... tags) {
+    public Query getOrderedTasksWithTags() {
+        Function<Long> unixNow = Function.multiply(1000, Function.functionWithArguments("strftime", "%s", "now"));
+        Function<Long> sinceCompletion = Function.subtract(unixNow, Task.COMPLETION_DATE);
+        return getTasksWithTagsQuery(Task.COMPLETION_DATE.eq(0)
+                .or(sinceCompletion.lt(60000 * 5)))
+                .orderBy(Function.caseWhen(Task.DUE_DATE.neq(0)).desc(), Task.DUE_DATE.asc());
+    }
+
+    public SquidCursor<Task> getTasksCursor() {
+        return mTasksDatabase.query(Task.class, getOrderedTasksWithTags());
+    }
+
+    public boolean insertNewTask(String title, int priority, long dueDate, String commaSeparatedTags) {
+        String[] tags = commaSeparatedTags.split("\\s*,\\s*");
         mTasksDatabase.beginTransaction();
         try {
             Task task = new Task()
