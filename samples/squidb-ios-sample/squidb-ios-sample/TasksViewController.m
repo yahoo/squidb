@@ -11,6 +11,7 @@
 #import "Task.h"
 #import "Tag.h"
 #import "TaskUtils.h"
+#import "TaskCell.h"
 
 @interface TasksViewController ()
 
@@ -23,12 +24,27 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.tasksCursor = [[ComYahooSquidbSampleUtilsTaskUtils getInstance] getTasksCursor];
+    [self requery];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) deliverResult:(ComYahooSquidbDataSquidCursor *)cursor {
+    self.tasksCursor = cursor;
+    [self.tableView reloadData];
+}
+
+- (void) requeryInBackground {
+    ComYahooSquidbDataSquidCursor *cursor = [[ComYahooSquidbSampleUtilsTaskUtils getInstance] getTasksCursor];
+    [cursor getCount];
+    [self performSelectorOnMainThread:@selector(deliverResult:) withObject:cursor waitUntilDone:NO];
+}
+
+- (void) requery {
+    [self performSelectorInBackground:@selector(requeryInBackground) withObject:nil];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -43,16 +59,13 @@
     static NSString *identifier = @"TaskCell";
     
     [self.tasksCursor moveToPositionWithInt:(int)indexPath.row];
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    TaskCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     
     NSString *taskTitle = [self.tasksCursor getWithComYahooSquidbSqlProperty:ComYahooSquidbSampleModelsTask_TITLE_];
-    NSString *taskTags = @"Task tags";//[self.tasksCursor getWithComYahooSquidbSqlProperty:ComYahooSquidbSampleUtilsTaskUtils_TAGS_CONCAT_];
+    NSString *taskTags = [self.tasksCursor getWithComYahooSquidbSqlProperty:ComYahooSquidbSampleUtilsTaskUtils_TAGS_CONCAT_];
     
-    if (taskTags) {
-        cell.textLabel.text = [taskTitle stringByAppendingString:[NSString stringWithFormat:@"\n%@", taskTags]];
-    } else {
-        cell.textLabel.text = taskTitle;
-    }
+    cell.textLabel.text = [taskTitle stringByAppendingString:[NSString stringWithFormat:@"\n%@", taskTags]];
+    cell.tags.text = taskTags;
     
     return cell;
 }

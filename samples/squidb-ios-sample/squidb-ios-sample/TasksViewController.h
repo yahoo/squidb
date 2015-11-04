@@ -14,5 +14,7 @@
 
 @property (nonatomic, strong) ComYahooSquidbDataSquidCursor *tasksCursor;
 
+- (void) requery;
+
 @end
 

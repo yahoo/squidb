@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "OpenHelperCreator.h"
 #import "IOSOpenHelperCreator.h"
+#import "SimpleTasksNotifier.h"
 #import "TasksDatabase.h"
 #import "TasksViewController.h"
 
@@ -24,13 +25,17 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-//    UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
-//    TasksViewController *rootViewController = (TasksViewController *)navController.viewControllers[0];
+    UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
+    TasksViewController *rootViewController = (TasksViewController *)navController.viewControllers[0];
     
     ComYahooSquidbSampleIosIOSOpenHelperCreator *creator = [[ComYahooSquidbSampleIosIOSOpenHelperCreator alloc] init];
     [ComYahooSquidbSampleDatabaseOpenHelperCreator setCreatorWithComYahooSquidbSampleDatabaseOpenHelperCreator:creator];
     
-    [[ComYahooSquidbSampleDatabaseTasksDatabase getInstance] registerDataChangedNotifierWithComYahooSquidbDataDataChangedNotifier:nil];
+    SimpleTasksNotifier *notifier = [[SimpleTasksNotifier alloc] init];
+    notifier.tasksViewController = rootViewController;
+    
+    [[ComYahooSquidbSampleDatabaseTasksDatabase getInstance]
+        registerDataChangedNotifierWithComYahooSquidbDataDataChangedNotifier:notifier];
     
     return YES;
 }

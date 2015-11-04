@@ -11,6 +11,8 @@
 		BDBF18541BE96CB70025045D /* Task.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF18521BE96CB70025045D /* Task.java */; };
 		BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */; };
 		BDBF185D1BE980210025045D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDBF185C1BE980210025045D /* Main.storyboard */; };
+		BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2BA1BEA722900F429FE /* TaskCell.m */; };
+		BDC0E2BE1BEA770600F429FE /* SimpleTasksNotifier.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2BD1BEA770600F429FE /* SimpleTasksNotifier.m */; };
 		BDC8C91E1BE92DD300F7E9E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C91D1BE92DD300F7E9E6 /* main.m */; };
 		BDC8C9211BE92DD300F7E9E6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */; };
 		BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */; };
@@ -172,6 +174,10 @@
 		BDBF18521BE96CB70025045D /* Task.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Task.java; sourceTree = "<group>"; };
 		BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperCreator.java; sourceTree = "<group>"; };
 		BDBF185C1BE980210025045D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		BDC0E2B91BEA722900F429FE /* TaskCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskCell.h; sourceTree = "<group>"; };
+		BDC0E2BA1BEA722900F429FE /* TaskCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaskCell.m; sourceTree = "<group>"; };
+		BDC0E2BC1BEA770600F429FE /* SimpleTasksNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleTasksNotifier.h; sourceTree = "<group>"; };
+		BDC0E2BD1BEA770600F429FE /* SimpleTasksNotifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleTasksNotifier.m; sourceTree = "<group>"; };
 		BDC8C9191BE92DD300F7E9E6 /* squidb-ios-sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "squidb-ios-sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDC8C91D1BE92DD300F7E9E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -448,13 +454,17 @@
 				BDC8C9371BE9311900F7E9E6 /* java */,
 				BDC8C91F1BE92DD300F7E9E6 /* AppDelegate.h */,
 				BDC8C9201BE92DD300F7E9E6 /* AppDelegate.m */,
+				BDC0E2BC1BEA770600F429FE /* SimpleTasksNotifier.h */,
+				BDC0E2BD1BEA770600F429FE /* SimpleTasksNotifier.m */,
 				BDC8C9221BE92DD300F7E9E6 /* TasksViewController.h */,
 				BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */,
+				BDC0E2B91BEA722900F429FE /* TaskCell.h */,
+				BDC0E2BA1BEA722900F429FE /* TaskCell.m */,
+				BDC8C91C1BE92DD300F7E9E6 /* Supporting Files */,
 				BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */,
 				BDBF185C1BE980210025045D /* Main.storyboard */,
 				BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */,
 				BDC8C92D1BE92DD300F7E9E6 /* Info.plist */,
-				BDC8C91C1BE92DD300F7E9E6 /* Supporting Files */,
 			);
 			path = "squidb-ios-sample";
 			sourceTree = "<group>";
@@ -978,6 +988,7 @@
 				BDC8CA191BE931B000F7E9E6 /* SQLiteErrors.m in Sources */,
 				BDC8C9B01BE9313100F7E9E6 /* ProjectionMap.java in Sources */,
 				BDC8CA321BE931B000F7E9E6 /* SQLiteConnectionPool.java in Sources */,
+				BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */,
 				BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */,
 				BDC8C99F1BE9313100F7E9E6 /* Query.java in Sources */,
 				BDC8C9CC1BE9316700F7E9E6 /* ViewModelSpec.java in Sources */,
@@ -1052,6 +1063,7 @@
 				BDC8CA391BE931B000F7E9E6 /* SQLiteDatabaseCorruptException.java in Sources */,
 				BDC8CA2B1BE931B000F7E9E6 /* SQLiteAbortException.java in Sources */,
 				BDC8CA501BE931B000F7E9E6 /* IOSOpenHelper.java in Sources */,
+				BDC0E2BE1BEA770600F429FE /* SimpleTasksNotifier.m in Sources */,
 				BDC8C98F1BE9313100F7E9E6 /* ConjunctionCriterion.java in Sources */,
 				BDC8CA431BE931B000F7E9E6 /* SQLiteMisuseException.java in Sources */,
 				BDC8CA621BE9321F00F7E9E6 /* TasksDatabase.java in Sources */,
