@@ -70,4 +70,30 @@
     return cell;
 }
 
+- (void)tableView:(UITableView * _Nonnull)tableView didSelectRowAtIndexPath:(NSIndexPath * _Nonnull)indexPath {
+    [self.tasksCursor moveToPositionWithInt:(int) indexPath.row];
+    ComYahooSquidbSampleModelsTask *task = [[ComYahooSquidbSampleModelsTask alloc] initWithComYahooSquidbDataSquidCursor:self.tasksCursor];
+    
+    // Create complete/delete/cancel dialog
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:[task getTitle]
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel
+                                                          handler:^(UIAlertAction * action) {}];
+    UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
+                                                         handler:^(UIAlertAction * action) {
+                                                             [[ComYahooSquidbSampleUtilsTaskUtils getInstance] deleteTaskWithComYahooSquidbSampleModelsTask:task];
+                                                         }];
+    UIAlertAction *completeAction = [UIAlertAction actionWithTitle:@"Complete" style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction * action) {
+                                                           [[ComYahooSquidbSampleUtilsTaskUtils getInstance] completeTaskWithComYahooSquidbSampleModelsTask:task];
+                                                           }];
+    
+    [alert addAction:cancelAction];
+    [alert addAction:deleteAction];
+    [alert addAction:completeAction];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 @end
