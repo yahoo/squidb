@@ -138,4 +138,9 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
+- (void) dealloc {
+    [self.tasksCursor close];
+    self.tasksCursor = nil;
+}
+
 @end
