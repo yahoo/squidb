@@ -16,6 +16,10 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteTransactionListener;
 
+/**
+ * ISQLiteDatabase implementation that wraps {@link org.sqlite.database.sqlite.SQLiteDatabase} from the Android
+ * SQLite bindings project (https://www.sqlite.org/android/doc/trunk/www/index.wiki)
+ */
 public class SQLiteBindingsAdapter implements ISQLiteDatabase {
 
     private final SQLiteDatabase db;

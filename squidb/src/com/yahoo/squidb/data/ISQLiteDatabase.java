@@ -5,6 +5,14 @@
  */
 package com.yahoo.squidb.data;
 
+/**
+ * This interface represents the general interface for a low-level SQLite access object. The interface is inspired by
+ * android.database.sqlite.SQLiteDatabase and many of the methods declared here are taken from that class, although
+ * some SquiDB-specific methods have been added and some declared in the Android class are not present in this
+ * interface. Classes implementing this interface should strive to keep the same behavioral characteristics of
+ * Android's SQLite database, and in fact, all SquiDB implementations of this interface are based on wrappers or forks
+ * of the relevant Android classes.
+ */
 public interface ISQLiteDatabase {
 
     void beginTransaction();

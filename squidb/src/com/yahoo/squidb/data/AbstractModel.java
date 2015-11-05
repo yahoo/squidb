@@ -67,7 +67,7 @@ public abstract class AbstractModel implements Cloneable {
 
     // --- static variables
 
-    private static final ContentValuesSavingVisitor saver = new ContentValuesSavingVisitor();
+    private static final ValuesStorageSavingVisitor saver = new ValuesStorageSavingVisitor();
 
     private static final ValueCastingVisitor valueCastingVisitor = new ValueCastingVisitor();
 
@@ -230,6 +230,9 @@ public abstract class AbstractModel implements Cloneable {
      * considered set values or mark the model as dirty).
      */
     public void readPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        if (values == null) {
+            return;
+        }
         readPropertiesFromValuesStorage(new MapValuesStorage(values), properties);
     }
 
@@ -238,6 +241,9 @@ public abstract class AbstractModel implements Cloneable {
      * i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        if (values == null) {
+            return;
+        }
         setPropertiesFromValuesStorage(new MapValuesStorage(values), properties);
     }
 
@@ -518,7 +524,7 @@ public abstract class AbstractModel implements Cloneable {
     /**
      * Visitor that saves a value into a content values store
      */
-    private static class ContentValuesSavingVisitor implements PropertyWritingVisitor<Void, ValuesStorage, Object> {
+    private static class ValuesStorageSavingVisitor implements PropertyWritingVisitor<Void, ValuesStorage, Object> {
 
         public void save(Property<?> property, ValuesStorage newStore, Object value) {
             if (value != null) {

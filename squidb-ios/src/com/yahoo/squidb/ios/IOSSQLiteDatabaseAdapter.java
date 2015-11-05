@@ -15,14 +15,13 @@ import com.yahoo.squidb.data.SQLExceptionWrapper;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
 /**
- * Wrapper for the default Android {@link SQLiteDatabase} that implements the common {@link ISQLiteDatabase}
- * interface.
+ * Wrapper for the iOS port of SQLiteDatabase that implements the common {@link ISQLiteDatabase} interface.
  */
-public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
+public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
 
     private final SQLiteDatabase db;
 
-    public SQLiteDatabaseAdapter(SQLiteDatabase db) {
+    public IOSSQLiteDatabaseAdapter(SQLiteDatabase db) {
         if (db == null) {
             throw new NullPointerException("Can't create SQLiteDatabaseAdapter with a null SQLiteDatabase");
         }

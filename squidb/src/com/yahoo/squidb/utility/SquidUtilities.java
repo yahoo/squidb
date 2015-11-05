@@ -22,8 +22,8 @@ import java.util.Collections;
 public class SquidUtilities {
 
     /**
-     * A version of {@link Collection#addAll(Collection)} that works on varargs without calling Arrays.asList, which is
-     * a performance and memory boost
+     * A wrapper around {@link Collections#addAll(Collection, Object[])} that performs a null check on the objects
+     * array before attempting the add
      */
     public static <T> void addAll(Collection<T> collection, T... objects) {
         if (objects != null) {

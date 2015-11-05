@@ -12,6 +12,10 @@ import com.yahoo.squidb.data.AbstractModel;
 
 import java.lang.reflect.Array;
 
+/**
+ * This class is used by {@link AndroidTableModel} and {@link AndroidViewModel} subclasses to facilitate implementing
+ * {@link Parcelable}
+ */
 public final class ModelCreator<TYPE extends AbstractModel & Parcelable>
         implements Parcelable.Creator<TYPE> {
 

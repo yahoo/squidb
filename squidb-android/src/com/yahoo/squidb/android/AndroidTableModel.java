@@ -14,6 +14,11 @@ import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
+/**
+ * Extension of {#link TableModel} that adds some Android-specific APIs and features. Android models implement
+ * {@link Parcelable} and allow working with ContentValues instead of Maps. The code generator will generate table
+ * models extending this subclass if the 'androidModels' option is set.
+ */
 public abstract class AndroidTableModel extends TableModel implements Parcelable {
 
     @Override

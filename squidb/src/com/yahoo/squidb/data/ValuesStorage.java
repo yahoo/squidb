@@ -166,6 +166,7 @@ public abstract class ValuesStorage {
         }
     }
 
+    @Override
     public abstract boolean equals(Object o);
 
     @Override

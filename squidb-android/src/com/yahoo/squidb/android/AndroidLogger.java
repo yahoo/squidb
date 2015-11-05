@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.yahoo.squidb.utility.Logger;
 
+/**
+ * Logger implementation that logs using {@link android.util.Log}
+ */
 public class AndroidLogger extends Logger {
 
     @Override

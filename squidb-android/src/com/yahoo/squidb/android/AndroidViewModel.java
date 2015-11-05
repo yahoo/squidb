@@ -14,6 +14,11 @@ import com.yahoo.squidb.data.ViewModel;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
+/**
+ * Extension of {@link ViewModel} that adds some Android-specific APIs and features. Android models implement
+ * {@link Parcelable} and allow working with ContentValues instead of Maps. The code generator will generate view
+ * models extending this subclass if the 'androidModels' option is set.
+ */
 public abstract class AndroidViewModel extends ViewModel implements Parcelable {
 
     @Override

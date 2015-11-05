@@ -14,6 +14,11 @@ import com.yahoo.squidb.data.SquidDatabase;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * ISQLiteOpenHelper implementation that wraps the iOS port of SQLiteOpenHelper. When on iOS, returning an instance of
+ * this class in {@link SquidDatabase#createOpenHelper(String, SquidDatabase.OpenHelperDelegate, int)} will connect
+ * SquidDatabase to the iOS SQLiteDatabase port contained in this module.
+ */
 public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper {
 
     private final SquidDatabase.OpenHelperDelegate delegate;
@@ -27,7 +32,7 @@ public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper
     @Override
     public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
-        return new SQLiteDatabaseAdapter(database);
+        return new IOSSQLiteDatabaseAdapter(database);
     }
 
     @Override
@@ -37,27 +42,27 @@ public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        delegate.onCreate(new SQLiteDatabaseAdapter(db));
+        delegate.onCreate(new IOSSQLiteDatabaseAdapter(db));
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        delegate.onUpgrade(new SQLiteDatabaseAdapter(db), oldVersion, newVersion);
+        delegate.onUpgrade(new IOSSQLiteDatabaseAdapter(db), oldVersion, newVersion);
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        delegate.onDowngrade(new SQLiteDatabaseAdapter(db), oldVersion, newVersion);
+        delegate.onDowngrade(new IOSSQLiteDatabaseAdapter(db), oldVersion, newVersion);
     }
 
     @Override
     public void onConfigure(SQLiteDatabase db) {
-        delegate.onConfigure(new SQLiteDatabaseAdapter(db));
+        delegate.onConfigure(new IOSSQLiteDatabaseAdapter(db));
     }
 
     @Override
     public void onOpen(SQLiteDatabase db) {
-        delegate.onOpen(new SQLiteDatabaseAdapter(db));
+        delegate.onOpen(new IOSSQLiteDatabaseAdapter(db));
     }
 
     @Override

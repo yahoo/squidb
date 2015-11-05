@@ -15,8 +15,9 @@ import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 /**
- * SQLiteOpenHelperWrapper implementation for a standard Android SQLiteOpenHelper. By default, SquidDatabase uses
- * this class to access a standard Android SQLiteDatabase.
+ * ISQLiteOpenHelper implementation for a standard Android SQLiteOpenHelper. When on Android, returning an instance of
+ * this class in {@link SquidDatabase#createOpenHelper(String, SquidDatabase.OpenHelperDelegate, int)} will connect
+ * SquidDatabase to the stock Android SQLiteDatabase.
  */
 public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper {
 

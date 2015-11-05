@@ -254,6 +254,18 @@ public abstract class SquidDatabase {
         return helper;
     }
 
+    /**
+     * Subclasses of SquidDatabase override this method to create an {@link ISQLiteOpenHelper} suitable for the current
+     * platform. For example, if the library is being used only on Android, you can simply return a new
+     * AndroidOpenHelper instance. If on the other hand the library is being used on Android and iOS via j2objc,
+     * you will need to define logic for instantiating the appropriate open helper -- AndroidOpenHelper from the
+     * squidb-android module when on Android, or IOSOpenHelper from the squidb-ios module when on iOS.
+     *
+     * @param databaseName the name of the database being created/opened
+     * @param delegate a delegate object for database lifecycle callbacks
+     * @param version the current database version
+     * @return an object suitable for the current platform that implements the {@link ISQLiteOpenHelper} interface
+     */
     protected abstract ISQLiteOpenHelper createOpenHelper(String databaseName,
             OpenHelperDelegate delegate, int version);
 
@@ -297,7 +309,7 @@ public abstract class SquidDatabase {
 
     /**
      * Gets the underlying SQLiteDatabaseWrapper instance. Most users should not need to call this. If you call this
-     * from your AbstractDatabase subclass with the intention of executing SQL, you should wrap the calls with a lock,
+     * from your SquidDatabase subclass with the intention of executing SQL, you should wrap the calls with a lock,
      * probably the non-exclusive one:
      *
      * <pre>
@@ -492,7 +504,7 @@ public abstract class SquidDatabase {
     // --- database wrapper
 
     /**
-     * Execute a raw sqlite query. This method takes an Object[] for the arguments because Android's default behavior
+     * Execute a raw SQLite query. This method takes an Object[] for the arguments because Android's default behavior
      * of binding all arguments as strings can have unexpected bugs, particularly when working with functions. For
      * example:
      *
@@ -513,16 +525,6 @@ public abstract class SquidDatabase {
         acquireNonExclusiveLock();
         try {
             return getDatabase().rawQuery(sql, sqlArgs);
-        } finally {
-            releaseNonExclusiveLock();
-        }
-    }
-
-    // For use only when validating queries
-    private void compileStatement(String sql) {
-        acquireNonExclusiveLock();
-        try {
-            getDatabase().ensureSqlCompiles(sql);
         } finally {
             releaseNonExclusiveLock();
         }
@@ -1239,12 +1241,21 @@ public abstract class SquidDatabase {
         CompiledStatement compiled = query.compile(getSqliteVersion());
         if (compiled.needsValidation) {
             String validateSql = query.sqlForValidation(getSqliteVersion());
-            compileStatement(validateSql); // throws if the statement fails to compile
+            ensureSqlCompiles(validateSql); // throws if the statement fails to compile
         }
         ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
         return new SquidCursor<TYPE>(cursor, query.getFields());
     }
 
+    // For use only when validating queries
+    private void ensureSqlCompiles(String sql) {
+        acquireNonExclusiveLock();
+        try {
+            getDatabase().ensureSqlCompiles(sql);
+        } finally {
+            releaseNonExclusiveLock();
+        }
+    }
 
     /**
      * Fetch the specified model object with the given row ID

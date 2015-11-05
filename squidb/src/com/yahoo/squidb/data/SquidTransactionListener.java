@@ -6,9 +6,8 @@
 package com.yahoo.squidb.data;
 
 /**
- * A re-declaration of {@link android.database.sqlite.SQLiteTransactionListener} so that all wrapper/adapter classes
- * for different versions of {@link android.database.sqlite.SQLiteDatabase SQLiteDatabase} can provide a unified
- * interface for transaction methods.
+ * A re-declaration of {@link android.database.sqlite.SQLiteTransactionListener} so that all implementations
+ * of {@link ISQLiteDatabase} can provide a unified interface for transaction methods.
  */
 public interface SquidTransactionListener {
 
