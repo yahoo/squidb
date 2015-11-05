@@ -28,14 +28,13 @@
     UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
     TasksViewController *rootViewController = (TasksViewController *)navController.viewControllers[0];
     
-    ComYahooSquidbSampleIosIOSOpenHelperCreator *creator = [[ComYahooSquidbSampleIosIOSOpenHelperCreator alloc] init];
-    [ComYahooSquidbSampleDatabaseOpenHelperCreator setCreatorWithComYahooSquidbSampleDatabaseOpenHelperCreator:creator];
+    SDBSampleIOSIOSOpenHelperCreator * creator = [[SDBSampleIOSIOSOpenHelperCreator alloc] init];
+    [SDBSampleDbOpenHelperCreator setCreatorWithSDBSampleDbOpenHelperCreator:creator];
     
     SimpleTasksNotifier *notifier = [[SimpleTasksNotifier alloc] init];
     notifier.tasksViewController = rootViewController;
     
-    [[ComYahooSquidbSampleDatabaseTasksDatabase getInstance]
-        registerDataChangedNotifierWithComYahooSquidbDataDataChangedNotifier:notifier];
+    [[SDBSampleDbTasksDatabase getInstance] registerDataChangedNotifierWithSDBDataChangedNotifier:notifier];
     
     return YES;
 }

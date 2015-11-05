@@ -9,7 +9,7 @@
 #import "SimpleDataChangedNotifier.h"
 #import "TasksViewController.h"
 
-@interface SimpleTasksNotifier : ComYahooSquidbDataSimpleDataChangedNotifier
+@interface SimpleTasksNotifier : SDBSimpleDataChangedNotifier
 
 @property (nonatomic, weak) TasksViewController *tasksViewController;
 

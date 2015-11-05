@@ -48,7 +48,7 @@
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {
                                                                  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
-                                                                     [[ComYahooSquidbSampleUtilsTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
+                                                                     [[SDBSampleUtilsTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
                                                                  });
                                                              }];
     
@@ -71,7 +71,7 @@
 
 - (void) requery {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
-        ComYahooSquidbDataSquidCursor *cursor = [[ComYahooSquidbSampleUtilsTaskUtils getInstance] getTasksCursor];
+        ComYahooSquidbDataSquidCursor *cursor = [[SDBSampleUtilsTaskUtils getInstance] getTasksCursor];
         [cursor getCount];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self deliverResult:cursor];
@@ -93,8 +93,8 @@
     [self.tasksCursor moveToPositionWithInt:(int)indexPath.row];
     TaskCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     
-    NSString *taskTitle = [self.tasksCursor getWithComYahooSquidbSqlProperty:ComYahooSquidbSampleModelsTask_TITLE_];
-    NSString *taskTags = [self.tasksCursor getWithComYahooSquidbSqlProperty:ComYahooSquidbSampleUtilsTaskUtils_TAGS_CONCAT_];
+    NSString *taskTitle = [self.tasksCursor getWithSDBProperty:SDBSampleTask_get_TITLE_()];
+    NSString *taskTags = [self.tasksCursor getWithSDBProperty:SDBSampleUtilsTaskUtils_get_TAGS_CONCAT_()];
     
     cell.textLabel.text = taskTitle;
     cell.tags.text = taskTags;
@@ -104,7 +104,7 @@
 
 - (void)tableView:(UITableView * _Nonnull)tableView didSelectRowAtIndexPath:(NSIndexPath * _Nonnull)indexPath {
     [self.tasksCursor moveToPositionWithInt:(int) indexPath.row];
-    ComYahooSquidbSampleModelsTask *task = [[ComYahooSquidbSampleModelsTask alloc] initWithComYahooSquidbDataSquidCursor:self.tasksCursor];
+    ComYahooSquidbSampleModelsTask *task = [[SDBSampleTask alloc] initWithSDBSquidCursor:self.tasksCursor];
     
     // Create complete/delete/cancel dialog
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:[task getTitle]
@@ -115,11 +115,11 @@
                                                           handler:^(UIAlertAction * action) {}];
     UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
                                                          handler:^(UIAlertAction * action) {
-                                                             [[ComYahooSquidbSampleUtilsTaskUtils getInstance] deleteTaskWithComYahooSquidbSampleModelsTask:task];
+                                                             [[SDBSampleUtilsTaskUtils getInstance] deleteTaskWithSDBSampleTask:task];
                                                          }];
     UIAlertAction *completeAction = [UIAlertAction actionWithTitle:@"Complete" style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction * action) {
-                                                           [[ComYahooSquidbSampleUtilsTaskUtils getInstance] completeTaskWithComYahooSquidbSampleModelsTask:task];
+                                                           [[SDBSampleUtilsTaskUtils getInstance] completeTaskWithSDBSampleTask:task];
                                                            }];
     
     [alert addAction:cancelAction];

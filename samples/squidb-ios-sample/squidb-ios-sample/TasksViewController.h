@@ -12,7 +12,7 @@
 
 @interface TasksViewController : UITableViewController
 
-@property (nonatomic, strong) ComYahooSquidbDataSquidCursor *tasksCursor;
+@property (nonatomic, strong) SDBSquidCursor *tasksCursor;
 
 - (void) requery;
 

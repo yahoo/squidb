@@ -145,7 +145,6 @@
 		BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA101BE931B000F7E9E6 /* SQLiteTransactionListener.java */; };
 		BDC8CA4F1BE931B000F7E9E6 /* StaleDataException.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA111BE931B000F7E9E6 /* StaleDataException.java */; };
 		BDC8CA501BE931B000F7E9E6 /* IOSOpenHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA141BE931B000F7E9E6 /* IOSOpenHelper.java */; };
-		BDC8CA511BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA151BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java */; };
 		BDC8CA521BE931B000F7E9E6 /* SquidCursorFactory.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA161BE931B000F7E9E6 /* SquidCursorFactory.java */; };
 		BDC8CA611BE9321F00F7E9E6 /* OpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA5A1BE9321F00F7E9E6 /* OpenHelperCreator.java */; };
 		BDC8CA621BE9321F00F7E9E6 /* TasksDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA5B1BE9321F00F7E9E6 /* TasksDatabase.java */; };
@@ -154,6 +153,8 @@
 		BDC8CA651BE9321F00F7E9E6 /* TaskUtils.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8CA601BE9321F00F7E9E6 /* TaskUtils.java */; };
 		BDC8CA671BE9333300F7E9E6 /* Settings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = BDC8CA661BE9333300F7E9E6 /* Settings.xcconfig */; };
 		BDC8CA6A1BE9352100F7E9E6 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC8CA691BE9352100F7E9E6 /* libsqlite3.tbd */; };
+		BDD9BF501BEBCCFD00EC6FE4 /* prefixes.properties in Resources */ = {isa = PBXBuildFile; fileRef = BDD9BF4F1BEBCCFD00EC6FE4 /* prefixes.properties */; };
+		BDD9BF521BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -166,7 +167,7 @@
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
 			);
-			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar\" -sourcepath \"${SOURCEPATH}\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar\" -sourcepath \"${SOURCEPATH}\" --prefixes \"${SRCROOT}/squidb-ios-sample/prefixes.properties\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
@@ -319,7 +320,6 @@
 		BDC8CA101BE931B000F7E9E6 /* SQLiteTransactionListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteTransactionListener.java; sourceTree = "<group>"; };
 		BDC8CA111BE931B000F7E9E6 /* StaleDataException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = StaleDataException.java; sourceTree = "<group>"; };
 		BDC8CA141BE931B000F7E9E6 /* IOSOpenHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelper.java; sourceTree = "<group>"; };
-		BDC8CA151BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SQLiteDatabaseAdapter.java; sourceTree = "<group>"; };
 		BDC8CA161BE931B000F7E9E6 /* SquidCursorFactory.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidCursorFactory.java; sourceTree = "<group>"; };
 		BDC8CA5A1BE9321F00F7E9E6 /* OpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = OpenHelperCreator.java; sourceTree = "<group>"; };
 		BDC8CA5B1BE9321F00F7E9E6 /* TasksDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TasksDatabase.java; sourceTree = "<group>"; };
@@ -328,6 +328,8 @@
 		BDC8CA601BE9321F00F7E9E6 /* TaskUtils.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TaskUtils.java; sourceTree = "<group>"; };
 		BDC8CA661BE9333300F7E9E6 /* Settings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Settings.xcconfig; path = "squidb-ios-sample/Settings.xcconfig"; sourceTree = "<group>"; };
 		BDC8CA691BE9352100F7E9E6 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		BDD9BF4F1BEBCCFD00EC6FE4 /* prefixes.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prefixes.properties; sourceTree = "<group>"; };
+		BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSSQLiteDatabaseAdapter.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -468,6 +470,7 @@
 				BDBF185C1BE980210025045D /* Main.storyboard */,
 				BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */,
 				BDC8C92D1BE92DD300F7E9E6 /* Info.plist */,
+				BDD9BF4F1BEBCCFD00EC6FE4 /* prefixes.properties */,
 			);
 			path = "squidb-ios-sample";
 			sourceTree = "<group>";
@@ -803,8 +806,8 @@
 		BDC8CA131BE931B000F7E9E6 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */,
 				BDC8CA141BE931B000F7E9E6 /* IOSOpenHelper.java */,
-				BDC8CA151BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java */,
 				BDC8CA161BE931B000F7E9E6 /* SquidCursorFactory.java */,
 			);
 			path = ios;
@@ -948,6 +951,7 @@
 			files = (
 				BDC8C92C1BE92DD300F7E9E6 /* LaunchScreen.storyboard in Resources */,
 				BDC8CA671BE9333300F7E9E6 /* Settings.xcconfig in Resources */,
+				BDD9BF501BEBCCFD00EC6FE4 /* prefixes.properties in Resources */,
 				BDBF185D1BE980210025045D /* Main.storyboard in Resources */,
 				BDC0E2C11BEA96AA00F429FE /* generate-models.sh in Resources */,
 				BDC8C9291BE92DD300F7E9E6 /* Assets.xcassets in Resources */,
@@ -994,6 +998,7 @@
 				BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */,
 				BDC8CA1F1BE931B000F7E9E6 /* CursorWindow.java in Sources */,
 				BDC8C9AA1BE9313100F7E9E6 /* Trigger.java in Sources */,
+				BDD9BF521BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java in Sources */,
 				BDC8C9A01BE9313100F7E9E6 /* QueryFunction.java in Sources */,
 				BDC8C9981BE9313100F7E9E6 /* Join.java in Sources */,
 				BDC8CA301BE931B000F7E9E6 /* SQLiteClosable.java in Sources */,
@@ -1089,7 +1094,6 @@
 				BDC8CA621BE9321F00F7E9E6 /* TasksDatabase.java in Sources */,
 				BDC8C97A1BE9313100F7E9E6 /* AbstractModel.java in Sources */,
 				BDC8CA201BE931B000F7E9E6 /* CursorWindowAllocationException.java in Sources */,
-				BDC8CA511BE931B000F7E9E6 /* SQLiteDatabaseAdapter.java in Sources */,
 				BDC0E2CA1BEA981A00F429FE /* Tag.java in Sources */,
 				BDC8CA421BE931B000F7E9E6 /* SQLiteGlobal.java in Sources */,
 				BDC8CA331BE931B000F7E9E6 /* SQLiteConstraintException.java in Sources */,
