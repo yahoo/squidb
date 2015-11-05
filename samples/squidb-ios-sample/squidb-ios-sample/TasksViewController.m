@@ -62,8 +62,8 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void) deliverResult:(ComYahooSquidbDataSquidCursor *)cursor {
-    ComYahooSquidbDataSquidCursor *oldCursor = self.tasksCursor;
+- (void) deliverResult:(SDBSquidCursor *)cursor {
+    SDBSquidCursor *oldCursor = self.tasksCursor;
     self.tasksCursor = cursor;
     [oldCursor close];
     [self.tableView reloadData];
@@ -71,7 +71,7 @@
 
 - (void) requery {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        ComYahooSquidbDataSquidCursor *cursor = [[SDBSampleUtilsTaskUtils getInstance] getTasksCursor];
+        SDBSquidCursor *cursor = [[SDBSampleUtilsTaskUtils getInstance] getTasksCursor];
         [cursor getCount];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self deliverResult:cursor];
@@ -104,7 +104,7 @@
 
 - (void)tableView:(UITableView * _Nonnull)tableView didSelectRowAtIndexPath:(NSIndexPath * _Nonnull)indexPath {
     [self.tasksCursor moveToPositionWithInt:(int) indexPath.row];
-    ComYahooSquidbSampleModelsTask *task = [[SDBSampleTask alloc] initWithSDBSquidCursor:self.tasksCursor];
+    SDBSampleTask *task = [[SDBSampleTask alloc] initWithSDBSquidCursor:self.tasksCursor];
     
     // Create complete/delete/cancel dialog
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:[task getTitle]
