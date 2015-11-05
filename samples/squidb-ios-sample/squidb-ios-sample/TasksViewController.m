@@ -47,7 +47,7 @@
     UIAlertAction *createTaskAction = [UIAlertAction actionWithTitle:@"Create task"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {
-                                                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
+                                                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                                                                      [[SDBSampleUtilsTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
                                                                  });
                                                              }];
@@ -70,7 +70,7 @@
 }
 
 - (void) requery {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         ComYahooSquidbDataSquidCursor *cursor = [[SDBSampleUtilsTaskUtils getInstance] getTasksCursor];
         [cursor getCount];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -115,11 +115,15 @@
                                                           handler:^(UIAlertAction * action) {}];
     UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
                                                          handler:^(UIAlertAction * action) {
-                                                             [[SDBSampleUtilsTaskUtils getInstance] deleteTaskWithSDBSampleTask:task];
+                                                             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                                                 [[SDBSampleUtilsTaskUtils getInstance] deleteTaskWithSDBSampleTask:task];
+                                                             });
                                                          }];
     UIAlertAction *completeAction = [UIAlertAction actionWithTitle:@"Complete" style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction * action) {
-                                                           [[SDBSampleUtilsTaskUtils getInstance] completeTaskWithSDBSampleTask:task];
+                                                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                                                   [[SDBSampleUtilsTaskUtils getInstance] completeTaskWithSDBSampleTask:task];
+                                                               });
                                                            }];
     
     [alert addAction:cancelAction];
