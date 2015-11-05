@@ -113,6 +113,27 @@ public class SquidbTestRunner {
         // Create JUnit test runner.
         SQLiteBindingProvider.setSQLiteBindingProvider(new IOSSQLiteBindingProvider());
 
+        // This is a terrible hack that ensures model classes are loaded first. Otherwise, they would be loaded when
+        // searching for test cases, and they would potentially be loaded after their spec counterparts, which could
+        // cause bad problems for things like constants. If we add additional model classes to the tests we should
+        // list them here
+        Class<?>[] modelClasses = new Class<?>[]{
+                BasicData.class,
+                Employee.class,
+                SpecificData.class,
+                TestModel.class,
+                TestSubqueryModel.class,
+                TestViewModel.class,
+                TestVirtualModel.class,
+                Thing.class,
+                TriggerTester.class,
+                ViewlessViewModel.class
+        };
+        System.err.println("Loading model classes so that they can't be loaded out of order...");
+        for (Class<?> modelClass : modelClasses) {
+            System.err.println("Loaded " + modelClass.getSimpleName());
+        }
+
         SquidbTestRunner runner = new SquidbTestRunner();
 //        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
 
