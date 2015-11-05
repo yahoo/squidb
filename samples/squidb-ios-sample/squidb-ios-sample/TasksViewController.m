@@ -92,12 +92,18 @@
     
     [self.tasksCursor moveToPositionWithInt:(int)indexPath.row];
     TaskCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    [cell.task readPropertiesFromCursorWithSDBSquidCursor:self.tasksCursor];
     
-    NSString *taskTitle = [self.tasksCursor getWithSDBProperty:SDBSampleTask_get_TITLE_()];
-    NSString *taskTags = [self.tasksCursor getWithSDBProperty:SDBSampleUtilsTaskUtils_get_TAGS_CONCAT_()];
-    
-    cell.textLabel.text = taskTitle;
-    cell.tags.text = taskTags;
+    if ([cell.task isCompleted]) {
+        NSMutableAttributedString *strikethroughTitle = [[NSMutableAttributedString alloc] initWithString:[cell.task getTitle]];
+        [strikethroughTitle addAttribute:NSStrikethroughStyleAttributeName
+                                   value:@(NSUnderlineStyleSingle)
+                                   range:NSMakeRange(0, [strikethroughTitle length])];
+        cell.textLabel.attributedText = strikethroughTitle;
+    } else {
+        cell.textLabel.text = [cell.task getTitle];
+    }
+    cell.tags.text = [cell.task getWithSDBProperty:SDBSampleUtilsTaskUtils_get_TAGS_CONCAT_()];
     
     return cell;
 }

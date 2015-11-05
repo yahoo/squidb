@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Task.h"
 
 @interface TaskCell : UITableViewCell
 
 @property (nonatomic, weak) IBOutlet UILabel *tags;
+
+@property (nonatomic, strong, readonly) SDBSampleTask *task;
 
 @end

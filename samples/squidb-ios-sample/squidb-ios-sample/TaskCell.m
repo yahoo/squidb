@@ -10,7 +10,15 @@
 
 @implementation TaskCell
 
+@synthesize task = _task;
 @synthesize tags;
+
+- (SDBSampleTask *) task {
+    if (!_task) {
+        _task = [[SDBSampleTask alloc] init];
+    }
+    return _task;
+}
 
 - (void)awakeFromNib {
     // Initialization code
