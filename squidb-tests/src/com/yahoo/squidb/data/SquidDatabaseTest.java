@@ -14,7 +14,12 @@ import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
+import com.yahoo.squidb.test.Thing;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -427,6 +432,43 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(2, database.countAll(TestModel.class));
         database.deleteAll(TestModel.class);
         assertEquals(0, database.countAll(TestModel.class));
+    }
+
+    public void testBlobs() {
+        List<byte[]> randomBlobs = new ArrayList<byte[]>();
+        Random r = new Random();
+
+        randomBlobs.add(new byte[0]); // Test 0-length blob
+        int numBlobs = 10;
+        for (int i = 0; i < numBlobs; i++) {
+            byte[] blob = new byte[i + 1];
+            r.nextBytes(blob);
+            randomBlobs.add(blob);
+        }
+
+        Thing t = new Thing();
+        database.beginTransaction();
+        try {
+            for (byte[] blob : randomBlobs) {
+                t.setBlob(blob);
+                database.createNew(t);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
+        SquidCursor<Thing> cursor = database.query(Thing.class, Query.select(Thing.BLOB).orderBy(Thing.ID.asc()));
+        try {
+            assertEquals(randomBlobs.size(), cursor.getCount());
+            for (int i = 0; i < randomBlobs.size(); i++) {
+                cursor.moveToPosition(i);
+                byte[] blob = cursor.get(Thing.BLOB);
+                assertTrue(Arrays.equals(randomBlobs.get(i), blob));
+            }
+        } finally {
+            cursor.close();
+        }
     }
 
     public void testConcurrentReadsWithWAL() {

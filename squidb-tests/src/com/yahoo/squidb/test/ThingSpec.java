@@ -32,4 +32,6 @@ public class ThingSpec {
 
     @ColumnSpec(defaultValue = "true")
     boolean isAlive;
+
+    byte[] blob;
 }
