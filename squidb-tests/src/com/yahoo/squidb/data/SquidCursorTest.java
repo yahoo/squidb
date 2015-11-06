@@ -64,21 +64,15 @@ public class SquidCursorTest extends DatabaseTestCase {
         } finally {
             database.endTransaction();
         }
-        assertEquals(numRowsToInsert, database.countAll(Thing.class));
 
+        assertEquals(numRowsToInsert, database.countAll(Thing.class));
         SquidCursor<Thing> cursor = database.query(Thing.class, Query.select(Thing.FOO));
         try {
             assertEquals(numRowsToInsert, cursor.getCount());
 
-            for (int i = 0; i < numRowsToInsert; i++) {
-                cursor.moveToPosition(i);
-                assertEquals(formattedIntegerForWindowTest(numDigits, i), cursor.get(Thing.FOO));
-            }
-
-            for (int i = numRowsToInsert - 1; i >= 0; i--) {
-                cursor.moveToPosition(i);
-                assertEquals(formattedIntegerForWindowTest(numDigits, i), cursor.get(Thing.FOO));
-            }
+            // Scan cursor twice so we know it can correctly jump back to the first window
+            scanCursor(cursor, numDigits);
+            scanCursor(cursor, numDigits);
         } finally {
             cursor.close();
         }
@@ -86,6 +80,13 @@ public class SquidCursorTest extends DatabaseTestCase {
 
     private String formattedIntegerForWindowTest(int numDigits, int i) {
         return String.format("%0" + numDigits + "d", i);
+    }
+
+    private void scanCursor(SquidCursor<Thing> cursor, int numDigits) {
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            int i = cursor.getPosition();
+            assertEquals(formattedIntegerForWindowTest(numDigits, i), cursor.get(Thing.FOO));
+        }
     }
 
     public void testMultipleSimultaneousCursors() {
