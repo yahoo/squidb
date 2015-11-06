@@ -132,6 +132,7 @@ public class SquidCursorTest extends DatabaseTestCase {
             evens.moveToPosition(i);
             assertEquals(i * 2, evens.get(Thing.BAR).intValue());
         }
+        evens.close();
     }
 
 }
