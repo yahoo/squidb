@@ -37,7 +37,7 @@ public class SquidCursorTest extends DatabaseTestCase {
             assertEquals("literalString", cursor.get(literalString));
             assertEquals(2, cursor.get(literalInteger).intValue());
             assertTrue(cursor.get(literalInteger) instanceof Integer);
-            assertTrue(cursor.get(literalBoolean) instanceof Boolean);
+            assertTrue(cursor.get(literalBoolean));
 
             assertTrue(cursor.get(castBool));
             assertEquals(1, cursor.get(castInt).intValue());
@@ -52,12 +52,13 @@ public class SquidCursorTest extends DatabaseTestCase {
         // to make sure that windowing is working correctly
         Thing thing = new Thing();
         int numDigits = 500;
+        String formatString = "%0" + numDigits + "d";
         int numRowsToInsert = 5 * 1024 * 1024 / numDigits;
 
         database.beginTransaction();
         try {
             for (int i = 0; i < numRowsToInsert; i++) {
-                thing.setFoo(formattedIntegerForWindowTest(numDigits, i));
+                thing.setFoo(String.format(formatString, i));
                 database.createNew(thing);
             }
             database.setTransactionSuccessful();
@@ -71,21 +72,17 @@ public class SquidCursorTest extends DatabaseTestCase {
             assertEquals(numRowsToInsert, cursor.getCount());
 
             // Scan cursor twice so we know it can correctly jump back to the first window
-            scanCursor(cursor, numDigits);
-            scanCursor(cursor, numDigits);
+            scanCursor(cursor, formatString);
+            scanCursor(cursor, formatString);
         } finally {
             cursor.close();
         }
     }
 
-    private String formattedIntegerForWindowTest(int numDigits, int i) {
-        return String.format("%0" + numDigits + "d", i);
-    }
-
-    private void scanCursor(SquidCursor<Thing> cursor, int numDigits) {
+    private void scanCursor(SquidCursor<Thing> cursor, String formatString) {
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             int i = cursor.getPosition();
-            assertEquals(formattedIntegerForWindowTest(numDigits, i), cursor.get(Thing.FOO));
+            assertEquals(String.format(formatString, i), cursor.get(Thing.FOO));
         }
     }
 
