@@ -200,7 +200,7 @@ public class CursorWindow extends SQLiteClosable {
         if (mWindowPtr != null) {
 //            recordClosingOfWindow(mWindowPtr);
             nativeDispose(mWindowPtr);
-            mWindowPtr = 0;
+            mWindowPtr = null;
         }
     }
 
