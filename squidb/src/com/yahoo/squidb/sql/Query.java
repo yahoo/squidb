@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
-import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
@@ -496,18 +495,15 @@ public final class Query extends TableStatement {
             builder.sql.append("DISTINCT ");
         }
 
+        List<Field<?>> toSelect;
         if (isEmpty(fields)) {
-            // Explicitly add rowid for virtual tables: "select table.rowid as rowid, *"
-            if (table instanceof VirtualTable) {
-                VirtualTable virtualTable = (VirtualTable) table;
-                LongProperty idProperty = virtualTable.getIdProperty();
-                idProperty.appendToSqlBuilder(builder, forSqlValidation);
-                builder.sql.append(", ");
-            }
-            builder.sql.append("*");
-            return;
+            // SELECT * may yield unexpected column names, so we get the full list of fields to specify explicit aliases
+            toSelect = getFields();
+        } else {
+            toSelect = fields;
         }
-        builder.appendConcatenatedCompilables(fields, ", ", forSqlValidation);
+
+        builder.appendConcatenatedCompilables(toSelect, ", ", forSqlValidation);
     }
 
     private void visitFromClause(SqlBuilder builder, boolean forSqlValidation) {
