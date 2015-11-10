@@ -97,7 +97,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     @SuppressWarnings("unchecked")
     public <F extends Field<?>> F qualifyField(F field) {
         if (field instanceof Property<?>) {
-            return (F) ((Property<?>) field).asSelectionFromTable(this, field.getName());
+            return (F) ((Property<?>) field).asSelectionFromTable(this, null);
         } else {
             return (F) Field.field(field.getName(), getName());
         }
