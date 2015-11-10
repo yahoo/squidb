@@ -39,11 +39,18 @@ public class PropertyTest extends SquidTestCase {
         assertEquals("newAlias", aliasWithTable.getName());
         assertEquals("SELECT newTable._id AS newAlias", Query.select(aliasWithTable).toString());
 
-        LongProperty asSelectionFromTable = basicAlias.asSelectionFromTable(TestViewModel.VIEW, "superAlias");
-        assertEquals(TestViewModel.VIEW.getName(), asSelectionFromTable.table.getName());
-        assertEquals(basicAlias.getName(), asSelectionFromTable.getExpression());
-        assertEquals("superAlias", asSelectionFromTable.getName());
-        assertEquals("SELECT testView.newAlias AS superAlias", Query.select(asSelectionFromTable).toString());
+        LongProperty asSelectionFromTableNoAlias = TestViewModel.VIEW.qualifyField(basicAlias);
+        assertEquals(TestViewModel.VIEW.getName(), asSelectionFromTableNoAlias.table.getName());
+        assertEquals(basicAlias.getName(), asSelectionFromTableNoAlias.getExpression());
+        assertEquals(basicAlias.getName(), asSelectionFromTableNoAlias.getName());
+        assertFalse(asSelectionFromTableNoAlias.hasAlias());
+        assertEquals("SELECT testView.newAlias AS newAlias", Query.select(asSelectionFromTableNoAlias).toString());
+
+        LongProperty asSelectionFromTableWithAlias = basicAlias.asSelectionFromTable(TestViewModel.VIEW, "superAlias");
+        assertEquals(TestViewModel.VIEW.getName(), asSelectionFromTableWithAlias.table.getName());
+        assertEquals(basicAlias.getName(), asSelectionFromTableWithAlias.getExpression());
+        assertEquals("superAlias", asSelectionFromTableWithAlias.getName());
+        assertEquals("SELECT testView.newAlias AS superAlias", Query.select(asSelectionFromTableWithAlias).toString());
 
         assertEquals(TestVirtualModel.ID.getQualifiedExpression(), "virtual_models.rowid");
         assertEquals(TestVirtualModel.ID.getExpression(), "rowid");
