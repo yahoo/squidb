@@ -74,7 +74,7 @@ do
 done
 
 # build test executable
-${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -l jre_emul -l junit -l sqlite3 -ObjC -o run_squidb_ios_tests $BIN/*.o # link with libraries
+${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -l jre_emul -l junit -l sqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
 
 # run tests
 ./run_squidb_ios_tests
