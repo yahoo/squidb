@@ -31,7 +31,7 @@
 @property NSString *label;
 @property int openFlags;
 
-+ (SQLiteConnectionNative *) nativeOpen:(NSString *)pathStr openFlags:(int) openFlags labelStr:(NSString *)labelStr enableTrace:(BOOL)enableTrace enableProfile:(BOOL)enableProfile;
++ (SQLiteConnectionNative *) nativeOpen:(NSString *)pathStr openFlags:(jint) openFlags labelStr:(NSString *)labelStr enableTrace:(jboolean)enableTrace enableProfile:(jboolean)enableProfile;
 
 + (void) nativeClose:(NSObject *)connectionPtr;
 
@@ -39,41 +39,41 @@
 
 + (void) nativeFinalizeStatement:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (int) nativeGetParameterCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jint) nativeGetParameterCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (BOOL) nativeIsReadOnly:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jboolean) nativeIsReadOnly:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (int) nativeGetColumnCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jint) nativeGetColumnCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (NSString *) nativeGetColumnName:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index;
++ (NSString *) nativeGetColumnName:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index;
 
-+ (void) nativeBindNull:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index;
++ (void) nativeBindNull:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index;
 
-+ (void) nativeBindLong:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(long)value;
++ (void) nativeBindLong:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index value:(jlong)value;
 
-+ (void) nativeBindDouble:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(double)value;
++ (void) nativeBindDouble:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index value:(jdouble)value;
 
-+ (void) nativeBindBlob:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(IOSByteArray *)value;
++ (void) nativeBindBlob:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index value:(IOSByteArray *)value;
 
-+ (void) nativeBindString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(int)index value:(NSString *)value;
++ (void) nativeBindString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr index:(jint)index value:(NSString *)value;
 
 + (void) nativeResetStatementAndClearBindings:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
 + (void) nativeExecute:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (long) nativeExecuteForLong:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jlong) nativeExecuteForLong:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
 + (NSString *) nativeExecuteForString:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (int) nativeExecuteForChangedRowCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jint) nativeExecuteForChangedRowCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (long) nativeExecuteForLastInsertedRowId:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
++ (jlong) nativeExecuteForLastInsertedRowId:(NSObject *)connectionPtr statement:(NSObject *)statementPtr;
 
-+ (long) nativeExecuteForCursorWindow:(NSObject *)connectionPtr statement:(NSObject *)statementPtr
-                               window:(NSObject *)windowPtr startPos:(int)startPos requiredPos:(int)requiredPos
-                               countAllRows:(BOOL)countAllRows;
++ (jlong) nativeExecuteForCursorWindow:(NSObject *)connectionPtr statement:(NSObject *)statementPtr
+                               window:(NSObject *)windowPtr startPos:(jint)startPos requiredPos:(jint)requiredPos
+                               countAllRows:(jboolean)countAllRows;
 
 
-+ (int) nativeGetDbLookaside:(NSObject *)connectionPtr;
++ (jint) nativeGetDbLookaside:(NSObject *)connectionPtr;
 
 @end

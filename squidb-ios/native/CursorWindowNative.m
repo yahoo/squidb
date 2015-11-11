@@ -41,7 +41,7 @@ static void throwUnknownTypeException(jint type) {
 }
 
 // Class methods
-+ (NSObject *) nativeCreate:(NSString *)name cursorWindowSize:(int)cursorWindowSize {
++ (NSObject *) nativeCreate:(NSString *)name cursorWindowSize:(jint)cursorWindowSize {
     return [[CursorWindowNative alloc] initWithName:name size:cursorWindowSize isReadOnly:NO];
 }
 
@@ -58,18 +58,18 @@ static void throwUnknownTypeException(jint type) {
     }
 }
 
-+ (int) nativeGetNumRows:(NSObject *)windowPtr {
++ (jint) nativeGetNumRows:(NSObject *)windowPtr {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     return [window getNumRows];
 }
 
-+ (BOOL) nativeSetNumColumns:(NSObject *)windowPtr columnNum:(int)columnNum {
++ (jboolean) nativeSetNumColumns:(NSObject *)windowPtr columnNum:(jint)columnNum {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window setNumColumns:columnNum];
     return status == OK;
 }
 
-+ (BOOL) nativeAllocRow:(NSObject *)windowPtr {
++ (jboolean) nativeAllocRow:(NSObject *)windowPtr {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window allocRow];
     return status == OK;
@@ -80,7 +80,7 @@ static void throwUnknownTypeException(jint type) {
     [window freeLastRow];
 }
 
-+ (int) nativeGetType:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (jint) nativeGetType:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("returning column type affinity for %d,%d from %p", row, column, window);
 
@@ -107,7 +107,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return [window offsetToPtr:fieldSlot->data.buffer.offset];
 }
 
-+ (IOSByteArray *)nativeGetBlob:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (IOSByteArray *)nativeGetBlob:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting blob for %d,%d from %p", row, column, window);
 
@@ -142,7 +142,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return NULL;
 }
 
-+ (NSString *)nativeGetString:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (NSString *)nativeGetString:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting string for %d,%d from %p", row, column, window);
 
@@ -180,7 +180,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     }
 }
 
-+ (long) nativeGetLong:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (jlong) nativeGetLong:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting long for %d,%d from %p", row, column, window);
 
@@ -199,7 +199,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         return sizeIncludingNull > 1 ? strtoll(value, NULL, 0) : 0L;
     } else if (type == FIELD_TYPE_FLOAT) {
         double fieldValue = fieldSlot->data.d;
-        return (long)fieldValue;
+        return (jlong)fieldValue;
     } else if (type == FIELD_TYPE_NULL) {
         return 0;
     } else if (type == FIELD_TYPE_BLOB) {
@@ -211,7 +211,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     }
 }
 
-+ (double) nativeGetDouble:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (jdouble) nativeGetDouble:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 //    LOG_WINDOW("Getting double for %d,%d from %p", row, column, window);
 
@@ -229,8 +229,8 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         const char* value = getFieldSlotValueString(window, fieldSlot, &sizeIncludingNull);
         return sizeIncludingNull > 1 ? strtod(value, NULL) : 0.0;
     } else if (type == FIELD_TYPE_INTEGER) {
-        long fieldValue = fieldSlot->data.l;
-        return (double)fieldValue;
+        jlong fieldValue = fieldSlot->data.l;
+        return (jdouble)fieldValue;
     } else if (type == FIELD_TYPE_NULL) {
         return 0.0;
     } else if (type == FIELD_TYPE_BLOB) {
@@ -242,7 +242,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     }
 }
 
-+ (BOOL) nativePutBlob:(NSObject *)windowPtr value:(IOSByteArray *)value row:(int)row column:(int)column {
++ (jboolean) nativePutBlob:(NSObject *)windowPtr value:(IOSByteArray *)value row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     jint len = [value length];
 
@@ -259,7 +259,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return true;
 }
 
-+ (BOOL) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(int)row column:(int)column {
++ (jboolean) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
 
     uint32_t sizeIncludingNull = (uint32_t)[value lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1; //env->GetStringUTFLength(valueObj) + 1;
@@ -280,7 +280,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return true;
 }
 
-+ (BOOL) nativePutLong:(NSObject *)windowPtr value:(long)value row:(int)row column:(int)column {
++ (jboolean) nativePutLong:(NSObject *)windowPtr value:(jlong)value row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putLongInRow:row column:column value:value];
 
@@ -293,7 +293,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return true;
 }
 
-+ (BOOL) nativePutDouble:(NSObject *)windowPtr value:(double)value row:(int)row column:(int)column {
++ (jboolean) nativePutDouble:(NSObject *)windowPtr value:(jdouble)value row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putDoubleInRow:row column:column value:value];
 
@@ -306,7 +306,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return true;
 }
 
-+ (BOOL) nativePutNull:(NSObject *)windowPtr row:(int)row column:(int)column {
++ (jboolean) nativePutNull:(NSObject *)windowPtr row:(jint)row column:(jint)column {
     CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
     status_t status = [window putNullInRow:row column:column];
 
@@ -455,11 +455,11 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return OK;
 }
 
-- (int) getNumRows {
+- (jint) getNumRows {
     return mHeader->numRows;
 }
 
-- (int) getNumColumns {
+- (jint) getNumColumns {
     return mHeader->numColumns;
 }
 
@@ -522,7 +522,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return OK;
 }
 
-- (status_t) putLongInRow:(uint32_t)row column:(uint32_t)column value:(int64_t)value {
+- (status_t) putLongInRow:(uint32_t)row column:(uint32_t)column value:(jlong)value {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }
@@ -537,7 +537,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return OK;
 }
 
-- (status_t) putDoubleInRow:(uint32_t)row column:(uint32_t)column value:(double)value {
+- (status_t) putDoubleInRow:(uint32_t)row column:(uint32_t)column value:(jdouble)value {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
     }

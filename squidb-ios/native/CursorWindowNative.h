@@ -69,41 +69,41 @@ struct FieldSlot {
     } data;
 };
 
-+ (NSObject *)nativeCreate:(NSString *)name cursorWindowSize:(int)cursorWindowSize;
++ (NSObject *)nativeCreate:(NSString *)name cursorWindowSize:(jint)cursorWindowSize;
 
 + (void) nativeDispose:(NSObject *)windowPtr;
 
 + (void) nativeClear:(NSObject *)windowPtr;
 
-+ (int) nativeGetNumRows:(NSObject *)windowPtr;
++ (jint) nativeGetNumRows:(NSObject *)windowPtr;
 
-+ (BOOL) nativeSetNumColumns:(NSObject *)windowPtr columnNum:(int)columnNum;
++ (jboolean) nativeSetNumColumns:(NSObject *)windowPtr columnNum:(jint)columnNum;
 
-+ (BOOL) nativeAllocRow:(NSObject *)windowPtr;
++ (jboolean) nativeAllocRow:(NSObject *)windowPtr;
 
 + (void) nativeFreeLastRow:(NSObject *)windowPtr;
 
-+ (int) nativeGetType:(NSObject *)windowPtr row:(int) row column:(int)column;
++ (jint) nativeGetType:(NSObject *)windowPtr row:(jint)row column:(jint)column;
 
-+ (IOSByteArray *) nativeGetBlob:(NSObject *)windowPtr row:(int)row column:(int)column;
++ (IOSByteArray *) nativeGetBlob:(NSObject *)windowPtr row:(jint)row column:(jint)column;
 
-+ (NSString *) nativeGetString:(NSObject *)windowPtr row:(int) row column:(int) column;
++ (NSString *) nativeGetString:(NSObject *)windowPtr row:(jint) row column:(jint) column;
 
-+ (long) nativeGetLong:(NSObject *)windowPtr row:(int) row column:(int) column;
++ (jlong) nativeGetLong:(NSObject *)windowPtr row:(jint) row column:(jint) column;
 
-+ (double) nativeGetDouble:(NSObject *)windowPtr row:(int) row column:(int) column;
++ (jdouble) nativeGetDouble:(NSObject *)windowPtr row:(jint) row column:(jint) column;
 
 //private static native void nativeCopyStringToBuffer(Object windowPtr, int row, int column, CharArrayBuffer buffer);
 
-+ (BOOL) nativePutBlob:(NSObject *)windowPtr value:(IOSByteArray *)value row:(int)row column:(int)column;
++ (jboolean) nativePutBlob:(NSObject *)windowPtr value:(IOSByteArray *)value row:(jint)row column:(jint)column;
 
-+ (BOOL) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(int)row column:(int)column;
++ (jboolean) nativePutString:(NSObject *)windowPtr value:(NSString *)value row:(jint)row column:(jint)column;
 
-+ (BOOL) nativePutLong:(NSObject *)windowPtr value:(long)value row:(int)row column:(int)column;
++ (jboolean) nativePutLong:(NSObject *)windowPtr value:(jlong)value row:(jint)row column:(jint)column;
 
-+ (BOOL) nativePutDouble:(NSObject *)windowPtr value:(double)value row:(int)row column:(int)column;
++ (jboolean) nativePutDouble:(NSObject *)windowPtr value:(jdouble)value row:(jint)row column:(jint)column;
 
-+ (BOOL) nativePutNull:(NSObject *)windowPtr row:(int)row column:(int)column;
++ (jboolean) nativePutNull:(NSObject *)windowPtr row:(jint)row column:(jint)column;
 
 @property NSString *mName;
 @property uint32_t mSize;
@@ -119,9 +119,9 @@ struct FieldSlot {
 
 - (status_t) freeLastRow;
 
-- (int) getNumRows;
+- (jint) getNumRows;
 
-- (int) getNumColumns;
+- (jint) getNumColumns;
 
 - (struct RowSlot *) getRowSlot:(uint32_t)row;
 
@@ -137,9 +137,9 @@ struct FieldSlot {
 - (status_t) putBlobOrStringInRow:(uint32_t)row column:(uint32_t) column
                             value:(const void *)value size:(uint32_t)size type:(int32_t)type;
 
-- (status_t) putLongInRow:(uint32_t)row column:(uint32_t)column value:(int64_t)value;
+- (status_t) putLongInRow:(uint32_t)row column:(uint32_t)column value:(jlong)value;
 
-- (status_t) putDoubleInRow:(uint32_t)row column:(uint32_t)column value:(double)value;
+- (status_t) putDoubleInRow:(uint32_t)row column:(uint32_t)column value:(jdouble)value;
 
 - (status_t) putNullInRow:(uint32_t)row column:(uint32_t)column;
 
