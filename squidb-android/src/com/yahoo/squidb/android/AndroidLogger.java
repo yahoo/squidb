@@ -29,6 +29,9 @@ public class AndroidLogger extends Logger {
             case ERROR:
                 Log.e(tag, message, t);
                 break;
+            case ASSERT:
+                Log.wtf(tag, message, t);
+                break;
         }
     }
 }
