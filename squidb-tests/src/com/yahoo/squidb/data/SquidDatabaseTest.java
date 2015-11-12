@@ -520,4 +520,12 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(1, countBeforeCommit.get());
         assertEquals(2, countAfterCommit.get());
     }
+
+    public void testSimpleQueries() {
+        String sql = "SELECT CHANGES()";
+        insertBasicTestModel();
+
+        assertEquals(1, database.simpleQueryForLong(sql, null));
+        assertEquals("1", database.simpleQueryForString(sql, null));
+    }
 }

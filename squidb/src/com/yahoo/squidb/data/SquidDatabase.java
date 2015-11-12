@@ -531,6 +531,40 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Execute a statement that returns a 1x1 String result. If you know your result set will only have one row and
+     * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     *
+     * @param sql a sql statement
+     * @param sqlArgs arguments to bind to the sql statement
+     * @return the String result of the query
+     */
+    public String simpleQueryForString(String sql, Object[] sqlArgs) {
+        acquireNonExclusiveLock();
+        try {
+            return getDatabase().simpleQueryForString(sql, sqlArgs);
+        } finally {
+            releaseNonExclusiveLock();
+        }
+    }
+
+    /**
+     * Execute a statement that returns a 1x1 long result. If you know your result set will only have one row and
+     * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     *
+     * @param sql a sql statement
+     * @param sqlArgs arguments to bind to the sql statement
+     * @return the long result of the query
+     */
+    public long simpleQueryForLong(String sql, Object[] sqlArgs) {
+        acquireNonExclusiveLock();
+        try {
+            return getDatabase().simpleQueryForLong(sql, sqlArgs);
+        } finally {
+            releaseNonExclusiveLock();
+        }
+    }
+
+    /**
      * Execute a SQL {@link com.yahoo.squidb.sql.Insert} statement
      *
      * @return the row id of the last row inserted on success, -1 on failure

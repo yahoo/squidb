@@ -39,6 +39,10 @@ public interface ISQLiteDatabase {
 
     ICursor rawQuery(String sql, Object[] bindArgs);
 
+    String simpleQueryForString(String sql, Object[] bindArgs);
+
+    long simpleQueryForLong(String sql, Object[] bindArgs);
+
     long executeInsert(String sql, Object[] bindArgs);
 
     int executeUpdateDelete(String sql, Object[] bindArgs);

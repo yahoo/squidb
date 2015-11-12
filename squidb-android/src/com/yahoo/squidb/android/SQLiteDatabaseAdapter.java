@@ -212,6 +212,34 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
+    public String simpleQueryForString(String sql, Object[] bindArgs) {
+        SQLiteStatement statement = null;
+        try {
+            statement = db.compileStatement(sql);
+            SquidCursorFactory.bindArgumentsToProgram(statement, bindArgs);
+            return statement.simpleQueryForString();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    @Override
+    public long simpleQueryForLong(String sql, Object[] bindArgs) {
+        SQLiteStatement statement = null;
+        try {
+            statement = db.compileStatement(sql);
+            SquidCursorFactory.bindArgumentsToProgram(statement, bindArgs);
+            return statement.simpleQueryForLong();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    @Override
     public void setTransactionSuccessful() {
         db.setTransactionSuccessful();
     }
