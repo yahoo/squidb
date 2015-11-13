@@ -18,7 +18,7 @@ public class IOSOpenHelperCreator extends OpenHelperCreator {
         return new IOSOpenHelper(getDatabasePath(), databaseName, delegate, version);
     }
 
-    public static native String getDatabasePath() /*-[
+    private static native String getDatabasePath() /*-[
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString * documentsDirectory = [paths objectAtIndex:0];
         return [documentsDirectory stringByAppendingPathComponent:@"/Databases"];
