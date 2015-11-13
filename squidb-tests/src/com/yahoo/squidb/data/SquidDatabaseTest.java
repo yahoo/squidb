@@ -522,10 +522,18 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testSimpleQueries() {
-        String sql = "SELECT CHANGES()";
-        insertBasicTestModel();
+        database.beginTransactionNonExclusive();
+        try {
+            // the changes() function only works inside a transaction, because otherwise you may not get
+            // the same connection to the sqlite database depending on what the connection pool feels like giving you.
+            String sql = "SELECT CHANGES()";
+            insertBasicTestModel();
 
-        assertEquals(1, database.simpleQueryForLong(sql, null));
-        assertEquals("1", database.simpleQueryForString(sql, null));
+            assertEquals(1, database.simpleQueryForLong(sql, null));
+            assertEquals("1", database.simpleQueryForString(sql, null));
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
 }
