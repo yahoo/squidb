@@ -147,7 +147,9 @@ public class QueryTest extends DatabaseTestCase {
     public void testLikeWithNoEscape() {
         insertBasicTestModel();
         assertEquals(1, database.count(TestModel.class, TestModel.LAST_NAME.like("Bo_le%")));
+        assertEquals(0, database.count(TestModel.class, TestModel.LAST_NAME.notLike("Bo_le%")));
         assertEquals(0, database.count(TestModel.class, TestModel.LAST_NAME.like("%leyx")));
+        assertEquals(1, database.count(TestModel.class, TestModel.LAST_NAME.notLike("%leyx")));
     }
 
     public void testLikeWithEscape() {
@@ -156,6 +158,7 @@ public class QueryTest extends DatabaseTestCase {
         database.persist(model);
 
         assertEquals(1, database.count(TestModel.class, TestModel.FIRST_NAME.like("%\\_a\\%%", '\\')));
+        assertEquals(0, database.count(TestModel.class, TestModel.FIRST_NAME.notLike("%\\_a\\%%", '\\')));
     }
 
     public void testLikeSubquery() {
@@ -184,13 +187,19 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testBetweenCriterion() {
+        testBetween(Arrays.asList(2L, 3L, 4L, 5L), false);
+        testBetween(Arrays.asList(1L, 6L), true);
+    }
+
+    private void testBetween(List<Long> expectedIds, boolean useNotBetween) {
         SquidCursor<Employee> cursor = database.query(Employee.class,
-                Query.select(Employee.ID).where(Employee.ID.between(2, 5)).orderBy(Employee.ID.asc()));
+                Query.select(Employee.ID).where(useNotBetween ? Employee.ID.notBetween(2, 5) :
+                        Employee.ID.between(2, 5)).orderBy(Employee.ID.asc()));
         try {
-            assertEquals(4, cursor.getCount());
-            for (int i = 2; i < 6; i++) {
-                cursor.moveToPosition(i - 2);
-                assertEquals(i, cursor.get(Employee.ID).intValue());
+            assertEquals(expectedIds.size(), cursor.getCount());
+            for (Long id : expectedIds) {
+                cursor.moveToNext();
+                assertEquals(id.longValue(), cursor.get(Employee.ID).longValue());
             }
         } finally {
             cursor.close();
@@ -198,17 +207,22 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testGlobCriterion() {
-        SquidCursor<Employee> cursor = database.query(Employee.class,
-                Query.select(Employee.ID, Employee.NAME).where(Employee.NAME.glob("b*")).orderBy(Employee.ID.asc()));
-        try {
-            assertEquals(2, cursor.getCount());
-            cursor.moveToFirst();
-            assertEquals(bigBird.getId(), cursor.get(Employee.ID).longValue());
-            assertEquals(bigBird.getName(), cursor.get(Employee.NAME));
+        testGlob(Arrays.asList(bigBird, bert), false);
+        testGlob(Arrays.asList(cookieMonster, elmo, oscar, ernie), true);
+    }
 
-            cursor.moveToNext();
-            assertEquals(bert.getId(), cursor.get(Employee.ID).longValue());
-            assertEquals(bert.getName(), cursor.get(Employee.NAME));
+    private void testGlob(List<Employee> expected, boolean useNotGlob) {
+        SquidCursor<Employee> cursor = database.query(Employee.class,
+                Query.select(Employee.ID, Employee.NAME).where(useNotGlob ? Employee.NAME.notGlob("b*") :
+                        Employee.NAME.glob("b*"))
+                        .orderBy(Employee.ID.asc()));
+        try {
+            assertEquals(expected.size(), cursor.getCount());
+            for (Employee e : expected) {
+                cursor.moveToNext();
+                assertEquals(e.getId(), cursor.get(Employee.ID).longValue());
+                assertEquals(e.getName(), cursor.get(Employee.NAME));
+            }
         } finally {
             cursor.close();
         }
@@ -353,16 +367,33 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testInCriterion() {
+        List<String> expectedNames = Arrays.asList("bigBird", "cookieMonster");
         Query query = Query.select().where(Employee.NAME.in("bigBird", "cookieMonster")).orderBy(Employee.NAME.asc());
-        testInQuery(query);
+        testInQuery(expectedNames, query);
+
+        query = Query.select().where(Employee.NAME.notIn("bigBird", "cookieMonster")).orderBy(Employee.NAME.asc());
+        testInQuery(Arrays.asList("bert", "elmo", "ernie", "oscar"), query);
 
         List<String> list = Arrays.asList("bigBird", "cookieMonster");
         query = Query.select().where(Employee.NAME.in(list)).orderBy(Employee.NAME.asc());
-        testInQuery(query);
+        testInQuery(expectedNames, query);
 
         // Test off-by-one error that used to occur when the in criterion wasn't the last criterion in the list
         query = Query.select().where(Employee.NAME.in(list).or(Field.field("1").neq(1))).orderBy(Employee.NAME.asc());
-        testInQuery(query);
+        testInQuery(expectedNames, query);
+    }
+
+    private void testInQuery(List<String> expectedNames, Query query) {
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
+        try {
+            assertEquals(expectedNames.size(), cursor.getCount());
+            for (String name : expectedNames) {
+                cursor.moveToNext();
+                assertEquals(name, cursor.get(Employee.NAME));
+            }
+        } finally {
+            cursor.close();
+        }
     }
 
     public void testIsEmptyCriterion() {
@@ -383,19 +414,6 @@ public class QueryTest extends DatabaseTestCase {
                 TestModel.FIRST_NAME.isNotEmpty().and(TestModel.LAST_NAME.isEmpty()), TestModel.ID);
         assertNotNull(fetched);
         assertEquals(model.getId(), fetched.getId());
-    }
-
-    private void testInQuery(Query query) {
-        SquidCursor<Employee> cursor = database.query(Employee.class, query);
-        try {
-            assertEquals(2, cursor.getCount());
-            cursor.moveToFirst();
-            assertEquals("bigBird", cursor.get(Employee.NAME));
-            cursor.moveToNext();
-            assertEquals("cookieMonster", cursor.get(Employee.NAME));
-        } finally {
-            cursor.close();
-        }
     }
 
     public void testReusableQuery() {

@@ -19,8 +19,11 @@ public class CriterionTest extends SquidTestCase {
         assertNegationEqualsTheOther(TestModel.LUCKY_NUMBER.gt(5), TestModel.LUCKY_NUMBER.lte(5));
         assertNegationEqualsTheOther(TestModel.LUCKY_NUMBER.gte(5), TestModel.LUCKY_NUMBER.lt(5));
         assertNegationEqualsTheOther(TestModel.FIRST_NAME.in(Collections.EMPTY_SET),
-                Criterion.not(TestModel.FIRST_NAME.in(Collections.EMPTY_SET)));
+                TestModel.FIRST_NAME.notIn(Collections.EMPTY_SET));
         assertNegationEqualsTheOther(TestModel.FIRST_NAME.isNull(), TestModel.FIRST_NAME.isNotNull());
+        assertNegationEqualsTheOther(TestModel.LUCKY_NUMBER.between(1, 2), TestModel.LUCKY_NUMBER.notBetween(1, 2));
+        assertNegationEqualsTheOther(TestModel.FIRST_NAME.like("A"), TestModel.FIRST_NAME.notLike("A"));
+        assertNegationEqualsTheOther(TestModel.FIRST_NAME.glob("A*"), TestModel.FIRST_NAME.notGlob("A*"));
     }
 
     private void assertNegationEqualsTheOther(Criterion c1, Criterion c2) {
