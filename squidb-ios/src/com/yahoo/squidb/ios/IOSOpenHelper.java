@@ -12,7 +12,6 @@ import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * ISQLiteOpenHelper implementation that wraps the iOS port of SQLiteOpenHelper. When on iOS, returning an instance of
@@ -66,10 +65,8 @@ public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper
     }
 
     @Override
-    public synchronized void deleteDatabase() {
+    public synchronized boolean deleteDatabase() {
         File file = getDatabaseFile();
-        if (file.exists() && !file.delete()) {
-            throw new RuntimeException(new IOException("Failed to delete database file"));
-        }
+        return file != null && file.exists() && SQLiteDatabase.deleteDatabase(file);
     }
 }

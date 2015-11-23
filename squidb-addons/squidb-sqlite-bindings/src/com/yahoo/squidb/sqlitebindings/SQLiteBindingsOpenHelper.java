@@ -46,8 +46,8 @@ public class SQLiteBindingsOpenHelper extends SQLiteOpenHelper implements ISQLit
     }
 
     @Override
-    public void deleteDatabase() {
-        context.deleteDatabase(getDatabaseName());
+    public boolean deleteDatabase() {
+        return context.deleteDatabase(getDatabaseName());
     }
 
     @Override

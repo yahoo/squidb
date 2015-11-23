@@ -67,8 +67,8 @@ public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHe
     }
 
     @Override
-    public void deleteDatabase() {
-        context.deleteDatabase(getDatabaseName());
+    public boolean deleteDatabase() {
+        return context.deleteDatabase(getDatabaseName());
     }
 
     @Override
