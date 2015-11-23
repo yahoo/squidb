@@ -39,8 +39,12 @@ class BinaryCriterion extends Criterion {
     public Criterion negate() {
         Operator contrary = operator.getContrary();
         if (contrary != null) {
-            return new BinaryCriterion(field, contrary, value);
+            return constructNegatedCriterion(contrary);
         }
         return super.negate();
+    }
+
+    protected BinaryCriterion constructNegatedCriterion(Operator negatedOperator) {
+        return new BinaryCriterion(field, negatedOperator, value);
     }
 }
