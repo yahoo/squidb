@@ -65,20 +65,14 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     }
 
     /**
-     * @return a {@link Criterion} that the field must be equal to the given string, ignoring case. Due to a bug in
-     * sqlite, this will only work for ASCII characters.
+     * @return a {@link Criterion} that the field must be equal to the given string, ignoring case. This will only work
+     * for ASCII characters.
      */
     public Criterion eqCaseInsensitive(String value) {
         if (value == null) {
             return isNull();
         }
-        return new BinaryCriterion(this, Operator.eq, value) {
-            @Override
-            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-                super.afterPopulateOperator(builder, forSqlValidation);
-                builder.sql.append(" COLLATE NOCASE ");
-            }
-        };
+        return new CaseInsensitiveEqualsCriterion(this, Operator.eq, value);
     }
 
     /**
@@ -150,15 +144,15 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} that the field must be between the specified lower and upper bounds
      */
-    public Criterion between(final Object lower, final Object upper) {
-        return new BinaryCriterion(this, Operator.between, null) {
-            @Override
-            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-                builder.addValueToSql(lower, forSqlValidation);
-                builder.sql.append(" AND ");
-                builder.addValueToSql(upper, forSqlValidation);
-            }
-        };
+    public Criterion between(Object lower, Object upper) {
+        return new BetweenCriterion(this, Operator.between, lower, upper);
+    }
+
+    /**
+     * @return a {@link Criterion} that the field must not be between the specified lower and upper bounds
+     */
+    public Criterion notBetween(Object lower, Object upper) {
+        return new BetweenCriterion(this, Operator.notBetween, lower, upper);
     }
 
     /**
@@ -166,7 +160,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field is LIKE the given pattern
      */
     public Criterion like(Object value) {
-        return new BinaryCriterion(this, Operator.like, value);
+        return new LikeCriterion(this, Operator.like, value, '\0');
     }
 
     /**
@@ -180,13 +174,29 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field is LIKE the given pattern
      */
     public Criterion like(Object pattern, final char escape) {
-        return new BinaryCriterion(this, Operator.like, pattern) {
-            @Override
-            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-                super.afterPopulateOperator(builder, forSqlValidation);
-                builder.sql.append(" ESCAPE ").append(SqlUtils.sanitizeStringAsLiteral(Character.toString(escape)));
-            }
-        };
+        return new LikeCriterion(this, Operator.like, pattern, escape);
+    }
+
+    /**
+     * @param value the pattern to compare against
+     * @return a {@link Criterion} that the field is NOT LIKE the given pattern
+     */
+    public Criterion notLike(Object value) {
+        return new LikeCriterion(this, Operator.notLike, value, '\0');
+    }
+
+    /**
+     * Returns a {@link Criterion} that the field is NOT LIKE the given pattern, using the specified escape character to
+     * escape the '%' and '_' meta-characters and itself. If your pattern is a string,
+     * note that this method will not alter the input string for you; use {@link SqlUtils#escapeLikePattern(String,
+     * char) SqlUtils.escapeLikePattern()} to add escapes where necessary.
+     *
+     * @param pattern the pattern to compare against
+     * @param escape a character in the like pattern that escapes the '%' and '_' meta-characters and itself
+     * @return a {@link Criterion} that the field is NOT LIKE the given pattern
+     */
+    public Criterion notLike(Object pattern, final char escape) {
+        return new LikeCriterion(this, Operator.notLike, pattern, escape);
     }
 
     /**
@@ -195,6 +205,14 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      */
     public Criterion glob(Object value) {
         return new BinaryCriterion(this, Operator.glob, value);
+    }
+
+    /**
+     * @param value the pattern to compare against
+     * @return a {@link Criterion} that the field does not match the given pattern
+     */
+    public Criterion notGlob(Object value) {
+        return new BinaryCriterion(this, Operator.notGlob, value);
     }
 
     /**
@@ -209,24 +227,44 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * types will be converted to String literals
      */
     public Criterion in(final Collection<?> values) {
-        return new BinaryCriterion(this, Operator.in, values) {
-            @Override
-            protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
-                builder.sql.append("(");
-                builder.addCollectionArg(values);
-                builder.sql.append(")");
-            }
-        };
+        return new InCollectionCriterion(this, Operator.in, values);
     }
 
     /**
-     * @return a {@link Criterion} that the field's value is in the result of the {@link Query}
+     * @return a {@link Criterion} that the field's value is not in the list of values specified
+     */
+    public Criterion notIn(Object... values) {
+        return notIn(Arrays.asList(values));
+    }
+
+    /**
+     * @return a {@link Criterion} that the field's value is not in the collection of values. Values that are not
+     * primitive types will be converted to String literals
+     */
+    public Criterion notIn(final Collection<?> values) {
+        return new InCollectionCriterion(this, Operator.notIn, values);
+    }
+
+    /**
+     * @return a {@link Criterion} that the field's value is in the result of the {@link Query}. If the query is null,
+     * this is equivalent to 'IN ()', which will always be false.
      */
     public Criterion in(Query query) {
         if (query == null) {
             return in(Collections.EMPTY_SET);
         }
         return new BinaryCriterion(this, Operator.in, query);
+    }
+
+    /**
+     * @return a {@link Criterion} that the field's value is not in the result of the {@link Query}. If the query is
+     * null, this is equivalent to 'NOT IN ()', which will always be true.
+     */
+    public Criterion notIn(Query query) {
+        if (query == null) {
+            return notIn(Collections.EMPTY_SET);
+        }
+        return new BinaryCriterion(this, Operator.notIn, query);
     }
 
     /**

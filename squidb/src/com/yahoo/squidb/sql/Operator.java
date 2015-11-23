@@ -38,12 +38,20 @@ public enum Operator {
     exists(" EXISTS "),
     /** LIKE */
     like(" LIKE "),
+    /** NOT LIKE */
+    notLike(" NOT LIKE "),
     /** IN */
     in(" IN "),
+    /** NOT IN */
+    notIn(" NOT IN "),
     /** BETWEEN */
     between(" BETWEEN "),
+    /** NOT BETWEEN */
+    notBetween(" NOT BETWEEN "),
     /** GLOB */
     glob(" GLOB "),
+    /** NOT GLOB */
+    notGlob(" NOT GLOB "),
     /** MATCH */
     match(" MATCH ");
 
@@ -58,6 +66,14 @@ public enum Operator {
         contraryRegistry.put(lte, gt);
         contraryRegistry.put(lt, gte);
         contraryRegistry.put(gte, lt);
+        contraryRegistry.put(like, notLike);
+        contraryRegistry.put(notLike, like);
+        contraryRegistry.put(in, notIn);
+        contraryRegistry.put(notIn, in);
+        contraryRegistry.put(between, notBetween);
+        contraryRegistry.put(notBetween, between);
+        contraryRegistry.put(glob, notGlob);
+        contraryRegistry.put(notGlob, glob);
     }
 
     private final String operator;
