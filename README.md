@@ -4,8 +4,12 @@
 SquiDB is a SQLite database layer for Android. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
 
 ## Getting started
-
 Add SquiDB to your existing project by following the instructions in [Adding SquiDB as a dependency](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
+
+### SquiDB 3.0 beta
+SquiDB 3.0 is currently in development on [this branch](https://github.com/yahoo/squidb/tree/dev_3.0). This new version of SquiDB will add support for using the library with [Google's j2objc tool](http://j2objc.org/). In other words, SquiDB can be used as a SQLite data layer to develop cross-platform business logic that will run on both Android and iOS platforms. If you don't need this feature, you can ignore it -- SquiDB will continue to work on Android exactly as it always has, with only minor, low-level API changes. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for a more detailed discussion of the changes.
+
+The branch is currently in beta. There are currently no known issues -- all unit tests pass on both Android and iOS, and we think it is stable enough to develop with -- but the API still may undergo minor changes, and there may still be undiscovered bugs. We welcome any feedback and/or bug reports!
 
 ### Upgrading from SquiDB 1.x
 SquiDB was recently updated to version 2.0, which contains some breaking API changes. Don't worry, they're easy to fix! Just follow the instructions on [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-2.0) to update your code and take advantage of the latest and greatest SquiDB has to offer.
