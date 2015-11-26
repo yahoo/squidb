@@ -31,11 +31,16 @@ SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}:${S
 #echo ${SOURCEPATH}
 
 # Build annotation and processor jars
-./gradlew squidb-annotations:clean squidb-annotations:jar
-./gradlew squidb-processor:clean squidb-processor:jar
-cp squidb-annotations/build/libs/*.jar $JARS
-cp squidb-processor/build/libs/*.jar $JARS
-cp $SQUIDB_IOS_TESTS/apt-utils*.jar $JARS
+cp $SQUIDB_IOS_TESTS/*.jar $JARS
+if [ -z "$CI_IOS_TESTS" ] # only build annotation processors from scratch when not on CI
+then
+    ./gradlew squidb-annotations:clean squidb-annotations:jar
+    ./gradlew squidb-processor:clean squidb-processor:jar
+    cp squidb-annotations/build/libs/*.jar $JARS
+    cp squidb-processor/build/libs/*.jar $JARS
+    cp squidb-annotations/build/libs/*.jar $SQUIDB_IOS_TESTS
+    cp squidb-processor/build/libs/*.jar $SQUIDB_IOS_TESTS
+fi
 
 # invoke annotation processing, output to gen folder
 javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
@@ -74,7 +79,7 @@ do
 done
 
 # build test executable
-${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -l jre_emul -l junit -l sqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
+${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -ljre_emul -ljunit -lsqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
 
 # run tests
 ./run_squidb_ios_tests
