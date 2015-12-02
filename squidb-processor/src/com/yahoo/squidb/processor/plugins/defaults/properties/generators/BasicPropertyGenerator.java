@@ -91,15 +91,10 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     @Override
-    public void beforeEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        super.beforeEmitPropertyDeclaration(writer);
+    public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
-    }
-
-    @Override
-    public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         List<String> constructorArgs = new ArrayList<String>();
         constructorArgs.add(TableModelFileWriter.TABLE_NAME);
         constructorArgs.add("\"" + columnName + "\"");
@@ -144,7 +139,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     @Override
-    public void emitGetter(JavaFileWriter writer) throws IOException {
+    public final void emitGetter(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             return;
         }
@@ -152,9 +147,12 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setMethodName(getterMethodName())
                 .setModifiers(Modifier.PUBLIC)
                 .setReturnType(getTypeForGetAndSet());
+
+        modelSpec.getPluginBundle().beforeEmitGetter(writer, params);
         writer.beginMethodDefinition(params);
         writeGetterBody(writer);
         writer.finishMethodDefinition();
+        modelSpec.getPluginBundle().afterEmitGetter(writer, params);
     }
 
     protected String getterMethodName() {
@@ -166,7 +164,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     @Override
-    public void emitSetter(JavaFileWriter writer) throws IOException {
+    public final void emitSetter(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             return;
         }
@@ -179,9 +177,11 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setArgumentTypes(getTypeForGetAndSet())
                 .setArgumentNames(argName);
 
+        modelSpec.getPluginBundle().beforeEmitSetter(writer, params);
         writer.beginMethodDefinition(params);
         writeSetterBody(writer, argName);
         writer.finishMethodDefinition();
+        modelSpec.getPluginBundle().afterEmitSetter(writer, params);
     }
 
     protected String setterMethodName() {

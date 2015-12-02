@@ -149,7 +149,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     }
 
     private void emitSinglePropertyDeclaration(PropertyGenerator generator, int index) throws IOException {
-        generator.beforeEmitPropertyDeclaration(writer);
+        modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
         DeclaredTypeName type = generator.getPropertyType();
         String fieldToQualify = ALIASED_PROPERTY_ARRAY_NAME + "[" + index + "]";
         Expression expressionToCast;
@@ -162,7 +162,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         writer.writeFieldDeclaration(type, generator.getPropertyName(),
                 expressionToCast.cast(type), TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
-        generator.afterEmitPropertyDeclaration(writer);
+        modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
     }
 
     @Override

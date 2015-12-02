@@ -35,12 +35,12 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     private void emitSinglePropertyDeclaration(PropertyGenerator generator) throws IOException {
-        generator.beforeEmitPropertyDeclaration(writer);
+        modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
         writer.writeFieldDeclaration(generator.getPropertyType(), generator.getPropertyName(),
                 Expressions.staticReference(modelSpec.getModelSpecName(), generator.getPropertyName()),
                 TypeConstants.PUBLIC_STATIC_FINAL)
                 .writeNewline();
-        generator.afterEmitPropertyDeclaration(writer);
+        modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
     }
 
     @Override

@@ -199,22 +199,10 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         } else {
             writer.writeComment("--- getters and setters");
             for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-                emitGetter(writer, generator);
-                emitSetter(writer, generator);
+                generator.emitGetter(writer);
+                generator.emitSetter(writer);
             }
         }
-    }
-
-    private void emitGetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitGetter(writer);
-        generator.emitGetter(writer);
-        generator.afterEmitGetter(writer);
-    }
-
-    private void emitSetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitSetter(writer);
-        generator.emitSetter(writer);
-        generator.afterEmitSetter(writer);
     }
 
     protected void emitModelSpecificHelpers() throws IOException {

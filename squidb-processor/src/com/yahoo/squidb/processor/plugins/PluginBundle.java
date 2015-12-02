@@ -7,6 +7,8 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.List;
@@ -109,6 +111,30 @@ public class PluginBundle {
     }
 
     /**
+     * Calls {@link Plugin#beforeEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
+     */
+    public void beforeEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.beforeEmitPropertyDeclaration(writer, propertyGenerator);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#afterEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
+     */
+    public void afterEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.afterEmitPropertyDeclaration(writer, propertyGenerator);
+            }
+        }
+    }
+
+    /**
      * Calls {@link Plugin#afterEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
     public void afterEmitSchema(JavaFileWriter writer) throws IOException {
@@ -126,6 +152,50 @@ public class PluginBundle {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
                 plugin.emitConstructors(writer);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#beforeEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     */
+    public void beforeEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.beforeEmitGetter(writer, getterParams);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#afterEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     */
+    public void afterEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.afterEmitGetter(writer, getterParams);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#beforeEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     */
+    public void beforeEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.beforeEmitSetter(writer, getterParams);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link Plugin#afterEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     */
+    public void afterEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.afterEmitSetter(writer, getterParams);
             }
         }
     }

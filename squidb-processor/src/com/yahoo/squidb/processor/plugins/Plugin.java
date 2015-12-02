@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
@@ -126,6 +127,30 @@ public class Plugin {
     }
 
     /**
+     * Called before emitting the static declaration for the given property. Plugin subclasses can generate arbitrary
+     * code here, but most often it would be useful for annotating the generated field
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator contain metadata about the property to be written (name, type, etc.)
+     */
+    public void beforeEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting the static declaration for the given property. Plugin subclasses can generate arbitrary
+     * code here
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator contain metadata about the property that was written (name, type, etc.)
+     */
+    public void afterEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
      * Called before emitting the table schema (property declarations, the Table/View object, etc.). This is essentially
      * the top of the file before anything model-specific exists.
      *
@@ -151,6 +176,50 @@ public class Plugin {
      * @param writer a {@link JavaFileWriter} for writing to
      */
     public void emitConstructors(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called before emitting a getter method for a property. Plugin subclasses can generate arbitrary code here, but
+     * most often it would be useful for annotating the generated method
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void beforeEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting a getter method for a property. Plugin subclasses can generate arbitrary code here,
+     * although use cases for this hook will probably be rare
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void afterEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called before emitting a setter method for a property. Plugin subclasses can generate arbitrary code here, but
+     * most often it would be useful for annotating the generated method
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void beforeEmitSetter(JavaFileWriter writer, MethodDeclarationParameters setterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting a setter method for a property. Plugin subclasses can generate arbitrary code here,
+     * although use cases for this hook will probably be rare
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void afterEmitSetter(JavaFileWriter writer, MethodDeclarationParameters setterParams) throws IOException {
         // Stub for subclasses to override
     }
 

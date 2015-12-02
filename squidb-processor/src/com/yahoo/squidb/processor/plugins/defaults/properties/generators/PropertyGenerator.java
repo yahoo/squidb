@@ -67,38 +67,11 @@ public abstract class PropertyGenerator {
     public abstract String getPropertyName();
 
     /**
-     * Called before {@link #emitPropertyDeclaration(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void beforeEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
-
-    /**
      * Called to write the declaration of the property itself
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
     public abstract void emitPropertyDeclaration(JavaFileWriter writer) throws IOException;
-
-    /**
-     * Called after {@link #emitPropertyDeclaration(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void afterEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
-
-    /**
-     * Called before {@link #emitGetter(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void beforeEmitGetter(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
 
     /**
      * Called to write the convenience getter the property itself
@@ -108,38 +81,11 @@ public abstract class PropertyGenerator {
     public abstract void emitGetter(JavaFileWriter writer) throws IOException;
 
     /**
-     * Called after {@link #emitGetter(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void afterEmitGetter(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
-
-    /**
-     * Called before {@link #emitSetter(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void beforeEmitSetter(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
-
-    /**
      * Called to write the convenience setter the property itself
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
     public abstract void emitSetter(JavaFileWriter writer) throws IOException;
-
-    /**
-     * Called after {@link #emitSetter(JavaFileWriter)}
-     *
-     * @param writer a {@link JavaFileWriter} for writing to
-     */
-    public void afterEmitSetter(JavaFileWriter writer) throws IOException {
-        // Subclasses can override
-    }
 
     /**
      * Called to emit a call to ContentValues.put for adding a property default to the model default values

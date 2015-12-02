@@ -70,16 +70,16 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void emitAllProperties() throws IOException {
         emitIdPropertyDeclaration();
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-            generator.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
             generator.emitPropertyDeclaration(writer);
-            generator.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
             writer.writeNewline();
         }
 
         for (PropertyGenerator deprecatedProperty : modelSpec.getDeprecatedPropertyGenerators()) {
-            deprecatedProperty.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, deprecatedProperty);
             deprecatedProperty.emitPropertyDeclaration(writer);
-            deprecatedProperty.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, deprecatedProperty);
             writer.writeNewline();
         }
 
@@ -89,9 +89,9 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     private void emitIdPropertyDeclaration() throws IOException {
         PropertyGenerator idPropertyGenerator = modelSpec.getIdPropertyGenerator();
         if (idPropertyGenerator != null) {
-            idPropertyGenerator.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, idPropertyGenerator);
             idPropertyGenerator.emitPropertyDeclaration(writer);
-            idPropertyGenerator.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, idPropertyGenerator);
         } else {
             // Default ID property
             Expression constructor;
