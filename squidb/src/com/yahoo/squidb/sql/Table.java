@@ -40,12 +40,16 @@ public class Table extends SqlTable<TableModel> {
     }
 
     public Table qualifiedFromDatabase(String databaseName) {
-        return new Table(modelClass, properties, getExpression(), databaseName, tableConstraint, alias);
+        Table result = new Table(modelClass, properties, getExpression(), databaseName, tableConstraint, alias);
+        result.idProperty = idProperty;
+        return result;
     }
 
     @Override
     public Table as(String newAlias) {
-        return new Table(modelClass, properties, getExpression(), qualifier, tableConstraint, newAlias);
+        Table result = new Table(modelClass, properties, getExpression(), qualifier, tableConstraint, newAlias);
+        result.idProperty = result.qualifyField(idProperty);
+        return result;
     }
 
     /**
