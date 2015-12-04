@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 
+import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
@@ -58,6 +59,43 @@ public class SquidUtilities {
         } else if (errorOnFail) {
             throw new UnsupportedOperationException("Could not handle type " + value.getClass());
         }
+    }
+
+    public static void dumpCursor(SquidCursor<?> cursor) {
+        dumpCursor(cursor, 20);
+    }
+
+    public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth) {
+        String[] columnNames = cursor.getColumnNames();
+        StringBuilder rowBuilder = new StringBuilder();
+
+        for (String col : columnNames) {
+            addColumnToRowBuilder(rowBuilder, col, maxColumnWidth);
+        }
+        rowBuilder.append('\n');
+        for (int i = 0; i < (maxColumnWidth + 1) * columnNames.length; i++) {
+            rowBuilder.append('=');
+        }
+        rowBuilder.append('\n');
+        while (cursor.moveToNext()) {
+            for (int i = 0; i < columnNames.length; i++) {
+                addColumnToRowBuilder(rowBuilder, cursor.getString(i), maxColumnWidth);
+            }
+            rowBuilder.append('\n');
+        }
+        Log.d(LOG_TAG, rowBuilder.toString());
+    }
+
+    private static void addColumnToRowBuilder(StringBuilder builder, String value, int maxColumnWidth) {
+        if (value.length() > maxColumnWidth) {
+            builder.append(value.substring(0, maxColumnWidth - 3)).append("...");
+        } else {
+            builder.append(value);
+            for (int i = 0; i < maxColumnWidth - value.length(); i++) {
+                builder.append(' ');
+            }
+        }
+        builder.append('|');
     }
 
     /**
