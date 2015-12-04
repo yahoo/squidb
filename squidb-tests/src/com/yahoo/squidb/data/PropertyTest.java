@@ -13,6 +13,7 @@ import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -85,6 +86,12 @@ public class PropertyTest extends SquidTestCase {
 
         assertEquals(test5, test6);
         assertEquals(test5.hashCode(), test6.hashCode());
+    }
+
+    public void testAliasedTableHasIdProperty() {
+        Table testModelAlias = TestModel.TABLE.as("testModelAlias");
+        LongProperty testModelAliasId = testModelAlias.getIdProperty();
+        assertEquals("testModelAlias._id", testModelAliasId.getQualifiedExpression());
     }
 
     public void testLiteralProperties() {
