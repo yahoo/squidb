@@ -32,7 +32,7 @@ public class SquidUtilities {
             return;
         }
         String[] columnNames = cursor.getColumnNames();
-        StringBuilder rowBuilder = new StringBuilder();
+        StringBuilder rowBuilder = new StringBuilder("\n");
 
         for (String col : columnNames) {
             addColumnToRowBuilder(rowBuilder, col, maxColumnWidth);
