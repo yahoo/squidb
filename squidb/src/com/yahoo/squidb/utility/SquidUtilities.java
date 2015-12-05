@@ -66,6 +66,10 @@ public class SquidUtilities {
     }
 
     public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth) {
+        if (cursor == null) {
+            Log.d(LOG_TAG, "Cursor is null");
+            return;
+        }
         String[] columnNames = cursor.getColumnNames();
         StringBuilder rowBuilder = new StringBuilder();
 
@@ -87,6 +91,9 @@ public class SquidUtilities {
     }
 
     private static void addColumnToRowBuilder(StringBuilder builder, String value, int maxColumnWidth) {
+        if (value == null) {
+            value = "null";
+        }
         if (value.length() > maxColumnWidth) {
             builder.append(value.substring(0, maxColumnWidth - 3)).append("...");
         } else {
