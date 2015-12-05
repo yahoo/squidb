@@ -27,6 +27,10 @@ public class SquidUtilities {
     }
 
     public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth) {
+        if (cursor == null) {
+            Logger.d(Logger.LOG_TAG, "Cursor is null");
+            return;
+        }
         String[] columnNames = cursor.getColumnNames();
         StringBuilder rowBuilder = new StringBuilder();
 
@@ -48,6 +52,9 @@ public class SquidUtilities {
     }
 
     private static void addColumnToRowBuilder(StringBuilder builder, String value, int maxColumnWidth) {
+        if (value == null) {
+            value = "null";
+        }
         if (value.length() > maxColumnWidth) {
             builder.append(value.substring(0, maxColumnWidth - 3)).append("...");
         } else {
@@ -58,7 +65,7 @@ public class SquidUtilities {
         }
         builder.append('|');
     }
-    
+
     /**
      * A wrapper around {@link Collections#addAll(Collection, Object[])} that performs a null check on the objects
      * array before attempting the add
