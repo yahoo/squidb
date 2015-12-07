@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.utility;
 
-import com.yahoo.squidb.data.SquidCursor;
+import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
@@ -22,11 +22,25 @@ import java.util.Collections;
  */
 public class SquidUtilities {
 
-    public static void dumpCursor(SquidCursor<?> cursor) {
+    /**
+     * Prints the contents of the given cursor in a formatted way, similar to how the SQLite shell would print a query
+     * result with ".headers on" and ".mode columns". Alias for dumpCursor(cursor, 20).
+     *
+     * @param cursor the cursor to print
+     */
+    public static void dumpCursor(ICursor cursor) {
         dumpCursor(cursor, 20);
     }
 
-    public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth) {
+    /**
+     * Prints the contents of the given cursor in a formatted way, similar to how the SQLite shell would print a query
+     * result with ".headers on" and ".mode columns".
+     *
+     * @param cursor the cursor to print
+     * @param maxColumnWidth the maximum width in characters for the columns. Values longer than the given width will
+     * be truncated.
+     */
+    public static void dumpCursor(ICursor cursor, int maxColumnWidth) {
         if (cursor == null) {
             Logger.d(Logger.LOG_TAG, "Cursor is null");
             return;
