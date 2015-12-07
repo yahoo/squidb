@@ -69,7 +69,9 @@ public class SquidUtilities {
         if (value == null) {
             value = "null";
         }
-        if (value.length() > maxColumnWidth) {
+        if (maxColumnWidth <= 0) { // This won't be as well formatted, but it's good for things like EXPLAIN QUERY PLAN
+            builder.append(value);
+        } else if (value.length() > maxColumnWidth) {
             builder.append(value.substring(0, maxColumnWidth - 3)).append("...");
         } else {
             builder.append(value);

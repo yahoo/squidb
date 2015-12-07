@@ -23,6 +23,7 @@ import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
 import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
@@ -1264,6 +1265,35 @@ public abstract class SquidDatabase {
      * @return a {@link SquidCursor} containing the query results
      */
     public <TYPE extends AbstractModel> SquidCursor<TYPE> query(Class<TYPE> modelClass, Query query) {
+        query = inferTableForQuery(modelClass, query);
+        CompiledStatement compiled = query.compile(getSqliteVersion());
+        if (compiled.needsValidation) {
+            String validateSql = query.sqlForValidation(getSqliteVersion());
+            ensureSqlCompiles(validateSql); // throws if the statement fails to compile
+        }
+        ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
+        return new SquidCursor<TYPE>(cursor, query.getFields());
+    }
+
+    /**
+     * Directly analogous to {@link #query(Class, Query)}, but instead of returning a result, this method just logs the
+     * output of EXPLAIN QUERY PLAN for the given query. This is intended for debugging only.
+     */
+    public void explainQueryPlan(Class<? extends AbstractModel> modelClass, Query query) {
+        query = inferTableForQuery(modelClass, query);
+        CompiledStatement compiled = query.compile(getSqliteVersion());
+        ICursor cursor = rawQuery("EXPLAIN QUERY PLAN " + compiled.sql, compiled.sqlArgs);
+        try {
+            Logger.d(Logger.LOG_TAG, "Query plan for: " + compiled.sql);
+            SquidUtilities.dumpCursor(cursor, -1);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // If the query does not have a from clause, look up the table by model object and add it to the query. May
+    // return a new query object if the argument passed was frozen.
+    private Query inferTableForQuery(Class<? extends AbstractModel> modelClass, Query query) {
         if (!query.hasTable() && modelClass != null) {
             SqlTable<?> table = getSqlTable(modelClass);
             if (table == null) {
@@ -1272,13 +1302,7 @@ public abstract class SquidDatabase {
             }
             query = query.from(table); // If argument was frozen, we may get a new object
         }
-        CompiledStatement compiled = query.compile(getSqliteVersion());
-        if (compiled.needsValidation) {
-            String validateSql = query.sqlForValidation(getSqliteVersion());
-            ensureSqlCompiles(validateSql); // throws if the statement fails to compile
-        }
-        ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
-        return new SquidCursor<TYPE>(cursor, query.getFields());
+        return query;
     }
 
     // For use only when validating queries
