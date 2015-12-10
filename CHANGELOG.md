@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 2.0.2 *(2015-12-10)*
+---------------------------
+* Adjustment to code generation so that constants are written after schema declaration. This allows constants to be defined in terms of Property objects in the generated model (e.g. `public static final Order DEFAULT_ORDER = Model.TIMESTAMP.asc()`). Also introduces the `@Constants` annotation, which allows annotating a static inner class of constants in a model spec for when class loading order is important (as it is in ViewModels).
+* Add some utilities for logging the contents of a cursor in a formatted way (see `SquidUtilities.dumpCursor`)
+* Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.9.2
+* Fix a bug where properties returned from `qualifyField` had an explicit alias set when they should not
+* Fix a bug where tables aliased using `Table.as` did not have an associated rowid property
+
 Version 2.0.1 *(2015-10-29)*
 ----------------------------
 * SquidDatabase will now call onConfigure before onOpen for Android API level < 16
@@ -24,7 +32,6 @@ Version 2.0.0 *(2015-09-23)*
 
 Version 1.1.0 *(2015-07-29)*
 ----------------------------
-
  * Add the ability for generated models to implement interfaces using the @Implements annotation
  * Add the ability to pass information about failed database migrations to your AbstractDatabase hooks using MigrationFailedException.
 
@@ -38,12 +45,10 @@ Version 1.1.0 *(2015-07-29)*
 
 Version 1.0.1 *(2015-06-18)*
 ----------------------------
-
  * Add a @PrimaryKey annotation. This enables two things that weren't possible before:
    * Declaring id columns not named "\_id"
    * Disabling the `AUTOINCREMENT` behavior with a flag in the @PrimaryKey annotation
 
 Version 1.0.0 *(2015-05-29)*
 ----------------------------
-
  * Initial stable release of SquiDB
