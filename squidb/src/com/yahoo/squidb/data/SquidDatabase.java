@@ -1157,17 +1157,8 @@ public abstract class SquidDatabase {
     private VersionCode readSqliteVersion() {
         acquireNonExclusiveLock();
         try {
-            ICursor cursor = getDatabase().rawQuery("select sqlite_version()", null);
-            try {
-                if (cursor.moveToFirst()) {
-                    String versionString = cursor.getString(0);
-                    return VersionCode.parse(versionString);
-                } else {
-                    throw new RuntimeException("Query for SQLite version failed");
-                }
-            } finally {
-                cursor.close();
-            }
+            String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
+            return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
             throw new RuntimeException("Failed to read sqlite version", e);
@@ -1728,13 +1719,9 @@ public abstract class SquidDatabase {
         if (criterion != null) {
             query.where(criterion);
         }
-        SquidCursor<?> cursor = query(modelClass, query);
-        try {
-            cursor.moveToFirst();
-            return cursor.get(countProperty);
-        } finally {
-            cursor.close();
-        }
+        query = inferTableForQuery(modelClass, query);
+        CompiledStatement compiled = query.compile(getSqliteVersion());
+        return (int) getDatabase().simpleQueryForLong(compiled.sql, compiled.sqlArgs);
     }
 
     /**
