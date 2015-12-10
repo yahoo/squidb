@@ -61,33 +61,110 @@ public class SquidUtilities {
         }
     }
 
+    /**
+     * Dump the contents of the cursor to the system log, formatted in a readable way
+     *
+     * @param cursor the cursor to dump
+     */
     public static void dumpCursor(SquidCursor<?> cursor) {
         dumpCursor(cursor, 20);
     }
 
+    /**
+     * Dump the contents of the cursor to the system log, formatted in a readable way
+     *
+     * @param cursor the cursor to dump
+     * @param maxColumnWidth maximum width for each column
+     */
     public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth) {
+        StringBuilder builder = new StringBuilder("\n");
+        dumpCursor(cursor, maxColumnWidth, builder);
+        Log.d(LOG_TAG, builder.toString());
+    }
+
+    /**
+     * Dump the contents of the cursor to the provided builder, formatted in a readable way
+     *
+     * @param cursor the cursor to dump
+     * @param builder the builder to append to
+     */
+    public static void dumpCursor(SquidCursor<?> cursor, StringBuilder builder) {
+        dumpCursor(cursor, 20, builder);
+    }
+
+    /**
+     * Dump the contents of the cursor to the provided builder, formatted in a readable way
+     *
+     * @param cursor the cursor to dump
+     * @param maxColumnWidth maximum width for each column
+     * @param builder the builder to append to
+     */
+    public static void dumpCursor(SquidCursor<?> cursor, int maxColumnWidth, StringBuilder builder) {
         if (cursor == null) {
-            Log.d(LOG_TAG, "Cursor is null");
+            builder.append("Cursor is null");
             return;
         }
-        String[] columnNames = cursor.getColumnNames();
-        StringBuilder rowBuilder = new StringBuilder();
 
+        String[] columnNames = cursor.getColumnNames();
         for (String col : columnNames) {
-            addColumnToRowBuilder(rowBuilder, col, maxColumnWidth);
+            addColumnToRowBuilder(builder, col, maxColumnWidth);
         }
-        rowBuilder.append('\n');
+        builder.append('\n');
         for (int i = 0; i < (maxColumnWidth + 1) * columnNames.length; i++) {
-            rowBuilder.append('=');
+            builder.append('=');
         }
-        rowBuilder.append('\n');
-        while (cursor.moveToNext()) {
-            for (int i = 0; i < columnNames.length; i++) {
-                addColumnToRowBuilder(rowBuilder, cursor.getString(i), maxColumnWidth);
-            }
-            rowBuilder.append('\n');
+        builder.append('\n');
+
+        int position = cursor.getPosition();
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            dumpCurrentRow(cursor, maxColumnWidth, builder);
+            builder.append('\n');
         }
-        Log.d(LOG_TAG, rowBuilder.toString());
+        cursor.moveToPosition(position); // reset
+    }
+
+    /**
+     * Dump the contents of the current row to the system log
+     *
+     * @param cursor the cursor, with its position already moved to the desired row
+     */
+    public static void dumpCurrentRow(SquidCursor<?> cursor) {
+        dumpCurrentRow(cursor, 20);
+    }
+
+    /**
+     * Dump the contents of the current row to the system log
+     *
+     * @param cursor the cursor, with its position already moved to the desired row
+     * @param maxColumnWidth maximum width for each column
+     */
+    public static void dumpCurrentRow(SquidCursor<?> cursor, int maxColumnWidth) {
+        StringBuilder builder = new StringBuilder("\n");
+        dumpCurrentRow(cursor, maxColumnWidth, builder);
+        Log.d(LOG_TAG, builder.toString());
+    }
+
+    /**
+     * Dump the contents of the current row to the provided builder
+     *
+     * @param cursor the cursor, with its position already moved to the desired row
+     * @param builder the builder to append to
+     */
+    public static void dumpCurrentRow(SquidCursor<?> cursor, StringBuilder builder) {
+        dumpCurrentRow(cursor, 20, builder);
+    }
+
+    /**
+     * Dump the contents of the current row to the provided builder
+     *
+     * @param cursor the cursor, with its position already moved to the desired row
+     * @param maxColumnWidth maximum width for each column
+     * @param builder the builder to append to
+     */
+    public static void dumpCurrentRow(SquidCursor<?> cursor, int maxColumnWidth, StringBuilder builder) {
+        for (int i = 0, count = cursor.getColumnCount(); i < count; i++) {
+            addColumnToRowBuilder(builder, cursor.getString(i), maxColumnWidth);
+        }
     }
 
     private static void addColumnToRowBuilder(StringBuilder builder, String value, int maxColumnWidth) {
