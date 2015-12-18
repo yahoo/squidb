@@ -17,9 +17,9 @@ import java.util.List;
 public final class Query extends TableStatement {
 
     /** Specifies this query has no limit */
-    public static final int NO_LIMIT = -1;
+    public static final Field<Integer> NO_LIMIT = Field.field("-1");
     /** Specifies this query has no offset */
-    public static final int NO_OFFSET = 0;
+    public static final Field<Integer> NO_OFFSET = Field.field("0");
 
     private SqlTable<?> table = null;
     private ArrayList<Field<?>> fields = null;
@@ -29,8 +29,8 @@ public final class Query extends TableStatement {
     private ArrayList<Criterion> havings = null;
     private ArrayList<CompoundSelect> compoundSelects = null;
     private ArrayList<Order> orders = null;
-    private int limit = NO_LIMIT;
-    private int offset = NO_OFFSET;
+    private Field<Integer> limit = NO_LIMIT;
+    private Field<Integer> offset = NO_OFFSET;
     private boolean distinct = false;
     private boolean immutable = false;
 
@@ -404,14 +404,7 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      */
     public Query limit(int limit) {
-        if (immutable) {
-            return fork().limit(limit);
-        }
-        if (this.limit != limit) {
-            this.limit = limit;
-            invalidateCompileCache();
-        }
-        return this;
+        return limit(limit < 0 ? NO_LIMIT : Field.<Integer>field(Integer.toString(limit)));
     }
 
     /**
@@ -423,10 +416,51 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      */
     public Query limit(int limit, int offset) {
+        return limit(limit < 0 ? NO_LIMIT : Field.<Integer>field(Integer.toString(limit)),
+                offset < 1 ? NO_OFFSET : Field.<Integer>field(Integer.toString(offset)));
+    }
+
+    /**
+     * Set the limit of this statement as a SQL expression; e.g. a {@link Function} or the result of
+     * {@link #asFunction()} to use a subquery. Use {@link #NO_LIMIT} to remove the limit.
+     *
+     * @param limit the maximum number of rows this query should return
+     * @return this Query object, to allow chaining method calls
+     */
+    public Query limit(Field<Integer> limit) {
+        if (limit == null) {
+            limit = NO_LIMIT;
+        }
+        if (immutable) {
+            return fork().limit(limit);
+        }
+        if (!this.limit.equals(limit)) {
+            this.limit = limit;
+            invalidateCompileCache();
+        }
+        return this;
+    }
+
+    /**
+     * Set the limit of this statement as a SQL expression; e.g. a {@link Function} or the result of
+     * {@link #asFunction()} to use a subquery. Use {@link #NO_LIMIT} for limit to remove the limit. Use
+     * {@link #NO_OFFSET} for offset to remove the offset.
+     *
+     * @param limit the maximum number of rows this query should return
+     * @param offset the number of rows this query should skip
+     * @return this Query object, to allow chaining method calls
+     */
+    public Query limit(Field<Integer> limit, Field<Integer> offset) {
+        if (limit == null) {
+            limit = NO_LIMIT;
+        }
+        if (offset == null) {
+            offset = NO_OFFSET;
+        }
         if (immutable) {
             return fork().limit(limit, offset);
         }
-        if (this.limit != limit || this.offset != offset) {
+        if (!this.limit.equals(limit) || !this.offset.equals(offset)) {
             this.limit = limit;
             this.offset = offset;
             invalidateCompileCache();
@@ -437,14 +471,14 @@ public final class Query extends TableStatement {
     /**
      * @return the current limit of this query
      */
-    public int getLimit() {
+    public Field<Integer> getLimit() {
         return limit;
     }
 
     /**
      * @return the current offset of this query
      */
-    public int getOffset() {
+    public Field<Integer> getOffset() {
         return offset;
     }
 
@@ -482,7 +516,7 @@ public final class Query extends TableStatement {
         visitGroupByClause(builder, forSqlValidation);
         visitCompoundSelectClauses(builder, forSqlValidation);
         visitOrderByClause(builder, forSqlValidation);
-        visitLimitClause(builder);
+        visitLimitClause(builder, forSqlValidation);
 
         if (needsValidation) {
             builder.setNeedsValidation();
@@ -570,11 +604,13 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(orders, ", ", forSqlValidation);
     }
 
-    private void visitLimitClause(SqlBuilder builder) {
-        if (limit > NO_LIMIT || offset > NO_OFFSET) {
-            builder.sql.append(" LIMIT ").append(limit);
-            if (offset > NO_OFFSET) {
-                builder.sql.append(" OFFSET ").append(offset);
+    private void visitLimitClause(SqlBuilder builder, boolean forSqlValidation) {
+        if (!NO_LIMIT.equals(limit) || !NO_OFFSET.equals(offset)) {
+            builder.sql.append(" LIMIT ");
+            limit.appendQualifiedExpression(builder, forSqlValidation);
+            if (!NO_OFFSET.equals(offset)) {
+                builder.sql.append(" OFFSET ");
+                offset.appendQualifiedExpression(builder, forSqlValidation);
             }
         }
     }
@@ -671,6 +707,13 @@ public final class Query extends TableStatement {
     public Query freeze() {
         this.immutable = true;
         return this;
+    }
+
+    /**
+     * @return true if {@link #freeze()} has been called on this object; false otherwise.
+     */
+    public boolean isImmutable() {
+        return immutable;
     }
 
     /**
