@@ -27,6 +27,7 @@ import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.Property;
@@ -1792,12 +1793,14 @@ public abstract class SquidDatabase {
     }
 
     protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass, Query query) {
-        int beforeLimit = query.getLimit();
+        boolean immutableQuery = query.isImmutable();
+        Field<Integer> beforeLimit = query.getLimit();
         SqlTable<?> beforeTable = query.getTable();
         query = query.limit(1); // If argument was frozen, we may get a new object
         SquidCursor<TYPE> cursor = query(modelClass, query);
-        query.limit(beforeLimit); // Reset for user
-        query.from(beforeTable); // Reset for user
+        if (!immutableQuery) {
+            query.from(beforeTable).limit(beforeLimit); // Reset for user
+        }
         cursor.moveToFirst();
         return cursor;
     }

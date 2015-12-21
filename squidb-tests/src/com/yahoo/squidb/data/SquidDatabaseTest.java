@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -25,7 +26,6 @@ import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Arrays;
 import java.util.List;
-
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -358,8 +358,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         Query query = Query.select().limit(2, 1);
         TestModel fetched = database.fetchByQuery(TestModel.class, query);
         assertEquals(model2.getId(), fetched.getId());
-        assertEquals(2, query.getLimit());
-        assertEquals(1, query.getOffset());
+        assertEquals(Field.field("2"), query.getLimit());
+        assertEquals(Field.field("1"), query.getOffset());
         assertEquals(null, query.getTable());
     }
 
