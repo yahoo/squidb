@@ -94,4 +94,23 @@ public class JSONPropertyTest extends DatabaseTestCase {
             assertEquals(i * 2, readNumbers.get(Integer.toString(i)).intValue());
         }
     }
+
+    public void testObjectProperty() {
+        AndroidTestModel model = new AndroidTestModel();
+        JSONPojo pojo = new JSONPojo();
+        pojo.pojoStr = "ABC";
+        pojo.pojoInt = 123;
+        pojo.pojoDouble = 3.1415;
+        pojo.pojoList = Arrays.asList("Z", "Y", "X");
+
+        model.setSomePojo(pojo);
+        database.persist(model);
+
+        model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+        JSONPojo readPojo = model.getSomePojo();
+        assertEquals(pojo.pojoStr, readPojo.pojoStr);
+        assertEquals(pojo.pojoInt, readPojo.pojoInt);
+        assertEquals(pojo.pojoDouble, readPojo.pojoDouble);
+        assertEquals(pojo.pojoList, readPojo.pojoList);
+    }
 }

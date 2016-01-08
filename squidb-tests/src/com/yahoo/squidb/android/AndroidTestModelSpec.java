@@ -26,4 +26,7 @@ public class AndroidTestModelSpec {
     @JSONProperty
     Map<String, Integer> someMap;
 
+    @JSONProperty
+    JSONPojo somePojo;
+
 }
