@@ -15,7 +15,7 @@ public class SquidbJSONSupport {
 
     public static JSONMapper MAPPER;
 
-    public static void setJSONMappingEngine(JSONMapper jsonMapper) {
+    public static void setJSONMapper(JSONMapper jsonMapper) {
         MAPPER = jsonMapper;
     }
 
