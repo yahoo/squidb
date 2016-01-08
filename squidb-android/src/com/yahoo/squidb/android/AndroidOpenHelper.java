@@ -26,7 +26,7 @@ public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHe
 
     public AndroidOpenHelper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
             int version) {
-        super(context, name, null, version);
+        super(context.getApplicationContext(), name, null, version);
         this.context = context.getApplicationContext();
         this.delegate = delegate;
     }
