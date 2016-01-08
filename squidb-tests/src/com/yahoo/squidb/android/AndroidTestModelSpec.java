@@ -9,7 +9,7 @@ import android.net.Uri;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.jackson.JacksonProperty;
+import com.yahoo.squidb.json.JSONProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +20,10 @@ public class AndroidTestModelSpec {
     public static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb/androidTestModels");
 
     @ColumnSpec(defaultValue = "[]")
-    @JacksonProperty
+    @JSONProperty
     List<String> someList;
 
-    @JacksonProperty
+    @JSONProperty
     Map<String, Integer> someMap;
 
 }

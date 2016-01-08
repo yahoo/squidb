@@ -7,33 +7,32 @@ package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.sql.Property.StringProperty;
+import com.yahoo.squidb.utility.Logger;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.JavaType;
+public class SquidbJSONSupport {
 
-import java.io.IOException;
+    private static final String TAG = "squidb-json";
 
-public class SquidbJacksonSupport {
+    public static JSONMapper MAPPER;
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
-
-    static {
-        MAPPER.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public static void setJSONMappingEngine(JSONMapper jsonMapper) {
+        MAPPER = jsonMapper;
     }
 
     @SuppressWarnings("unchecked")
     /**
-     * Get a Jackson-serialized string property as its real java type. Right now,
-     * only {@link java.util.List} and {@link java.util.Map} are supported for serialized types.
+     * Deserialize a JSON string property into the specified Java type
      */
-    public static <T> T getObjectValue(AbstractModel model, StringProperty property, JavaType type) {
+    public static <T> T getObjectValue(AbstractModel model, StringProperty property, Class<?> baseType,
+            Class<?>... genericArgs) {
         if (!model.hasTransitory(property.getName())) {
             T data = null;
             if (model.containsNonNullValue(property)) {
+                String value = model.get(property);
                 try {
-                    data = MAPPER.readValue(model.get(property), type);
-                } catch (IOException e) {
+                    data = MAPPER.fromJson(value, baseType, genericArgs);
+                } catch (Exception e) {
+                    Logger.w(TAG, "Error deserializing JSON string: " + value, e);
                     model.clearValue(property);
                 }
             }
@@ -45,7 +44,7 @@ public class SquidbJacksonSupport {
     }
 
     /**
-     * Sets the given Jackson-serialized property to the given value
+     * Sets the given JSON-serialized property to the given value
      *
      * @return true if the value object was successfully serialized, false otherwise
      */
@@ -53,17 +52,16 @@ public class SquidbJacksonSupport {
         try {
             String json = null;
             if (data != null) {
-                json = MAPPER.writeValueAsString(data);
-                if (model.containsNonNullValue(property)
-                        && json.equals(model.get(property))) {
+                json = MAPPER.toJSON(data);
+                if (model.containsNonNullValue(property) && json.equals(model.get(property))) {
                     return false;
                 }
             }
             model.set(property, json);
             model.putTransitory(property.getName(), data);
             return true;
-        } catch (IOException e) {
-            // leave existing values
+        } catch (Exception e) {
+            Logger.w(TAG, "Error serializing object to JSON string: " + data, e);
             return false;
         }
     }

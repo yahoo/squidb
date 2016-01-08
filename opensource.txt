@@ -19,7 +19,7 @@ License: Apache 2.0
 
 *
 
-squidb-jackson-plugin uses:
+squidb-tests uses Jackson to test the SquiDB JSON plugin:
 Jackson JSON Parser
 http://wiki.fasterxml.com/JacksonHome
 Copyright (c) 2007 -- Tatu Saloranta (tatu.saloranta@iki.fi)

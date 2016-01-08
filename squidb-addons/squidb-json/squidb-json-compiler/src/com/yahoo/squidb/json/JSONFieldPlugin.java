@@ -6,6 +6,8 @@
 package com.yahoo.squidb.json;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.yahoo.aptutils.model.TypeName;
+import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
@@ -13,9 +15,9 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 
 import javax.lang.model.element.VariableElement;
 
-public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
+public class JSONFieldPlugin extends TableModelSpecFieldPlugin {
 
-    public JacksonFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public JSONFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
@@ -24,23 +26,20 @@ public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
         if (field.getAnnotation(JSONProperty.class) == null) {
             return false;
         }
-        if (fieldType.equals(JacksonTypeConstants.MAP)) {
-            return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName &&
-                    fieldType.getTypeArgs().get(1) instanceof DeclaredTypeName;
-        } else if (fieldType.equals(JacksonTypeConstants.LIST)) {
-            return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName;
+        // Check that all generic types are declared types
+        if (!AptUtils.isEmpty(fieldType.getTypeArgs())) {
+            for (TypeName typeName : fieldType.getTypeArgs()) {
+                if (!(typeName instanceof DeclaredTypeName)) {
+                    return false;
+                }
+            }
         }
-        return false;
+        return true;
     }
 
     @Override
     protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        if (fieldType.equals(JacksonTypeConstants.MAP)) {
-            return new JacksonMapPropertyGenerator(modelSpec, field, fieldType, utils);
-        } else if (fieldType.equals(JacksonTypeConstants.LIST)) {
-            return new JacksonListPropertyGenerator(modelSpec, field, fieldType, utils);
-        }
-        return null;
+        return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
     }
 
 }
