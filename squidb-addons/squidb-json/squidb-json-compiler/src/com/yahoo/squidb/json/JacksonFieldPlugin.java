@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.jackson;
+package com.yahoo.squidb.json;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -21,7 +21,7 @@ public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        if (field.getAnnotation(JacksonProperty.class) == null) {
+        if (field.getAnnotation(JSONProperty.class) == null) {
             return false;
         }
         if (fieldType.equals(JacksonTypeConstants.MAP)) {

@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.jackson;
+package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.sql.Property.StringProperty;

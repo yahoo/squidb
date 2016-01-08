@@ -10,7 +10,7 @@ import com.yahoo.squidb.test.DatabaseTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-public class JacksonPropertyTest extends DatabaseTestCase {
+public class JSONPropertyTest extends DatabaseTestCase {
 
     @Override
     protected void setupDatabase() {
