@@ -127,6 +127,16 @@ public class Plugin {
     }
 
     /**
+     * Called after emitting the package and imports but before beginning the class declaration. Plugin subclasses can
+     * use this method to emit documentation/other comments or annotations.
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     */
+    public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
      * Called before emitting the static declaration for the given property. Plugin subclasses can generate arbitrary
      * code here, but most often it would be useful for annotating the generated field
      *

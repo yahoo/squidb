@@ -80,7 +80,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
 
-        utils = new AptUtils(env.getMessager(), env.getTypeUtils());
+        utils = new AptUtils(env.getMessager(), env.getTypeUtils(), env.getElementUtils());
         filer = env.getFiler();
 
         pluginEnv = new PluginEnvironment(utils, env.getOptions());

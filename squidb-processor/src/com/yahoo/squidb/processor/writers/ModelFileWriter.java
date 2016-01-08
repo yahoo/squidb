@@ -80,6 +80,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
         emitPackage();
         emitImports();
+        plugins.beforeEmitClassDeclaration(writer);
         beginClassDeclaration();
 
         plugins.beforeEmitSchema(writer);
@@ -115,8 +116,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void beginClassDeclaration() throws IOException {
-        writer.writeComment("Generated code -- do not modify!");
-        writer.writeComment("This class was generated from the model spec at " + modelSpec.getModelSpecName());
         if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }

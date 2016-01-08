@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Here's a test javadoc for a model spec. It should be copied to the generated model.
+ */
 @TableModelSpec(className = "TestModel", tableName = "testModels",
         tableConstraint = "UNIQUE (creationDate) ON CONFLICT REPLACE")
 @Implements(interfaceClasses = Runnable.class,
@@ -39,6 +42,17 @@ public class TestModelSpec {
     @ColumnSpec(constraints = "UNIQUE COLLATE NOCASE")
     String lastName;
 
+    /**
+     * Here's a super awesome javadoc I made for this field<br/>
+     * Oh look, it has multiple lines
+     * <br/><br/>
+     * It even has lists!
+     * <ul>
+     * <li>Item 1</li>
+     * <li>Item 2</li>
+     * <li>Item 3</li>
+     * </ul>
+     */
     @ColumnSpec(name = "creationDate")
     long birthday;
 
@@ -61,6 +75,11 @@ public class TestModelSpec {
         return instance.getFirstName() + " " + instance.getLastName();
     }
 
+    /**
+     * Returns the display name of the test model prefixed with the given prefix
+     *
+     * @param prefix the prefix to use
+     */
     @ModelMethod(name = "prefixedName")
     public static String getDisplayNameWithPrefix(TestModel instance, String prefix) {
         return prefix + " " + instance.getDisplayName();
@@ -81,6 +100,13 @@ public class TestModelSpec {
         return null;
     }
 
+    /**
+     * It would be pretty great if this static method had a javadoc too
+     *
+     * @param instance first TestModel instance
+     * @param anotherInstance another TestModel instance
+     * @return the literal String "Blah"
+     */
     public static String someStaticMethod(TestModel instance, TestModel anotherInstance) {
         return "Blah";
     }

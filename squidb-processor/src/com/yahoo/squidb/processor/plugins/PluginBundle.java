@@ -100,6 +100,17 @@ public class PluginBundle {
     }
 
     /**
+     * Calls {@link Plugin#beforeEmitClassDeclaration(JavaFileWriter)} on all the bundled plugins
+     */
+    public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
+        for (Plugin plugin : plugins) {
+            if (plugin.hasChangesForModelSpec()) {
+                plugin.beforeEmitClassDeclaration(writer);
+            }
+        }
+    }
+
+    /**
      * Calls {@link Plugin#beforeEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
     public void beforeEmitSchema(JavaFileWriter writer) throws IOException {

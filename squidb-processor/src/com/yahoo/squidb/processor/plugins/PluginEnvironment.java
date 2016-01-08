@@ -11,6 +11,7 @@ import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
@@ -93,6 +94,11 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS = "disableGettersAndSetters";
 
     /**
+     * Option for disabling javadoc copying
+     */
+    public static final String OPTIONS_DISABLE_JAVADOC_COPYING = "disableJavadoc";
+
+    /**
      * Option for generating models that have Android-specific features
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
@@ -132,6 +138,9 @@ public class PluginEnvironment {
         }
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
             normalPriorityPlugins.add(ModelMethodPlugin.class);
+        }
+        if (!hasOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
+            normalPriorityPlugins.add(JavadocPlugin.class);
         }
 
         // Can't disable these, but they can be overridden by user plugins with high priority
