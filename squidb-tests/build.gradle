@@ -45,12 +45,12 @@ dependencies {
     compile project(':squidb')
     compile project(':squidb-android')
     compile project(':squidb-annotations')
-    compile project(':squidb-jackson-plugin')
-    compile project(':squidb-jackson-annotations')
+    compile project(':squidb-json-plugin')
+    compile project(':squidb-json-annotations')
     compile project(':squidb-sqlite-bindings')
     compile project(':squidb-reactive')
     compile project(':squidb-recyclerview')
-    apt project(':squidb-jackson-compiler')
+    apt project(':squidb-json-compiler')
     apt project(':squidb-processor')
 }
 

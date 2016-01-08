@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-project.ext.artifactId = 'squidb-jackson-compiler'
+project.ext.artifactId = 'squidb-json-annotations'
 group = 'com.yahoo.squidb'
 version = '3.0.0-beta'
 
@@ -12,11 +12,6 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
-
-dependencies {
-    compile project(':squidb-processor')
-    compile project(':squidb-jackson-annotations')
-}
 
 sourceSets {
     main {
@@ -34,7 +29,7 @@ install {
         pom {
             project {
                 packaging 'jar'
-                name 'SquiDB Jackson plugin code generator'
+                name 'SquiDB JSON plugin annotations'
                 url siteUrl
                 licenses {
                     license {

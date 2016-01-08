@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-project.ext.artifactId = 'squidb-jackson-plugin'
+project.ext.artifactId = 'squidb-json-plugin'
 group = 'com.yahoo.squidb'
 version = '3.0.0-beta'
 
@@ -63,7 +63,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'SquiDB Jackson plugin'
+                name 'SquiDB JSON plugin'
                 url siteUrl
                 licenses {
                     license {
