@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.utility.VersionCode;
+
 import java.util.Calendar;
 
 public class DatabaseTestCase extends SquidTestCase {
@@ -67,6 +69,12 @@ public class DatabaseTestCase extends SquidTestCase {
     protected void tearDownDatabase() {
         if (database != null) {
             database.close();
+        }
+    }
+
+    protected void testForMinVersionCode(VersionCode minVersionCode, Runnable toTest) {
+        if (database.getSqliteVersion().isAtLeast(minVersionCode)) {
+            toTest.run();
         }
     }
 }

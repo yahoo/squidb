@@ -72,29 +72,29 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValues() {
-        if (database.getSqliteVersion().isLessThan(VersionCode.V3_7_11)) {
-            // see testInsertMultipleValuesPreJellybeanThrowsException
-            return;
-        }
+        testForMinVersionCode(VersionCode.V3_7_11, new Runnable() {
+            @Override
+            public void run() {
+                final String fname1 = "Alan";
+                final String lname1 = "Turing";
+                final String fname2 = "Linus";
+                final String lname2 = "Torvalds";
+                Insert insert = Insert.into(TestModel.TABLE)
+                        .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                        .values(fname1, lname1)
+                        .values(fname2, lname2);
 
-        final String fname1 = "Alan";
-        final String lname1 = "Turing";
-        final String fname2 = "Linus";
-        final String lname2 = "Torvalds";
-        Insert insert = Insert.into(TestModel.TABLE)
-                .columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
-                .values(fname1, lname1)
-                .values(fname2, lname2);
+                CompiledStatement compiled = insert.compile(database.getSqliteVersion());
+                verifyCompiledSqlArgs(compiled, 4, fname1, lname1, fname2, lname2);
 
-        CompiledStatement compiled = insert.compile(database.getSqliteVersion());
-        verifyCompiledSqlArgs(compiled, 4, fname1, lname1, fname2, lname2);
+                assertEquals(3, database.insert(insert));
 
-        assertEquals(3, database.insert(insert));
-
-        Criterion where = TestModel.FIRST_NAME.eq(fname1).and(TestModel.LAST_NAME.eq(lname1));
-        assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
-        where = TestModel.FIRST_NAME.eq(fname2).and(TestModel.LAST_NAME.eq(lname2));
-        assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+                Criterion where = TestModel.FIRST_NAME.eq(fname1).and(TestModel.LAST_NAME.eq(lname1));
+                assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+                where = TestModel.FIRST_NAME.eq(fname2).and(TestModel.LAST_NAME.eq(lname2));
+                assertNotNull(database.fetchByCriterion(TestModel.class, where, TestModel.PROPERTIES));
+            }
+        });
     }
 
     public void testInsertMultipleValuesPreJellybeanThrowsException() {
@@ -261,24 +261,25 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testSetsOfValuesOfUnequalSizeThrowsIllegalStateException() {
-        if (database.getSqliteVersion().isLessThan(VersionCode.V3_7_11)) {
-            // see testInsertMultipleValuesPreJellybeanThrowsException
-            return;
-        }
-        testThrowsException(new Runnable() {
-
+        testForMinVersionCode(VersionCode.V3_7_11, new Runnable() {
             @Override
             public void run() {
-                // insert into testModels (firstName, lastName) values ("Jack", "Sparrow"), ("James", "Bond", 007),
-                // ("Bugs", "Bunny");
-                Object[] values1 = new Object[]{"Jack", "Sparrow"};
-                Object[] values2 = new Object[]{"James", "Bond", Integer.valueOf(007)};
-                Object[] values3 = new Object[]{"Bugs", "Bunny"};
-                Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
-                        .values(values1).values(values2).values(values3);
-                insert.compile(database.getSqliteVersion());
+                testThrowsException(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // insert into testModels (firstName, lastName) values ("Jack", "Sparrow"), ("James", "Bond", 007),
+                        // ("Bugs", "Bunny");
+                        Object[] values1 = new Object[]{"Jack", "Sparrow"};
+                        Object[] values2 = new Object[]{"James", "Bond", Integer.valueOf(007)};
+                        Object[] values3 = new Object[]{"Bugs", "Bunny"};
+                        Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
+                                .values(values1).values(values2).values(values3);
+                        insert.compile(database.getSqliteVersion());
+                    }
+                }, IllegalStateException.class);
             }
-        }, IllegalStateException.class);
+        });
     }
 
     public void testQuerySpecifiedButColumnsMissingThrowsIllegalStateException() {

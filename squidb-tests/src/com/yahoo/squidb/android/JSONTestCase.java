@@ -74,9 +74,7 @@ public class JSONTestCase extends DatabaseTestCase {
         }
     }
 
-    protected void testForMinVersionCode(Runnable toTest) {
-        if (database.getSqliteVersion().isAtLeast(JSONFunctions.JSON1_MIN_VERSION)) {
-            toTest.run();
-        }
+    protected void testJsonFunction(Runnable toTest) {
+        testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
     }
 }

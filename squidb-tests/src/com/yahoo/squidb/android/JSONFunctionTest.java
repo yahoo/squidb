@@ -8,11 +8,20 @@ package com.yahoo.squidb.android;
 import com.yahoo.squidb.json.JSONFunctions;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.test.Thing;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class JSONFunctionTest extends JSONTestCase {
 
     public void testJson() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Function<String> json = JSONFunctions.json(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
@@ -24,7 +33,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     public void testMalformedJsonThrowsError() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testThrowsRuntimeException(new Runnable() {
@@ -41,7 +50,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     public void testJsonArray() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Function<String> jsonArray = JSONFunctions.jsonArray(1, 1, 2, 3, 5, 8, 13);
@@ -53,7 +62,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     public void testJsonArrayLength() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Function<Integer> jsonArrayLength = JSONFunctions.jsonArrayLength(
@@ -66,7 +75,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     public void testJsonArrayLengthWithPath() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Function<String> json = JSONFunctions.json(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
@@ -80,7 +89,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonExtractSinglePath() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jex
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonExtractSinglePathInternal("{\"a\":2,\"c\":[4,5,{\"f\":7}]}", "$",
@@ -110,7 +119,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonExtractMultiplePaths() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jex
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonExtractMultiplePathsInternal("{\"a\":2,\"c\":[4,5],\"f\":7}", "[[4,5],2]", "$.c", "$.a");
@@ -127,7 +136,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonType() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jtype
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 String jsonString = "{\"a\":[2,3.5,true,false,null,\"x\"]}";
@@ -158,7 +167,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonInsert() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jins
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonInsertReplaceSetInternal(0, "$.a", 99, "{\"a\":2,\"c\":4}");
@@ -169,7 +178,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonReplace() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jrepl
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonInsertReplaceSetInternal(1, "$.a", 99, "{\"a\":99,\"c\":4}");
@@ -180,7 +189,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonSet() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jset
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonInsertReplaceSetInternal(2, "$.a", 99, "{\"a\":99,\"c\":4}");
@@ -217,7 +226,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonRemove() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jrm
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 String jsonArray = "[0,1,2,3,4]";
@@ -243,7 +252,7 @@ public class JSONFunctionTest extends JSONTestCase {
 
     public void testJsonObject() {
         // These tests are taken entirely from the examples at http://sqlite.org/json1.html#jobj
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 testJsonObjectInternal("{\"a\":2,\"c\":4}", "a", 2, "c", 4);
@@ -261,7 +270,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     public void testJsonValid() {
-        testForMinVersionCode(new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Function<Integer> valid = JSONFunctions.jsonValid(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
@@ -274,6 +283,59 @@ public class JSONFunctionTest extends JSONTestCase {
                 long invalidResult = database.simpleQueryForLong(Query.select(invalid).toRawSql(
                         database.getSqliteVersion()), null);
                 assertEquals(0, invalidResult);
+            }
+        });
+    }
+
+    public void testJsonGroupArray() {
+        testForMinVersionCode(JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION, new Runnable() {
+            @Override
+            public void run() {
+                Thing thing = new Thing();
+                for (int i = 0; i < 5; i++) {
+                    thing.setFoo(Integer.toString(i));
+                    database.createNew(thing);
+                }
+                Function<String> groupArray = JSONFunctions.jsonGroupArray(Thing.FOO);
+                String result = database.simpleQueryForString(Query.select(groupArray).from(Thing.TABLE)
+                        .toRawSql(database.getSqliteVersion()), null);
+                try {
+                    JSONArray resultArray = new JSONArray(result);
+                    Set<String> resultValues = new HashSet<String>();
+                    for (int i = 0; i < resultArray.length(); i++) {
+                        resultValues.add(resultArray.getString(i));
+                    }
+                    assertEquals(5, resultValues.size());
+                    assertTrue(resultValues.containsAll(Arrays.asList("0", "1", "2", "3", "4")));
+                } catch (JSONException e) {
+                    fail("JSONException: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void testJsonGroupObject() {
+        testForMinVersionCode(JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION, new Runnable() {
+            @Override
+            public void run() {
+                Thing thing = new Thing();
+                for (int i = 0; i < 5; i++) {
+                    thing.setFoo(Integer.toString(i))
+                            .setBar(i * 2);
+                    database.createNew(thing);
+                }
+                Function<String> groupObject = JSONFunctions.jsonGroupObject(Thing.FOO, Thing.BAR);
+                String result = database.simpleQueryForString(Query.select(groupObject).from(Thing.TABLE)
+                        .toRawSql(database.getSqliteVersion()), null);
+                try {
+                    JSONObject resultObject = new JSONObject(result);
+                    assertEquals(5, resultObject.length());
+                    for (int i = 0; i < 5; i++) {
+                        assertEquals(i * 2, resultObject.getInt(Integer.toString(i)));
+                    }
+                } catch (JSONException e) {
+                    fail("JSONException: " + e.getMessage());
+                }
             }
         });
     }

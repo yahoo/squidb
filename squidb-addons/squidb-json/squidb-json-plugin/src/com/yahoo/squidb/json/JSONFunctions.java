@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.json;
 
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.utility.VersionCode;
 
@@ -36,6 +37,7 @@ import com.yahoo.squidb.utility.VersionCode;
 public class JSONFunctions {
 
     public static final VersionCode JSON1_MIN_VERSION = new VersionCode(3, 9, 0, 0);
+    public static final VersionCode JSON1_GROUP_FUNCTIONS_VERSION = new VersionCode(3, 10, 0, 0);
 
     /**
      * Wrapper for the json() SQL function
@@ -183,5 +185,25 @@ public class JSONFunctions {
      */
     public static Function<Integer> jsonValid(Object arg) {
         return new JSONArgumentFunction<Integer>("json_valid", arg);
+    }
+
+    /**
+     * Wrapper for the json_group_array() SQL aggregate function. This function requires SQLite version 3.10.0 or
+     * higher.
+     *
+     * @see <a href="http://sqlite.org/json1.html#jgrouparray">The json_group_array() function</a>
+     */
+    public static Function<String> jsonGroupArray(Field<?> arg) {
+        return new JSONArgumentFunction<String>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_array", arg);
+    }
+
+    /**
+     * Wrapper for the json_group_object() SQL aggregate function. This function requires SQLite version 3.10.0 or
+     * higher.
+     *
+     * @see <a href="http://sqlite.org/json1.html#jgroupobject">The json_group_object() function</a>
+     */
+    public static Function<String> jsonGroupObject(Field<?> keys, Field<?> values) {
+        return new JSONArgumentFunction<String>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_object", keys, values);
     }
 }
