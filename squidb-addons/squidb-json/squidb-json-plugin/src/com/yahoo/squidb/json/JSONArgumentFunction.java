@@ -2,11 +2,8 @@ package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.SqlBuilder;
-import com.yahoo.squidb.utility.VersionCode;
 
 class JSONArgumentFunction<TYPE> extends Function<TYPE> {
-
-    private static final VersionCode JSON1_MIN_VERSION = new VersionCode(3, 9, 0, 0);
 
     private final String functionName;
     private final Object jsonArg;
@@ -21,9 +18,10 @@ class JSONArgumentFunction<TYPE> extends Function<TYPE> {
 
     @Override
     protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
-        if (!builder.sqliteVersion.isAtLeast(JSON1_MIN_VERSION)) {
+        if (!builder.sqliteVersion.isAtLeast(JSONFunctions.JSON1_MIN_VERSION)) {
             throw new UnsupportedOperationException("The function " + functionName + " is not supported on SQLite "
-                    + "version " + builder.sqliteVersion + " - requires version " + JSON1_MIN_VERSION + " or higher");
+                    + "version " + builder.sqliteVersion + " - requires version " + JSONFunctions.JSON1_MIN_VERSION +
+                    " or higher");
         }
         builder.sql.append(functionName).append("(");
         boolean needsSeparator = false;

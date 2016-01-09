@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JSONPropertyTest extends JSONTest {
+public class JSONPropertyTest extends JSONTestCase {
 
     public void testListProperty() {
         testWithAllMappers(new Runnable() {

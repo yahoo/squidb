@@ -18,7 +18,7 @@ public class VersionCode implements Comparable<VersionCode> {
     public static final VersionCode V3_7_4 = new VersionCode(3, 7, 4, 0); // Default on API 14, default minimum
     public static final VersionCode V3_7_11 = new VersionCode(3, 7, 11, 0); // Support for multi-row insert
     public static final VersionCode V3_8_3 = new VersionCode(3, 8, 3, 0); // Support for common table expressions
-    public static final VersionCode LATEST = new VersionCode(3, 9, 2, 0); // Latest version
+    public static final VersionCode LATEST = new VersionCode(3, 10, 0, 0); // Latest version
 
     private static final String VERSION_REGEX =
             "^([\\d]+)(?:\\.([\\d]+))?(?:\\.([\\d]+))?(?:\\.([\\d]+))?((?:[\\w\\-\\(\\)]+\\.)*[\\w\\-\\(\\)]+)?";

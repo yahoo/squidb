@@ -8,6 +8,7 @@ package com.yahoo.squidb.android;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.yahoo.squidb.json.JSONFunctions;
 import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.json.JSONPropertySupport;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -18,7 +19,7 @@ import org.codehaus.jackson.type.JavaType;
 
 import java.lang.reflect.Type;
 
-public class JSONTest extends DatabaseTestCase {
+public class JSONTestCase extends DatabaseTestCase {
 
     private static class JacksonMapper implements JSONMapper {
 
@@ -73,4 +74,9 @@ public class JSONTest extends DatabaseTestCase {
         }
     }
 
+    protected void testForMinVersionCode(Runnable toTest) {
+        if (database.getSqliteVersion().isAtLeast(JSONFunctions.JSON1_MIN_VERSION)) {
+            toTest.run();
+        }
+    }
 }

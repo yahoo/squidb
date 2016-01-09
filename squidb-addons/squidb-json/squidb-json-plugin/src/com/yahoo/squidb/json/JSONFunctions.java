@@ -6,6 +6,7 @@
 package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.sql.Function;
+import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * Declarations of SQLite functions found in <a href="http://sqlite.org/json1.html">the json1 extension</a>. Note that
@@ -33,6 +34,8 @@ import com.yahoo.squidb.sql.Function;
  * @see <a href="http://sqlite.org/json1.html">the json1 extension</a>
  */
 public class JSONFunctions {
+
+    public static final VersionCode JSON1_MIN_VERSION = new VersionCode(3, 9, 0, 0);
 
     /**
      * Wrapper for the json() SQL function
@@ -88,7 +91,7 @@ public class JSONFunctions {
      * Wrapper for the json_extract() SQL function
      *
      * @param json a JSON argument as described in the {@link JSONFunctions} documentation
-     * @param paths 0 or more PATH arguments as described in the {@link JSONFunctions} documentation
+     * @param paths 1 or more PATH arguments as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
     public static Function<String> jsonExtract(Object json, String... paths) {
