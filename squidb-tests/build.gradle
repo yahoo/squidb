@@ -42,8 +42,6 @@ android {
 }
 
 dependencies {
-    compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
-    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
     compile project(':squidb')
     compile project(':squidb-android')
     compile project(':squidb-annotations')
@@ -54,6 +52,11 @@ dependencies {
     compile project(':squidb-recyclerview')
     apt project(':squidb-json-compiler')
     apt project(':squidb-processor')
+
+    // The following three dependencies are used to test the squidb-json plugin
+    compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
+    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
+    compile 'com.google.code.gson:gson:2.5'
 }
 
 apt {

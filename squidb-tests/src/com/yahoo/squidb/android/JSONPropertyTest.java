@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.android;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.json.SquidbJSONSupport;
 import com.yahoo.squidb.test.DatabaseTestCase;
@@ -13,6 +16,8 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,9 +56,47 @@ public class JSONPropertyTest extends DatabaseTestCase {
         }
     }
 
-    static {
-        SquidbJSONSupport.setJSONMapper(new JacksonMapper());
+    private static class GsonMapper implements JSONMapper {
+
+        private static final Gson GSON = new GsonBuilder().create();
+
+        @Override
+        public String toJSON(Object toSerialize) throws Exception {
+            return GSON.toJson(toSerialize);
+        }
+
+        @Override
+        public <T> T fromJson(String jsonString, final Class<?> baseType, final Class<?>... genericArgs)
+                throws Exception {
+            Type type;
+            if (genericArgs != null && genericArgs.length > 0) {
+                type = new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return genericArgs;
+                    }
+
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+
+                    @Override
+                    public Type getRawType() {
+                        return baseType;
+                    }
+                };
+            } else {
+                type = baseType;
+            }
+            return GSON.fromJson(jsonString, type);
+        }
     }
+
+    private static final JSONMapper[] MAPPERS = {
+            new JacksonMapper(),
+            new GsonMapper()
+    };
 
     @Override
     protected void setupDatabase() {
@@ -61,6 +104,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
     }
 
     public void testListProperty() {
+        for (JSONMapper mapper : MAPPERS) {
+            database.clear();
+            SquidbJSONSupport.setJSONMapper(mapper);
+            testListPropertyInternal();
+        }
+    }
+
+    private void testListPropertyInternal() {
         AndroidTestModel model = new AndroidTestModel();
         List<String> numbers = Arrays.asList("0", "1", "2", "3");
         model.setSomeList(numbers);
@@ -76,6 +127,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
     }
 
     public void testMapProperty() {
+        for (JSONMapper mapper : MAPPERS) {
+            database.clear();
+            SquidbJSONSupport.setJSONMapper(mapper);
+            testMapPropertyInternal();
+        }
+    }
+
+    private void testMapPropertyInternal() {
         AndroidTestModel model = new AndroidTestModel();
         Map<String, Integer> numbers = new HashMap<String, Integer>();
         numbers.put("1", 2);
@@ -96,6 +155,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
     }
 
     public void testObjectProperty() {
+        for (JSONMapper mapper : MAPPERS) {
+            database.clear();
+            SquidbJSONSupport.setJSONMapper(mapper);
+            testObjectPropertyInternal();
+        }
+    }
+
+    private void testObjectPropertyInternal() {
         AndroidTestModel model = new AndroidTestModel();
         JSONPojo pojo = new JSONPojo();
         pojo.pojoStr = "ABC";
