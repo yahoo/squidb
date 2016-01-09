@@ -9,6 +9,11 @@ import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.utility.Logger;
 
+/**
+ * Business logic of managing serialization and deserialization of JSON properties. Clients of this plugin should
+ * be sure to call {@link #setJSONMapper(JSONMapper)} to initialize the serialization engine. See the JSONPropertyTest
+ * class in the squidb tests project for example implementations of the JSONMapper interface.
+ */
 public class SquidbJSONSupport {
 
     private static final String TAG = "squidb-json";
