@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.yahoo.squidb.json.JSONMapper;
-import com.yahoo.squidb.json.SquidbJSONSupport;
+import com.yahoo.squidb.json.JSONPropertySupport;
 import com.yahoo.squidb.test.DatabaseTestCase;
 
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -68,7 +68,7 @@ public class JSONTest extends DatabaseTestCase {
     protected void testWithAllMappers(Runnable toTest) {
         for (JSONMapper mapper : MAPPERS) {
             database.clear();
-            SquidbJSONSupport.setJSONMapper(mapper);
+            JSONPropertySupport.setJSONMapper(mapper);
             toTest.run();
         }
     }

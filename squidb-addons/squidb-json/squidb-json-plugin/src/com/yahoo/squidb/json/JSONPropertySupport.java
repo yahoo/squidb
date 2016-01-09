@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
  * be sure to call {@link #setJSONMapper(JSONMapper)} to initialize the serialization engine. See the JSONPropertyTest
  * class in the squidb tests project for example implementations of the JSONMapper interface.
  */
-public class SquidbJSONSupport {
+public class JSONPropertySupport {
 
     private static final String TAG = "squidb-json";
 

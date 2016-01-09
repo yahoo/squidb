@@ -26,8 +26,8 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
 
     private static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(
             "com.yahoo.squidb.json.ParameterizedTypeBuilder");
-    private static final DeclaredTypeName SQUIDB_JSON_SUPPORT = new DeclaredTypeName(
-            "com.yahoo.squidb.json.SquidbJSONSupport");
+    private static final DeclaredTypeName JSON_PROPERTY_SUPPORT = new DeclaredTypeName(
+            "com.yahoo.squidb.json.JSONPropertySupport");
 
     protected final DeclaredTypeName fieldType;
 
@@ -40,7 +40,7 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     @Override
     protected void registerAdditionalImports(Set<DeclaredTypeName> imports) {
         super.registerAdditionalImports(imports);
-        imports.add(SQUIDB_JSON_SUPPORT);
+        imports.add(JSON_PROPERTY_SUPPORT);
         if (!AptUtils.isEmpty(fieldType.getTypeArgs())) {
             imports.add(PARAMETERIZED_TYPE_BUILDER);
         }
@@ -56,13 +56,13 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     protected void writeGetterBody(JavaFileWriter writer) throws IOException {
         Expression typeExpression = getTypeExpression(fieldType);
 
-        writer.writeStatement(Expressions.staticMethod(SQUIDB_JSON_SUPPORT, "getObjectValue",
+        writer.writeStatement(Expressions.staticMethod(JSON_PROPERTY_SUPPORT, "getObjectValue",
                 "this", propertyName, typeExpression).returnExpr());
     }
 
     @Override
     protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
-        writer.writeStatement(Expressions.staticMethod(SQUIDB_JSON_SUPPORT, "setObjectProperty",
+        writer.writeStatement(Expressions.staticMethod(JSON_PROPERTY_SUPPORT, "setObjectProperty",
                 "this", propertyName, argName));
         writer.writeStringStatement("return this");
     }
