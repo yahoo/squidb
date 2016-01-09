@@ -27,6 +27,9 @@ public class AndroidTestModelSpec {
     Map<String, Integer> someMap;
 
     @JSONProperty
+    Map<String, Map<String, List<Integer>>> complicatedMap;
+
+    @JSONProperty
     JSONPojo somePojo;
 
 }

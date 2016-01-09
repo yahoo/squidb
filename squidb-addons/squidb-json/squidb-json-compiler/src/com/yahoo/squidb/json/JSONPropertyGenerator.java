@@ -10,17 +10,24 @@ import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.visitors.ImportGatheringTypeNameVisitor;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
 
 public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
+
+    private static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(
+            "com.yahoo.squidb.json.ParameterizedTypeBuilder");
+    private static final DeclaredTypeName SQUIDB_JSON_SUPPORT = new DeclaredTypeName(
+            "com.yahoo.squidb.json.SquidbJSONSupport");
 
     protected final DeclaredTypeName fieldType;
 
@@ -33,7 +40,10 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     @Override
     protected void registerAdditionalImports(Set<DeclaredTypeName> imports) {
         super.registerAdditionalImports(imports);
-        imports.add(JSONTypeConstants.SQUIDB_JSON_SUPPORT);
+        imports.add(SQUIDB_JSON_SUPPORT);
+        if (!AptUtils.isEmpty(fieldType.getTypeArgs())) {
+            imports.add(PARAMETERIZED_TYPE_BUILDER);
+        }
         fieldType.accept(new ImportGatheringTypeNameVisitor(), imports);
     }
 
@@ -44,26 +54,33 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
 
     @Override
     protected void writeGetterBody(JavaFileWriter writer) throws IOException {
-        List<? extends TypeName> typeArgs = fieldType.getTypeArgs();
-        Object[] methodArgs = new Object[3 + (typeArgs == null ? 0 : typeArgs.size())];
-        methodArgs[0] = "this";
-        methodArgs[1] = propertyName;
-        methodArgs[2] = Expressions.classObject(fieldType);
-        if (typeArgs != null) {
-            for (int i = 3; i < methodArgs.length; i++) {
-                methodArgs[i] = Expressions.classObject((DeclaredTypeName) typeArgs.get(i - 3));
-            }
-        }
+        Expression typeExpression = getTypeExpression(fieldType);
 
-        writer.writeStatement(Expressions.staticMethod(JSONTypeConstants.SQUIDB_JSON_SUPPORT, "getObjectValue",
-                methodArgs).returnExpr());
+        writer.writeStatement(Expressions.staticMethod(SQUIDB_JSON_SUPPORT, "getObjectValue",
+                "this", propertyName, typeExpression).returnExpr());
     }
 
     @Override
     protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
-        writer.writeStatement(Expressions.staticMethod(JSONTypeConstants.SQUIDB_JSON_SUPPORT, "setObjectProperty",
+        writer.writeStatement(Expressions.staticMethod(SQUIDB_JSON_SUPPORT, "setObjectProperty",
                 "this", propertyName, argName));
         writer.writeStringStatement("return this");
+    }
+
+    private Expression getTypeExpression(DeclaredTypeName fieldType) {
+        List<? extends TypeName> typeArgs = fieldType.getTypeArgs();
+        if (AptUtils.isEmpty(typeArgs)) {
+            return Expressions.classObject(fieldType);
+        } else {
+            List<Expression> parameterizedTypeBuilderArgs = new ArrayList<Expression>();
+            parameterizedTypeBuilderArgs.add(Expressions.classObject(fieldType));
+            for (TypeName typeArg : typeArgs) {
+                // The cast to DeclaredTypeName is safe because we recursively check all type args before constructing
+                // an instance of this property generator
+                parameterizedTypeBuilderArgs.add(getTypeExpression((DeclaredTypeName) typeArg));
+            }
+            return Expressions.staticMethod(PARAMETERIZED_TYPE_BUILDER, "build", parameterizedTypeBuilderArgs);
+        }
     }
 
 }

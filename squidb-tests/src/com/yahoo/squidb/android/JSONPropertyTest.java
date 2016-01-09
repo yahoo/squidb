@@ -16,10 +16,9 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,24 +40,15 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <T> T fromJson(String jsonString, Class<?> baseType, Class<?>... genericArgs) throws Exception {
-            JavaType type;
-            if (Collection.class.isAssignableFrom(baseType)) {
-                type = MAPPER.getTypeFactory().constructCollectionType(
-                        (Class<? extends Collection>) baseType, genericArgs[0]);
-            } else if (Map.class.isAssignableFrom(baseType)) {
-                type = MAPPER.getTypeFactory().constructMapType(
-                        (Class<? extends Map>) baseType, genericArgs[0], genericArgs[1]);
-            } else {
-                type = MAPPER.getTypeFactory().constructType(baseType);
-            }
+        public <T> T fromJson(String jsonString, Type javaType) throws Exception {
+            JavaType type = MAPPER.getTypeFactory().constructType(javaType);
             return MAPPER.readValue(jsonString, type);
         }
     }
 
     private static class GsonMapper implements JSONMapper {
 
-        private static final Gson GSON = new GsonBuilder().create();
+        private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
         @Override
         public String toJSON(Object toSerialize) throws Exception {
@@ -66,30 +56,8 @@ public class JSONPropertyTest extends DatabaseTestCase {
         }
 
         @Override
-        public <T> T fromJson(String jsonString, final Class<?> baseType, final Class<?>... genericArgs)
-                throws Exception {
-            Type type;
-            if (genericArgs != null && genericArgs.length > 0) {
-                type = new ParameterizedType() {
-                    @Override
-                    public Type[] getActualTypeArguments() {
-                        return genericArgs;
-                    }
-
-                    @Override
-                    public Type getOwnerType() {
-                        return null;
-                    }
-
-                    @Override
-                    public Type getRawType() {
-                        return baseType;
-                    }
-                };
-            } else {
-                type = baseType;
-            }
-            return GSON.fromJson(jsonString, type);
+        public <T> T fromJson(String jsonString, Type javaType) throws Exception {
+            return GSON.fromJson(jsonString, javaType);
         }
     }
 
@@ -120,10 +88,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
         model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
         List<String> readNumbers = model.getSomeList();
-        assertEquals(numbers.size(), readNumbers.size());
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(numbers.get(i), readNumbers.get(i));
-        }
+        assertEquals(numbers, readNumbers);
     }
 
     public void testMapProperty() {
@@ -147,11 +112,40 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
         model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
         Map<String, Integer> readNumbers = model.getSomeMap();
-        assertEquals(numbers.size(), readNumbers.size());
-        for (int i = 1; i <= numbers.size(); i++) {
-            assertEquals(numbers.get(Integer.toString(i)), readNumbers.get(Integer.toString(i)));
-            assertEquals(i * 2, readNumbers.get(Integer.toString(i)).intValue());
+        assertEquals(numbers, readNumbers);
+    }
+
+    public void testComplicatedMapProperty() {
+        for (JSONMapper mapper : MAPPERS) {
+            database.clear();
+            SquidbJSONSupport.setJSONMapper(mapper);
+            testComplicatedMapPropertyInternal();
         }
+    }
+
+    private void testComplicatedMapPropertyInternal() {
+        AndroidTestModel model = new AndroidTestModel();
+
+        Map<String, Map<String, List<Integer>>> crazyMap = new HashMap<String, Map<String, List<Integer>>>();
+
+        Map<String, List<Integer>> internalMap1 = new HashMap<String, List<Integer>>();
+        internalMap1.put("123", Arrays.asList(1, 2, 3));
+        internalMap1.put("4567", Arrays.asList(4, 5, 6, 7));
+
+        crazyMap.put("ABC", internalMap1);
+        Map<String, List<Integer>> internalMap2 = new HashMap<String, List<Integer>>();
+        internalMap2.put("XYZ", Arrays.asList(Character.getNumericValue('x'), Character.getNumericValue('y'),
+                Character.getNumericValue('z')));
+        internalMap2.put("Empty", new ArrayList<Integer>());
+        internalMap2.put("NilValue", null);
+        crazyMap.put("XYZ", internalMap2);
+
+        model.setComplicatedMap(crazyMap);
+        database.persist(model);
+
+        model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+        Map<String, Map<String, List<Integer>>> readMap = model.getComplicatedMap();
+        assertEquals(crazyMap, readMap);
     }
 
     public void testObjectProperty() {
