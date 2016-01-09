@@ -10,7 +10,7 @@ class ArgumentFunction<TYPE> extends Function<TYPE> {
     private final String functionName;
     private final Object[] arguments;
 
-    public ArgumentFunction(String functionName, Object... arguments) {
+    ArgumentFunction(String functionName, Object... arguments) {
         super();
         this.functionName = functionName;
         this.arguments = arguments;
