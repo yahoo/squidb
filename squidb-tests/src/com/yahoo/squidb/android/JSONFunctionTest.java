@@ -244,7 +244,7 @@ public class JSONFunctionTest extends JSONTestCase {
     }
 
     private void testJsonRemoveInternal(String jsonString, String expectedResult, String... paths) {
-        Function<String> jsonRemove = JSONFunctions.jsonRemove(jsonString, paths);
+        Function<String> jsonRemove = JSONFunctions.jsonRemove(jsonString, (Object[]) paths);
         String result = database.simpleQueryForString(Query.select(jsonRemove).toRawSql(
                 database.getSqliteVersion()), null);
         assertEquals(expectedResult, result);

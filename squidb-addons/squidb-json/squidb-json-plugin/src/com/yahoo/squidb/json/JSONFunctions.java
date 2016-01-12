@@ -97,7 +97,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
     public static Function<String> jsonExtract(Object json, String... paths) {
-        return new JSONArgumentFunction<String>("json_extract", json, paths);
+        return new JSONArgumentFunction<String>("json_extract", json, (Object[]) paths);
     }
 
     /**
