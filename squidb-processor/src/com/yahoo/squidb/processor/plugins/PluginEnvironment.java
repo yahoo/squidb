@@ -236,7 +236,7 @@ public class PluginEnvironment {
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);
-        return new PluginBundle(plugins);
+        return new PluginBundle(modelSpec, this, plugins);
     }
 
     private void accumulatePlugins(List<Plugin> accumulator, List<Class<? extends Plugin>> pluginList,

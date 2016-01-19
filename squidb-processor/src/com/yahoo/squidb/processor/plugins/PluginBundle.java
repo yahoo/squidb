@@ -7,6 +7,7 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,14 +21,12 @@ import javax.lang.model.element.VariableElement;
  * present during code generation and calling them during the generation of a model class for a particular model
  * spec.
  */
-public class PluginBundle {
+public class PluginBundle extends Plugin {
 
     private final List<Plugin> plugins;
 
-    /**
-     * @param plugins a list of Plugins instantiated for a given model spec
-     */
-    public PluginBundle(List<Plugin> plugins) {
+    public PluginBundle(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv, List<Plugin> plugins) {
+        super(modelSpec, pluginEnv);
         this.plugins = plugins;
     }
 
@@ -38,6 +37,7 @@ public class PluginBundle {
      * @param fieldType the type name of the field
      * @return true if any of the bundled plugins claimed the field for processing, false otherwise
      */
+    @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec() && plugin.processVariableElement(field, fieldType)) {
@@ -50,6 +50,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#afterProcessVariableElements()} on all the bundled plugins
      */
+    @Override
     public void afterProcessVariableElements() {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -61,6 +62,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#addRequiredImports(Set)} on all the bundled plugins
      */
+    @Override
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -72,6 +74,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#addInterfacesToImplement(Set)} on all the bundled plugins
      */
+    @Override
     public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -83,6 +86,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#beforeEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -94,6 +98,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#afterEmitSchema(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void afterEmitSchema(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -105,6 +110,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#emitConstructors(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void emitConstructors(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -116,6 +122,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#beforeEmitMethods(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -127,6 +134,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#emitMethods(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void emitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -138,6 +146,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#afterEmitMethods(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void afterEmitMethods(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -149,6 +158,7 @@ public class PluginBundle {
     /**
      * Calls {@link Plugin#emitAdditionalJava(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void emitAdditionalJava(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
