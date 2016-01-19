@@ -6,9 +6,11 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
@@ -18,6 +20,8 @@ import javax.lang.model.element.VariableElement;
  */
 public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
 
+    private static final DeclaredTypeName ENUM_PROPERTY = new DeclaredTypeName(TypeConstants.PROPERTY.toString(),
+            "EnumProperty");
     private final DeclaredTypeName enumType;
 
     public EnumPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils,
@@ -29,6 +33,13 @@ public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
     @Override
     protected void registerAdditionalImports(Set<DeclaredTypeName> imports) {
         imports.add(enumType);
+    }
+
+    @Override
+    public DeclaredTypeName getPropertyType() {
+        DeclaredTypeName enumProperty = ENUM_PROPERTY.clone();
+        enumProperty.setTypeArgs(Collections.singletonList(enumType));
+        return enumProperty;
     }
 
     @Override

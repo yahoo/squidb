@@ -66,6 +66,9 @@ public class SqlUtils {
      * Sanitize a {@link String} for use in a SQL statement
      */
     static String sanitizeStringAsLiteral(String literal) {
+        if (literal == null) {
+            return "NULL";
+        }
         String sanitizedLiteral = literal.replace("'", "''");
         int nullIndex = sanitizedLiteral.indexOf('\0');
         if (nullIndex >= 0) {

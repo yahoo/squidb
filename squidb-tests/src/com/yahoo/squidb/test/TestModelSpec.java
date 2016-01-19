@@ -32,6 +32,12 @@ public class TestModelSpec {
     public static final String STRING_CONST = "Hello";
     public static final Map<String, Property<?>> CONST_MAP = new HashMap<String, Property<?>>();
 
+    public enum TestModelEnum {
+        TEST_ENUM_1,
+        TEST_ENUM_2,
+        TEST_ENUM_3
+    }
+
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
 
@@ -63,6 +69,8 @@ public class TestModelSpec {
 
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
+
+    TestModelEnum someEnumValue;
 
     @JacksonProperty
     Map<String, Integer> someMap;

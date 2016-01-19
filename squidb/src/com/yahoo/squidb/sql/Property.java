@@ -709,6 +709,75 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         }
     }
 
+    /**
+     * Extension of {@link StringProperty} meant for storing enum values. Uses a type parameter so that the enum type
+     * being serialized is known at compile time.
+     * @param <T> an enum type for this property to hold
+     */
+    public static class EnumProperty<T> extends StringProperty {
+
+        public EnumProperty(SqlTable<?> table, String name) {
+            super(table, name);
+        }
+
+        public EnumProperty(SqlTable<?> table, String name, String columnDefinition) {
+            super(table, name, columnDefinition);
+        }
+
+        public EnumProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
+            super(table, name, alias, columnDefinition);
+        }
+
+        public EnumProperty(Function<String> function, String alias) {
+            super(function, alias);
+        }
+
+        /**
+         * Construct an EnumProperty from a literal enum value and with the given alias, e.g. "'ENUM_VAL_1' AS greeting"
+         *
+         * @param literal the literal value
+         * @param selectAs the alias to use. May be null.
+         */
+        public static <T> EnumProperty<T> literal(T literal, String selectAs) {
+            return new EnumProperty<T>(null, String.valueOf(literal), selectAs, null);
+        }
+
+        @Override
+        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+            return visitor.visitString(this, data);
+        }
+
+        @Override
+        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+                DST dst, PARAMETER data) {
+            return visitor.visitString(this, dst, data);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public EnumProperty<T> as(String newAlias) {
+            return (EnumProperty<T>) super.as(newAlias);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public EnumProperty<T> as(String tableAlias, String columnAlias) {
+            return (EnumProperty<T>) super.as(tableAlias, columnAlias);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public EnumProperty<T> as(SqlTable<?> newTable, String columnAlias) {
+            return (EnumProperty<T>) super.as(newTable, columnAlias);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public EnumProperty<T> asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+            return (EnumProperty<T>) super.asSelectionFromTable(newTable, columnAlias);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
