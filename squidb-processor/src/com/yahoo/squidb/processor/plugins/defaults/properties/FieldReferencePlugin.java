@@ -6,6 +6,7 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -13,6 +14,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.ViewPropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic;
 
 abstract class FieldReferencePlugin extends BaseFieldPlugin {
 
@@ -22,7 +24,21 @@ abstract class FieldReferencePlugin extends BaseFieldPlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        return TypeConstants.isPropertyType(fieldType);
+        return field.getAnnotation(Deprecated.class) == null
+                && field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)
+                && TypeConstants.isPropertyType(fieldType);
+    }
+
+    @Override
+    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+        if (field.getAnnotation(Deprecated.class) != null) {
+            return false;
+        }
+        if (field.getAnnotation(ColumnSpec.class) != null) {
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "ColumnSpec is ignored outside of table models", field);
+        }
+        return super.processVariableElement(field, fieldType);
     }
 
     @Override

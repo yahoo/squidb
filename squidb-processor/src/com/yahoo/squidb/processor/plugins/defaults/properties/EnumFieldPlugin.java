@@ -27,11 +27,6 @@ public class EnumFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
-        return tryCreatePropertyGenerator(field, fieldType);
-    }
-
-    @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
             // Might be a constant, ignore
