@@ -20,16 +20,13 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import javax.tools.JavaFileObject;
 
 public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
@@ -58,18 +55,15 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         this.utils = utils;
     }
 
-    public final void writeJava(Filer filer) throws IOException {
-        initFileWriter(filer);
+    public final void writeJava() throws IOException {
+        initFileWriter();
         writeJavaFile();
         writer.close();
     }
 
-    private void initFileWriter(Filer filer) throws IOException {
+    private void initFileWriter() throws IOException {
         if (this.writer == null) {
-            JavaFileObject jfo = filer.createSourceFile(modelSpec.getGeneratedClassName().toString(),
-                    modelSpec.getModelSpecElement());
-            Writer writer = jfo.openWriter();
-            this.writer = new JavaFileWriter(writer);
+            this.writer = utils.newJavaFileWriter(modelSpec.getGeneratedClassName(), modelSpec.getModelSpecElement());
         } else {
             throw new IllegalStateException("JavaFileWriter already initialized");
         }

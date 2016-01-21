@@ -55,8 +55,6 @@ import javax.tools.Diagnostic.Kind;
 public final class ModelSpecProcessor extends AbstractProcessor {
 
     private AptUtils utils;
-    private Filer filer;
-
     private PluginEnvironment pluginEnv;
 
     @Override
@@ -80,8 +78,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
 
-        utils = new AptUtils(env.getMessager(), env.getTypeUtils(), env.getElementUtils());
-        filer = env.getFiler();
+        utils = new AptUtils(env);
 
         pluginEnv = new PluginEnvironment(utils, env.getOptions());
     }
@@ -93,7 +90,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                 if (element.getKind() == ElementKind.CLASS) {
                     TypeElement typeElement = (TypeElement) element;
                     try {
-                        getFileWriter(typeElement).writeJava(filer);
+                        getFileWriter(typeElement).writeJava();
                     } catch (IOException e) {
                         utils.getMessager().printMessage(Kind.ERROR, "Unable to write model file", element);
                     }

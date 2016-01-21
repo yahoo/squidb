@@ -14,7 +14,6 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 dependencies {
-    compile 'com.yahoo.squidb:apt-utils:1.0.0'
     compile project(':squidb-processor')
     compile project(':squidb-jackson-annotations')
 }
