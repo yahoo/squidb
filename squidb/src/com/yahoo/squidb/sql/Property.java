@@ -743,17 +743,6 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
-            return visitor.visitString(this, data);
-        }
-
-        @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
-                DST dst, PARAMETER data) {
-            return visitor.visitString(this, dst, data);
-        }
-
-        @Override
         @SuppressWarnings("unchecked")
         public EnumProperty<T> as(String newAlias) {
             return (EnumProperty<T>) super.as(newAlias);
