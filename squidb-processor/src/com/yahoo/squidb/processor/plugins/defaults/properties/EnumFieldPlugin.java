@@ -13,7 +13,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Plugin which handles Enum fields in a model spec file. Currently only supports TableModelSpec.
+ * Plugin which handles Enum fields in a TableModelSpec file.
  */
 public class EnumFieldPlugin extends BaseFieldPlugin {
 

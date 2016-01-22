@@ -13,6 +13,9 @@ import java.util.List;
 
 import javax.lang.model.element.VariableElement;
 
+/**
+ * Plugin which handles EnumProperty references in a ViewModelSpec file.
+ */
 public class EnumFieldReferencePlugin extends FieldReferencePlugin {
 
     public EnumFieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
