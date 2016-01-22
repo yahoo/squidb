@@ -714,7 +714,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * being serialized is known at compile time.
      * @param <T> an enum type for this property to hold
      */
-    public static class EnumProperty<T> extends StringProperty {
+    public static class EnumProperty<T extends Enum<T>> extends StringProperty {
 
         public EnumProperty(SqlTable<?> table, String name) {
             super(table, name);
@@ -738,7 +738,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static <T> EnumProperty<T> literal(T literal, String selectAs) {
+        public static <T extends Enum<T>> EnumProperty<T> literal(T literal, String selectAs) {
             return new EnumProperty<T>(null, String.valueOf(literal), selectAs, null);
         }
 
