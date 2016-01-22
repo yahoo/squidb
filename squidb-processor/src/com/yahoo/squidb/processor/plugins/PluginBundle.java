@@ -23,9 +23,9 @@ import javax.lang.model.element.VariableElement;
  */
 public class PluginBundle extends Plugin {
 
-    private final List<Plugin> plugins;
+    private final List<? extends Plugin> plugins;
 
-    public PluginBundle(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv, List<Plugin> plugins) {
+    public PluginBundle(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv, List<? extends Plugin> plugins) {
         super(modelSpec, pluginEnv);
         this.plugins = plugins;
     }
