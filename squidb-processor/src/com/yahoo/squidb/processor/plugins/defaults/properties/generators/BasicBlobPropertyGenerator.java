@@ -38,7 +38,7 @@ public class BasicBlobPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return TypeConstants.BYTE_ARRAY;
     }
 

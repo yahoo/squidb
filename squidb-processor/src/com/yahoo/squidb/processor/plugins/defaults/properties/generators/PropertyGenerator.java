@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
@@ -51,6 +52,10 @@ public abstract class PropertyGenerator {
      */
     public void registerRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(getPropertyType());
+        DeclaredTypeName accessorType = getTypeForAccessors();
+        if (!TypeConstants.isPrimitiveType(accessorType)) {
+            imports.add(accessorType);
+        }
         registerAdditionalImports(imports);
     }
 
@@ -67,6 +72,11 @@ public abstract class PropertyGenerator {
     public abstract String getPropertyName();
 
     /**
+     * @return the type used when setting or returning the value stored by this property
+     */
+    public abstract DeclaredTypeName getTypeForAccessors();
+
+    /**
      * Called to write the declaration of the property itself
      *
      * @param writer a {@link JavaFileWriter} for writing to
@@ -74,11 +84,21 @@ public abstract class PropertyGenerator {
     public abstract void emitPropertyDeclaration(JavaFileWriter writer) throws IOException;
 
     /**
+     * @return the name of the generated getter method
+     */
+    public abstract String getterMethodName();
+
+    /**
      * Called to write the convenience getter the property itself
      *
      * @param writer a {@link JavaFileWriter} for writing to
      */
     public abstract void emitGetter(JavaFileWriter writer) throws IOException;
+
+    /**
+     * @return the name of the generated getter method
+     */
+    public abstract String setterMethodName();
 
     /**
      * Called to write the convenience setter the property itself

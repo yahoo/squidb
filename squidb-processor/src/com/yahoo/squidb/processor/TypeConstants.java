@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor;
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.GenericName;
+import com.yahoo.aptutils.utils.AptUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,5 +109,9 @@ public class TypeConstants {
 
     public static boolean isPropertyType(DeclaredTypeName type) {
         return PROPERTY_TYPES.contains(type);
+    }
+
+    public static boolean isPrimitiveType(DeclaredTypeName type) {
+        return AptUtils.isEmpty(type.getPackageName());
     }
 }

@@ -40,7 +40,7 @@ public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return CoreTypes.JAVA_BOOLEAN;
     }
 
@@ -61,7 +61,7 @@ public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected String getterMethodName() {
+    public String getterMethodName() {
         if (camelCasePropertyName.startsWith("is") || camelCasePropertyName.startsWith("has")) {
             return camelCasePropertyName;
         } else {
@@ -70,7 +70,7 @@ public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected String setterMethodName() {
+    public String setterMethodName() {
         if (!camelCasePropertyName.startsWith("is") && !camelCasePropertyName.startsWith("has")) {
             return "setIs" + StringUtils.capitalize(camelCasePropertyName);
         }

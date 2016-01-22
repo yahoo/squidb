@@ -35,7 +35,7 @@ public abstract class JacksonPropertyGenerator extends BasicStringPropertyGenera
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return fieldType;
     }
 

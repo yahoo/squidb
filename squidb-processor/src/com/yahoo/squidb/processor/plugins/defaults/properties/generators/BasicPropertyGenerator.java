@@ -83,8 +83,6 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         // Nothing to do
     }
 
-    protected abstract DeclaredTypeName getTypeForGetAndSet();
-
     @Override
     public String getPropertyName() {
         return propertyName;
@@ -146,7 +144,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setMethodName(getterMethodName())
                 .setModifiers(Modifier.PUBLIC)
-                .setReturnType(getTypeForGetAndSet());
+                .setReturnType(getTypeForAccessors());
 
         modelSpec.getPluginBundle().beforeEmitGetter(writer, params);
         writer.beginMethodDefinition(params);
@@ -155,7 +153,8 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         modelSpec.getPluginBundle().afterEmitGetter(writer, params);
     }
 
-    protected String getterMethodName() {
+    @Override
+    public String getterMethodName() {
         return "get" + StringUtils.capitalize(camelCasePropertyName);
     }
 
@@ -174,7 +173,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setMethodName(setterMethodName())
                 .setReturnType(modelSpec.getGeneratedClassName())
                 .setModifiers(Modifier.PUBLIC)
-                .setArgumentTypes(getTypeForGetAndSet())
+                .setArgumentTypes(getTypeForAccessors())
                 .setArgumentNames(argName);
 
         modelSpec.getPluginBundle().beforeEmitSetter(writer, params);
@@ -184,7 +183,8 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         modelSpec.getPluginBundle().afterEmitSetter(writer, params);
     }
 
-    protected String setterMethodName() {
+    @Override
+    public String setterMethodName() {
         return "set" + StringUtils.capitalize(camelCasePropertyName);
     }
 
