@@ -37,7 +37,7 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
 
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
-        boolean isViewProperty = TypeConstants.isPropertyType(fieldType);
+        boolean isViewProperty = TypeConstants.isBasicPropertyType(fieldType);
         ViewQuery isViewQuery = field.getAnnotation(ViewQuery.class);
         Set<Modifier> modifiers = field.getModifiers();
         if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {

@@ -26,7 +26,7 @@ abstract class FieldReferencePlugin extends BaseFieldPlugin {
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return field.getAnnotation(Deprecated.class) == null
                 && field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)
-                && TypeConstants.isPropertyType(fieldType);
+                && TypeConstants.isBasicPropertyType(fieldType);
     }
 
     @Override
