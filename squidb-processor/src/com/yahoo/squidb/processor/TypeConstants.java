@@ -63,6 +63,7 @@ public class TypeConstants {
     public static final DeclaredTypeName BOOLEAN_PROPERTY = new DeclaredTypeName(PROPERTY.toString(),
             "BooleanProperty");
     public static final DeclaredTypeName BLOB_PROPERTY = new DeclaredTypeName(PROPERTY.toString(), "BlobProperty");
+    public static final DeclaredTypeName ENUM_PROPERTY = new DeclaredTypeName(PROPERTY.toString(), "EnumProperty");
 
     public static final DeclaredTypeName PROPERTY_ARRAY;
     public static final DeclaredTypeName PROPERTY_VARARGS;

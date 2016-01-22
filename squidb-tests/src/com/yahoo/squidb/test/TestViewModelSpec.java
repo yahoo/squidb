@@ -10,9 +10,11 @@ import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Order;
+import com.yahoo.squidb.sql.Property.EnumProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.test.TestModelSpec.TestModelEnum;
 
 @ViewModelSpec(className = "TestViewModel", viewName = "testView")
 public class TestViewModelSpec {
@@ -34,6 +36,8 @@ public class TestViewModelSpec {
 
     public static final StringProperty UPPERCASE_NAME = StringProperty
             .fromFunction(Function.upper(EMPLOYEE_NAME), "uppercase_name");
+
+    public static final EnumProperty<TestModelEnum> TEST_ENUM = TestModel.SOME_ENUM_VALUE;
 
     @Constants
     public static class Const {

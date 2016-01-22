@@ -12,6 +12,7 @@ import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.EnumFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.EnumFieldReferencePlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
@@ -130,6 +131,7 @@ public class PluginEnvironment {
         normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(EnumFieldPlugin.class);
+        normalPriorityPlugins.add(EnumFieldReferencePlugin.class);
 
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
