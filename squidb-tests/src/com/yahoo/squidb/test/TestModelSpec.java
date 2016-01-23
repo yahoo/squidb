@@ -64,6 +64,8 @@ public class TestModelSpec {
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
 
+    TestEnum someEnum;
+
     @JacksonProperty
     Map<String, Integer> someMap;
 

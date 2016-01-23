@@ -20,15 +20,10 @@ public class JacksonFieldPlugin extends TableModelSpecFieldPlugin {
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (field.getAnnotation(JacksonProperty.class) == null) {
             return false;
         }
-        return super.processVariableElement(field, fieldType);
-    }
-
-    @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         if (fieldType.equals(JacksonTypeConstants.MAP)) {
             return fieldType.getTypeArgs().get(0) instanceof DeclaredTypeName &&
                     fieldType.getTypeArgs().get(1) instanceof DeclaredTypeName;

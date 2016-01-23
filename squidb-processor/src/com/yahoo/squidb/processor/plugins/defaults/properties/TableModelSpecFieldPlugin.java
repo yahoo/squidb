@@ -74,7 +74,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                     return true;
                 }
             } else {
-                return tryCreatePropertyGenerator(field, fieldType);
+                return super.processVariableElement(field, fieldType);
             }
         }
         return false;
