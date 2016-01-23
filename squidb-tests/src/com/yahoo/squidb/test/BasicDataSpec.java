@@ -22,4 +22,6 @@ public class BasicDataSpec {
 
     int type;
 
+    TestEnum someEnum;
+
 }

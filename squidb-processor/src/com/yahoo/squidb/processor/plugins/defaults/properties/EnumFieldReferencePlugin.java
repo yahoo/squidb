@@ -3,6 +3,7 @@ package com.yahoo.squidb.processor.plugins.defaults.properties;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -14,7 +15,7 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Plugin which handles EnumProperty references in a ViewModelSpec file.
+ * Plugin which handles EnumProperty references in a ViewModelSpec or an InheritedModelSpec file.
  */
 public class EnumFieldReferencePlugin extends FieldReferencePlugin {
 
@@ -24,7 +25,7 @@ public class EnumFieldReferencePlugin extends FieldReferencePlugin {
 
     @Override
     public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof ViewModelSpecWrapper;
+        return modelSpec instanceof ViewModelSpecWrapper || modelSpec instanceof InheritedModelSpecWrapper;
     }
 
     @Override
