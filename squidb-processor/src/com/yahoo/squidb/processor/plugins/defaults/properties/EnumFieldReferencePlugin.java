@@ -13,6 +13,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 import java.util.List;
 
 import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic.Kind;
 
 /**
  * Plugin which handles EnumProperty references in a ViewModelSpec or an InheritedModelSpec file.
@@ -31,19 +32,19 @@ public class EnumFieldReferencePlugin extends FieldReferencePlugin {
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)
-                && fieldType.equals(TypeConstants.ENUM_PROPERTY);
+                && TypeConstants.ENUM_PROPERTY.equals(fieldType);
     }
 
     @Override
     protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         // We know it's an EnumProperty, so extract the type arg
         List<? extends TypeName> typeArgs = fieldType.getTypeArgs();
-        if (typeArgs != null && typeArgs.size() == 1) {
-            TypeName enumType = typeArgs.get(0);
-            if (enumType instanceof DeclaredTypeName) {
-                return new EnumPropertyGenerator(modelSpec, field, utils, (DeclaredTypeName) enumType);
-            }
+        if (typeArgs != null && typeArgs.size() == 1 && typeArgs.get(0) instanceof DeclaredTypeName) {
+            return new EnumPropertyGenerator(modelSpec, field, utils, (DeclaredTypeName) typeArgs.get(0));
         }
+        utils.getMessager().printMessage(Kind.WARNING,
+                "EnumProperty must use a declared type argument; it cannot be raw or use a generic type argument",
+                field);
         return null;
     }
 }
