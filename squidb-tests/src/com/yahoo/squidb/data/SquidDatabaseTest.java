@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.data;
 
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
@@ -347,8 +348,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         Query query = Query.select().limit(2, 1);
         TestModel fetched = database.fetchByQuery(TestModel.class, query);
         assertEquals(model2.getId(), fetched.getId());
-        assertEquals(2, query.getLimit());
-        assertEquals(1, query.getOffset());
+        assertEquals(Field.field("2"), query.getLimit());
+        assertEquals(Field.field("1"), query.getOffset());
         assertEquals(null, query.getTable());
     }
 

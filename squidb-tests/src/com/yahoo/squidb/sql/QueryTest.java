@@ -306,21 +306,24 @@ public class QueryTest extends DatabaseTestCase {
         assertEquals(fetch.getFirstName(), fetch.getLastName());
     }
 
+    private static final int NO_LIMIT = -1;
+    private static final int NO_OFFSET = 0;
+
     public void testLimitAndOffset() {
         // no limit, no offset
-        testLimitAndOffsetInternal(Query.NO_LIMIT, Query.NO_OFFSET);
+        testLimitAndOffsetInternal(NO_LIMIT, NO_OFFSET);
 
         // limit without offset
-        testLimitAndOffsetInternal(-3, Query.NO_OFFSET);
-        testLimitAndOffsetInternal(0, Query.NO_OFFSET);
-        testLimitAndOffsetInternal(2, Query.NO_OFFSET);
-        testLimitAndOffsetInternal(5, Query.NO_OFFSET);
+        testLimitAndOffsetInternal(-3, NO_OFFSET);
+        testLimitAndOffsetInternal(0, NO_OFFSET);
+        testLimitAndOffsetInternal(2, NO_OFFSET);
+        testLimitAndOffsetInternal(5, NO_OFFSET);
 
         // offset without limit
-        testLimitAndOffsetInternal(Query.NO_LIMIT, -2);
-        testLimitAndOffsetInternal(Query.NO_LIMIT, 0);
-        testLimitAndOffsetInternal(Query.NO_LIMIT, 3);
-        testLimitAndOffsetInternal(Query.NO_LIMIT, 6);
+        testLimitAndOffsetInternal(NO_LIMIT, -2);
+        testLimitAndOffsetInternal(NO_LIMIT, 0);
+        testLimitAndOffsetInternal(NO_LIMIT, 3);
+        testLimitAndOffsetInternal(NO_LIMIT, 6);
 
         // limit and offset
         testLimitAndOffsetInternal(3, 2);
@@ -333,10 +336,10 @@ public class QueryTest extends DatabaseTestCase {
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
 
         int expectedCount = cursor.getCount();
-        if (offset > Query.NO_OFFSET) {
+        if (offset > NO_OFFSET) {
             expectedCount = Math.max(expectedCount - offset, 0);
         }
-        if (limit > Query.NO_LIMIT) {
+        if (limit > NO_LIMIT) {
             expectedCount = Math.min(expectedCount, limit);
         }
 
@@ -361,6 +364,26 @@ public class QueryTest extends DatabaseTestCase {
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                 assertEquals(expectedIds[index++], cursor.get(Employee.ID).intValue());
             }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public void testLimitAndOffsetWithExpressions() {
+        // limit = 1 + (count(*) / 4), offset = count(*) / 2
+        Field<Integer> limit = Function.add(1, Function.divide(
+                Query.select(IntegerProperty.countProperty()).from(Employee.TABLE).asFunction(), 4));
+        Field<Integer> offset = Function.divide(
+                Query.select(IntegerProperty.countProperty()).from(Employee.TABLE).asFunction(), 2);
+
+        Query query = Query.select().orderBy(Employee.NAME.asc()).limit(limit, offset);
+        SquidCursor<Employee> cursor = database.query(Employee.class, query);
+        try {
+            assertEquals(2, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(elmo, new Employee(cursor));
+            cursor.moveToNext();
+            assertEquals(ernie, new Employee(cursor));
         } finally {
             cursor.close();
         }
@@ -837,8 +860,8 @@ public class QueryTest extends DatabaseTestCase {
         base.limit(3);
 
         assertFalse(base == fork);
-        assertEquals(3, base.getLimit());
-        assertEquals(2, fork.getLimit());
+        assertEquals(Field.field("3"), base.getLimit());
+        assertEquals(Field.field("2"), fork.getLimit());
         assertEquals(base.getTable(), fork.getTable());
     }
 
@@ -847,8 +870,8 @@ public class QueryTest extends DatabaseTestCase {
         Query fork = base.limit(2);
 
         assertFalse(base == fork);
-        assertEquals(1, base.getLimit());
-        assertEquals(2, fork.getLimit());
+        assertEquals(Field.field("1"), base.getLimit());
+        assertEquals(Field.field("2"), fork.getLimit());
         assertEquals(base.getTable(), fork.getTable());
     }
 
@@ -865,7 +888,7 @@ public class QueryTest extends DatabaseTestCase {
         Employee employee = database.fetchByQuery(Employee.class, query);
         assertNotNull(employee);
         assertNull(query.getTable());
-        assertEquals(2, query.getLimit());
+        assertEquals(Field.field("2"), query.getLimit());
     }
 
     // the following four tests all use the same query but different compound operators

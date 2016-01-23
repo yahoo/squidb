@@ -13,6 +13,7 @@ import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.EnumPluginBundle;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
@@ -99,6 +100,11 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_JAVADOC_COPYING = "disableJavadoc";
 
     /**
+     * Option for disabling the default support for Enum properties
+     */
+    public static final String OPTIONS_DISABLE_ENUM_PROPERTIES = "disableEnumProperties";
+
+    /**
      * Option for generating models that have Android-specific features
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
@@ -147,6 +153,10 @@ public class PluginEnvironment {
         normalPriorityPlugins.add(TableModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
+
+        if (!hasOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
+            normalPriorityPlugins.add(EnumPluginBundle.class);
+        }
 
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
@@ -253,7 +263,7 @@ public class PluginEnvironment {
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);
-        return new PluginBundle(plugins);
+        return new PluginBundle(modelSpec, this, plugins);
     }
 
     private void accumulatePlugins(List<Plugin> accumulator, List<Class<? extends Plugin>> pluginList,

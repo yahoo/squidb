@@ -6,7 +6,9 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
 
@@ -127,5 +129,28 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.hasTransitory(key1));
         assertTrue(model.checkAndClearTransitory(key2));
         assertFalse(model.hasTransitory(key2));
+    }
+
+    public void testEnumProperties() {
+        final TestEnum enumValue = TestEnum.APPLE;
+        final String enumAsString = TestEnum.APPLE.toString();
+        TestModel model = new TestModel()
+                .setFirstName("A")
+                .setLastName("Z")
+                .setBirthday(System.currentTimeMillis())
+                .setSomeEnum(enumValue);
+
+        ContentValues setValues = model.getSetValues();
+        assertEquals(enumAsString, setValues.get(TestModel.SOME_ENUM.getName()));
+
+        database.persist(model);
+
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select());
+        assertEquals(1, cursor.getCount());
+        assertTrue(cursor.moveToFirst());
+        assertEquals(enumAsString, cursor.get(TestModel.SOME_ENUM));
+
+        TestModel fromDatabase = new TestModel(cursor);
+        assertEquals(enumValue, fromDatabase.getSomeEnum());
     }
 }

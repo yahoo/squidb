@@ -70,6 +70,8 @@ public class TestModelSpec {
     @ColumnSpec(name = "dollar123abc")
     int $123abc;
 
+    TestEnum someEnum;
+
     @ModelMethod
     public static String getDisplayName(TestModel instance) {
         return instance.getFirstName() + " " + instance.getLastName();

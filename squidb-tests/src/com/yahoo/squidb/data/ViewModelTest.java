@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Join;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestSubqueryModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -29,9 +30,9 @@ public class ViewModelTest extends DatabaseTestCase {
     protected void setupDatabase() {
         super.setupDatabase();
 
-        t1 = new TestModel().setFirstName("Sam").setLuckyNumber(10);
-        t2 = new TestModel().setFirstName("Scott").setLuckyNumber(20);
-        t3 = new TestModel().setFirstName("Jon").setLuckyNumber(30);
+        t1 = new TestModel().setFirstName("Sam").setLuckyNumber(10).setSomeEnum(TestEnum.APPLE);
+        t2 = new TestModel().setFirstName("Scott").setLuckyNumber(20).setSomeEnum(TestEnum.BANANA);
+        t3 = new TestModel().setFirstName("Jon").setLuckyNumber(30).setSomeEnum(TestEnum.CHERRY);
 
         e1 = new Employee().setName("Big bird");
         e2 = new Employee().setName("Elmo");
@@ -53,6 +54,7 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(t1.getId(), model.getTestModelId().longValue());
             assertEquals(e1.getId(), model.getEmployeeModelId().longValue());
             assertEquals(t1.getFirstName(), model.getTestName());
+            assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
             assertEquals(e1.getName().toUpperCase(), model.getUppercaseName());
 
@@ -62,6 +64,7 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(t2.getId(), model.getTestModelId().longValue());
             assertEquals(e2.getId(), model.getEmployeeModelId().longValue());
             assertEquals(t2.getFirstName(), model.getTestName());
+            assertEquals(t2.getSomeEnum(), model.getTestEnum());
             assertEquals(e2.getName(), model.getEmployeeName());
             assertEquals(e2.getName().toUpperCase(), model.getUppercaseName());
         } finally {
@@ -81,6 +84,7 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(t1.getId(), model.getTestModelId().longValue());
             assertEquals(e1.getId(), model.getEmployeeModelId().longValue());
             assertEquals(t1.getFirstName(), model.getTestName());
+            assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
             assertEquals(e1.getName().toUpperCase(), model.getUppercaseName());
 
@@ -103,6 +107,7 @@ public class ViewModelTest extends DatabaseTestCase {
         assertEquals("blahTestName", TestSubqueryModel.TEST_NAME.getName());
         assertEquals("blahName", TestSubqueryModel.EMPLOYEE_NAME.getName());
         assertEquals("luckyNumber", TestSubqueryModel.TEST_LUCKY_NUMBER.getName());
+        assertEquals("blahEnum", TestSubqueryModel.TEST_ENUM.getName());
         assertEquals("uppercase_name", TestSubqueryModel.UPPERCASE_NAME.getName());
 
         SquidCursor<TestSubqueryModel> cursor = null;
@@ -118,6 +123,7 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(t1.getFirstName(), testModel.getFirstName());
             assertEquals(e1.getName(), employeeModel.getName());
             assertEquals(t1.getLuckyNumber(), testModel.getLuckyNumber());
+            assertEquals(t1.getSomeEnum(), testModel.getSomeEnum());
             // neither mapped model should have "uppercase_name"
             assertFalse(t1.containsValue(TestSubqueryModel.UPPERCASE_NAME));
             assertFalse(e1.containsValue(TestSubqueryModel.UPPERCASE_NAME));
@@ -140,6 +146,7 @@ public class ViewModelTest extends DatabaseTestCase {
 
             assertEquals(t1.getId(), testModel.getId());
             assertEquals(t1.getFirstName(), testModel.getFirstName());
+            assertEquals(t1.getSomeEnum(), testModel.getSomeEnum());
             assertFalse(testModel.containsValue(Employee.NAME));
             assertFalse(testModel.containsValue(TestViewModel.UPPERCASE_NAME));
 
@@ -150,6 +157,7 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(e1.getName(), employee.getName());
             assertFalse(employee.containsValue(TestModel.FIRST_NAME));
             assertFalse(employee.containsValue(TestViewModel.UPPERCASE_NAME));
+            assertFalse(employee.containsValue(TestModel.SOME_ENUM));
 
             List<AbstractModel> allSources = model.mapToSourceModels();
             assertEquals(2, allSources.size());

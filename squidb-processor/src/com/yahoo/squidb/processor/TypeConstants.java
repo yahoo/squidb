@@ -81,6 +81,7 @@ public class TypeConstants {
     public static final DeclaredTypeName BOOLEAN_PROPERTY = new DeclaredTypeName(PROPERTY.toString(),
             "BooleanProperty");
     public static final DeclaredTypeName BLOB_PROPERTY = new DeclaredTypeName(PROPERTY.toString(), "BlobProperty");
+    public static final DeclaredTypeName ENUM_PROPERTY = new DeclaredTypeName(PROPERTY.toString(), "EnumProperty");
 
     public static final DeclaredTypeName PROPERTY_ARRAY;
     public static final DeclaredTypeName PROPERTY_VARARGS;
@@ -96,19 +97,19 @@ public class TypeConstants {
         PROPERTY_VARARGS.setIsVarArgs(true);
     }
 
-    private static final Set<DeclaredTypeName> PROPERTY_TYPES = new HashSet<DeclaredTypeName>();
+    private static final Set<DeclaredTypeName> BASIC_PROPERTY_TYPES = new HashSet<DeclaredTypeName>();
 
     static {
-        PROPERTY_TYPES.add(TypeConstants.BLOB_PROPERTY);
-        PROPERTY_TYPES.add(TypeConstants.BOOLEAN_PROPERTY);
-        PROPERTY_TYPES.add(TypeConstants.DOUBLE_PROPERTY);
-        PROPERTY_TYPES.add(TypeConstants.INTEGER_PROPERTY);
-        PROPERTY_TYPES.add(TypeConstants.LONG_PROPERTY);
-        PROPERTY_TYPES.add(TypeConstants.STRING_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.BLOB_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.BOOLEAN_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.DOUBLE_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.INTEGER_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.LONG_PROPERTY);
+        BASIC_PROPERTY_TYPES.add(TypeConstants.STRING_PROPERTY);
     }
 
-    public static boolean isPropertyType(DeclaredTypeName type) {
-        return PROPERTY_TYPES.contains(type);
+    public static boolean isBasicPropertyType(DeclaredTypeName type) {
+        return BASIC_PROPERTY_TYPES.contains(type);
     }
 
     public static boolean isPrimitiveType(DeclaredTypeName type) {

@@ -11,6 +11,7 @@ import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Join;
+import com.yahoo.squidb.sql.Property.EnumProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
@@ -38,6 +39,9 @@ public class TestSubqueryModelSpec {
 
     @Alias("luckyNumber")
     public static final IntegerProperty TEST_LUCKY_NUMBER = TestModel.LUCKY_NUMBER;
+
+    @Alias("blahEnum")
+    public static final EnumProperty<TestEnum> TEST_ENUM = TestModel.SOME_ENUM;
 
     @Alias("uppercase_name")
     public static final StringProperty UPPERCASE_NAME = StringProperty
