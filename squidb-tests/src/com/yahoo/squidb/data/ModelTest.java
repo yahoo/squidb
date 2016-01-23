@@ -140,7 +140,7 @@ public class ModelTest extends DatabaseTestCase {
                 .setBirthday(System.currentTimeMillis())
                 .setSomeEnum(enumValue);
 
-        ContentValues setValues = model.getSetValues();
+        ValuesStorage setValues = model.getSetValues();
         assertEquals(enumAsString, setValues.get(TestModel.SOME_ENUM.getName()));
 
         database.persist(model);

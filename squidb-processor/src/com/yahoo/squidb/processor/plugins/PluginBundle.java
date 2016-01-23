@@ -68,6 +68,7 @@ public class PluginBundle extends Plugin {
      *
      * @return the name of a class to use as the model superclass, or null if no plugin provided one
      */
+    @Override
     public DeclaredTypeName getModelSuperclass() {
         for (Plugin plugin : plugins) {
             DeclaredTypeName modelSuperclass = plugin.getModelSuperclass();
@@ -105,6 +106,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#beforeEmitClassDeclaration(JavaFileWriter)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -128,6 +130,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#beforeEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitPropertyDeclaration(JavaFileWriter writer,
             PropertyGenerator propertyGenerator) throws IOException {
         for (Plugin plugin : plugins) {
@@ -140,6 +143,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#afterEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
      */
+    @Override
     public void afterEmitPropertyDeclaration(JavaFileWriter writer,
             PropertyGenerator propertyGenerator) throws IOException {
         for (Plugin plugin : plugins) {
@@ -176,6 +180,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#beforeEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -187,6 +192,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#afterEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
      */
+    @Override
     public void afterEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -198,6 +204,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#beforeEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
      */
+    @Override
     public void beforeEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
@@ -209,6 +216,7 @@ public class PluginBundle extends Plugin {
     /**
      * Calls {@link Plugin#afterEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
      */
+    @Override
     public void afterEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
