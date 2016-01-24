@@ -34,7 +34,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        if (field.getAnnotation(JSONProperty.class) == null) {
+        if (field.getAnnotation(JSONField.class) == null) {
             return false;
         }
         if (field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
@@ -57,7 +57,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
         for (TypeName typeArg : typeArgs) {
             if (!recursivelyCheckTypes(field, typeArg, showedError)) {
                 if (!showedError.getAndSet(true)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR, "JSONProperty fields with type arguments"
+                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR, "@JSONField fields with type arguments"
                             + " must not use generic or otherwise non-concrete types", field);
                 }
                 return false;
