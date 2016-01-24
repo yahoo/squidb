@@ -25,13 +25,6 @@ import javax.lang.model.element.VariableElement;
 
 public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
 
-    private static final String JSON_PACKAGE = "com.yahoo.squidb.json";
-    private static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(JSON_PACKAGE,
-            "ParameterizedTypeBuilder");
-    private static final DeclaredTypeName JSON_PROPERTY_SUPPORT = new DeclaredTypeName(JSON_PACKAGE,
-            "JSONPropertySupport");
-    private static final DeclaredTypeName JSON_PROPERTY = new DeclaredTypeName(JSON_PACKAGE, "JSONProperty");
-
     protected final DeclaredTypeName fieldType;
 
     public JSONPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, DeclaredTypeName fieldType,
@@ -43,17 +36,17 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     @Override
     protected void registerAdditionalImports(Set<DeclaredTypeName> imports) {
         super.registerAdditionalImports(imports);
-        imports.add(JSON_PROPERTY_SUPPORT);
-        imports.add(JSON_PROPERTY);
+        imports.add(JSONTypes.JSON_PROPERTY_SUPPORT);
+        imports.add(JSONTypes.JSON_PROPERTY);
         if (!AptUtils.isEmpty(fieldType.getTypeArgs())) {
-            imports.add(PARAMETERIZED_TYPE_BUILDER);
+            imports.add(JSONTypes.PARAMETERIZED_TYPE_BUILDER);
         }
         fieldType.accept(new ImportGatheringTypeNameVisitor(), imports);
     }
 
     @Override
     public DeclaredTypeName getPropertyType() {
-        DeclaredTypeName jsonProperty = JSON_PROPERTY.clone();
+        DeclaredTypeName jsonProperty = JSONTypes.JSON_PROPERTY.clone();
         jsonProperty.setTypeArgs(Collections.singletonList(fieldType));
         return jsonProperty;
     }
@@ -67,13 +60,13 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     protected void writeGetterBody(JavaFileWriter writer) throws IOException {
         Expression typeExpression = getTypeExpression(fieldType);
 
-        writer.writeStatement(Expressions.staticMethod(JSON_PROPERTY_SUPPORT, "getObjectValue",
+        writer.writeStatement(Expressions.staticMethod(JSONTypes.JSON_PROPERTY_SUPPORT, "getObjectValue",
                 "this", propertyName, typeExpression).returnExpr());
     }
 
     @Override
     protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
-        writer.writeStatement(Expressions.staticMethod(JSON_PROPERTY_SUPPORT, "setObjectProperty",
+        writer.writeStatement(Expressions.staticMethod(JSONTypes.JSON_PROPERTY_SUPPORT, "setObjectProperty",
                 "this", propertyName, argName));
         writer.writeStringStatement("return this");
     }
@@ -90,7 +83,8 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
                 // an instance of this property generator
                 parameterizedTypeBuilderArgs.add(getTypeExpression((DeclaredTypeName) typeArg));
             }
-            return Expressions.staticMethod(PARAMETERIZED_TYPE_BUILDER, "build", parameterizedTypeBuilderArgs);
+            return Expressions.staticMethod(JSONTypes.PARAMETERIZED_TYPE_BUILDER, "build",
+                    parameterizedTypeBuilderArgs);
         }
     }
 
