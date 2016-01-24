@@ -48,7 +48,7 @@ public class JSONFieldReferencePlugin extends FieldReferencePlugin {
             return new JSONPropertyGenerator(modelSpec, field, (DeclaredTypeName) typeArgs.get(0), utils);
         }
         utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                "EnumProperty must use a declared type argument; it cannot be raw or use a generic type argument",
+                "JSONProperty must use a declared type argument; it cannot be raw or use a generic type argument",
                 field);
         return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
     }

@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.android;
 
+import com.yahoo.squidb.sql.Query;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,19 +59,7 @@ public class JSONPropertyTest extends JSONTestCase {
             public void run() {
                 AndroidTestModel model = new AndroidTestModel();
 
-                Map<String, Map<String, List<Integer>>> crazyMap = new HashMap<String, Map<String, List<Integer>>>();
-
-                Map<String, List<Integer>> internalMap1 = new HashMap<String, List<Integer>>();
-                internalMap1.put("123", Arrays.asList(1, 2, 3));
-                internalMap1.put("4567", Arrays.asList(4, 5, 6, 7));
-
-                crazyMap.put("ABC", internalMap1);
-                Map<String, List<Integer>> internalMap2 = new HashMap<String, List<Integer>>();
-                internalMap2.put("XYZ", Arrays.asList(Character.getNumericValue('x'), Character.getNumericValue('y'),
-                        Character.getNumericValue('z')));
-                internalMap2.put("Empty", new ArrayList<Integer>());
-                internalMap2.put("NilValue", null);
-                crazyMap.put("XYZ", internalMap2);
+                Map<String, Map<String, List<Integer>>> crazyMap = mockComplicatedMap();
 
                 model.setComplicatedMap(crazyMap);
                 database.persist(model);
@@ -86,11 +76,7 @@ public class JSONPropertyTest extends JSONTestCase {
             @Override
             public void run() {
                 AndroidTestModel model = new AndroidTestModel();
-                JSONPojo pojo = new JSONPojo();
-                pojo.pojoStr = "ABC";
-                pojo.pojoInt = 123;
-                pojo.pojoDouble = 3.1415;
-                pojo.pojoList = Arrays.asList("Z", "Y", "X");
+                JSONPojo pojo = mockPojo();
 
                 model.setSomePojo(pojo);
                 database.persist(model);
@@ -103,5 +89,57 @@ public class JSONPropertyTest extends JSONTestCase {
                 assertEquals(pojo.pojoList, readPojo.pojoList);
             }
         });
+    }
+
+    public void testViewModelJsonProperty() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                AndroidTestModel model = new AndroidTestModel();
+                JSONPojo pojo = mockPojo();
+                Map<String, Map<String, List<Integer>>> crazyMap = mockComplicatedMap();
+
+                model.setSomePojo(pojo).setComplicatedMap(crazyMap);
+                database.persist(model);
+
+                AndroidTestViewModel viewModel = database.fetchByQuery(AndroidTestViewModel.class,
+                        Query.select().from(AndroidTestViewModel.SUBQUERY));
+
+                JSONPojo readPojo = viewModel.getJsonProp();
+                assertEquals(pojo.pojoStr, readPojo.pojoStr);
+                assertEquals(pojo.pojoInt, readPojo.pojoInt);
+                assertEquals(pojo.pojoDouble, readPojo.pojoDouble);
+                assertEquals(pojo.pojoList, readPojo.pojoList);
+
+                Map<String, Map<String, List<Integer>>> readMap = viewModel.getCrazyMap();
+                assertEquals(crazyMap, readMap);
+            }
+        });
+    }
+
+    private Map<String, Map<String, List<Integer>>> mockComplicatedMap() {
+        HashMap<String, Map<String, List<Integer>>> crazyMap = new HashMap<String, Map<String, List<Integer>>>();
+
+        Map<String, List<Integer>> internalMap1 = new HashMap<String, List<Integer>>();
+        internalMap1.put("123", Arrays.asList(1, 2, 3));
+        internalMap1.put("4567", Arrays.asList(4, 5, 6, 7));
+
+        crazyMap.put("ABC", internalMap1);
+        Map<String, List<Integer>> internalMap2 = new HashMap<String, List<Integer>>();
+        internalMap2.put("XYZ", Arrays.asList(Character.getNumericValue('x'), Character.getNumericValue('y'),
+                Character.getNumericValue('z')));
+        internalMap2.put("Empty", new ArrayList<Integer>());
+        internalMap2.put("NilValue", null);
+        crazyMap.put("XYZ", internalMap2);
+        return crazyMap;
+    }
+
+    private JSONPojo mockPojo() {
+        JSONPojo pojo = new JSONPojo();
+        pojo.pojoStr = "ABC";
+        pojo.pojoInt = 123;
+        pojo.pojoDouble = 3.1415;
+        pojo.pojoList = Arrays.asList("Z", "Y", "X");
+        return pojo;
     }
 }

@@ -61,7 +61,7 @@ dependencies {
 
 apt {
     arguments {
-        squidbPlugins 'com.yahoo.squidb.json.JSONFieldPlugin'
+        squidbPlugins 'com.yahoo.squidb.json.JSONPlugin'
         squidbOptions 'androidModels'
     }
 }
