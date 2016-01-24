@@ -8,6 +8,7 @@ package com.yahoo.squidb.json;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -36,6 +37,11 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
         if (field.getAnnotation(JSONProperty.class) == null) {
             return false;
         }
+        if (field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
+            // Might be a constant, ignore
+            return false;
+        }
+
         // Check that all type args are concrete types
         return recursivelyCheckTypes(field, fieldType, new AtomicBoolean(false));
     }

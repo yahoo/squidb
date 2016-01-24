@@ -6,7 +6,6 @@
 package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.data.AbstractModel;
-import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.utility.Logger;
 
 import java.lang.reflect.Type;
@@ -26,11 +25,11 @@ public class JSONPropertySupport {
         MAPPER = jsonMapper;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * Deserialize a JSON string property into the specified Java type
      */
-    public static <T> T getObjectValue(AbstractModel model, StringProperty property, Type javaType) {
+    @SuppressWarnings("unchecked")
+    public static <T> T getObjectValue(AbstractModel model, JSONProperty<T> property, Type javaType) {
         if (!model.hasTransitory(property.getName())) {
             T data = null;
             if (model.containsNonNullValue(property)) {
@@ -54,7 +53,7 @@ public class JSONPropertySupport {
      *
      * @return true if the value object was successfully serialized, false otherwise
      */
-    public static boolean setObjectProperty(AbstractModel model, StringProperty property, Object data) {
+    public static <T> boolean setObjectProperty(AbstractModel model, JSONProperty<T> property, T data) {
         try {
             String json = null;
             if (data != null) {

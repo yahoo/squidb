@@ -17,6 +17,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicSt
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,10 +25,12 @@ import javax.lang.model.element.VariableElement;
 
 public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
 
-    private static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(
-            "com.yahoo.squidb.json.ParameterizedTypeBuilder");
-    private static final DeclaredTypeName JSON_PROPERTY_SUPPORT = new DeclaredTypeName(
-            "com.yahoo.squidb.json.JSONPropertySupport");
+    private static final String JSON_PACKAGE = "com.yahoo.squidb.json";
+    private static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(JSON_PACKAGE,
+            "ParameterizedTypeBuilder");
+    private static final DeclaredTypeName JSON_PROPERTY_SUPPORT = new DeclaredTypeName(JSON_PACKAGE,
+            "JSONPropertySupport");
+    private static final DeclaredTypeName JSON_PROPERTY = new DeclaredTypeName(JSON_PACKAGE, "JSONProperty");
 
     protected final DeclaredTypeName fieldType;
 
@@ -41,10 +44,18 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     protected void registerAdditionalImports(Set<DeclaredTypeName> imports) {
         super.registerAdditionalImports(imports);
         imports.add(JSON_PROPERTY_SUPPORT);
+        imports.add(JSON_PROPERTY);
         if (!AptUtils.isEmpty(fieldType.getTypeArgs())) {
             imports.add(PARAMETERIZED_TYPE_BUILDER);
         }
         fieldType.accept(new ImportGatheringTypeNameVisitor(), imports);
+    }
+
+    @Override
+    public DeclaredTypeName getPropertyType() {
+        DeclaredTypeName jsonProperty = JSON_PROPERTY.clone();
+        jsonProperty.setTypeArgs(Collections.singletonList(fieldType));
+        return jsonProperty;
     }
 
     @Override
