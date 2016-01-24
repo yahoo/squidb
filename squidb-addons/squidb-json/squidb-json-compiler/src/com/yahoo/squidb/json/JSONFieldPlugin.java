@@ -9,8 +9,9 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.BaseFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.List;
@@ -19,10 +20,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
-public class JSONFieldPlugin extends TableModelSpecFieldPlugin {
+public class JSONFieldPlugin extends BaseFieldPlugin {
 
     public JSONFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
+    }
+
+    @Override
+    public boolean hasChangesForModelSpec() {
+        return modelSpec instanceof TableModelSpecWrapper;
     }
 
     @Override
@@ -32,11 +38,6 @@ public class JSONFieldPlugin extends TableModelSpecFieldPlugin {
         }
         // Check that all type args are concrete types
         return recursivelyCheckTypes(field, fieldType, new AtomicBoolean(false));
-    }
-
-    @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
     }
 
     private boolean recursivelyCheckTypes(VariableElement field, TypeName rootType, AtomicBoolean showedError) {
@@ -59,4 +60,8 @@ public class JSONFieldPlugin extends TableModelSpecFieldPlugin {
         return true;
     }
 
+    @Override
+    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+        return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
+    }
 }
