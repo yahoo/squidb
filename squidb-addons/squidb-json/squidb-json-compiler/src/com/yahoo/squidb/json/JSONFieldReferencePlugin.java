@@ -20,6 +20,9 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
+/**
+ * Plugin which handles JSONProperty references in a ViewModelSpec or an InheritedModelSpec file.
+ */
 public class JSONFieldReferencePlugin extends FieldReferencePlugin {
 
     public JSONFieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {

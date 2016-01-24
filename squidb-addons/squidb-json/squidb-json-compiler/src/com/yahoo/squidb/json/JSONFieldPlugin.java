@@ -21,6 +21,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
+/**
+ * Plugin which handles fields annotated with @JSONField in a TableModelSpec file. Generates instances of JSONProperty
+ * which helps support serializing objects to JSON strings.
+ */
 public class JSONFieldPlugin extends BaseFieldPlugin {
 
     public JSONFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
