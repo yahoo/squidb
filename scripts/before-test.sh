@@ -7,6 +7,6 @@ then
     adb shell input keyevent 82 &
     ./gradlew squidb-tests:installDebug squidb-tests:installDebugAndroidTest
 else
-    wget https://github.com/google/j2objc/releases/download/$J2OBJC_VERSION/j2objc-$J2OBJC_VERSION.zip -O /tmp/j2objc-dist.zip
-    unzip -oq /tmp/j2objc-dist.zip -d /tmp
+    wget https://github.com/google/j2objc/releases/download/$J2OBJC_VERSION/j2objc-$J2OBJC_VERSION.zip -O /tmp/j2objc-$J2OBJC_VERSION.zip
+    unzip -oq /tmp/j2objc-$J2OBJC_VERSION.zip -d /tmp
 fi
