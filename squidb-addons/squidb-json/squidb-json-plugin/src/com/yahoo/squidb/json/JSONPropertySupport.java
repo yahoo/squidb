@@ -19,7 +19,7 @@ public class JSONPropertySupport {
 
     private static final String TAG = "squidb-json";
 
-    public static JSONMapper MAPPER;
+    private static JSONMapper MAPPER = null;
 
     public static void setJSONMapper(JSONMapper jsonMapper) {
         MAPPER = jsonMapper;
@@ -35,6 +35,10 @@ public class JSONPropertySupport {
             if (model.containsNonNullValue(property)) {
                 String value = model.get(property);
                 try {
+                    if (MAPPER == null) {
+                        throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
+                                + "JSONMapper instance using setJSONMapper()");
+                    }
                     data = MAPPER.fromJson(value, javaType);
                 } catch (Exception e) {
                     Logger.w(TAG, "Error deserializing JSON string: " + value, e);
@@ -57,6 +61,10 @@ public class JSONPropertySupport {
         try {
             String json = null;
             if (data != null) {
+                if (MAPPER == null) {
+                    throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
+                            + "JSONMapper instance using setJSONMapper()");
+                }
                 json = MAPPER.toJSON(data);
                 if (model.containsNonNullValue(property) && json.equals(model.get(property))) {
                     return false;
