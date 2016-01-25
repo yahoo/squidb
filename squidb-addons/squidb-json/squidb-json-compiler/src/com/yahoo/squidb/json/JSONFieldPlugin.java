@@ -8,6 +8,7 @@ package com.yahoo.squidb.json;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.json.annotations.JSONProperty;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -38,7 +39,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        if (field.getAnnotation(JSONField.class) == null) {
+        if (field.getAnnotation(JSONProperty.class) == null) {
             return false;
         }
         if (field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
