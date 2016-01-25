@@ -21,7 +21,7 @@ matrix:
           language: android
           env: ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite
         - os: osx
-          osx_image: xcode7
+          osx_image: xcode7.2
           language: objective-c
           env: CI_IOS_TESTS=true J2OBJC_VERSION=1.0.0 J2OBJC_HOME=/tmp/j2objc-$J2OBJC_VERSION
 
