@@ -79,7 +79,14 @@ do
 done
 
 # build test executable
-${J2OBJC_HOME}/j2objcc -L ${J2OBJC_HOME}/lib/macosx -ljre_emul -ljunit -lsqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
+# When using the -ObjC flag, the -ljre* flags are the ones SquiDB requires. If not using the flag, it should be safe to use -ljre_emul, because unused symbols will be stripped
+${J2OBJC_HOME}/j2objcc -L${J2OBJC_HOME}/lib/macosx -ljre_core -ljre_util -ljre_concurrent -ljunit -ObjC -lsqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
+linkerResult=$?
+if [ ! $linkerResult -eq 0 ]
+then
+    echo "Linker failed with error code $linkerResult"
+    exit $linkerResult
+fi
 
 # run tests
 ./run_squidb_ios_tests
