@@ -29,7 +29,7 @@ public class JSONPropertySupport {
      * Deserialize a JSON string property into the specified Java type
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getObjectValue(AbstractModel model, JSONProperty<T> property, Type javaType) {
+    public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
         if (!model.hasTransitory(property.getName())) {
             T data = null;
             if (model.containsNonNullValue(property)) {
@@ -39,7 +39,7 @@ public class JSONPropertySupport {
                         throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
                                 + "JSONMapper instance using setJSONMapper()");
                     }
-                    data = MAPPER.fromJson(value, javaType);
+                    data = MAPPER.fromJSON(value, javaType);
                 } catch (Exception e) {
                     Logger.w(TAG, "Error deserializing JSON string: " + value, e);
                     model.clearValue(property);
@@ -57,7 +57,7 @@ public class JSONPropertySupport {
      *
      * @return true if the value object was successfully serialized, false otherwise
      */
-    public static <T> boolean setObjectProperty(AbstractModel model, JSONProperty<T> property, T data) {
+    public static <T> boolean setValueAsJSON(AbstractModel model, JSONProperty<T> property, T data) {
         try {
             String json = null;
             if (data != null) {

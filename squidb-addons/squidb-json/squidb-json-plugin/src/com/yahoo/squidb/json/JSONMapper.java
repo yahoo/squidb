@@ -16,5 +16,5 @@ public interface JSONMapper {
 
     String toJSON(Object toSerialize) throws Exception;
 
-    <T> T fromJson(String jsonString, Type javaType) throws Exception;
+    <T> T fromJSON(String jsonString, Type javaType) throws Exception;
 }

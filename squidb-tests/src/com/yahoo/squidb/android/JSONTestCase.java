@@ -35,7 +35,7 @@ public class JSONTestCase extends DatabaseTestCase {
         }
 
         @Override
-        public <T> T fromJson(String jsonString, Type javaType) throws Exception {
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
             JavaType type = MAPPER.getTypeFactory().constructType(javaType);
             return MAPPER.readValue(jsonString, type);
         }
@@ -51,7 +51,7 @@ public class JSONTestCase extends DatabaseTestCase {
         }
 
         @Override
-        public <T> T fromJson(String jsonString, Type javaType) throws Exception {
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
             return GSON.fromJson(jsonString, javaType);
         }
     }
