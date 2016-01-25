@@ -16,7 +16,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.ViewPro
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
-abstract class FieldReferencePlugin extends BaseFieldPlugin {
+public abstract class FieldReferencePlugin extends BaseFieldPlugin {
 
     public FieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);

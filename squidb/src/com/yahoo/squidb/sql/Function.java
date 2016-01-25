@@ -75,8 +75,8 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
-     * Create a Function call with the given name and list of arguments. Returns
-     * a function equivalent to "functionName(arg1, arg2, ...)"
+     * Create a Function call with the given name and list of arguments. Returns a function equivalent to
+     * "functionName(arg1, arg2, ...)"
      */
     public static <T> Function<T> functionWithArguments(String functionName, Object... arguments) {
         return new ArgumentFunction<T>(functionName, arguments);

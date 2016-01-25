@@ -160,8 +160,9 @@ public class PluginEnvironment {
 
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
-            // the generated model
-            normalPriorityPlugins.add(ConstantCopyingPlugin.class);
+            // the generated model. Set to low priority so that by default user plugins can have first pass at
+            // handing such fields.
+            lowPriorityPlugins.add(ConstantCopyingPlugin.class);
         }
     }
 
