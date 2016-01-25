@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -151,6 +152,7 @@ public class SquidbTestRunner {
         boolean hasError = false;
         int numTests = 0;
         int numFailures = 0;
+        long start = System.currentTimeMillis();
         for (@AutoreleasePool Class c : classes) {
             out.println("Running " + c.getName());
             Result result = junitCore.run(c);
@@ -158,7 +160,9 @@ public class SquidbTestRunner {
             numFailures += result.getFailureCount();
             hasError = hasError || !result.wasSuccessful();
         }
-        out.println("Ran " + numTests + " tests, " + numFailures + " failures");
+        long end = System.currentTimeMillis();
+        out.println(String.format("Ran %d tests, %d failures. Total time: %s seconds", numTests, numFailures,
+            NumberFormat.getInstance().format((double)(end - start) / 1000)));
         return hasError ? 1 : 0;
     }
 
