@@ -168,7 +168,8 @@ public class SquidbTestRunner {
      * @returns Zero if all tests pass, non-zero otherwise.
      */
     public int run() {
-        Class[] classes = (Class[]) getTestClasses().toArray();
+        Set<Class> classesSet = getTestClasses();
+        Class[] classes = classesSet.toArray(new Class[classesSet.size()]);
         sortClasses(classes, sortOrder);
         RunListener listener = newRunListener(outputFormat);
         return run(classes, listener, out);
