@@ -145,7 +145,8 @@ public class ModelTest extends DatabaseTestCase {
 
         database.persist(model);
 
-        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select());
+        SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select()
+                .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE)));
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
         assertEquals(enumAsString, cursor.get(TestModel.SOME_ENUM));
