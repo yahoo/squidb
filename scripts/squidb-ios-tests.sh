@@ -69,7 +69,7 @@ for f in squidb-ios/native/**/*.m $INTERMEDIATE/*.m ${SQUIDB_IOS_TESTS_SRC}/**/*
 do
     echo "Compiling $f"
     # output .o file to bin folder
-    ${J2OBJC_HOME}/j2objcc -fobjc-arc -I$INTERMEDIATE -I$SQUIDB_IOS_NATIVE -o "$BIN/${$(basename $f)%.*}.o" -c $f
+    ${J2OBJC_HOME}/j2objcc -fobjc-arc -I$INTERMEDIATE -I$SQUIDB_IOS_NATIVE -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
     j2objccResult=$?
     if [ ! $j2objccResult -eq 0 ]
     then
@@ -78,9 +78,21 @@ do
     fi
 done
 
-# build test executable
 # When using the -ObjC flag, the -ljre* flags are the ones SquiDB requires. If not using the flag, it should be safe to use -ljre_emul, because unused symbols will be stripped
-${J2OBJC_HOME}/j2objcc -L${J2OBJC_HOME}/lib/macosx -ljre_core -ljre_util -ljre_concurrent -ljunit -ObjC -lsqlite3 -o run_squidb_ios_tests $BIN/*.o # link with libraries
+LINK_ARGS=(-ljre_core -ljre_util -ljre_concurrent -ljunit)
+IOS_CUSTOM_SQLITE=true
+if [ -z "$IOS_CUSTOM_SQLITE" ]
+then
+    LINK_ARGS+=(-lsqlite3)
+else
+    f=$SQUIDB_IOS_NATIVE/sqlite/sqlite3.c
+    echo "Compiling $f"
+    ${J2OBJC_HOME}/j2objcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
+        -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
+fi
+
+# build test executable
+${J2OBJC_HOME}/j2objcc -L${J2OBJC_HOME}/lib/macosx "${LINK_ARGS[@]}" -ObjC -o run_squidb_ios_tests $BIN/*.o # link with libraries
 linkerResult=$?
 if [ ! $linkerResult -eq 0 ]
 then
