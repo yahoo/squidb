@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.android;
+package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.json.JSONFunctions;
 import com.yahoo.squidb.sql.Function;

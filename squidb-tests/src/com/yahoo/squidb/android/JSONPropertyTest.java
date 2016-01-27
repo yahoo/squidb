@@ -5,8 +5,19 @@
  */
 package com.yahoo.squidb.android;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import com.yahoo.squidb.data.JSONTestCase;
+import com.yahoo.squidb.json.JSONMapper;
+import com.yahoo.squidb.json.JSONPropertySupport;
 import com.yahoo.squidb.sql.Query;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.JavaType;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +25,59 @@ import java.util.List;
 import java.util.Map;
 
 public class JSONPropertyTest extends JSONTestCase {
+
+    private static class JacksonMapper implements JSONMapper {
+
+        private static final ObjectMapper MAPPER = new ObjectMapper();
+
+        static {
+            MAPPER.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
+
+        @Override
+        public String toJSON(Object toSerialize) throws Exception {
+            return MAPPER.writeValueAsString(toSerialize);
+        }
+
+        @Override
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
+            JavaType type = MAPPER.getTypeFactory().constructType(javaType);
+            return MAPPER.readValue(jsonString, type);
+        }
+    }
+
+    private static class GsonMapper implements JSONMapper {
+
+        private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+
+        @Override
+        public String toJSON(Object toSerialize) throws Exception {
+            return GSON.toJson(toSerialize);
+        }
+
+        @Override
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
+            return GSON.fromJson(jsonString, javaType);
+        }
+    }
+
+    private static final JSONMapper[] MAPPERS = {
+            new JacksonMapper(),
+            new GsonMapper()
+    };
+
+    @Override
+    protected void setupDatabase() {
+        database = new AndroidTestDatabase();
+    }
+
+    protected void testWithAllMappers(Runnable toTest) {
+        for (JSONMapper mapper : MAPPERS) {
+            database.clear();
+            JSONPropertySupport.setJSONMapper(mapper);
+            toTest.run();
+        }
+    }
 
     public void testListProperty() {
         testWithAllMappers(new Runnable() {
