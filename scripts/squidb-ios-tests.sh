@@ -15,6 +15,7 @@ JARS="$BUILD_DIR/jars"; mkdir $JARS;
 
 SQUIDB_SRC="squidb/src"
 SQUIDB_ANNOTATIONS_SRC="squidb-annotations/src"
+SQUIDB_JSON_SRC="squidb-addons/squidb-json/squidb-json-plugin/src"
 SQUIDB_IOS_SRC="squidb-ios/src"
 SQUIDB_IOS_NATIVE="squidb-ios/native"
 SQUIDB_IOS_TESTS="squidb-ios-tests"
@@ -27,7 +28,7 @@ SQUIDB_TESTS_SQL_SRC="${SQUIDB_TESTS_SRC}/sql"
 SQUIDB_TESTS_TEST_SRC="${SQUIDB_TESTS_SRC}/test"
 SQUIDB_TESTS_UTILITY_SRC="${SQUIDB_TESTS_SRC}/utility"
 
-SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
+SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_JSON_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
 #echo ${SOURCEPATH}
 
 # Build annotation and processor jars
@@ -55,7 +56,7 @@ fi
 # invoke j2objc to translate java sources
 ${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/jre_emul.jar" -d $INTERMEDIATE \
     --no-package-directories -use-arc -sourcepath "${SOURCEPATH}" \
-    ${SQUIDB_SRC}/**/*.java ${SQUIDB_IOS_SRC}/**/*.java ${SQUIDB_TESTS_TEST_SRC}/*.java ${GEN}/**/*.java \
+    ${SQUIDB_SRC}/**/*.java ${SQUIDB_IOS_SRC}/**/*.java ${SQUIDB_JSON_SRC}/**/*.java ${SQUIDB_TESTS_TEST_SRC}/*.java ${GEN}/**/*.java \
     ${SQUIDB_IOS_TESTS_SRC}/**/*.java ${SQUIDB_TESTS_DATA_SRC}/*.java ${SQUIDB_TESTS_SQL_SRC}/*.java ${SQUIDB_TESTS_UTILITY_SRC}/*.java
 j2objcResult=$?
 if [ ! $j2objcResult -eq 0 ]
@@ -78,8 +79,10 @@ do
     fi
 done
 
-# When using the -ObjC flag, the -ljre* flags are the ones SquiDB requires. If not using the flag, it should be safe to use -ljre_emul, because unused symbols will be stripped
-LINK_ARGS=(-ljre_core -ljre_util -ljre_concurrent -ljunit)
+# When using the -ObjC flag, the -ljre_core, -ljre_util, and -ljre_concurrent flags are the ones SquiDB requires.
+# If not using the flag, it should be safe to use -ljre_emul, because unused symbols will be stripped
+# the android_util lib is used for testing json functions using the org.json package, and in turn requires jre_net
+LINK_ARGS=(-ljre_core -ljre_util -ljre_concurrent -ljunit -landroid_util -ljre_net)
 IOS_CUSTOM_SQLITE=true
 if [ -z "$IOS_CUSTOM_SQLITE" ]
 then
