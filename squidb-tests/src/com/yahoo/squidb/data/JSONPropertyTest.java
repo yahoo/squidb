@@ -8,6 +8,7 @@ package com.yahoo.squidb.data;
 import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.json.JSONPropertySupport;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -26,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class JSONPropertyTest extends JSONTestCase {
+public class JSONPropertyTest extends DatabaseTestCase {
 
     public static JSONMapper[] MAPPERS = {
             new OrgJsonMapper()
