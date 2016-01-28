@@ -16,11 +16,17 @@ import com.yahoo.squidb.sql.Query;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,9 +68,110 @@ public class JSONPropertyTest extends JSONTestCase {
     }
 
     private static final JSONMapper[] MAPPERS = {
+            new OrgJsonMapper(),
             new JacksonMapper(),
             new GsonMapper()
     };
+
+    @SuppressWarnings("unchecked")
+    private static class OrgJsonMapper implements JSONMapper {
+
+        @Override
+        public String toJSON(Object toSerialize) throws Exception {
+            Object orgJsonObject = toOrgJsonObject(toSerialize);
+            return orgJsonObject == null ? null : orgJsonObject.toString();
+        }
+
+        @Override
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
+            if (jsonString == null) {
+                return null;
+            }
+            if (jsonString.isEmpty()) {
+                return (T) "";
+            }
+            if (javaType instanceof ParameterizedType && List.class
+                    .equals(((ParameterizedType) javaType).getRawType())) {
+                JSONArray array = new JSONArray(jsonString);
+                return (T) deserializeArray(array, ((ParameterizedType) javaType).getActualTypeArguments()[0]);
+            } else {
+                JSONObject object = new JSONObject(jsonString);
+                return deserializeObject(object, javaType);
+            }
+        }
+
+        private <T> T deserializeObject(Object object, Type type) throws JSONException {
+            if (JSONObject.NULL == object) {
+                return null;
+            }
+            if (!(object instanceof JSONObject)) {
+                return (T) object;
+            }
+            JSONObject jsonObject = (JSONObject) object;
+            if (JSONPojo.class.equals(type)) {
+                JSONPojo result = new JSONPojo();
+                result.pojoInt = jsonObject.getInt("pojoInt");
+                result.pojoDouble = jsonObject.getDouble("pojoDouble");
+                result.pojoStr = jsonObject.getString("pojoStr");
+                result.pojoList = deserializeArray(jsonObject.getJSONArray("pojoList"), Integer.class);
+                return (T) result;
+            } else if (type instanceof ParameterizedType && Map.class
+                    .equals(((ParameterizedType) type).getRawType())) {
+                return (T) deserializeMap(jsonObject, ((ParameterizedType) type).getActualTypeArguments()[1]);
+            }
+            throw new JSONException("Unable to parse object " + object);
+        }
+
+        private <T> Map<String, T> deserializeMap(JSONObject object, Type valueType) throws JSONException {
+            Map<String, T> result = new HashMap<String, T>();
+            Iterator<String> keys = object.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                Object value = object.get(key);
+                if (value instanceof JSONArray) {
+                    result.put(key, (T) deserializeArray((JSONArray) value,
+                            ((ParameterizedType) valueType).getActualTypeArguments()[0]));
+                } else {
+                    result.put(key, (T) deserializeObject(object.get(key), valueType));
+                }
+
+            }
+            return result;
+        }
+
+        private <T> List<T> deserializeArray(JSONArray array, Type type) throws JSONException {
+            List<T> result = new ArrayList<T>();
+            for (int i = 0; i < array.length(); i++) {
+                result.add((T) deserializeObject(array.get(i), type));
+            }
+            return result;
+        }
+
+        private Object toOrgJsonObject(Object toSerialize) throws JSONException {
+            if (toSerialize == null) {
+                return JSONObject.NULL;
+            }
+            if (toSerialize instanceof Map) {
+                JSONObject result = new JSONObject();
+                for (Map.Entry<?, ?> entry : ((Map<?, ?>) toSerialize).entrySet()) {
+                    result.put((String) entry.getKey(), toOrgJsonObject(entry.getValue()));
+                }
+                return result;
+            } else if (toSerialize instanceof Collection) {
+                return new JSONArray((Collection) toSerialize);
+            } else if (toSerialize instanceof JSONPojo) {
+                JSONPojo pojo = (JSONPojo) toSerialize;
+                JSONObject result = new JSONObject();
+                result.put("pojoStr", pojo.pojoStr);
+                result.put("pojoInt", pojo.pojoInt);
+                result.put("pojoDouble", pojo.pojoDouble);
+                result.put("pojoList", toOrgJsonObject(pojo.pojoList));
+                return result;
+            } else {
+                return toSerialize;
+            }
+        }
+    }
 
     @Override
     protected void setupDatabase() {
