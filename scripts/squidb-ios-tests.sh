@@ -11,7 +11,6 @@ mkdir -p $BUILD_DIR
 BIN="$BUILD_DIR/bin"; mkdir $BIN;
 INTERMEDIATE="$BUILD_DIR/intermediate"; mkdir $INTERMEDIATE;
 GEN="$BUILD_DIR/gen"; mkdir $GEN;
-JARS="$BUILD_DIR/jars"; mkdir $JARS;
 
 SQUIDB_SRC="squidb/src"
 SQUIDB_ANNOTATIONS_SRC="squidb-annotations/src"
@@ -75,22 +74,17 @@ function downloadSQLiteAmalgamation () {
 }
 
 # Build annotation and processor jars
-cp $SQUIDB_IOS_TESTS/*.jar $JARS
 if [ -z "$CI_IOS_TESTS" ] # only build annotation processors from scratch when not on CI
 then
     ./gradlew clean squidb-annotations:jar squidb-processor:jar squidb-json-annotations:jar squidb-json-compiler:jar
-    cp squidb-annotations/build/libs/*.jar $JARS
-    cp squidb-processor/build/libs/*.jar $JARS
-    cp squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar $JARS
-    cp squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar $JARS
-    cp squidb-annotations/build/libs/*.jar $SQUIDB_IOS_TESTS
-    cp squidb-processor/build/libs/*.jar $SQUIDB_IOS_TESTS
-    cp squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar $SQUIDB_IOS_TESTS
-    cp squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar $SQUIDB_IOS_TESTS
+    for f in squidb-annotations/build/libs/*.jar squidb-processor/build/libs/*.jar squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar
+    do
+        rsync -rc -t $f $SQUIDB_IOS_TESTS
+    done
 fi
 
 # invoke annotation processing, output to gen folder
-javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
+javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$SQUIDB_IOS_TESTS/*" \
     -s $GEN -proc:only -AsquidbPlugins=com.yahoo.squidb.json.JSONPlugin -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 javacResult=$?
 if [ ! $javacResult -eq 0 ]
