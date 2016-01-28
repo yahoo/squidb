@@ -16,6 +16,7 @@ JARS="$BUILD_DIR/jars"; mkdir $JARS;
 SQUIDB_SRC="squidb/src"
 SQUIDB_ANNOTATIONS_SRC="squidb-annotations/src"
 SQUIDB_JSON_SRC="squidb-addons/squidb-json/squidb-json-plugin/src"
+SQUIDB_JSON_ANNOTATIONS_SRC="squidb-addons/squidb-json/squidb-json-annotations/src"
 SQUIDB_IOS_SRC="squidb-ios/src"
 SQUIDB_IOS_NATIVE="squidb-ios/native"
 SQUIDB_IOS_TESTS="squidb-ios-tests"
@@ -28,24 +29,27 @@ SQUIDB_TESTS_SQL_SRC="${SQUIDB_TESTS_SRC}/sql"
 SQUIDB_TESTS_TEST_SRC="${SQUIDB_TESTS_SRC}/test"
 SQUIDB_TESTS_UTILITY_SRC="${SQUIDB_TESTS_SRC}/utility"
 
-SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_JSON_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
+SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_JSON_SRC}:${SQUIDB_JSON_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
 #echo ${SOURCEPATH}
 
 # Build annotation and processor jars
 cp $SQUIDB_IOS_TESTS/*.jar $JARS
 if [ -z "$CI_IOS_TESTS" ] # only build annotation processors from scratch when not on CI
 then
-    ./gradlew squidb-annotations:clean squidb-annotations:jar
-    ./gradlew squidb-processor:clean squidb-processor:jar
+    ./gradlew clean squidb-annotations:jar squidb-processor:jar squidb-json-annotations:jar squidb-json-compiler:jar
     cp squidb-annotations/build/libs/*.jar $JARS
     cp squidb-processor/build/libs/*.jar $JARS
+    cp squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar $JARS
+    cp squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar $JARS
     cp squidb-annotations/build/libs/*.jar $SQUIDB_IOS_TESTS
     cp squidb-processor/build/libs/*.jar $SQUIDB_IOS_TESTS
+    cp squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar $SQUIDB_IOS_TESTS
+    cp squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar $SQUIDB_IOS_TESTS
 fi
 
 # invoke annotation processing, output to gen folder
 javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$JARS/*" \
-    -s $GEN -proc:only -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
+    -s $GEN -proc:only -AsquidbPlugins=com.yahoo.squidb.json.JSONPlugin -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 javacResult=$?
 if [ ! $javacResult -eq 0 ]
 then
@@ -56,8 +60,9 @@ fi
 # invoke j2objc to translate java sources
 ${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/jre_emul.jar" -d $INTERMEDIATE \
     --no-package-directories -use-arc -sourcepath "${SOURCEPATH}" \
-    ${SQUIDB_SRC}/**/*.java ${SQUIDB_IOS_SRC}/**/*.java ${SQUIDB_JSON_SRC}/**/*.java ${SQUIDB_TESTS_TEST_SRC}/*.java ${GEN}/**/*.java \
-    ${SQUIDB_IOS_TESTS_SRC}/**/*.java ${SQUIDB_TESTS_DATA_SRC}/*.java ${SQUIDB_TESTS_SQL_SRC}/*.java ${SQUIDB_TESTS_UTILITY_SRC}/*.java
+    ${SQUIDB_SRC}/**/*.java ${SQUIDB_IOS_SRC}/**/*.java ${SQUIDB_JSON_SRC}/**/*.java ${SQUIDB_JSON_ANNOTATIONS_SRC}/**/*.java \
+    ${SQUIDB_TESTS_TEST_SRC}/*.java ${GEN}/**/*.java ${SQUIDB_IOS_TESTS_SRC}/**/*.java ${SQUIDB_TESTS_DATA_SRC}/*.java \
+    ${SQUIDB_TESTS_SQL_SRC}/*.java ${SQUIDB_TESTS_UTILITY_SRC}/*.java
 j2objcResult=$?
 if [ ! $j2objcResult -eq 0 ]
 then

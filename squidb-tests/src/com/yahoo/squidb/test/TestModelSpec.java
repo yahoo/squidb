@@ -10,7 +10,7 @@ import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.data.JSONPojo;
-import com.yahoo.squidb.json.annotations.JSONProperty;
+import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
@@ -76,16 +76,16 @@ public class TestModelSpec {
     TestEnum someEnum;
 
     @ColumnSpec(defaultValue = "[]")
-    @JSONProperty
+    @JSONColumn
     List<String> someList;
 
-    @JSONProperty
+    @JSONColumn
     Map<String, Integer> someMap;
 
-    @JSONProperty
+    @JSONColumn
     Map<String, Map<String, List<Integer>>> complicatedMap;
 
-    @JSONProperty
+    @JSONColumn
     JSONPojo somePojo;
 
     @ModelMethod
