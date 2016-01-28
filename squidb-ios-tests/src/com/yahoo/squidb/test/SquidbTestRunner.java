@@ -135,6 +135,10 @@ public class SquidbTestRunner {
             System.err.println("Loaded " + modelClass.getSimpleName());
         }
 
+        TestDatabase db = new TestDatabase();
+        System.out.println("Running iOS tests for SQLite version " + db.getSqliteVersion());
+        db.clear();
+
         SquidbTestRunner runner = new SquidbTestRunner();
 //        runner.loadPropertiesFromResource(PROPERTIES_FILE_NAME);
 
@@ -162,7 +166,7 @@ public class SquidbTestRunner {
         }
         long end = System.currentTimeMillis();
         out.println(String.format("Ran %d tests, %d failures. Total time: %s seconds", numTests, numFailures,
-            NumberFormat.getInstance().format((double)(end - start) / 1000)));
+                NumberFormat.getInstance().format((double) (end - start) / 1000)));
         return hasError ? 1 : 0;
     }
 

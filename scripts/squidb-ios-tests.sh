@@ -32,6 +32,48 @@ SQUIDB_TESTS_UTILITY_SRC="${SQUIDB_TESTS_SRC}/utility"
 SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_JSON_SRC}:${SQUIDB_JSON_ANNOTATIONS_SRC}:${SQUIDB_IOS_SRC}:${SQUIDB_IOS_TESTS_SRC}:${SQUIDB_TESTS_ROOT}"
 #echo ${SOURCEPATH}
 
+function buildTestExecutable () {
+    ${J2OBJC_HOME}/j2objcc -L${J2OBJC_HOME}/lib/macosx "${LINK_ARGS[@]}" -ObjC -o run_squidb_ios_tests $BIN/*.o # link with libraries
+    linkerResult=$?
+    if [ ! $linkerResult -eq 0 ]
+    then
+        echo "Linker failed with error code $linkerResult"
+        exit $linkerResult
+    fi
+}
+
+function runTests () {
+    ./run_squidb_ios_tests
+    testResults=$?
+    rm run_squidb_ios_tests
+    if [ ! $testResults -eq 0 ]
+    then
+        echo "Unit test failures, exiting with code $testResults"
+        exit $testResults
+    fi
+}
+
+function downloadSQLiteAmalgamation () {
+    SQLITE_VERSION="sqlite-amalgamation-3100200"
+    echo "Downloading $SQLITE_VERSION"
+    if [ ! -d $SQUIDB_IOS_NATIVE/sqlite ]
+    then
+        mkdir $SQUIDB_IOS_NATIVE/sqlite
+    fi
+    if [ -z "$CI_IOS_TESTS" ] # local build
+    then
+        DESTINATION=$SQUIDB_IOS_NATIVE/sqlite
+    else
+        DESTINATION=/tmp
+    fi
+
+    rm $SQUIDB_IOS_NATIVE/sqlite/*
+    wget https://www.sqlite.org/2016/$SQLITE_VERSION.zip -O $DESTINATION/$SQLITE_VERSION.zip
+    unzip -oq $DESTINATION/$SQLITE_VERSION.zip -d $DESTINATION
+    mv $DESTINATION/$SQLITE_VERSION/sqlite3.c $SQUIDB_IOS_NATIVE/sqlite
+    mv $DESTINATION/$SQLITE_VERSION/sqlite3.h $SQUIDB_IOS_NATIVE/sqlite
+}
+
 # Build annotation and processor jars
 cp $SQUIDB_IOS_TESTS/*.jar $JARS
 if [ -z "$CI_IOS_TESTS" ] # only build annotation processors from scratch when not on CI
@@ -87,34 +129,23 @@ done
 # When using the -ObjC flag, the -ljre_core, -ljre_util, and -ljre_concurrent flags are the ones SquiDB requires.
 # If not using the flag, it should be safe to use -ljre_emul, because unused symbols will be stripped
 # the android_util lib is used for testing json functions using the org.json package, and in turn requires jre_net
-LINK_ARGS=(-ljre_core -ljre_util -ljre_concurrent -ljunit -landroid_util -ljre_net)
-IOS_CUSTOM_SQLITE=true
-if [ -z "$IOS_CUSTOM_SQLITE" ]
-then
-    LINK_ARGS+=(-lsqlite3)
-else
-    f=$SQUIDB_IOS_NATIVE/sqlite/sqlite3.c
-    echo "Compiling $f"
-    ${J2OBJC_HOME}/j2objcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
-        -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
-fi
+LINK_ARGS_BASE=(-ljre_core -ljre_util -ljre_concurrent -ljunit -landroid_util -ljre_net)
+LINK_ARGS_SQLITE=("${LINK_ARGS_BASE[@]}")
+LINK_ARGS_SQLITE+=(-lsqlite3)
 
-# build test executable
-${J2OBJC_HOME}/j2objcc -L${J2OBJC_HOME}/lib/macosx "${LINK_ARGS[@]}" -ObjC -o run_squidb_ios_tests $BIN/*.o # link with libraries
-linkerResult=$?
-if [ ! $linkerResult -eq 0 ]
-then
-    echo "Linker failed with error code $linkerResult"
-    exit $linkerResult
-fi
+echo "Building test executable for default SQLite"
+LINK_ARGS=("${LINK_ARGS_SQLITE[@]}")
+buildTestExecutable
+runTests
 
-# run tests
-./run_squidb_ios_tests
-testResults=$?
-rm run_squidb_ios_tests
-if [ ! $testResults -eq 0 ]
-then
-    echo "Unit test failures, exiting with code $testResults"
-    exit $testResults
-fi
-exit
+echo "Building test executable for custom built SQLite"
+downloadSQLiteAmalgamation
+f=$SQUIDB_IOS_NATIVE/sqlite/sqlite3.c
+echo "Compiling $f"
+${J2OBJC_HOME}/j2objcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
+    -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
+LINK_ARGS=("${LINK_ARGS_BASE[@]}")
+buildTestExecutable
+runTests
+
+exit 0
