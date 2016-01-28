@@ -10,6 +10,7 @@ import android.test.AndroidTestRunner;
 import android.test.InstrumentationTestRunner;
 
 import com.yahoo.squidb.android.SquidTestRunner.SquidbBinding;
+import com.yahoo.squidb.data.JSONPropertyTest;
 
 public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
@@ -36,6 +37,7 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
         }
         this.binding = SquidbBinding.valueOf(binding.toUpperCase());
         ContextProvider.setContext(getTargetContext());
+        JSONPropertyTest.MAPPERS = AndroidJSONMappers.MAPPERS;
         super.onCreate(arguments);
     }
 

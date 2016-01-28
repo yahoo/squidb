@@ -3,19 +3,15 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.android;
+package com.yahoo.squidb.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import com.yahoo.squidb.data.JSONTestCase;
 import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.json.JSONPropertySupport;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.TestViewModel;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.JavaType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,49 +28,12 @@ import java.util.Map;
 
 public class JSONPropertyTest extends JSONTestCase {
 
-    private static class JacksonMapper implements JSONMapper {
-
-        private static final ObjectMapper MAPPER = new ObjectMapper();
-
-        static {
-            MAPPER.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        }
-
-        @Override
-        public String toJSON(Object toSerialize) throws Exception {
-            return MAPPER.writeValueAsString(toSerialize);
-        }
-
-        @Override
-        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
-            JavaType type = MAPPER.getTypeFactory().constructType(javaType);
-            return MAPPER.readValue(jsonString, type);
-        }
-    }
-
-    private static class GsonMapper implements JSONMapper {
-
-        private static final Gson GSON = new GsonBuilder().serializeNulls().create();
-
-        @Override
-        public String toJSON(Object toSerialize) throws Exception {
-            return GSON.toJson(toSerialize);
-        }
-
-        @Override
-        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
-            return GSON.fromJson(jsonString, javaType);
-        }
-    }
-
-    private static final JSONMapper[] MAPPERS = {
-            new OrgJsonMapper(),
-            new JacksonMapper(),
-            new GsonMapper()
+    public static JSONMapper[] MAPPERS = {
+            new OrgJsonMapper()
     };
 
     @SuppressWarnings("unchecked")
-    private static class OrgJsonMapper implements JSONMapper {
+    public static class OrgJsonMapper implements JSONMapper {
 
         @Override
         public String toJSON(Object toSerialize) throws Exception {
@@ -173,11 +132,6 @@ public class JSONPropertyTest extends JSONTestCase {
         }
     }
 
-    @Override
-    protected void setupDatabase() {
-        database = new AndroidTestDatabase();
-    }
-
     protected void testWithAllMappers(Runnable toTest) {
         for (JSONMapper mapper : MAPPERS) {
             database.clear();
@@ -190,13 +144,13 @@ public class JSONPropertyTest extends JSONTestCase {
         testWithAllMappers(new Runnable() {
             @Override
             public void run() {
-                AndroidTestModel model = new AndroidTestModel();
+                TestModel model = new TestModel();
                 List<String> numbers = Arrays.asList("0", "1", "2", "3");
                 model.setSomeList(numbers);
 
                 database.persist(model);
 
-                model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
                 List<String> readNumbers = model.getSomeList();
                 assertEquals(numbers, readNumbers);
             }
@@ -207,7 +161,7 @@ public class JSONPropertyTest extends JSONTestCase {
         testWithAllMappers(new Runnable() {
             @Override
             public void run() {
-                AndroidTestModel model = new AndroidTestModel();
+                TestModel model = new TestModel();
                 Map<String, Integer> numbers = new HashMap<String, Integer>();
                 numbers.put("1", 2);
                 numbers.put("2", 4);
@@ -217,7 +171,7 @@ public class JSONPropertyTest extends JSONTestCase {
                 model.setSomeMap(numbers);
                 database.persist(model);
 
-                model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
                 Map<String, Integer> readNumbers = model.getSomeMap();
                 assertEquals(numbers, readNumbers);
             }
@@ -228,14 +182,14 @@ public class JSONPropertyTest extends JSONTestCase {
         testWithAllMappers(new Runnable() {
             @Override
             public void run() {
-                AndroidTestModel model = new AndroidTestModel();
+                TestModel model = new TestModel();
 
                 Map<String, Map<String, List<Integer>>> crazyMap = mockComplicatedMap();
 
                 model.setComplicatedMap(crazyMap);
                 database.persist(model);
 
-                model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
                 Map<String, Map<String, List<Integer>>> readMap = model.getComplicatedMap();
                 assertEquals(crazyMap, readMap);
             }
@@ -246,13 +200,13 @@ public class JSONPropertyTest extends JSONTestCase {
         testWithAllMappers(new Runnable() {
             @Override
             public void run() {
-                AndroidTestModel model = new AndroidTestModel();
+                TestModel model = new TestModel();
                 JSONPojo pojo = mockPojo();
 
                 model.setSomePojo(pojo);
                 database.persist(model);
 
-                model = database.fetch(AndroidTestModel.class, model.getId(), AndroidTestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
                 JSONPojo readPojo = model.getSomePojo();
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
                 assertEquals(pojo.pojoInt, readPojo.pojoInt);
@@ -266,15 +220,18 @@ public class JSONPropertyTest extends JSONTestCase {
         testWithAllMappers(new Runnable() {
             @Override
             public void run() {
-                AndroidTestModel model = new AndroidTestModel();
+                TestModel model = new TestModel();
                 JSONPojo pojo = mockPojo();
                 Map<String, Map<String, List<Integer>>> crazyMap = mockComplicatedMap();
 
                 model.setSomePojo(pojo).setComplicatedMap(crazyMap);
                 database.persist(model);
 
-                AndroidTestViewModel viewModel = database.fetchByQuery(AndroidTestViewModel.class,
-                        Query.select().from(AndroidTestViewModel.SUBQUERY));
+                Employee forView = new Employee().setName("A");
+                database.persist(forView);
+
+                TestViewModel viewModel = database.fetchByQuery(TestViewModel.class,
+                        Query.select().from(TestViewModel.VIEW));
 
                 JSONPojo readPojo = viewModel.getJsonProp();
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
