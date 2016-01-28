@@ -76,7 +76,7 @@ function downloadSQLiteAmalgamation () {
 # Build annotation and processor jars
 if [ -z "$CI_IOS_TESTS" ] # only build annotation processors from scratch when not on CI
 then
-    ./gradlew clean squidb-annotations:jar squidb-processor:jar squidb-json-annotations:jar squidb-json-compiler:jar
+    ./gradlew squidb-annotations:jar squidb-processor:jar squidb-json-annotations:jar squidb-json-compiler:jar
     for f in squidb-annotations/build/libs/*.jar squidb-processor/build/libs/*.jar squidb-addons/squidb-json/squidb-json-annotations/build/libs/*.jar squidb-addons/squidb-json/squidb-json-compiler/build/libs/*.jar
     do
         rsync -rc -t $f $SQUIDB_IOS_TESTS
