@@ -35,6 +35,10 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
     @SuppressWarnings("unchecked")
     public static class OrgJsonMapper implements JSONMapper {
+        // Note: This is not a good example of a JSONMapper implementation. It works ok for Lists, Maps, and our
+        // JSONPojo test object, but that's pretty much all. It's hacky, but it works with iOS/j2objc for verifying
+        // JSONProperty behavior in our unit tests. One could imagine writing a more general JSONMapper that used
+        // the org.json classes using code generation or something, but this is enough for our purposes.
 
         @Override
         public String toJSON(Object toSerialize) throws Exception {
