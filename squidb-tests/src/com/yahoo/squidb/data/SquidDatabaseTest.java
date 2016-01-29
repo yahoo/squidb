@@ -157,6 +157,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
+                IllegalStateException caughtException = null;
                 badDatabase.beginTransaction();
                 try {
                     badDatabase.acquireExclusiveLock();
@@ -164,7 +165,14 @@ public class SquidDatabaseTest extends DatabaseTestCase {
                     // Need to do this in the catch block rather than the finally block, because otherwise tearDown is
                     // called before we have a chance to release the transaction lock
                     badDatabase.endTransaction();
-                    throw e;
+                    caughtException = e;
+                } finally {
+                    if (caughtException == null) { // Sanity cleanup if catch block was never reached
+                        badDatabase.endTransaction();
+                    }
+                }
+                if (caughtException != null) {
+                    throw caughtException;
                 }
             }
         }, IllegalStateException.class);
