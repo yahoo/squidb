@@ -267,6 +267,7 @@ public abstract class SquidDatabase {
     private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap;
 
     private boolean isInMigration;
+    private boolean isInMigrationFailedHook;
 
     /**
      * Create a new SquidDatabase
@@ -372,16 +373,19 @@ public abstract class SquidDatabase {
                 performRecreate = true;
             } catch (MigrationFailedException fail) {
                 onError(fail.getMessage(), fail);
-                onMigrationFailed(fail);
+                isInMigrationFailedHook = true;
+                try {
+                    onMigrationFailed(fail);
+                } finally {
+                    isInMigrationFailedHook = false;
+                }
             } catch (RuntimeException e) {
                 onError("Failed to open database: " + getName(), e);
                 throw e;
             }
 
             if (performRecreate) {
-                closeUnsafe(); // OK to call this here, locks are already held
-                context.deleteDatabase(getName());
-                getDatabase();
+                recreateUnsafe(); // OK to call this here, locks are already held
             }
         }
         return database;
@@ -555,6 +559,10 @@ public abstract class SquidDatabase {
      * the db -- it will block if other threads are in transactions. This method will throw an exception if called from
      * within a transaction.
      * <p>
+     * If called from within the {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)} or
+     * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)} hooks, this method will abort the remainder of the
+     * migration and simply clear the database.
+     * <p>
      * WARNING: Any open connections to the database will be abruptly closed. Do not call this method if other threads
      * may be accessing the database.
      *
@@ -563,15 +571,22 @@ public abstract class SquidDatabase {
     public final void recreate() {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
+        } else if (isInMigrationFailedHook) {
+            recreateUnsafe(); // Safe to call here, necessary locks are already held in this case
         } else {
             acquireExclusiveLock();
             try {
-                clear();
-                getDatabase();
+                recreateUnsafe();
             } finally {
                 releaseExclusiveLock();
             }
         }
+    }
+
+    private void recreateUnsafe() {
+        closeUnsafe();
+        context.deleteDatabase(getName());
+        getDatabase();
     }
 
     /**
