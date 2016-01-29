@@ -335,7 +335,7 @@ public abstract class SquidDatabase {
      *
      * <pre>
      * public void execSql(String sql) {
-     *     aquireNonExclusiveLock();
+     *     acquireNonExclusiveLock();
      *     try {
      *         getDatabase().execSQL(sql);
      *     } finally {
@@ -351,8 +351,29 @@ public abstract class SquidDatabase {
      * @see #acquireNonExclusiveLock()
      */
     protected synchronized final SQLiteDatabaseWrapper getDatabase() {
+        // If we get here, we should already have the non-exclusive lock
         if (database == null) {
-            openForWriting();
+            // Open the DB for writing
+            if (helper == null) {
+                helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
+            }
+
+            boolean performRecreate = false;
+            try {
+                setDatabase(helper.openForWriting());
+            } catch (RecreateDuringMigrationException recreate) {
+                performRecreate = true;
+            } catch (MigrationFailedException fail) {
+                onError(fail.getMessage(), fail);
+                onMigrationFailed(fail);
+            } catch (RuntimeException e) {
+                onError("Failed to open database: " + getName(), e);
+                throw e;
+            }
+
+            if (performRecreate) {
+                recreate();
+            }
         }
         return database;
     }
@@ -454,36 +475,6 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Open the database for writing.
-     */
-    private void openForWriting() {
-        initializeHelper();
-
-        boolean performRecreate = false;
-        try {
-            setDatabase(helper.openForWriting());
-        } catch (RecreateDuringMigrationException recreate) {
-            performRecreate = true;
-        } catch (MigrationFailedException fail) {
-            onError(fail.getMessage(), fail);
-            onMigrationFailed(fail);
-        } catch (RuntimeException e) {
-            onError("Failed to open database: " + getName(), e);
-            throw e;
-        }
-
-        if (performRecreate) {
-            recreate();
-        }
-    }
-
-    private void initializeHelper() {
-        if (helper == null) {
-            helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
-        }
-    }
-
-    /**
      * Subclasses can override this method to enable connecting to a different version of SQLite than the default
      * version shipped with Android. For example, the squidb-sqlite-bindings project provides a class
      * SQLiteBindingsDatabaseOpenHelper to facilitate binding to a custom native build of SQLite. Overriders of this
@@ -506,25 +497,39 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Close the database if it has been opened previously
+     * Close the database if it has been opened previously. This method acquires the exclusive lock before closing the db
+     * -- it will block if other threads are in transactions. This method will throw an exception if called from within
+     * a transaction.
      */
-    public synchronized final void close() {
-        if (isOpen()) {
-            database.close();
+    public final void close() {
+        acquireExclusiveLock();
+        try {
+            synchronized (this) {
+                if (isOpen()) {
+                    database.close();
+                }
+                helper = null;
+                setDatabase(null);
+            }
+        } finally {
+            releaseExclusiveLock();
         }
-        helper = null;
-        setDatabase(null);
     }
 
     /**
      * Clear all data in the database.
      * <p>
-     * WARNING: Any open database resources will be abruptly closed. Do not call this method if other threads may be
-     * accessing the database. The existing database file will be deleted and all data will be lost.
+     * WARNING: Any open database resources (e.g. Cursors) will be abruptly closed. Do not call this method if other
+     * threads may be accessing the database. The existing database file will be deleted and all data will be lost.
      */
-    public synchronized final void clear() {
-        close();
-        context.deleteDatabase(getName());
+    public final void clear() {
+        acquireExclusiveLock();
+        try {
+            close();
+            context.deleteDatabase(getName());
+        } finally {
+            releaseExclusiveLock();
+        }
     }
 
     /**
@@ -535,12 +540,17 @@ public abstract class SquidDatabase {
      *
      * @see #clear()
      */
-    public synchronized final void recreate() {
+    public final void recreate() {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
         } else {
-            clear();
-            getDatabase();
+            acquireExclusiveLock();
+            try {
+                clear();
+                getDatabase();
+            } finally {
+                releaseExclusiveLock();
+            }
         }
     }
 
@@ -1043,7 +1053,20 @@ public abstract class SquidDatabase {
             return;
         }
         database = db;
-        sqliteVersion = database != null ? readSqliteVersion() : null;
+        sqliteVersion = database != null ? readSqliteVersionUnsafe(db) : null;
+    }
+
+    // Reads the SQLite version from the database. This method is "unsafe" because it does not itself acquire
+    // either the exclusive or non-exclusive lock -- it is assumed that the calling thread already holds the
+    // correct lock. Violating this assumption would be bad, possibly cause deadlocks, etc.
+    private VersionCode readSqliteVersionUnsafe(SQLiteDatabaseWrapper db) {
+        try {
+            String versionString = db.simpleQueryForString("select sqlite_version()", null);
+            return VersionCode.parse(versionString);
+        } catch (RuntimeException e) {
+            onError("Failed to read sqlite version", e);
+            throw new RuntimeException("Failed to read sqlite version", e);
+        }
     }
 
     // --- utility methods
@@ -1266,26 +1289,18 @@ public abstract class SquidDatabase {
      */
     public VersionCode getSqliteVersion() {
         if (sqliteVersion == null) {
-            synchronized (this) {
-                if (sqliteVersion == null) {
-                    sqliteVersion = readSqliteVersion();
+            acquireNonExclusiveLock();
+            try {
+                synchronized (this) {
+                    if (sqliteVersion == null) {
+                        sqliteVersion = readSqliteVersionUnsafe(getDatabase());
+                    }
                 }
+            } finally {
+                releaseNonExclusiveLock();
             }
         }
         return sqliteVersion;
-    }
-
-    private VersionCode readSqliteVersion() {
-        acquireNonExclusiveLock();
-        try {
-            String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
-            return VersionCode.parse(versionString);
-        } catch (RuntimeException e) {
-            onError("Failed to read sqlite version", e);
-            throw new RuntimeException("Failed to read sqlite version", e);
-        } finally {
-            releaseNonExclusiveLock();
-        }
     }
 
     /**
