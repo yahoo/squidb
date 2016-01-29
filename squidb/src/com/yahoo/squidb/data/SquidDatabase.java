@@ -497,9 +497,9 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Close the database if it has been opened previously. This method acquires the exclusive lock before closing the db
-     * -- it will block if other threads are in transactions. This method will throw an exception if called from within
-     * a transaction.
+     * Close the database if it has been opened previously. This method acquires the exclusive lock before closing the
+     * db -- it will block if other threads are in transactions. This method will throw an exception if called from
+     * within a transaction.
      */
     public final void close() {
         acquireExclusiveLock();
@@ -517,7 +517,8 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Clear all data in the database.
+     * Clear all data in the database. This method acquires the exclusive lock before closing the db -- it will block
+     * if other threads are in transactions. This method will throw an exception if called from within a transaction.
      * <p>
      * WARNING: Any open database resources (e.g. Cursors) will be abruptly closed. Do not call this method if other
      * threads may be accessing the database. The existing database file will be deleted and all data will be lost.
@@ -533,7 +534,9 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Clears the database and recreates an empty version of it.
+     * Clears the database and recreates an empty version of it. This method acquires the exclusive lock before closing
+     * the db -- it will block if other threads are in transactions. This method will throw an exception if called from
+     * within a transaction.
      * <p>
      * WARNING: Any open connections to the database will be abruptly closed. Do not call this method if other threads
      * may be accessing the database.
@@ -544,6 +547,7 @@ public abstract class SquidDatabase {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
         } else {
+            // TODO: This could deadlock if called after a bad migration, because the non-exclusive lock will already be held
             acquireExclusiveLock();
             try {
                 clear();
