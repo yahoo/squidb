@@ -372,7 +372,9 @@ public abstract class SquidDatabase {
             }
 
             if (performRecreate) {
-                recreate();
+                closeUnsafe(); // OK to call this here, locks are already held
+                context.deleteDatabase(getName());
+                getDatabase();
             }
         }
         return database;
@@ -409,8 +411,14 @@ public abstract class SquidDatabase {
             throw new IllegalStateException("Can't attach a database while in a transaction on the current thread");
         }
 
-        boolean walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
-                && getDatabase().isWriteAheadLoggingEnabled();
+        boolean walEnabled;
+        acquireNonExclusiveLock();
+        try {
+            walEnabled = (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN)
+                    && getDatabase().isWriteAheadLoggingEnabled();
+        } finally {
+            releaseNonExclusiveLock();
+        }
         if (walEnabled) {
             // need to wait for transactions to finish
             acquireExclusiveLock();
@@ -504,16 +512,18 @@ public abstract class SquidDatabase {
     public final void close() {
         acquireExclusiveLock();
         try {
-            synchronized (this) {
-                if (isOpen()) {
-                    database.close();
-                }
-                helper = null;
-                setDatabase(null);
-            }
+            closeUnsafe();
         } finally {
             releaseExclusiveLock();
         }
+    }
+
+    private synchronized void closeUnsafe() {
+        if (isOpen()) {
+            database.close();
+        }
+        helper = null;
+        setDatabase(null);
     }
 
     /**
@@ -547,7 +557,6 @@ public abstract class SquidDatabase {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
         } else {
-            // TODO: This could deadlock if called after a bad migration, because the non-exclusive lock will already be held
             acquireExclusiveLock();
             try {
                 clear();
@@ -1292,19 +1301,21 @@ public abstract class SquidDatabase {
      * @throws RuntimeException if the version could not be read
      */
     public VersionCode getSqliteVersion() {
-        if (sqliteVersion == null) {
+        VersionCode toReturn = sqliteVersion;
+        if (toReturn == null) {
             acquireNonExclusiveLock();
             try {
                 synchronized (this) {
                     if (sqliteVersion == null) {
                         sqliteVersion = readSqliteVersionUnsafe(getDatabase());
                     }
+                    toReturn = sqliteVersion;
                 }
             } finally {
                 releaseNonExclusiveLock();
             }
         }
-        return sqliteVersion;
+        return toReturn;
     }
 
     /**
