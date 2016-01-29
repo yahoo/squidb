@@ -80,24 +80,26 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testMigrationFailureCalledWhenOnUpgradeReturnsFalse() {
-        testMigrationFailureCalled(true, false, false);
+        testMigrationFailureCalled(true, false, false, false);
     }
 
     public void testMigrationFailureCalledWhenOnUpgradeThrowsException() {
-        testMigrationFailureCalled(true, true, false);
+        testMigrationFailureCalled(true, true, false, false);
     }
 
     public void testMigrationFailureCalledWhenOnDowngradeReturnsFalse() {
-        testMigrationFailureCalled(false, false, false);
+        testMigrationFailureCalled(false, false, false, false);
     }
 
     public void testMigrationFailureCalledWhenOnDowngradeThrowsException() {
-        testMigrationFailureCalled(false, true, false);
+        testMigrationFailureCalled(false, true, false, false);
     }
 
-    private void testMigrationFailureCalled(boolean upgrade, boolean shouldThrow, boolean shouldRecreate) {
+    private void testMigrationFailureCalled(boolean upgrade, boolean shouldThrow,
+            boolean shouldRecreateDuringMigration, boolean shouldRecreateOnMigrationFailed) {
         badDatabase.setShouldThrowDuringMigration(shouldThrow);
-        badDatabase.setShouldRecreate(shouldRecreate);
+        badDatabase.setShouldRecreateInMigration(shouldRecreateDuringMigration);
+        badDatabase.setShouldRecreateInOnMigrationFailed(shouldRecreateOnMigrationFailed);
 
         // set version manually
         SQLiteDatabaseWrapper db = badDatabase.getDatabase();
@@ -110,7 +112,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.getDatabase();
 
         assertTrue(upgrade ? badDatabase.onUpgradeCalled : badDatabase.onDowngradeCalled);
-        if (shouldRecreate) {
+        if (shouldRecreateDuringMigration || shouldRecreateOnMigrationFailed) {
             assertTrue(badDatabase.onTablesCreatedCalled);
         } else {
             assertTrue(badDatabase.onMigrationFailedCalled);
@@ -125,21 +127,25 @@ public class SquidDatabaseTest extends DatabaseTestCase {
      * onDowngrade as an exemplar for client developers.
      */
     public void testRecreateOnUpgradeFailure() {
-        testRecreateDuringMigration(true);
+        testRecreateDuringMigrationOrFailureCallback(true, false);
     }
 
     public void testRecreateOnDowngradeFailure() {
-        testRecreateDuringMigration(false);
+        testRecreateDuringMigrationOrFailureCallback(false, false);
     }
 
-    private void testRecreateDuringMigration(boolean upgrade) {
+    public void testRecreateDuringOnMigrationFailed() {
+        testRecreateDuringMigrationOrFailureCallback(true, true);
+    }
+
+    private void testRecreateDuringMigrationOrFailureCallback(boolean upgrade, boolean recreateDuringMigration) {
         // insert some data to check for later
         badDatabase.persist(new Employee().setName("Alice"));
         badDatabase.persist(new Employee().setName("Bob"));
         badDatabase.persist(new Employee().setName("Cindy"));
         assertEquals(3, badDatabase.countAll(Employee.class));
 
-        testMigrationFailureCalled(upgrade, false, true);
+        testMigrationFailureCalled(upgrade, recreateDuringMigration, true, recreateDuringMigration);
 
         // verify the db was recreated with the appropriate version and no previous data
         SQLiteDatabaseWrapper db = badDatabase.getDatabase();
@@ -194,7 +200,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         private int migrationFailedNewVersion = 0;
 
         private boolean shouldThrowDuringMigration = false;
-        private boolean shouldRecreate = false;
+        private boolean shouldRecreateInMigration = false;
+        private boolean shouldRecreateInOnMigrationFailed = false;
 
         public BadDatabase(Context context) {
             super(context);
@@ -220,7 +227,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
-            } else if (shouldRecreate) {
+            } else if (shouldRecreateInMigration) {
                 recreate();
             }
             return false;
@@ -231,7 +238,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
-            } else if (shouldRecreate) {
+            } else if (shouldRecreateInMigration) {
                 recreate();
             }
             return false;
@@ -242,14 +249,21 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             onMigrationFailedCalled = true;
             migrationFailedOldVersion = failure.oldVersion;
             migrationFailedNewVersion = failure.newVersion;
+            if (shouldRecreateInOnMigrationFailed) {
+                recreate();
+            }
         }
 
         public void setShouldThrowDuringMigration(boolean flag) {
             shouldThrowDuringMigration = flag;
         }
 
-        public void setShouldRecreate(boolean flag) {
-            shouldRecreate = flag;
+        public void setShouldRecreateInMigration(boolean flag) {
+            shouldRecreateInMigration = flag;
+        }
+
+        public void setShouldRecreateInOnMigrationFailed(boolean flag) {
+            shouldRecreateInOnMigrationFailed = flag;
         }
 
         @Override

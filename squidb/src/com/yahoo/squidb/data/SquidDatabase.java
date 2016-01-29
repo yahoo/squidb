@@ -519,6 +519,13 @@ public abstract class SquidDatabase {
      * Close the database if it has been opened previously. This method acquires the exclusive lock before closing the
      * db -- it will block if other threads are in transactions. This method will throw an exception if called from
      * within a transaction.
+     * <p>
+     * It is not safe to call this method from within any of the database open or migration hooks (e.g.
+     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)}, {@link #onOpen(SQLiteDatabaseWrapper)},
+     * {@link #onMigrationFailed(MigrationFailedException)}), etc.
+     * <p>
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use.
      */
     public final void close() {
         acquireExclusiveLock();
@@ -541,8 +548,12 @@ public abstract class SquidDatabase {
      * Clear all data in the database. This method acquires the exclusive lock before closing the db -- it will block
      * if other threads are in transactions. This method will throw an exception if called from within a transaction.
      * <p>
-     * WARNING: Any open database resources (e.g. Cursors) will be abruptly closed. Do not call this method if other
-     * threads may be accessing the database. The existing database file will be deleted and all data will be lost.
+     * It is not safe to call this method from within any of the database open or migration hooks (e.g.
+     * {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)}, {@link #onOpen(SQLiteDatabaseWrapper)},
+     * {@link #onMigrationFailed(MigrationFailedException)}), etc.
+     * <p>
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use. The existing database file will be deleted and all data will be lost.
      */
     public final void clear() {
         acquireExclusiveLock();
@@ -561,10 +572,12 @@ public abstract class SquidDatabase {
      * <p>
      * If called from within the {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)} or
      * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)} hooks, this method will abort the remainder of the
-     * migration and simply clear the database.
+     * migration and simply clear the database. This method is also safe to call from within
+     * {@link #onMigrationFailed(MigrationFailedException)}
      * <p>
-     * WARNING: Any open connections to the database will be abruptly closed. Do not call this method if other threads
-     * may be accessing the database.
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use. The existing database file will be deleted and all data will be lost,
+     * with a new empty database taking its place.
      *
      * @see #clear()
      */
