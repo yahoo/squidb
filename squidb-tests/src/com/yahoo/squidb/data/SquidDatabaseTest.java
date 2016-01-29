@@ -22,12 +22,14 @@ import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
+import com.yahoo.squidb.test.Thing;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SquidDatabaseTest extends DatabaseTestCase {
 
@@ -502,5 +504,59 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
         assertEquals(1, countBeforeCommit.get());
         assertEquals(2, countAfterCommit.get());
+    }
+
+    public void testOpenAndCloseLocking() {
+        final AtomicReference<Exception> aException = new AtomicReference<Exception>();
+        Thread a = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thing thing = new Thing();
+                    for (int i = 0; i < 20; i++) {
+                        database.beginTransactionNonExclusive();
+                        try {
+                            for (int j = 0; j < 500; j++) {
+                                thing.setFoo(Integer.toString(j + 1000 * i));
+                                database.createNew(thing);
+                            }
+                            database.setTransactionSuccessful();
+                        } finally {
+                            database.endTransaction();
+                        }
+                    }
+                } catch (Exception e) {
+                    aException.set(e);
+                }
+            }
+        });
+
+        final AtomicReference<Exception> bException = new AtomicReference<Exception>();
+        Thread b = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (int i = 0; i < 20; i++) {
+                        database.close();
+                        Thread.sleep(10);
+                    }
+                } catch (Exception e) {
+                    bException.set(e);
+                }
+            }
+        });
+
+        a.start();
+        b.start();
+
+        try {
+            a.join();
+            b.join();
+        } catch (InterruptedException e) {
+            fail("InterruptedException " + e);
+        }
+        assertNull(aException.get());
+        assertNull(bException.get());
+        assertEquals(10000, database.countAll(Thing.class));
     }
 }
