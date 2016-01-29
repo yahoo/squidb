@@ -95,6 +95,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
  * found, or null if no records are found for that particular form of fetch.
+ * <p>
+ * When implementing your own database access methods in your SquidDatabase subclass, you should not use the object's
+ * monitor for locking (e.g. synchronized methods or synchronized(this) blocks) -- doing so may cause deadlocks under
+ * certain conditions. Most users will not need to worry about this and will be able to implement things in
+ * their SquidDatabase subclass without resorting to locking, as all SquidDatabase methods are thread-safe. If you
+ * really do need locking for some reason, use a different object's monitor, or use {@link #acquireExclusiveLock()} or
+ * {@link #acquireNonExclusiveLock()} to control access to the database connection itself.
  */
 public abstract class SquidDatabase {
 
