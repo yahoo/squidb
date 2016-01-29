@@ -152,8 +152,11 @@ public class SquidDatabaseTest extends DatabaseTestCase {
                 badDatabase.beginTransaction();
                 try {
                     badDatabase.acquireExclusiveLock();
-                } finally {
+                } catch (IllegalStateException e) {
+                    // Need to do this in the catch block rather than the finally block, because otherwise tearDown is
+                    // called before we have a chance to release the transaction lock
                     badDatabase.endTransaction();
+                    throw e;
                 }
             }
         }, IllegalStateException.class);
