@@ -611,7 +611,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     private void concurrencyStressTest(AtomicReference<Exception> exception) {
         try {
             Random r = new Random();
-            int numOperations = 50;
+            int numOperations = 100;
             Thing t = new Thing();
             for (int i = 0; i < numOperations; i++) {
                 int rand = r.nextInt(10);
