@@ -947,9 +947,9 @@ public abstract class SquidDatabase {
      */
     @Beta
     protected void acquireExclusiveLock() {
-        if (readWriteLock.getReadHoldCount() > 0) {
+        if (readWriteLock.getReadHoldCount() > 0 && readWriteLock.getWriteHoldCount() == 0) {
             throw new IllegalStateException("Can't acquire an exclusive lock when the calling thread is in a "
-                    + "transaction or otherwise holds a non-exclusive lock");
+                    + "transaction or otherwise holds a non-exclusive lock and not the exclusive lock");
         }
         readWriteLock.writeLock().lock();
     }
