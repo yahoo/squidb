@@ -361,34 +361,38 @@ public abstract class SquidDatabase {
     protected synchronized final SQLiteDatabaseWrapper getDatabase() {
         // If we get here, we should already have the non-exclusive lock
         if (database == null) {
-            // Open the DB for writing
-            if (helper == null) {
-                helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
-            }
-
-            boolean performRecreate = false;
-            try {
-                setDatabase(helper.openForWriting());
-            } catch (RecreateDuringMigrationException recreate) {
-                performRecreate = true;
-            } catch (MigrationFailedException fail) {
-                onError(fail.getMessage(), fail);
-                isInMigrationFailedHook = true;
-                try {
-                    onMigrationFailed(fail);
-                } finally {
-                    isInMigrationFailedHook = false;
-                }
-            } catch (RuntimeException e) {
-                onError("Failed to open database: " + getName(), e);
-                throw e;
-            }
-
-            if (performRecreate) {
-                recreateUnsafe(); // OK to call this here, locks are already held
-            }
+            openForWriting();
         }
         return database;
+    }
+
+    // This method is only ever called from within getDatabase(), which is synchronized
+    private void openForWriting() {
+        if (helper == null) {
+            helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
+        }
+
+        boolean performRecreate = false;
+        try {
+            setDatabase(helper.openForWriting());
+        } catch (RecreateDuringMigrationException recreate) {
+            performRecreate = true;
+        } catch (MigrationFailedException fail) {
+            onError(fail.getMessage(), fail);
+            isInMigrationFailedHook = true;
+            try {
+                onMigrationFailed(fail);
+            } finally {
+                isInMigrationFailedHook = false;
+            }
+        } catch (RuntimeException e) {
+            onError("Failed to open database: " + getName(), e);
+            throw e;
+        }
+
+        if (performRecreate) {
+            recreateUnsafe(); // OK to call this here, locks are already held
+        }
     }
 
     /**
@@ -596,7 +600,7 @@ public abstract class SquidDatabase {
         }
     }
 
-    private void recreateUnsafe() {
+    private synchronized void recreateUnsafe() {
         closeUnsafe();
         context.deleteDatabase(getName());
         getDatabase();
