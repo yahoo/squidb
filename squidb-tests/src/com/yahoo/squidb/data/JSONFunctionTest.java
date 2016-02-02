@@ -3,11 +3,12 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.android;
+package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.json.JSONFunctions;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Thing;
 
 import org.json.JSONArray;
@@ -18,7 +19,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JSONFunctionTest extends JSONTestCase {
+public class JSONFunctionTest extends DatabaseTestCase {
+
+    private void testJsonFunction(Runnable toTest) {
+        testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
+    }
 
     public void testJson() {
         testJsonFunction(new Runnable() {

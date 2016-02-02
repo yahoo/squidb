@@ -48,6 +48,7 @@ proguard/
 
 # SQLite amalgamation source files
 sqlite3.*
+squidb-ios/native/sqlite
 
 *.pydevproject
 .metadata

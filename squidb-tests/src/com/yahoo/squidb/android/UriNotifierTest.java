@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UriNotifierTest extends DatabaseTestCase {
 
+    private static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb/androidTestModels");
+
     private static class TestUriNotifier extends UriNotifier {
 
         public TestUriNotifier(Context context) {
@@ -33,7 +35,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         @Override
         protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                 SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-            return accumulatorSet.add(AndroidTestModel.CONTENT_URI);
+            return accumulatorSet.add(CONTENT_URI);
         }
     }
 
@@ -63,7 +65,7 @@ public class UriNotifierTest extends DatabaseTestCase {
     }
 
     public void testUriNotificationOccurs() {
-        AtomicBoolean notified = listenTo(AndroidTestModel.CONTENT_URI, false);
+        AtomicBoolean notified = listenTo(CONTENT_URI, false);
         waitForResolver();
 
         database.registerDataChangedNotifier(new TestUriNotifier(ContextProvider.getContext()));
@@ -94,7 +96,7 @@ public class UriNotifierTest extends DatabaseTestCase {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
-                Uri uri = AndroidTestModel.CONTENT_URI;
+                Uri uri = CONTENT_URI;
                 if (rowId > 0) {
                     uri = uri.buildUpon().appendPath(Long.toString(rowId)).build();
                 }
@@ -104,10 +106,10 @@ public class UriNotifierTest extends DatabaseTestCase {
 
         database.registerDataChangedNotifier(idNotifier);
 
-        AtomicBoolean uri1 = listenTo(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "1"), false);
-        AtomicBoolean uri2 = listenTo(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "2"), false);
-        AtomicBoolean uri3 = listenTo(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "3"), false);
-        AtomicBoolean uri4 = listenTo(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "4"), false);
+        AtomicBoolean uri1 = listenTo(Uri.withAppendedPath(CONTENT_URI, "1"), false);
+        AtomicBoolean uri2 = listenTo(Uri.withAppendedPath(CONTENT_URI, "2"), false);
+        AtomicBoolean uri3 = listenTo(Uri.withAppendedPath(CONTENT_URI, "3"), false);
+        AtomicBoolean uri4 = listenTo(Uri.withAppendedPath(CONTENT_URI, "4"), false);
         waitForResolver();
 
         database.beginTransaction();
@@ -150,22 +152,22 @@ public class UriNotifierTest extends DatabaseTestCase {
     }
 
     public void testUriNotifyParentAndDescendant() {
-        AtomicBoolean notifyCalled = listenTo(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "1"), true);
+        AtomicBoolean notifyCalled = listenTo(Uri.withAppendedPath(CONTENT_URI, "1"), true);
         waitForResolver();
 
-        ContextProvider.getContext().getContentResolver().notifyChange(AndroidTestModel.CONTENT_URI, null);
-        waitForResolver();
-        assertTrue(notifyCalled.get());
-        notifyCalled.set(false);
-
-        ContextProvider.getContext().getContentResolver()
-                .notifyChange(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "1"), null);
+        ContextProvider.getContext().getContentResolver().notifyChange(CONTENT_URI, null);
         waitForResolver();
         assertTrue(notifyCalled.get());
         notifyCalled.set(false);
 
         ContextProvider.getContext().getContentResolver()
-                .notifyChange(Uri.withAppendedPath(AndroidTestModel.CONTENT_URI, "1/directory"), null);
+                .notifyChange(Uri.withAppendedPath(CONTENT_URI, "1"), null);
+        waitForResolver();
+        assertTrue(notifyCalled.get());
+        notifyCalled.set(false);
+
+        ContextProvider.getContext().getContentResolver()
+                .notifyChange(Uri.withAppendedPath(CONTENT_URI, "1/directory"), null);
         waitForResolver();
         assertTrue(notifyCalled.get());
     }

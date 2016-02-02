@@ -9,12 +9,15 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.data.JSONPojo;
+import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,6 +74,19 @@ public class TestModelSpec {
     int $123abc;
 
     TestEnum someEnum;
+
+    @ColumnSpec(defaultValue = "[]")
+    @JSONColumn
+    List<String> someList;
+
+    @JSONColumn
+    Map<String, Integer> someMap;
+
+    @JSONColumn
+    Map<String, Map<String, List<Integer>>> complicatedMap;
+
+    @JSONColumn
+    JSONPojo somePojo;
 
     @ModelMethod
     public static String getDisplayName(TestModel instance) {

@@ -8,10 +8,8 @@ package com.yahoo.squidb.android;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import com.yahoo.squidb.json.JSONFunctions;
 import com.yahoo.squidb.json.JSONMapper;
-import com.yahoo.squidb.json.JSONPropertySupport;
-import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.data.JSONPropertyTest;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -19,7 +17,13 @@ import org.codehaus.jackson.type.JavaType;
 
 import java.lang.reflect.Type;
 
-public class JSONTestCase extends DatabaseTestCase {
+public class AndroidJSONMappers {
+
+    public static final JSONMapper[] MAPPERS = {
+            new JSONPropertyTest.OrgJsonMapper(),
+            new GsonMapper(),
+            new JacksonMapper()
+    };
 
     private static class JacksonMapper implements JSONMapper {
 
@@ -56,25 +60,4 @@ public class JSONTestCase extends DatabaseTestCase {
         }
     }
 
-    private static final JSONMapper[] MAPPERS = {
-            new JacksonMapper(),
-            new GsonMapper()
-    };
-
-    @Override
-    protected void setupDatabase() {
-        database = new AndroidTestDatabase();
-    }
-
-    protected void testWithAllMappers(Runnable toTest) {
-        for (JSONMapper mapper : MAPPERS) {
-            database.clear();
-            JSONPropertySupport.setJSONMapper(mapper);
-            toTest.run();
-        }
-    }
-
-    protected void testJsonFunction(Runnable toTest) {
-        testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
-    }
 }

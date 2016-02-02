@@ -8,12 +8,17 @@ package com.yahoo.squidb.test;
 import com.yahoo.squidb.annotations.Constants;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
+import com.yahoo.squidb.data.JSONPojo;
+import com.yahoo.squidb.json.JSONProperty;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property.EnumProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+
+import java.util.List;
+import java.util.Map;
 
 @ViewModelSpec(className = "TestViewModel", viewName = "testView")
 public class TestViewModelSpec {
@@ -38,8 +43,14 @@ public class TestViewModelSpec {
 
     public static final EnumProperty<TestEnum> TEST_ENUM = TestModel.SOME_ENUM;
 
+    public static final JSONProperty<JSONPojo> JSON_PROP = TestModel.SOME_POJO;
+
+    public static final JSONProperty<Map<String, Map<String, List<Integer>>>> CRAZY_MAP
+            = TestModel.COMPLICATED_MAP;
+
     @Constants
     public static class Const {
+
         public static final Order DEFAULT_ORDER = TestViewModel.EMPLOYEE_MODEL_ID.asc();
     }
 
