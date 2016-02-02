@@ -65,6 +65,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
  * found, or null if no records are found for that particular form of fetch.
+ * <p>
+ * When implementing your own database access methods in your SquidDatabase subclass, you should not use the object's
+ * monitor for locking (e.g. synchronized methods or synchronized(this) blocks) -- doing so may cause deadlocks under
+ * certain conditions. Most users will not need to worry about this and will be able to implement things in
+ * their SquidDatabase subclass without resorting to locking, as all SquidDatabase methods are thread-safe. If you
+ * really do need locking for some reason, use a different object's monitor, or use {@link #acquireExclusiveLock()} or
+ * {@link #acquireNonExclusiveLock()} to control access to the database connection itself.
  */
 public abstract class SquidDatabase {
 
@@ -230,6 +237,7 @@ public abstract class SquidDatabase {
             = new HashMap<Class<? extends AbstractModel>, SqlTable<?>>();
 
     private boolean isInMigration;
+    private boolean isInMigrationFailedHook;
 
     /**
      * Create a new SquidDatabase
@@ -332,10 +340,35 @@ public abstract class SquidDatabase {
      * @see #acquireNonExclusiveLock()
      */
     protected synchronized final ISQLiteDatabase getDatabase() {
+        // If we get here, we should already have the non-exclusive lock
         if (database == null) {
-            openForWriting();
+            openForWritingLocked();
         }
         return database;
+    }
+
+    private void openForWritingLocked() {
+        boolean performRecreate = false;
+        try {
+            setDatabase(getOpenHelper().openForWriting());
+        } catch (RecreateDuringMigrationException recreate) {
+            performRecreate = true;
+        } catch (MigrationFailedException fail) {
+            onError(fail.getMessage(), fail);
+            isInMigrationFailedHook = true;
+            try {
+                onMigrationFailed(fail);
+            } finally {
+                isInMigrationFailedHook = false;
+            }
+        } catch (RuntimeException e) {
+            onError("Failed to open database: " + getName(), e);
+            throw e;
+        }
+
+        if (performRecreate) {
+            recreateLocked(); // OK to call this here, locks are already held
+        }
     }
 
     /**
@@ -428,28 +461,6 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Open the database for writing.
-     */
-    private void openForWriting() {
-        boolean performRecreate = false;
-        try {
-            setDatabase(getOpenHelper().openForWriting());
-        } catch (RecreateDuringMigrationException recreate) {
-            performRecreate = true;
-        } catch (MigrationFailedException fail) {
-            onError(fail.getMessage(), fail);
-            onMigrationFailed(fail);
-        } catch (RuntimeException e) {
-            onError("Failed to open database: " + getName(), e);
-            throw e;
-        }
-
-        if (performRecreate) {
-            recreate();
-        }
-    }
-
-    /**
      * @return true if a connection to the {@link ISQLiteDatabase} is open, false otherwise
      */
     public synchronized final boolean isOpen() {
@@ -457,9 +468,27 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Close the database if it has been opened previously
+     * Close the database if it has been opened previously. This method acquires the exclusive lock before closing the
+     * db -- it will block if other threads are in transactions. This method will throw an exception if called from
+     * within a transaction.
+     * <p>
+     * It is not safe to call this method from within any of the database open or migration hooks (e.g.
+     * {@link #onUpgrade(ISQLiteDatabase, int, int)}, {@link #onOpen(ISQLiteDatabase)},
+     * {@link #onMigrationFailed(MigrationFailedException)}), etc.
+     * <p>
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use.
      */
-    public synchronized final void close() {
+    public final void close() {
+        acquireExclusiveLock();
+        try {
+            closeLocked();
+        } finally {
+            releaseExclusiveLock();
+        }
+    }
+
+    private synchronized void closeLocked() {
         if (isOpen()) {
             database.close();
         }
@@ -468,31 +497,61 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Clear all data in the database.
+     * Clear all data in the database. This method acquires the exclusive lock before closing the db -- it will block
+     * if other threads are in transactions. This method will throw an exception if called from within a transaction.
      * <p>
-     * WARNING: Any open database resources will be abruptly closed. Do not call this method if other threads may be
-     * accessing the database. The existing database file will be deleted and all data will be lost.
+     * It is not safe to call this method from within any of the database open or migration hooks (e.g.
+     * {@link #onUpgrade(ISQLiteDatabase, int, int)}, {@link #onOpen(ISQLiteDatabase)},
+     * {@link #onMigrationFailed(MigrationFailedException)}), etc.
+     * <p>
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use. The existing database file will be deleted and all data will be lost.
      */
-    public synchronized final void clear() {
-        close();
-        getOpenHelper().deleteDatabase();
+    public final void clear() {
+        acquireExclusiveLock();
+        try {
+            close();
+            getOpenHelper().deleteDatabase();
+        } finally {
+            releaseExclusiveLock();
+        }
     }
 
     /**
-     * Clears the database and recreates an empty version of it.
+     * Clears the database and recreates an empty version of it. This method acquires the exclusive lock before closing
+     * the db -- it will block if other threads are in transactions. This method will throw an exception if called from
+     * within a transaction.
      * <p>
-     * WARNING: Any open connections to the database will be abruptly closed. Do not call this method if other threads
-     * may be accessing the database.
+     * If called from within the {@link #onUpgrade(ISQLiteDatabase, int, int)} or
+     * {@link #onDowngrade(ISQLiteDatabase, int, int)} hooks, this method will abort the remainder of the
+     * migration and simply clear the database. This method is also safe to call from within
+     * {@link #onMigrationFailed(MigrationFailedException)}
+     * <p>
+     * WARNING: Any open database resources (e.g. cursors) will be invalid after calling this method. Do not call this
+     * method if any open cursors may be in use. The existing database file will be deleted and all data will be lost,
+     * with a new empty database taking its place.
      *
      * @see #clear()
      */
-    public synchronized final void recreate() {
+    public final void recreate() {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
+        } else if (isInMigrationFailedHook) {
+            recreateLocked(); // Safe to call here, necessary locks are already held in this case
         } else {
-            clear();
-            getDatabase();
+            acquireExclusiveLock();
+            try {
+                recreateLocked();
+            } finally {
+                releaseExclusiveLock();
+            }
         }
+    }
+
+    private synchronized void recreateLocked() {
+        closeLocked();
+        getOpenHelper().deleteDatabase();
+        getDatabase();
     }
 
     /**
@@ -770,9 +829,9 @@ public abstract class SquidDatabase {
      */
     @Beta
     protected void acquireExclusiveLock() {
-        if (inTransaction()) {
-            throw new IllegalStateException(
-                    "Can't acquire an exclusive lock when the calling thread is in a transaction");
+        if (readWriteLock.getReadHoldCount() > 0 && readWriteLock.getWriteHoldCount() == 0) {
+            throw new IllegalStateException("Can't acquire an exclusive lock when the calling thread is in a "
+                    + "transaction or otherwise holds a non-exclusive lock and not the exclusive lock");
         }
         readWriteLock.writeLock().lock();
     }
@@ -923,7 +982,17 @@ public abstract class SquidDatabase {
             return;
         }
         database = db;
-        sqliteVersion = database != null ? readSqliteVersion() : null;
+        sqliteVersion = database != null ? readSqliteVersionLocked(db) : null;
+    }
+
+    private VersionCode readSqliteVersionLocked(ISQLiteDatabase db) {
+        try {
+            String versionString = db.simpleQueryForString("select sqlite_version()", null);
+            return VersionCode.parse(versionString);
+        } catch (RuntimeException e) {
+            onError("Failed to read sqlite version", e);
+            throw new RuntimeException("Failed to read sqlite version", e);
+        }
     }
 
     // --- utility methods
@@ -1145,27 +1214,19 @@ public abstract class SquidDatabase {
      * @throws RuntimeException if the version could not be read
      */
     public VersionCode getSqliteVersion() {
-        if (sqliteVersion == null) {
-            synchronized (this) {
-                if (sqliteVersion == null) {
-                    sqliteVersion = readSqliteVersion();
+        VersionCode toReturn = sqliteVersion;
+        if (toReturn == null) {
+            acquireNonExclusiveLock();
+            try {
+                synchronized (this) {
+                    getDatabase(); // Opening the database will populate the sqliteVersion field
+                    return sqliteVersion;
                 }
+            } finally {
+                releaseNonExclusiveLock();
             }
         }
-        return sqliteVersion;
-    }
-
-    private VersionCode readSqliteVersion() {
-        acquireNonExclusiveLock();
-        try {
-            String versionString = getDatabase().simpleQueryForString("select sqlite_version()", null);
-            return VersionCode.parse(versionString);
-        } catch (RuntimeException e) {
-            onError("Failed to read sqlite version", e);
-            throw new RuntimeException("Failed to read sqlite version", e);
-        } finally {
-            releaseNonExclusiveLock();
-        }
+        return toReturn;
     }
 
     /**
