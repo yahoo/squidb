@@ -361,13 +361,12 @@ public abstract class SquidDatabase {
     protected synchronized final SQLiteDatabaseWrapper getDatabase() {
         // If we get here, we should already have the non-exclusive lock
         if (database == null) {
-            openForWriting();
+            openForWritingLocked();
         }
         return database;
     }
 
-    // This method is only ever called from within getDatabase(), which is synchronized
-    private void openForWriting() {
+    private void openForWritingLocked() {
         if (helper == null) {
             helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
         }
