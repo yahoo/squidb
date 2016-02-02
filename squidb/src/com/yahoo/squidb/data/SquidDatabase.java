@@ -488,14 +488,6 @@ public abstract class SquidDatabase {
         }
     }
 
-    private synchronized void closeLocked() {
-        if (isOpen()) {
-            database.close();
-        }
-        getOpenHelper().close();
-        setDatabase(null);
-    }
-
     /**
      * Clear all data in the database. This method acquires the exclusive lock before closing the db -- it will block
      * if other threads are in transactions. This method will throw an exception if called from within a transaction.
@@ -510,8 +502,7 @@ public abstract class SquidDatabase {
     public final void clear() {
         acquireExclusiveLock();
         try {
-            close();
-            getOpenHelper().deleteDatabase();
+            closeAndDeleteLocked();
         } finally {
             releaseExclusiveLock();
         }
@@ -549,9 +540,27 @@ public abstract class SquidDatabase {
     }
 
     private synchronized void recreateLocked() {
-        closeLocked();
-        getOpenHelper().deleteDatabase();
+        closeAndDeleteLocked();
         getDatabase();
+    }
+
+    private synchronized void closeLocked() {
+        closeAndDeleteInternal(false);
+    }
+
+    private synchronized void closeAndDeleteLocked() {
+        closeAndDeleteInternal(true);
+    }
+
+    private void closeAndDeleteInternal(boolean deleteAfterClose) {
+        if (isOpen()) {
+            database.close();
+        }
+        setDatabase(null);
+        if (deleteAfterClose) {
+            getOpenHelper().deleteDatabase();
+        }
+        helper = null;
     }
 
     /**
