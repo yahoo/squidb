@@ -391,7 +391,7 @@ public abstract class SquidDatabase {
         }
 
         if (performRecreate) {
-            recreateUnsafe(); // OK to call this here, locks are already held
+            recreateLocked(); // OK to call this here, locks are already held
         }
     }
 
@@ -534,13 +534,13 @@ public abstract class SquidDatabase {
     public final void close() {
         acquireExclusiveLock();
         try {
-            closeUnsafe();
+            closeLocked();
         } finally {
             releaseExclusiveLock();
         }
     }
 
-    private synchronized void closeUnsafe() {
+    private synchronized void closeLocked() {
         if (isOpen()) {
             database.close();
         }
@@ -589,19 +589,19 @@ public abstract class SquidDatabase {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
         } else if (isInMigrationFailedHook) {
-            recreateUnsafe(); // Safe to call here, necessary locks are already held in this case
+            recreateLocked(); // Safe to call here, necessary locks are already held in this case
         } else {
             acquireExclusiveLock();
             try {
-                recreateUnsafe();
+                recreateLocked();
             } finally {
                 releaseExclusiveLock();
             }
         }
     }
 
-    private synchronized void recreateUnsafe() {
-        closeUnsafe();
+    private synchronized void recreateLocked() {
+        closeLocked();
         context.deleteDatabase(getName());
         getDatabase();
     }
@@ -1105,13 +1105,10 @@ public abstract class SquidDatabase {
             return;
         }
         database = db;
-        sqliteVersion = database != null ? readSqliteVersionUnsafe(db) : null;
+        sqliteVersion = database != null ? readSqliteVersionLocked(db) : null;
     }
 
-    // Reads the SQLite version from the database. This method is "unsafe" because it does not itself acquire
-    // either the exclusive or non-exclusive lock -- it is assumed that the calling thread already holds the
-    // correct lock. Violating this assumption would be bad, possibly cause deadlocks, etc.
-    private VersionCode readSqliteVersionUnsafe(SQLiteDatabaseWrapper db) {
+    private VersionCode readSqliteVersionLocked(SQLiteDatabaseWrapper db) {
         try {
             String versionString = db.simpleQueryForString("select sqlite_version()", null);
             return VersionCode.parse(versionString);
@@ -1346,7 +1343,7 @@ public abstract class SquidDatabase {
             try {
                 synchronized (this) {
                     if (sqliteVersion == null) {
-                        sqliteVersion = readSqliteVersionUnsafe(getDatabase());
+                        sqliteVersion = readSqliteVersionLocked(getDatabase());
                     }
                     toReturn = sqliteVersion;
                 }
