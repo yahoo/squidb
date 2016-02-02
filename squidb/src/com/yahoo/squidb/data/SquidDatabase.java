@@ -1341,10 +1341,8 @@ public abstract class SquidDatabase {
             acquireNonExclusiveLock();
             try {
                 synchronized (this) {
-                    if (sqliteVersion == null) {
-                        sqliteVersion = readSqliteVersionLocked(getDatabase());
-                    }
-                    toReturn = sqliteVersion;
+                    getDatabase(); // Opening the database will populate the sqliteVersion field
+                    return sqliteVersion;
                 }
             } finally {
                 releaseNonExclusiveLock();
