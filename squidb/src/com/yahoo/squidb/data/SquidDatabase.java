@@ -874,17 +874,20 @@ public abstract class SquidDatabase {
      * @see SQLiteDatabase#endTransaction()
      */
     public void endTransaction() {
+        TransactionSuccessState successState = transactionSuccessState.get();
         try {
             getDatabase().endTransaction();
+        } catch (RuntimeException e) {
+            successState.unsetTransactionSuccessful();
+            throw e;
         } finally {
-            releaseNonExclusiveLock(); // Release even if endTransaction() throws for any reason
-        }
+            releaseNonExclusiveLock();
 
-        TransactionSuccessState successState = transactionSuccessState.get();
-        successState.endTransaction();
-        if (!inTransaction()) {
-            flushAccumulatedNotifications(successState.outerTransactionSuccess);
-            successState.reset();
+            successState.endTransaction();
+            if (!successState.inTransaction()) {
+                flushAccumulatedNotifications(successState.outerTransactionSuccess);
+                successState.reset();
+            }
         }
     }
 
@@ -900,9 +903,19 @@ public abstract class SquidDatabase {
             nestedSuccessStack.push(false);
         }
 
+        private boolean inTransaction() {
+            return nestedSuccessStack.size() > 0;
+        }
+
         private void setTransactionSuccessful() {
             nestedSuccessStack.pop();
             nestedSuccessStack.push(true);
+        }
+
+        // For when endTransaction throws
+        private void unsetTransactionSuccessful() {
+            nestedSuccessStack.pop();
+            nestedSuccessStack.push(false);
         }
 
         private void endTransaction() {
