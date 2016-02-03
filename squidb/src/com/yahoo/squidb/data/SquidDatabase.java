@@ -1833,7 +1833,12 @@ public abstract class SquidDatabase {
         }
         query = inferTableForQuery(modelClass, query);
         CompiledStatement compiled = query.compile(getSqliteVersion());
-        return (int) getDatabase().simpleQueryForLong(compiled.sql, compiled.sqlArgs);
+        acquireNonExclusiveLock();
+        try {
+            return (int) getDatabase().simpleQueryForLong(compiled.sql, compiled.sqlArgs);
+        } finally {
+            releaseNonExclusiveLock();
+        }
     }
 
     /**
