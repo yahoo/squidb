@@ -792,6 +792,7 @@ public abstract class SquidDatabase {
             getDatabase().beginTransaction();
             transactionSuccessState.get().beginTransaction();
         } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
             releaseNonExclusiveLock();
             throw e;
         }
@@ -809,6 +810,7 @@ public abstract class SquidDatabase {
             getDatabase().beginTransactionNonExclusive();
             transactionSuccessState.get().beginTransaction();
         } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
             releaseNonExclusiveLock();
             throw e;
         }
@@ -827,6 +829,7 @@ public abstract class SquidDatabase {
             getDatabase().beginTransactionWithListener(listener);
             transactionSuccessState.get().beginTransaction();
         } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
             releaseNonExclusiveLock();
             throw e;
         }
@@ -845,6 +848,7 @@ public abstract class SquidDatabase {
             getDatabase().beginTransactionWithListenerNonExclusive(listener);
             transactionSuccessState.get().beginTransaction();
         } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
             releaseNonExclusiveLock();
             throw e;
         }
