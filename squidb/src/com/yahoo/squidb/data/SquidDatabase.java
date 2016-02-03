@@ -788,8 +788,13 @@ public abstract class SquidDatabase {
      */
     public void beginTransaction() {
         acquireNonExclusiveLock();
-        getDatabase().beginTransaction();
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransaction();
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -800,8 +805,13 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionNonExclusive();
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionNonExclusive();
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -813,8 +823,13 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionWithListener(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionWithListener(listener);
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionWithListener(listener);
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -826,8 +841,13 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionWithListenerNonExclusive(listener);
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionWithListenerNonExclusive(listener);
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -854,12 +874,14 @@ public abstract class SquidDatabase {
      * @see SQLiteDatabase#endTransaction()
      */
     public void endTransaction() {
-        getDatabase().endTransaction();
-        releaseNonExclusiveLock();
+        try {
+            getDatabase().endTransaction();
+        } finally {
+            releaseNonExclusiveLock(); // Release even if endTransaction() throws for any reason
+        }
 
         TransactionSuccessState successState = transactionSuccessState.get();
         successState.endTransaction();
-
         if (!inTransaction()) {
             flushAccumulatedNotifications(successState.outerTransactionSuccess);
             successState.reset();
