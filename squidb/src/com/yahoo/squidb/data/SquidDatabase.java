@@ -788,8 +788,14 @@ public abstract class SquidDatabase {
      */
     public void beginTransaction() {
         acquireNonExclusiveLock();
-        getDatabase().beginTransaction();
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransaction();
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -800,8 +806,14 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionNonExclusive();
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionNonExclusive();
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -813,8 +825,14 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionWithListener(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionWithListener(listener);
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionWithListener(listener);
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -826,8 +844,14 @@ public abstract class SquidDatabase {
      */
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
-        getDatabase().beginTransactionWithListenerNonExclusive(listener);
-        transactionSuccessState.get().beginTransaction();
+        try {
+            getDatabase().beginTransactionWithListenerNonExclusive(listener);
+            transactionSuccessState.get().beginTransaction();
+        } catch (RuntimeException e) {
+            // Only release lock if begin xact was not successful
+            releaseNonExclusiveLock();
+            throw e;
+        }
     }
 
     /**
@@ -854,15 +878,20 @@ public abstract class SquidDatabase {
      * @see SQLiteDatabase#endTransaction()
      */
     public void endTransaction() {
-        getDatabase().endTransaction();
-        releaseNonExclusiveLock();
-
         TransactionSuccessState successState = transactionSuccessState.get();
-        successState.endTransaction();
+        try {
+            getDatabase().endTransaction();
+        } catch (RuntimeException e) {
+            successState.unsetTransactionSuccessful();
+            throw e;
+        } finally {
+            releaseNonExclusiveLock();
 
-        if (!inTransaction()) {
-            flushAccumulatedNotifications(successState.outerTransactionSuccess);
-            successState.reset();
+            successState.endTransaction();
+            if (!successState.inTransaction()) {
+                flushAccumulatedNotifications(successState.outerTransactionSuccess);
+                successState.reset();
+            }
         }
     }
 
@@ -878,9 +907,19 @@ public abstract class SquidDatabase {
             nestedSuccessStack.push(false);
         }
 
+        private boolean inTransaction() {
+            return nestedSuccessStack.size() > 0;
+        }
+
         private void setTransactionSuccessful() {
             nestedSuccessStack.pop();
             nestedSuccessStack.push(true);
+        }
+
+        // For when endTransaction throws
+        private void unsetTransactionSuccessful() {
+            nestedSuccessStack.pop();
+            nestedSuccessStack.push(false);
         }
 
         private void endTransaction() {
