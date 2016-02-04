@@ -372,7 +372,8 @@ public abstract class SquidDatabase {
 
         boolean performRecreate = false;
         try {
-            setDatabase(helper.openForWriting());
+            SQLiteDatabaseWrapper db = helper.openForWriting();
+            setDatabase(db);
         } catch (RecreateDuringMigrationException recreate) {
             performRecreate = true;
         } catch (MigrationFailedException fail) {
@@ -1141,8 +1142,8 @@ public abstract class SquidDatabase {
                 && db.getWrappedDatabase() == database.getWrappedDatabase()) {
             return;
         }
+        sqliteVersion = db != null ? readSqliteVersionLocked(db) : null;
         database = db;
-        sqliteVersion = database != null ? readSqliteVersionLocked(db) : null;
     }
 
     private VersionCode readSqliteVersionLocked(SQLiteDatabaseWrapper db) {
