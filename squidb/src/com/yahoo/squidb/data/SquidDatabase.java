@@ -1152,7 +1152,7 @@ public abstract class SquidDatabase {
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
-            throw new RuntimeException("Failed to read sqlite version", e);
+            throw e;
         }
     }
 
