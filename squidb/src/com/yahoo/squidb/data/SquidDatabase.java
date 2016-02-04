@@ -372,20 +372,26 @@ public abstract class SquidDatabase {
 
         boolean performRecreate = false;
         try {
-            SQLiteDatabaseWrapper db = helper.openForWriting();
-            setDatabase(db);
-        } catch (RecreateDuringMigrationException recreate) {
-            performRecreate = true;
-        } catch (MigrationFailedException fail) {
-            onError(fail.getMessage(), fail);
-            isInMigrationFailedHook = true;
             try {
-                onMigrationFailed(fail);
-            } finally {
-                isInMigrationFailedHook = false;
+                SQLiteDatabaseWrapper db = helper.openForWriting();
+                setDatabase(db);
+            } catch (RecreateDuringMigrationException recreate) {
+                performRecreate = true;
+            } catch (MigrationFailedException fail) {
+                onError(fail.getMessage(), fail);
+                isInMigrationFailedHook = true;
+                try {
+                    onMigrationFailed(fail);
+                } finally {
+                    isInMigrationFailedHook = false;
+                }
             }
         } catch (RuntimeException e) {
             onError("Failed to open database: " + getName(), e);
+
+            // If any runtime exception occurs, make sure we aren't holding on to a partially open DB instance.
+            // It would be invalid if the exception were suppressed accidentally
+            closeLocked();
             throw e;
         }
 
