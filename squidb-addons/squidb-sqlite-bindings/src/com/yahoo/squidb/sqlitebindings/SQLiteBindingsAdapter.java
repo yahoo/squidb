@@ -9,11 +9,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Pair;
 
-import com.yahoo.squidb.data.adapter.SQLExceptionWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
 
-import org.sqlite.database.SQLException;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteTransactionListener;
@@ -97,21 +95,13 @@ public class SQLiteBindingsAdapter implements SQLiteDatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String sql) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql) {
+        db.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql, bindArgs);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql, Object[] bindArgs) {
+        db.execSQL(sql, bindArgs);
     }
 
     @Override

@@ -20,7 +20,6 @@ import android.util.Log;
 
 import com.yahoo.squidb.Beta;
 import com.yahoo.squidb.data.adapter.DefaultOpenHelperWrapper;
-import com.yahoo.squidb.data.adapter.SQLExceptionWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
 import com.yahoo.squidb.data.adapter.SquidTransactionListener;
@@ -1306,7 +1305,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql);
             return true;
-        } catch (SQLExceptionWrapper e) {
+        } catch (RuntimeException e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1315,13 +1314,13 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Execute a raw SQL statement
+     * Execute a raw SQL statement. May throw a runtime exception if there is an error parsing the SQL or some other
+     * error
      *
      * @param sql the statement to execute
-     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see SQLiteDatabase#execSQL(String)
      */
-    public void execSqlOrThrow(String sql) throws SQLExceptionWrapper {
+    public void execSqlOrThrow(String sql) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
@@ -1344,7 +1343,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql, bindArgs);
             return true;
-        } catch (SQLExceptionWrapper e) {
+        } catch (RuntimeException e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1354,14 +1353,13 @@ public abstract class SquidDatabase {
 
     /**
      * Execute a raw SQL statement with optional arguments. The sql string may contain '?' placeholders for the
-     * arguments.
+     * arguments. May throw a runtime exception if there is an error parsing the SQL or some other error
      *
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
-     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see SQLiteDatabase#execSQL(String, Object[])
      */
-    public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
+    public void execSqlOrThrow(String sql, Object[] bindArgs) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);

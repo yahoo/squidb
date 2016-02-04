@@ -68,12 +68,12 @@ public interface SQLiteDatabaseWrapper {
     /**
      * @see SQLiteDatabase#execSQL(String)
      */
-    void execSQL(String sql) throws SQLExceptionWrapper;
+    void execSQL(String sql);
 
     /**
      * @see SQLiteDatabase#execSQL(String, Object[])
      */
-    void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper;
+    void execSQL(String sql, Object[] bindArgs);
 
     /**
      * @see SQLiteDatabase#getAttachedDbs()
