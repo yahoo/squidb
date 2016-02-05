@@ -1085,12 +1085,12 @@ public abstract class SquidDatabase {
         public void onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             setDatabase(db);
             boolean success = false;
-            Throwable thrown = null;
+            Exception thrown = null;
             isInMigration = true;
             try {
                 success = SquidDatabase.this.onUpgrade(db, oldVersion, newVersion);
-            } catch (Throwable t) {
-                thrown = t;
+            } catch (Exception e) {
+                thrown = e;
                 success = false;
             } finally {
                 isInMigration = false;
@@ -1111,12 +1111,12 @@ public abstract class SquidDatabase {
         public void onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
             setDatabase(db);
             boolean success = false;
-            Throwable thrown = null;
+            Exception thrown = null;
             isInMigration = true;
             try {
                 success = SquidDatabase.this.onDowngrade(db, oldVersion, newVersion);
-            } catch (Throwable t) {
-                thrown = t;
+            } catch (Exception e) {
+                thrown = e;
                 success = false;
             } finally {
                 isInMigration = false;
