@@ -5,13 +5,11 @@
  */
 package com.yahoo.squidb.ios;
 
-import com.yahoo.android.sqlite.SQLException;
 import com.yahoo.android.sqlite.SQLiteDatabase;
 import com.yahoo.android.sqlite.SQLiteStatement;
 import com.yahoo.android.sqlite.SQLiteTransactionListener;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLExceptionWrapper;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
 /**
@@ -78,21 +76,13 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void execSQL(String sql) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql) {
+        db.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql, bindArgs);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql, Object[] bindArgs) {
+        db.execSQL(sql, bindArgs);
     }
 
     @Override

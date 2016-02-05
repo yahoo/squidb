@@ -350,19 +350,26 @@ public abstract class SquidDatabase {
     private void openForWritingLocked() {
         boolean performRecreate = false;
         try {
-            setDatabase(getOpenHelper().openForWriting());
-        } catch (RecreateDuringMigrationException recreate) {
-            performRecreate = true;
-        } catch (MigrationFailedException fail) {
-            onError(fail.getMessage(), fail);
-            isInMigrationFailedHook = true;
             try {
-                onMigrationFailed(fail);
-            } finally {
-                isInMigrationFailedHook = false;
+                ISQLiteDatabase db = getOpenHelper().openForWriting();
+                setDatabase(db);
+            } catch (RecreateDuringMigrationException recreate) {
+                performRecreate = true;
+            } catch (MigrationFailedException fail) {
+                onError(fail.getMessage(), fail);
+                isInMigrationFailedHook = true;
+                try {
+                    onMigrationFailed(fail);
+                } finally {
+                    isInMigrationFailedHook = false;
+                }
             }
         } catch (RuntimeException e) {
             onError("Failed to open database: " + getName(), e);
+
+            // If any runtime exception occurs, make sure we aren't holding on to a partially open DB instance.
+            // It would be invalid if the exception were suppressed accidentally
+            closeLocked();
             throw e;
         }
 
@@ -1029,8 +1036,8 @@ public abstract class SquidDatabase {
         if (database != null && db != null && db.getWrappedObject() == database.getWrappedObject()) {
             return;
         }
+        sqliteVersion = db != null ? readSqliteVersionLocked(db) : null;
         database = db;
-        sqliteVersion = database != null ? readSqliteVersionLocked(db) : null;
     }
 
     private VersionCode readSqliteVersionLocked(ISQLiteDatabase db) {
@@ -1039,7 +1046,7 @@ public abstract class SquidDatabase {
             return VersionCode.parse(versionString);
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
-            throw new RuntimeException("Failed to read sqlite version", e);
+            throw e;
         }
     }
 
@@ -1193,7 +1200,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql);
             return true;
-        } catch (SQLExceptionWrapper e) {
+        } catch (RuntimeException e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1202,13 +1209,13 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Execute a raw SQL statement
+     * Execute a raw SQL statement. May throw a runtime exception if there is an error parsing the SQL or some other
+     * error
      *
      * @param sql the statement to execute
-     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see ISQLiteDatabase#execSQL(String)
      */
-    public void execSqlOrThrow(String sql) throws SQLExceptionWrapper {
+    public void execSqlOrThrow(String sql) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
@@ -1231,7 +1238,7 @@ public abstract class SquidDatabase {
         try {
             getDatabase().execSQL(sql, bindArgs);
             return true;
-        } catch (SQLExceptionWrapper e) {
+        } catch (RuntimeException e) {
             onError("Failed to execute statement: " + sql, e);
             return false;
         } finally {
@@ -1241,14 +1248,13 @@ public abstract class SquidDatabase {
 
     /**
      * Execute a raw SQL statement with optional arguments. The sql string may contain '?' placeholders for the
-     * arguments.
+     * arguments. May throw a runtime exception if there is an error parsing the SQL or some other error
      *
      * @param sql the statement to execute
      * @param bindArgs the arguments to bind to the statement
-     * @throws SQLExceptionWrapper if there is an error parsing the SQL or some other error
      * @see ISQLiteDatabase#execSQL(String, Object[])
      */
-    public void execSqlOrThrow(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
+    public void execSqlOrThrow(String sql, Object[] bindArgs) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);

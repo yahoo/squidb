@@ -8,10 +8,8 @@ package com.yahoo.squidb.sqlitebindings;
 import com.yahoo.squidb.android.SquidCursorWrapper;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
-import com.yahoo.squidb.data.SQLExceptionWrapper;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
-import org.sqlite.database.SQLException;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteTransactionListener;
@@ -81,21 +79,13 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void execSQL(String sql) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql) {
+        db.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) throws SQLExceptionWrapper {
-        try {
-            db.execSQL(sql, bindArgs);
-        } catch (SQLException e) {
-            throw new SQLExceptionWrapper(e);
-        }
+    public void execSQL(String sql, Object[] bindArgs) {
+        db.execSQL(sql, bindArgs);
     }
 
     @Override
