@@ -81,6 +81,8 @@ then
     do
         rsync -rc -t $f $SQUIDB_IOS_TESTS
     done
+    rm $SQUIDB_IOS_TESTS/*-javadoc.jar
+    rm $SQUIDB_IOS_TESTS/*-sources.jar
 fi
 
 # invoke annotation processing, output to gen folder
