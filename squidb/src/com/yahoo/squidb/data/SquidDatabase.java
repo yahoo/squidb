@@ -154,26 +154,45 @@ public abstract class SquidDatabase {
      *
      * <pre>
      * switch(oldVersion) {
+     * boolean result = true;
      * case 1:
-     *     tryAddColumn(MyModel.NEW_COL_1);
+     *     result &= tryAddColumn(MyModel.NEW_COL_1);
      * case 2:
-     *     tryCreateTable(MyNewModel.TABLE);
+     *     result &= tryCreateTable(MyNewModel.TABLE);
+     * }
+     * return result;
      * </pre>
+     *
+     * If this method returns false or throws an exception, a call to
+     * {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default implementation of
+     * onMigrationFailed throws an exception. It is highly recommended that you override onMigrationFailed to handle
+     * errors, either by calling {@link #recreate()} to delete all data in the database and start from scratch, or by
+     * manually searching for and correcting any problems in your database. If you do the latter, you should also
+     * be sure to finish by calling  {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to
+     * recover and complete the migration successfully.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
+     * @see {@link #onMigrationFailed(MigrationFailedException)}
      */
     protected abstract boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion);
 
     /**
-     * Called when the database should be downgraded from one version to another
+     * Called when the database should be downgraded from one version to another. If this method returns false or throws
+     * an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
+     * implementation of onMigrationFailed throws an exception. It is highly recommended that you override
+     * onMigrationFailed to handle errors, either by calling {@link #recreate()} to delete all data in the database and
+     * start from scratch, or by manually searching for and correcting any problems in your database. If you do the
+     * latter, you should also be sure to finish by calling {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect
+     * that you were able to recover and complete the migration successfully.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
+     * @see {@link #onMigrationFailed(MigrationFailedException)}
      */
     protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
@@ -182,8 +201,13 @@ public abstract class SquidDatabase {
     /**
      * Called to notify of a failure in {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade()} or
      * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade()}, either because it returned false or because
-     * an unexpected exception occurred. Subclasses can take drastic corrective action here, e.g. recreating the
-     * database with {@link #recreate()}. The default implementation throws an exception.
+     * an unexpected exception occurred.
+     * <p>
+     * The default implementation of this method rethrows the MigrationFailedException parameter. Subclasses can take
+     * drastic corrective action here, e.g. recreating the database with {@link #recreate()}. If instead of calling
+     * recreate() you choose to take other corrective action, you should finish by calling
+     * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and recover and complete
+     * the migration successfully.
      * <p>
      * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
      * can result in unexpected errors if callers are allowed to invoke further operations on the database.
