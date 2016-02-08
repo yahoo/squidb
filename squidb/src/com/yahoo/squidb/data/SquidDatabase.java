@@ -95,12 +95,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * By convention, the <code>fetch...</code> methods return a single model instance corresponding to the first record
  * found, or null if no records are found for that particular form of fetch.
  * <p>
- * When implementing your own database access methods in your SquidDatabase subclass, you should not use the object's
- * monitor for locking (e.g. synchronized methods or synchronized(this) blocks) -- doing so may cause deadlocks under
- * certain conditions. Most users will not need to worry about this and will be able to implement things in
- * their SquidDatabase subclass without resorting to locking, as all SquidDatabase methods are thread-safe. If you
- * really do need locking for some reason, use a different object's monitor, or use {@link #acquireExclusiveLock()} or
- * {@link #acquireNonExclusiveLock()} to control access to the database connection itself.
+ * When implementing your own database access methods in your SquidDatabase subclass, you should use
+ * {@link #acquireExclusiveLock()} or {@link #acquireNonExclusiveLock()} to indicate your intent to access the database
+ * connection. The non-exclusive lock simply indicates your intent to use the database, and prevents other threads
+ * from e.g. closing the database while you are still using it. The exclusive lock prevents any other threads from
+ * accessing the database, so should only be used when you want to ensure that your thread is the only one using the
+ * database connection -- it should be used sparingly, if at all. The non-exclusive lock is sufficient for all basic
+ * read/write use cases. See {@link #getDatabase()}.
  */
 public abstract class SquidDatabase {
 
@@ -243,6 +244,7 @@ public abstract class SquidDatabase {
 
     private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Object databaseInstanceLock = new Object();
 
     /**
      * SQLiteOpenHelperWrapper that takes care of database operations
@@ -357,12 +359,14 @@ public abstract class SquidDatabase {
      * @see #acquireExclusiveLock()
      * @see #acquireNonExclusiveLock()
      */
-    protected synchronized final SQLiteDatabaseWrapper getDatabase() {
+    protected final SQLiteDatabaseWrapper getDatabase() {
         // If we get here, we should already have the non-exclusive lock
-        if (database == null) {
-            openForWritingLocked();
+        synchronized (databaseInstanceLock) {
+            if (database == null) {
+                openForWritingLocked();
+            }
+            return database;
         }
-        return database;
     }
 
     private void openForWritingLocked() {
@@ -520,8 +524,10 @@ public abstract class SquidDatabase {
     /**
      * @return true if a connection to the {@link SQLiteDatabase} is open, false otherwise
      */
-    public synchronized final boolean isOpen() {
-        return database != null && database.isOpen();
+    public final boolean isOpen() {
+        synchronized (databaseInstanceLock) {
+            return database != null && database.isOpen();
+        }
     }
 
     /**
@@ -545,12 +551,14 @@ public abstract class SquidDatabase {
         }
     }
 
-    private synchronized void closeLocked() {
-        if (isOpen()) {
-            database.close();
+    private void closeLocked() {
+        synchronized (databaseInstanceLock) {
+            if (isOpen()) {
+                database.close();
+            }
+            helper = null;
+            setDatabase(null);
         }
-        helper = null;
-        setDatabase(null);
     }
 
     /**
@@ -605,10 +613,12 @@ public abstract class SquidDatabase {
         }
     }
 
-    private synchronized void recreateLocked() {
-        closeLocked();
-        context.deleteDatabase(getName());
-        getDatabase();
+    private void recreateLocked() {
+        synchronized (databaseInstanceLock) {
+            closeLocked();
+            context.deleteDatabase(getName());
+            getDatabase();
+        }
     }
 
     /**
@@ -874,8 +884,10 @@ public abstract class SquidDatabase {
      * @return true if a transaction is active
      * @see SQLiteDatabase#inTransaction()
      */
-    public synchronized boolean inTransaction() {
-        return database != null && database.inTransaction();
+    public final boolean inTransaction() {
+        synchronized (databaseInstanceLock) {
+            return database != null && database.inTransaction();
+        }
     }
 
     /**
@@ -1142,14 +1154,16 @@ public abstract class SquidDatabase {
         }
     }
 
-    private synchronized void setDatabase(SQLiteDatabaseWrapper db) {
-        // If we're already holding a reference to the same object, don't need to update or recalculate the version
-        if (database != null && db != null
-                && db.getWrappedDatabase() == database.getWrappedDatabase()) {
-            return;
+    private void setDatabase(SQLiteDatabaseWrapper db) {
+        synchronized (databaseInstanceLock) {
+            // If we're already holding a reference to the same object, don't need to update or recalculate the version
+            if (database != null && db != null
+                    && db.getWrappedDatabase() == database.getWrappedDatabase()) {
+                return;
+            }
+            sqliteVersion = db != null ? readSqliteVersionLocked(db) : null;
+            database = db;
         }
-        sqliteVersion = db != null ? readSqliteVersionLocked(db) : null;
-        database = db;
     }
 
     private VersionCode readSqliteVersionLocked(SQLiteDatabaseWrapper db) {
@@ -1384,7 +1398,7 @@ public abstract class SquidDatabase {
         if (toReturn == null) {
             acquireNonExclusiveLock();
             try {
-                synchronized (this) {
+                synchronized (databaseInstanceLock) {
                     getDatabase(); // Opening the database will populate the sqliteVersion field
                     return sqliteVersion;
                 }
