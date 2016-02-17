@@ -66,7 +66,7 @@ public class Insert extends TableStatement {
      * Specify a set of values to insert. The number of values must equal the number of columns specified and the order
      * must match the order of the columns.
      * <p>
-     * If you are using a SQLite version < 3.7.11 (Android API < 16 for stock SQLite), you should not call this method
+     * If you are using a SQLite version %lt; 3.7.11 (Android API %lt; 16 for stock SQLite), you should not call this method
      * more than once, as inserting multiple rows with a single statement is only supported for SQLite version 3.7.11
      * and higher. Calling this method more than once may cause an exception to be thrown when trying to execute the
      * statement.
