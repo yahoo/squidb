@@ -211,8 +211,9 @@ public abstract class SquidDatabase {
      * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and recover and complete
      * the migration successfully.
      * <p>
-     * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
-     * can result in unexpected errors if callers are allowed to invoke further operations on the database.
+     * You should not suppress this exception without attempting to reopen or recreate the database. If this method
+     * exits without throwing but the database is not open, another exception will be thrown that is likely to cause
+     * a crash.
      * <p>
      * Failures to open the database not caused by an error in the migration flow are handled by
      * the {@link #onDatabaseOpenFailed(RuntimeException, int)} hook.
@@ -224,8 +225,9 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Called if the database has failed to open for any reason other than a failure during a migration (which is
-     * handled by the {@link #onMigrationFailed(MigrationFailedException)} hook). Such occurrences should be rare;
+     * Called if the database has failed to open for any reason. Migration failures should be handled by the
+     * {@link #onMigrationFailed(MigrationFailedException)} hook, but if you do not override that method, migration
+     * failures will be forwarded to this hook instead. Non-migration failures that trigger this hook should be rare:
      * the result of programming errors, disk I/O failures, or corrupt databases. The default implementation of this
      * hook rethrows the exception, which will likely cause a crash. If you want to implement more sophisticated
      * failure handling, reasonable actions might be one or both of the following:
