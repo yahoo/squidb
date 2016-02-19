@@ -240,11 +240,12 @@ public abstract class SquidDatabase {
      * Note that if you do not override {@link #onMigrationFailed(MigrationFailedException)}, any
      * MigrationFailedExceptions will be forwarded to this hook as well.
      *
-     * @param retryCount the number of tries to reopen the database so far, if you've called getDatabase() recursively
+     * @param openFailureCount the number times this hook has been called, if you've called getDatabase() recursively.
+     * The value will be 1 the first time this hook is called, 2 the second time, and so on.
      * @param failure the exception that caused opening the database to fail
      */
     @Beta
-    protected void onDatabaseOpenFailed(RuntimeException failure, int retryCount) {
+    protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
         throw failure;
     }
 
@@ -455,8 +456,7 @@ public abstract class SquidDatabase {
             // It would be invalid if the exception were suppressed accidentally
             closeLocked();
 
-            int retryCount = databaseOpenFailedRetryCount;
-            databaseOpenFailedRetryCount++;
+            int retryCount = ++databaseOpenFailedRetryCount;
             try {
                 onDatabaseOpenFailed(e, retryCount);
                 // If this hook exits cleanly but the db still isn't open, the user probably did something bad in
