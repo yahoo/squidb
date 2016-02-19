@@ -427,13 +427,12 @@ public abstract class SquidDatabase {
             helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
         }
 
-        boolean performRecreate = false;
         try {
             try {
                 SQLiteDatabaseWrapper db = helper.openForWriting();
                 setDatabase(db);
             } catch (RecreateDuringMigrationException recreate) {
-                performRecreate = true;
+                recreateLocked();
             } catch (MigrationFailedException fail) {
                 onError(fail.getMessage(), fail);
                 isInMigrationFailedHook = true;
@@ -443,7 +442,7 @@ public abstract class SquidDatabase {
                     isInMigrationFailedHook = false;
                 }
             }
-            if (!performRecreate && !isOpen()) {
+            if (!isOpen()) {
                 throw new RuntimeException("Failed to open database");
             }
         } catch (RuntimeException e) {
@@ -466,10 +465,6 @@ public abstract class SquidDatabase {
             } finally {
                 databaseOpenFailedRetryCount = 0;
             }
-        }
-
-        if (performRecreate) {
-            recreateLocked(); // OK to call this here, locks are already held
         }
     }
 
