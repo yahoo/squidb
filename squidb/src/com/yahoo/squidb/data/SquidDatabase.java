@@ -443,6 +443,7 @@ public abstract class SquidDatabase {
                 }
             }
             if (!isOpen()) {
+                closeLocked();
                 throw new RuntimeException("Failed to open database");
             }
         } catch (RuntimeException e) {

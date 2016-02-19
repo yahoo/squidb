@@ -111,7 +111,19 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         // close and reopen to trigger an upgrade/downgrade
         badDatabase.onTablesCreatedCalled = false;
         badDatabase.close();
-        badDatabase.getDatabase();
+        RuntimeException caughtException = null;
+        try {
+            badDatabase.getDatabase();
+        } catch (RuntimeException e) {
+            caughtException = e;
+        }
+        // If throwing or returning false from migration but not handling it, we expect getDatabase to also throw
+        // since the DB will not be open after exiting the onMigrationFailed hook
+        if (!shouldRecreateDuringMigration) {
+            assertNotNull(caughtException);
+        } else {
+            assertNull(caughtException);
+        }
 
         assertTrue(upgrade ? badDatabase.onUpgradeCalled : badDatabase.onDowngradeCalled);
         if (shouldRecreateDuringMigration || shouldRecreateOnMigrationFailed) {
@@ -206,14 +218,20 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testCustomMigrationException() {
-        TestDatabase database = new TestDatabase(getContext());
+        final TestDatabase database = new TestDatabase(getContext());
         SQLiteDatabaseWrapper db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
         final int previousVersion = version + 1;
         db.setVersion(previousVersion);
         database.close();
-        database.getDatabase();
+        // Expect an exception here because this DB does not cleanly re-open the DB in case of errors
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                database.getDatabase();
+            }
+        }, RuntimeException.class);
 
         try {
             assertTrue(database.caughtCustomMigrationException);
