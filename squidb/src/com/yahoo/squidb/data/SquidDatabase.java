@@ -167,11 +167,9 @@ public abstract class SquidDatabase {
      *
      * If this method returns false or throws an exception, a call to
      * {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default implementation of
-     * onMigrationFailed throws an exception. It is highly recommended that you override onMigrationFailed to handle
-     * errors, either by calling {@link #recreate()} to delete all data in the database and start from scratch, or by
-     * manually searching for and correcting any problems in your database. If you do the latter, you should also
-     * be sure to finish by calling  {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to
-     * recover and complete the migration successfully.
+     * onMigrationFailed rethrows the exception. It is highly recommended that you override onMigrationFailed to handle
+     * errors, for example by calling {@link #recreate()} to delete all data in the database and start from scratch.
+     * More sophisticated recovery logic would require a different means of opening the database file.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
@@ -184,11 +182,10 @@ public abstract class SquidDatabase {
     /**
      * Called when the database should be downgraded from one version to another. If this method returns false or throws
      * an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
-     * implementation of onMigrationFailed throws an exception. It is highly recommended that you override
-     * onMigrationFailed to handle errors, either by calling {@link #recreate()} to delete all data in the database and
-     * start from scratch, or by manually searching for and correcting any problems in your database. If you do the
-     * latter, you should also be sure to finish by calling {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect
-     * that you were able to recover and complete the migration successfully.
+     * implementation of onMigrationFailed rethrows the exception. It is highly recommended that you override
+     * onMigrationFailed to handle errors, for example by calling {@link #recreate()} to delete all data in the
+     * database and start from scratch. More sophisticated recovery logic would require a different means of opening
+     * the database file.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
@@ -208,8 +205,8 @@ public abstract class SquidDatabase {
      * The default implementation of this method rethrows the MigrationFailedException parameter. Subclasses can take
      * drastic corrective action here, e.g. recreating the database with {@link #recreate()}. If instead of calling
      * recreate() you choose to take other corrective action, you should finish by calling
-     * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and recover and complete
-     * the migration successfully.
+     * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and complete the migration
+     * successfully.
      * <p>
      * You should not suppress this exception without attempting to reopen or recreate the database. If this method
      * exits without throwing but the database is not open, another exception will be thrown that is likely to cause
@@ -237,8 +234,6 @@ public abstract class SquidDatabase {
      * lest you risk stack overflows.</li>
      * <li>Call {@link #recreate()} to delete the database file and recreate an empty one</li>
      * </ul>
-     * Note that if you do not override {@link #onMigrationFailed(MigrationFailedException)}, any
-     * MigrationFailedExceptions will be forwarded to this hook as well.
      *
      * @param openFailureCount the number times this hook has been called, if you've called getDatabase() recursively.
      * The value will be 1 the first time this hook is called, 2 the second time, and so on.
