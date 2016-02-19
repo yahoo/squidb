@@ -457,6 +457,12 @@ public abstract class SquidDatabase {
             databaseOpenFailedRetryCount++;
             try {
                 onDatabaseOpenFailed(e, retryCount);
+                // If this hook exits cleanly but the db still isn't open, the user probably did something bad in
+                // the hook, so we should clean up and rethrow
+                if (!isOpen()) {
+                    closeLocked();
+                    throw e;
+                }
             } finally {
                 databaseOpenFailedRetryCount = 0;
             }
