@@ -57,7 +57,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a
  * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the database.
- * You can close it again using {@link #close()}.
+ * You can close it again using {@link #close()}. For information about writing migrations or pre-populating a new
+ * database see the {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)} and
+ * {@link #onTablesCreated(SQLiteDatabaseWrapper)} hooks.
  * <p>
  * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
  * get a Cursor, use {@link #query(Class, Query)}.
@@ -211,10 +213,36 @@ public abstract class SquidDatabase {
      * <p>
      * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
      * can result in unexpected errors if callers are allowed to invoke further operations on the database.
+     * <p>
+     * Failures to open the database not caused by an error in the migration flow are handled by
+     * the {@link #onDatabaseOpenFailed(RuntimeException, int)} hook.
      *
      * @param failure details about the upgrade or downgrade that failed
      */
     protected void onMigrationFailed(MigrationFailedException failure) {
+        throw failure;
+    }
+
+    /**
+     * Called if the database has failed to open for any reason other than a failure during a migration (which is
+     * handled by the {@link #onMigrationFailed(MigrationFailedException)} hook). Such occurrences should be rare;
+     * the result of programming errors, disk I/O failures, or corrupt databases. The default implementation of this
+     * hook rethrows the exception, which will likely cause a crash. If you want to implement more sophisticated
+     * failure handling, reasonable actions might be one or both of the following:
+     * <ul>
+     * <li>Call {@link #getDatabase()} to attempt reopening the database. This is a recursive operation, so it will
+     * increment the retryCount argument if opening fails again. You shouldn't let the retry count grow infinitely,
+     * lest you risk stack overflows.</li>
+     * <li>Call {@link #recreate()} to delete the database file and recreate an empty one</li>
+     * </ul>
+     * Note that if you do not override {@link #onMigrationFailed(MigrationFailedException)}, any
+     * MigrationFailedExceptions will be forwarded to this hook as well.
+     *
+     * @param retryCount the number of tries to reopen the database so far, if you've called getDatabase() recursively
+     * @param failure the exception that caused opening the database to fail
+     */
+    @Beta
+    protected void onDatabaseOpenFailed(RuntimeException failure, int retryCount) {
         throw failure;
     }
 
@@ -291,8 +319,9 @@ public abstract class SquidDatabase {
      */
     private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap;
 
-    private boolean isInMigration;
-    private boolean isInMigrationFailedHook;
+    private boolean isInMigration = false;
+    private boolean isInMigrationFailedHook = false;
+    private int databaseOpenFailedRetryCount = 0;
 
     /**
      * Create a new SquidDatabase
@@ -414,13 +443,23 @@ public abstract class SquidDatabase {
                     isInMigrationFailedHook = false;
                 }
             }
+            if (!performRecreate && !isOpen()) {
+                throw new RuntimeException("Failed to open database");
+            }
         } catch (RuntimeException e) {
             onError("Failed to open database: " + getName(), e);
 
             // If any runtime exception occurs, make sure we aren't holding on to a partially open DB instance.
             // It would be invalid if the exception were suppressed accidentally
             closeLocked();
-            throw e;
+
+            int retryCount = databaseOpenFailedRetryCount;
+            databaseOpenFailedRetryCount++;
+            try {
+                onDatabaseOpenFailed(e, retryCount);
+            } finally {
+                databaseOpenFailedRetryCount = 0;
+            }
         }
 
         if (performRecreate) {
@@ -625,7 +664,7 @@ public abstract class SquidDatabase {
     public final void recreate() {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
-        } else if (isInMigrationFailedHook) {
+        } else if (isInMigrationFailedHook || databaseOpenFailedRetryCount > 0) {
             recreateLocked(); // Safe to call here, necessary locks are already held in this case
         } else {
             acquireExclusiveLock();
