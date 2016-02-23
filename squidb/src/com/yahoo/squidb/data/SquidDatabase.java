@@ -208,7 +208,11 @@ public abstract class SquidDatabase {
      * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and complete the migration
      * successfully.
      * <p>
-     * You should not suppress this exception without attempting to reopen or recreate the database. If this method
+     * Calling {@link #getDatabase()} or any other DB access method from within this hook is generally unsafe, as the
+     * database is not open when this hook is called, and attempting to reopen it without correcting the problem may
+     * result in recursion, unless you specifically write your {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)}
+     * or {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)} logic to handle such cases. ({@link #recreate()} is
+     * still safe however). You also should not suppress this exception without taking any action. If this method
      * exits without throwing but the database is not open, another exception will be thrown that is likely to cause
      * a crash.
      * <p>
@@ -435,6 +439,10 @@ public abstract class SquidDatabase {
                 onError(fail.getMessage(), fail);
                 isInMigrationFailedHook = true;
                 try {
+                    // We don't want to be holding on to an invalid DB instance here
+                    if (!isOpen()) {
+                        closeLocked();
+                    }
                     onMigrationFailed(fail);
                 } finally {
                     isInMigrationFailedHook = false;
