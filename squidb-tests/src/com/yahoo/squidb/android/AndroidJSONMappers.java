@@ -8,8 +8,8 @@ package com.yahoo.squidb.android;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.data.JSONPropertyTest;
+import com.yahoo.squidb.json.JSONMapper;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -34,7 +34,7 @@ public class AndroidJSONMappers {
         }
 
         @Override
-        public String toJSON(Object toSerialize) throws Exception {
+        public String toJSON(Object toSerialize, Type javaType) throws Exception {
             return MAPPER.writeValueAsString(toSerialize);
         }
 
@@ -50,8 +50,8 @@ public class AndroidJSONMappers {
         private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
         @Override
-        public String toJSON(Object toSerialize) throws Exception {
-            return GSON.toJson(toSerialize);
+        public String toJSON(Object toSerialize, Type javaType) throws Exception {
+            return GSON.toJson(toSerialize, javaType);
         }
 
         @Override

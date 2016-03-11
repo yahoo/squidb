@@ -57,7 +57,7 @@ public class JSONPropertySupport {
      *
      * @return true if the value object was successfully serialized, false otherwise
      */
-    public static <T> boolean setValueAsJSON(AbstractModel model, JSONProperty<T> property, T data) {
+    public static <T> boolean setValueAsJSON(AbstractModel model, JSONProperty<T> property, T data, Type javaType) {
         try {
             String json = null;
             if (data != null) {
@@ -65,7 +65,7 @@ public class JSONPropertySupport {
                     throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
                             + "JSONMapper instance using setJSONMapper()");
                 }
-                json = MAPPER.toJSON(data);
+                json = MAPPER.toJSON(data, javaType);
                 if (model.containsNonNullValue(property) && json.equals(model.get(property))) {
                     return false;
                 }
