@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
  */
 public interface JSONMapper {
 
-    String toJSON(Object toSerialize) throws Exception;
+    String toJSON(Object toSerialize, Type javaType) throws Exception;
 
     <T> T fromJSON(String jsonString, Type javaType) throws Exception;
 }

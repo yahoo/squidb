@@ -41,7 +41,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
         // the org.json classes using code generation or something, but this is enough for our purposes.
 
         @Override
-        public String toJSON(Object toSerialize) throws Exception {
+        public String toJSON(Object toSerialize, Type javaType) throws Exception {
             Object orgJsonObject = toOrgJsonObject(toSerialize);
             return orgJsonObject == null ? null : orgJsonObject.toString();
         }

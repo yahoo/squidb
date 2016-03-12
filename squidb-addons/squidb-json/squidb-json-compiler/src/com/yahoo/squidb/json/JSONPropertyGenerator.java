@@ -66,8 +66,10 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
 
     @Override
     protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
+        Expression typeExpression = getTypeExpression(fieldType);
+
         writer.writeStatement(Expressions.staticMethod(JSONTypes.JSON_PROPERTY_SUPPORT, "setValueAsJSON",
-                "this", propertyName, argName));
+                "this", propertyName, argName, typeExpression));
         writer.writeStringStatement("return this");
     }
 
