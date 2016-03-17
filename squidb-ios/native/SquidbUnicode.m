@@ -43,7 +43,7 @@ static inline uint32_t utf8_to_utf32_codepoint(const uint8_t *src, size_t length
     }
 }
 
-uint32_t utf8_to_utf16_length(const uint8_t* u8str, size_t u8len)
+static uint32_t utf8_to_utf16_length(const uint8_t* u8str, size_t u8len)
 {
     const uint8_t* const u8end = u8str + u8len;
     const uint8_t* u8cur = u8str;
@@ -66,7 +66,7 @@ uint32_t utf8_to_utf16_length(const uint8_t* u8str, size_t u8len)
     return u16measuredLen;
 }
 
-jchar* utf8_to_utf16_no_null_terminator(const uint8_t* u8str, size_t u8len, jchar* u16str)
+static jchar* utf8_to_utf16_no_null_terminator(const uint8_t* u8str, size_t u8len, jchar* u16str)
 {
     const uint8_t* const u8end = u8str + u8len;
     const uint8_t* u8cur = u8str;
@@ -88,7 +88,7 @@ jchar* utf8_to_utf16_no_null_terminator(const uint8_t* u8str, size_t u8len, jcha
     }
     return u16cur;
 }
-void utf8_to_utf16(const uint8_t* u8str, size_t u8len, jchar* u16str) {
+static void utf8_to_utf16(const uint8_t* u8str, size_t u8len, jchar* u16str) {
     jchar* end = utf8_to_utf16_no_null_terminator(u8str, u8len, u16str);
     *end = 0;
 }

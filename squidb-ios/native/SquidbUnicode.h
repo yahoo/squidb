@@ -3,9 +3,6 @@
 // https://android.googlesource.com/platform/frameworks/native/+/jb-dev/include/utils/Unicode.h
 
 #import <stdint.h>
-#import "J2ObjC_types.h"
 #import "IOSPrimitiveArray.h"
 
 IOSCharArray* allocFromUTF8(const char* u8str, size_t u8len);
-
-uint32_t utf8_to_utf16_length(const uint8_t* u8str, size_t u8len);
