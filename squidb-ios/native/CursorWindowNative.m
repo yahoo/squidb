@@ -24,6 +24,7 @@
 #import "CursorWindowNative.h"
 #import "java/lang/IllegalStateException.h"
 #import "NSString+JavaString.h"
+#import "SquidbUnicode.h"
 
 @implementation CursorWindowNative {
     void *data;
@@ -159,10 +160,14 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-
-        IOSByteArray *bytes = [IOSByteArray newArrayWithBytes:(const jbyte *)value count:sizeIncludingNull - 1];
-        NSString *result = [NSString stringWithBytes:bytes];
-        return result;
+        IOSCharArray *chars = allocFromUTF8(value, sizeIncludingNull - 1);
+        if (!chars) {
+            // If chars is nil, that means an allocation of the utf16 buffer failed.
+            // The Android framework returns empty string in this edge case, so we should here too.
+            NSLog(@"Failed to allocate memory for string with %d bytes", sizeIncludingNull - 1);
+            return @"";
+        }
+        return [NSString stringWithCharacters:chars];
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];
