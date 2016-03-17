@@ -161,10 +161,13 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
             return @"";
         }
         IOSCharArray *chars = allocFromUTF8(value, sizeIncludingNull - 1);
-        if (chars) {
-            return [NSString stringWithCharacters:chars];
+        if (!chars) {
+            // If chars is nil, that means an allocation of the utf16 buffer failed.
+            // The Android framework returns empty string in this edge case, so we should here too.
+            NSLog(@"Failed to allocate memory for string with %d bytes", sizeIncludingNull - 1);
+            return @"";
         }
-        return NULL;
+        return [NSString stringWithCharacters:chars];
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];
