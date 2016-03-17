@@ -1171,4 +1171,15 @@ public class QueryTest extends DatabaseTestCase {
             cursor.close();
         }
     }
+
+    public void testReadUnicodeStrings() {
+        // A bunch of random unicode characters
+        String unicode = "\u2e17\u301c\ufe58\uff0d\ufe32";
+        String reversedUnicode = "\ufe32\uff0d\ufe58\u301c\u2e17";
+        TestModel model = insertBasicTestModel(unicode, reversedUnicode, System.currentTimeMillis());
+
+        TestModel fetched = database.fetch(TestModel.class, model.getId());
+        assertEquals(unicode, fetched.getFirstName());
+        assertEquals(reversedUnicode, fetched.getLastName());
+    }
 }
