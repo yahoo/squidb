@@ -160,11 +160,11 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-        const jchar *jValue = allocFromUTF8(value, sizeIncludingNull - 1); // Convert to jchar value
-        uint32_t jLength = utf8_to_utf16_length((uint8_t *)value, sizeIncludingNull - 1); // Get length
-        IOSCharArray *chars = [IOSCharArray arrayWithChars:jValue count:jLength];
-        free(jValue); // arrayWithChars is a copy constructor
-        return [NSString stringWithCharacters:chars];
+        IOSCharArray *chars = allocFromUTF8(value, sizeIncludingNull - 1);
+        if (chars) {
+            return [NSString stringWithCharacters:chars];
+        }
+        return NULL;
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];

@@ -93,7 +93,7 @@ void utf8_to_utf16(const uint8_t* u8str, size_t u8len, jchar* u16str) {
     *end = 0;
 }
 
-jchar* allocFromUTF8(const char* u8str, size_t u8len)
+IOSCharArray* allocFromUTF8(const char* u8str, size_t u8len)
 {
     const uint8_t* u8cur = (const uint8_t*) u8str;
     const ssize_t u16len = utf8_to_utf16_length(u8cur, u8len);
@@ -101,8 +101,9 @@ jchar* allocFromUTF8(const char* u8str, size_t u8len)
     if (u16str) {
         u8cur = (const uint8_t*) u8str;
         utf8_to_utf16(u8cur, u8len, u16str);
-
-        return u16str;
+        IOSCharArray *chars = [IOSCharArray arrayWithChars:u16str count:u16len];
+        free(u16str);
+        return chars;
     }
-    return NULL;
+    return nil;
 }

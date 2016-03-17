@@ -4,7 +4,8 @@
 
 #import <stdint.h>
 #import "J2ObjC_types.h"
+#import "IOSPrimitiveArray.h"
 
-jchar* allocFromUTF8(const char* u8str, size_t u8len);
+IOSCharArray* allocFromUTF8(const char* u8str, size_t u8len);
 
 uint32_t utf8_to_utf16_length(const uint8_t* u8str, size_t u8len);
