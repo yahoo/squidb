@@ -24,6 +24,7 @@
 #import "CursorWindowNative.h"
 #import "java/lang/IllegalStateException.h"
 #import "NSString+JavaString.h"
+#import "Unicode.h"
 
 @implementation CursorWindowNative {
     void *data;
@@ -159,10 +160,11 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         if (sizeIncludingNull <= 1) {
             return @"";
         }
-
-        IOSByteArray *bytes = [IOSByteArray newArrayWithBytes:(const jbyte *)value count:sizeIncludingNull - 1];
-        NSString *result = [NSString stringWithBytes:bytes];
-        return result;
+        const jchar *jValue = allocFromUTF8(value, sizeIncludingNull - 1); // Convert to jchar value
+        uint32_t jLength = utf8_to_utf16_length((uint8_t *)value, sizeIncludingNull - 1); // Get length
+        IOSCharArray *chars = [IOSCharArray arrayWithChars:jValue count:jLength];
+        free(jValue); // arrayWithChars is a copy constructor
+        return [NSString stringWithCharacters:chars];
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];
