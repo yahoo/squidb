@@ -24,7 +24,7 @@
 #import "CursorWindowNative.h"
 #import "java/lang/IllegalStateException.h"
 #import "NSString+JavaString.h"
-#import "Unicode.h"
+#import "SquidbUnicode.h"
 
 @implementation CursorWindowNative {
     void *data;

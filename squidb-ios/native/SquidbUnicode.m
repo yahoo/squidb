@@ -3,7 +3,7 @@
 // https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/utils/Unicode.cpp
 
 #import <stdlib.h>
-#import "Unicode.h"
+#import "SquidbUnicode.h"
 
 static inline uint32_t utf8_codepoint_len(uint8_t ch)
 {
