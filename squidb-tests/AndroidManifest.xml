@@ -13,7 +13,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="19"
+        android:targetSdkVersion="23"
         tools:overrideLibrary="com.yahoo.squidb.sqlitebindings" />
 
     <instrumentation
