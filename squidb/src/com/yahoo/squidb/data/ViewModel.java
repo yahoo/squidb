@@ -58,7 +58,7 @@ public abstract class ViewModel extends AbstractModel {
      * once without aliasing it, this would simply be e.g. Model.TABLE.
      * @return the destination model object
      */
-    public <T extends AbstractModel> T mapToModel(T dst, SqlTable<? extends T> tableAlias) {
+    public <T extends AbstractModel> T mapToModel(T dst, SqlTable<?> tableAlias) {
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
             @SuppressWarnings("unchecked")

@@ -15,6 +15,8 @@ import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestSubqueryModel;
 import com.yahoo.squidb.test.TestViewModel;
+import com.yahoo.squidb.test.Thing;
+import com.yahoo.squidb.test.ThingJoin;
 import com.yahoo.squidb.test.ViewlessViewModel;
 
 import java.util.List;
@@ -242,6 +244,54 @@ public class ViewModelTest extends DatabaseTestCase {
             if (cursor != null) {
                 cursor.close();
             }
+        }
+    }
+
+    public void testMapToModelWithMultipleAliases() {
+        Thing[] things = new Thing[] {
+                new Thing().setFoo("Thing 1").setBar(0),
+                new Thing().setFoo("Thing 2").setBar(1),
+                new Thing().setFoo("Thing 3").setBar(2),
+                new Thing().setFoo("Thing 4").setBar(3),
+                new Thing().setFoo("Thing 5").setBar(4),
+        };
+        database.beginTransaction();
+        try {
+            for (Thing t : things) {
+                database.persist(t);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
+        SquidCursor<ThingJoin> cursor = database.query(ThingJoin.class, Query.select(ThingJoin.PROPERTIES)
+                .from(ThingJoin.SUBQUERY).orderBy(ThingJoin.THING_1_ID.asc()));
+        try {
+            assertEquals(3, cursor.getCount());
+            ThingJoin thingJoin = new ThingJoin();
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                int position = cursor.getPosition();
+                thingJoin.readPropertiesFromCursor(cursor);
+
+                Thing readThing1 = thingJoin.mapToModel(new Thing(), Thing.TABLE);
+                Thing readThing2 = thingJoin.mapToModel(new Thing(), ThingJoin.THING_2);
+                Thing readThing3 = thingJoin.mapToModel(new Thing(), ThingJoin.THING_3);
+
+                assertEquals(things[position].getId(), readThing1.getId());
+                assertEquals(things[position + 1].getId(), readThing2.getId());
+                assertEquals(things[position + 2].getId(), readThing3.getId());
+
+                assertEquals(things[position].getFoo(), readThing1.getFoo());
+                assertEquals(things[position + 1].getFoo(), readThing2.getFoo());
+                assertEquals(things[position + 2].getFoo(), readThing3.getFoo());
+
+                assertEquals(things[position].getBar(), readThing1.getBar());
+                assertEquals(things[position + 1].getBar(), readThing2.getBar());
+                assertEquals(things[position + 2].getBar(), readThing3.getBar());
+            }
+        } finally {
+            cursor.close();
         }
     }
 
