@@ -19,6 +19,9 @@ import com.yahoo.squidb.test.Thing;
 import com.yahoo.squidb.test.ThingJoin;
 import com.yahoo.squidb.test.ViewlessViewModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @SuppressLint("DefaultLocale")
@@ -278,17 +281,48 @@ public class ViewModelTest extends DatabaseTestCase {
                 Thing readThing2 = thingJoin.mapToModel(new Thing(), ThingJoin.THING_2);
                 Thing readThing3 = thingJoin.mapToModel(new Thing(), ThingJoin.THING_3);
 
+                List<AbstractModel> allReadModels = thingJoin.mapToSourceModels();
+                assertEquals(3, allReadModels.size());
+
+                List<Thing> allReadThings = new ArrayList<Thing>(3);
+                for (AbstractModel model : allReadModels) {
+                    allReadThings.add((Thing) model);
+                }
+                // Sort by id
+                Collections.sort(allReadThings, new Comparator<Thing>() {
+                    @Override
+                    public int compare(Thing lhs, Thing rhs) {
+                        if (lhs.getId() == rhs.getId()) {
+                            return 0;
+                        } else if (lhs.getId() < rhs.getId()) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    }
+                });
+
                 assertEquals(things[position].getId(), readThing1.getId());
-                assertEquals(things[position + 1].getId(), readThing2.getId());
-                assertEquals(things[position + 2].getId(), readThing3.getId());
-
                 assertEquals(things[position].getFoo(), readThing1.getFoo());
-                assertEquals(things[position + 1].getFoo(), readThing2.getFoo());
-                assertEquals(things[position + 2].getFoo(), readThing3.getFoo());
-
                 assertEquals(things[position].getBar(), readThing1.getBar());
+                assertEquals(allReadThings.get(0).getId(), readThing1.getId());
+                assertEquals(allReadThings.get(0).getFoo(), readThing1.getFoo());
+                assertEquals(allReadThings.get(0).getBar(), readThing1.getBar());
+
+                assertEquals(things[position + 1].getId(), readThing2.getId());
+                assertEquals(things[position + 1].getFoo(), readThing2.getFoo());
                 assertEquals(things[position + 1].getBar(), readThing2.getBar());
+                assertEquals(allReadThings.get(1).getId(), readThing2.getId());
+                assertEquals(allReadThings.get(1).getFoo(), readThing2.getFoo());
+                assertEquals(allReadThings.get(1).getBar(), readThing2.getBar());
+
+                assertEquals(things[position + 2].getId(), readThing3.getId());
+                assertEquals(things[position + 2].getFoo(), readThing3.getFoo());
                 assertEquals(things[position + 2].getBar(), readThing3.getBar());
+                assertEquals(allReadThings.get(2).getId(), readThing3.getId());
+                assertEquals(allReadThings.get(2).getFoo(), readThing3.getFoo());
+                assertEquals(allReadThings.get(2).getBar(), readThing3.getBar());
+
             }
         } finally {
             cursor.close();
