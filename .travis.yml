@@ -9,6 +9,7 @@ env:
   - ANDROID_TARGET=android-23 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
 android:
   components:
+    - tools
     - build-tools-23.0.2
     - android-15
     - sys-img-armeabi-v7a-android-15
