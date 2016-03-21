@@ -5,12 +5,15 @@
  */
 package com.yahoo.squidb.data;
 
+import android.util.Log;
+
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
+import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,15 +37,32 @@ public abstract class ViewModel extends AbstractModel {
     /**
      * Extracts the properties in this ViewModel that originated from the specified model class and reads them into the
      * destination model object
+     * <br>
+     * Note: if the backing query for your ViewModel joins on the same table multiple times with different aliases,
+     * you should instead use {@link #mapToModel(AbstractModel, SqlTable)} and pass the aliased table object as the
+     * second argument
      *
      * @param dst the destination model object
      * @return the destination model object
      */
     public <T extends AbstractModel> T mapToModel(T dst) {
+        return mapToModel(dst, null);
+    }
+
+    /**
+     * Extracts the properties in this ViewModel that originated from the specified model class for the given table
+     * alias and reads them into the destination model object
+     *
+     * @param dst the destination model object
+     * @param tableAlias the table alias for which you want to extract values. If you only join on a given table
+     * once without aliasing it, this would simply be e.g. Model.TABLE.
+     * @return the destination model object
+     */
+    public <T extends AbstractModel> T mapToModel(T dst, SqlTable<? extends T> tableAlias) {
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
             @SuppressWarnings("unchecked")
-            TableModelMappingVisitor<T> mapper = visitors.get((Class<T>) dst.getClass());
+            TableModelMappingVisitor<T> mapper = visitors.get((Class<T>) dst.getClass(), tableAlias);
             if (mapper != null) {
                 return mapper.map(this, dst);
             }
@@ -54,10 +74,16 @@ public abstract class ViewModel extends AbstractModel {
         List<AbstractModel> result = new ArrayList<AbstractModel>();
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
-            Set<Class<? extends AbstractModel>> sourceModels = visitors.allSourceModels();
-            for (Class<? extends AbstractModel> cls : sourceModels) {
+            Set<Map.Entry<Class<? extends AbstractModel>,
+                    Map<SqlTable<?>, TableModelMappingVisitor<?>>>> allMappings = visitors.allMappings();
+            for (Map.Entry<Class<? extends AbstractModel>,
+                    Map<SqlTable<?>, TableModelMappingVisitor<?>>> entry : allMappings) {
                 try {
-                    result.add(mapToModel(cls.newInstance()));
+                    Class<? extends AbstractModel> cls = entry.getKey();
+                    Map<SqlTable<?>, TableModelMappingVisitor<?>> clsMappers = entry.getValue();
+                    for (SqlTable<?> table : clsMappers.keySet()) {
+                        result.add(mapToModel(cls.newInstance(), table));
+                    }
                 } catch (InstantiationException e) {
                     throw new RuntimeException(e);
                 } catch (IllegalAccessException e) {
@@ -184,20 +210,46 @@ public abstract class ViewModel extends AbstractModel {
 
     protected static class TableMappingVisitors {
 
-        private Map<Class<? extends AbstractModel>, TableModelMappingVisitor<?>> map =
-                new HashMap<Class<? extends AbstractModel>, TableModelMappingVisitor<?>>();
+        private Map<Class<? extends AbstractModel>, Map<SqlTable<?>, TableModelMappingVisitor<?>>> map =
+                new HashMap<Class<? extends AbstractModel>,Map<SqlTable<?>, TableModelMappingVisitor<?>>>();
 
-        private <T extends AbstractModel> void put(Class<T> cls, TableModelMappingVisitor<T> mapper) {
-            map.put(cls, mapper);
+        private <T extends AbstractModel> void put(Class<T> cls, SqlTable<?> table,
+                TableModelMappingVisitor<T> mapper) {
+            Map<SqlTable<?>, TableModelMappingVisitor<?>> visitors = map.get(cls);
+            if (visitors == null) {
+                visitors = new HashMap<SqlTable<?>, TableModelMappingVisitor<?>>();
+                map.put(cls, visitors);
+            }
+            visitors.put(table, mapper);
         }
 
         @SuppressWarnings("unchecked")
-        public <T extends AbstractModel> TableModelMappingVisitor<T> get(Class<T> cls) {
-            return (TableModelMappingVisitor<T>) map.get(cls);
+        public <T extends AbstractModel> TableModelMappingVisitor<T> get(Class<T> cls, SqlTable<?> table) {
+            Map<SqlTable<?>, TableModelMappingVisitor<?>> visitors = map.get(cls);
+            if (visitors == null) {
+                return null;
+            }
+            if (table == null) {
+                if (visitors.size() == 1) {
+                    for (TableModelMappingVisitor<?> visitor : visitors.values()) {
+                        return (TableModelMappingVisitor<T>) visitor;
+                    }
+                } else {
+                    // Log an error and return null
+                    Log.e(SquidUtilities.LOG_TAG, "Attempted to mapToModel for class " + cls + ", but multiple" +
+                            " table aliases were found and none was specified. Use ViewModel.mapToModel(Class, " +
+                            "SqlTable) with a non-null second argument");
+                    return null;
+                }
+            } else {
+                return (TableModelMappingVisitor<T>) visitors.get(table);
+            }
+            return null;
         }
 
-        public Set<Class<? extends AbstractModel>> allSourceModels() {
-            return map.keySet();
+        public Set<Map.Entry<Class<? extends AbstractModel>,
+                Map<SqlTable<?>, TableModelMappingVisitor<?>>>> allMappings() {
+            return map.entrySet();
         }
     }
 
@@ -250,16 +302,17 @@ public abstract class ViewModel extends AbstractModel {
             SqlTable<?> table = entry.getKey();
             List<Property<?>> properties = entry.getValue();
             Map<Property<?>, Property<?>> aliasMap = aliasedPropertiesMap.get(table);
-            constructVisitor(table.getModelClass(), result, properties, aliasMap);
+            constructVisitor(table.getModelClass(), table, result, properties, aliasMap);
         }
         return result;
     }
 
-    private static <T extends AbstractModel> void constructVisitor(Class<T> cls, TableMappingVisitors visitors,
-            List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
+    private static <T extends AbstractModel> void constructVisitor(Class<T> cls, SqlTable<?> table,
+            TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
         if (cls != null) {
-            visitors.put(cls, new TableModelMappingVisitor<T>(properties.toArray(new Property<?>[properties.size()]),
-                    aliasMap));
+            TableModelMappingVisitor<T> visitor =
+                    new TableModelMappingVisitor<T>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
+            visitors.put(cls, table, visitor);
         }
     }
 
