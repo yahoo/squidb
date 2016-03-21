@@ -211,7 +211,7 @@ public abstract class ViewModel extends AbstractModel {
     protected static class TableMappingVisitors {
 
         private Map<Class<? extends AbstractModel>, Map<SqlTable<?>, TableModelMappingVisitor<?>>> map =
-                new HashMap<Class<? extends AbstractModel>,Map<SqlTable<?>, TableModelMappingVisitor<?>>>();
+                new HashMap<Class<? extends AbstractModel>, Map<SqlTable<?>, TableModelMappingVisitor<?>>>();
 
         private <T extends AbstractModel> void put(Class<T> cls, SqlTable<?> table,
                 TableModelMappingVisitor<T> mapper) {

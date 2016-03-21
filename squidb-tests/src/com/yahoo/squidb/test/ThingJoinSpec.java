@@ -17,8 +17,8 @@ public class ThingJoinSpec {
     @ViewQuery
     public static final Query QUERY = Query.select()
             .from(Thing.TABLE)
-            .innerJoin(THING_2, Thing.ID.eq(Function.add(1, THING_2.qualifyField(Thing.ID))))
-            .innerJoin(THING_3, Thing.ID.eq(Function.add(2, THING_3.qualifyField(Thing.ID))));
+            .innerJoin(THING_2, Thing.ID.eq(Function.subtract(THING_2.qualifyField(Thing.ID), 1)))
+            .innerJoin(THING_3, Thing.ID.eq(Function.subtract(THING_3.qualifyField(Thing.ID), 2)));
 
     public static final Property.LongProperty THING_1_ID = Thing.ID;
     public static final Property.LongProperty THING_2_ID = THING_2.qualifyField(Thing.ID);
