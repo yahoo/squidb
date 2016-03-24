@@ -53,7 +53,7 @@ function runTests () {
 }
 
 function downloadSQLiteAmalgamation () {
-    SQLITE_VERSION="sqlite-amalgamation-3100200"
+    SQLITE_VERSION="sqlite-amalgamation-3110100"
     echo "Downloading $SQLITE_VERSION"
     if [ ! -d $SQUIDB_IOS_NATIVE/sqlite ]
     then

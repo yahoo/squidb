@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SquidDatabaseTest extends DatabaseTestCase {
@@ -90,9 +91,9 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     private void testMigrationFailureCalled(boolean upgrade, boolean shouldThrow,
             boolean shouldRecreateDuringMigration, boolean shouldRecreateOnMigrationFailed) {
-        badDatabase.setShouldThrowDuringMigration(shouldThrow);
-        badDatabase.setShouldRecreateInMigration(shouldRecreateDuringMigration);
-        badDatabase.setShouldRecreateInOnMigrationFailed(shouldRecreateOnMigrationFailed);
+        badDatabase.shouldThrowDuringMigration = shouldThrow;
+        badDatabase.shouldRecreateInMigration = shouldRecreateDuringMigration;
+        badDatabase.shouldRecreateInOnMigrationFailed = shouldRecreateOnMigrationFailed;
 
         // set version manually
         ISQLiteDatabase db = badDatabase.getDatabase();
@@ -102,7 +103,19 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         // close and reopen to trigger an upgrade/downgrade
         badDatabase.onTablesCreatedCalled = false;
         badDatabase.close();
-        badDatabase.getDatabase();
+        RuntimeException caughtException = null;
+        try {
+            badDatabase.getDatabase();
+        } catch (RuntimeException e) {
+            caughtException = e;
+        }
+        // If throwing or returning false from migration but not handling it, we expect getDatabase to also throw
+        // since the DB will not be open after exiting the onMigrationFailed hook
+        if (!shouldRecreateDuringMigration) {
+            assertNotNull(caughtException);
+        } else {
+            assertNull(caughtException);
+        }
 
         assertTrue(upgrade ? badDatabase.onUpgradeCalled : badDatabase.onDowngradeCalled);
         if (shouldRecreateDuringMigration || shouldRecreateOnMigrationFailed) {
@@ -147,10 +160,10 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testExceptionDuringOpenCleansUp() {
-        badDatabase.setShouldThrowDuringMigration(true);
-        badDatabase.setShouldRecreateInMigration(false);
-        badDatabase.setShouldRecreateInOnMigrationFailed(false);
-        badDatabase.setShouldRethrowInOnMigrationFailed(true);
+        badDatabase.shouldThrowDuringMigration = true;
+        badDatabase.shouldRecreateInMigration = true;
+        badDatabase.shouldRecreateInOnMigrationFailed = false;
+        badDatabase.shouldRethrowInOnMigrationFailed = true;
 
         testThrowsException(new Runnable() {
             @Override
@@ -197,20 +210,130 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testCustomMigrationException() {
-        TestDatabase database = new TestDatabase();
+        final TestDatabase database = new TestDatabase();
         ISQLiteDatabase db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
         final int previousVersion = version + 1;
         db.setVersion(previousVersion);
         database.close();
-        database.getDatabase();
+        // Expect an exception here because this DB does not cleanly re-open the DB in case of errors
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                database.getDatabase();
+            }
+        }, RuntimeException.class);
 
         try {
             assertTrue(database.caughtCustomMigrationException);
         } finally {
             database.clear(); // clean up since this is the only test using it
         }
+    }
+
+    public void testRetryOpenDatabase() {
+        badDatabase.clear(); // init opens it, we need a new db
+        final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
+        badDatabase.shouldThrowDuringOpen = true;
+        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+            @Override
+            public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
+                openFailedHandlerCalled.set(true);
+                badDatabase.shouldThrowDuringOpen = false;
+                badDatabase.getDatabase();
+            }
+        };
+        badDatabase.getDatabase();
+        assertTrue(badDatabase.isOpen());
+        assertTrue(openFailedHandlerCalled.get());
+        assertEquals(1, badDatabase.dbOpenFailureCount);
+    }
+
+    public void testRecreateOnOpenFailed() {
+        final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
+        badDatabase.persist(new Employee().setName("Alice"));
+        badDatabase.persist(new Employee().setName("Bob"));
+        badDatabase.persist(new Employee().setName("Cindy"));
+        assertEquals(3, badDatabase.countAll(Employee.class));
+
+        ISQLiteDatabase db = badDatabase.getDatabase();
+        db.setVersion(db.getVersion() + 1);
+        badDatabase.close();
+        badDatabase.shouldThrowDuringMigration = true;
+        badDatabase.shouldRethrowInOnMigrationFailed = true;
+        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+            @Override
+            public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
+                openFailedHandlerCalled.set(true);
+                badDatabase.shouldThrowDuringOpen = false;
+                badDatabase.recreate();
+            }
+        };
+        badDatabase.getDatabase();
+        assertTrue(badDatabase.isOpen());
+        assertTrue(openFailedHandlerCalled.get());
+        assertEquals(1, badDatabase.dbOpenFailureCount);
+        assertEquals(0, badDatabase.countAll(Employee.class));
+    }
+
+    public void testSuppressingDbOpenFailedThrowsRuntimeException() {
+        badDatabase.clear();
+        final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
+        badDatabase.shouldThrowDuringOpen = true;
+        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+            @Override
+            public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
+                openFailedHandlerCalled.set(true);
+            }
+        };
+        testThrowsException(new Runnable() {
+            @Override
+            public void run() {
+                badDatabase.getDatabase();
+            }
+        }, RuntimeException.class);
+        assertTrue(openFailedHandlerCalled.get());
+        assertFalse(badDatabase.isOpen());
+    }
+
+    public void testRecursiveRetryDbOpen() {
+        testRecursiveRetryDbOpen(1, true);
+        testRecursiveRetryDbOpen(1, false);
+        testRecursiveRetryDbOpen(2, true);
+        testRecursiveRetryDbOpen(2, false);
+        testRecursiveRetryDbOpen(3, true);
+        testRecursiveRetryDbOpen(3, false);
+    }
+
+    private void testRecursiveRetryDbOpen(final int maxRetries, final boolean eventualRecovery) {
+        badDatabase.clear();
+        badDatabase.shouldThrowDuringOpen = true;
+        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+            @Override
+            public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
+                if (openFailureCount >= maxRetries) {
+                    badDatabase.shouldThrowDuringOpen = false;
+                    if (!eventualRecovery) {
+                        throw failure;
+                    }
+                }
+                badDatabase.getDatabase();
+            }
+        };
+
+        if (eventualRecovery) {
+            badDatabase.getDatabase();
+        } else {
+            testThrowsException(new Runnable() {
+                @Override
+                public void run() {
+                    badDatabase.getDatabase();
+                }
+            }, RuntimeException.class);
+        }
+        assertEquals(maxRetries, badDatabase.dbOpenFailureCount);
+        assertEquals(eventualRecovery, badDatabase.isOpen());
     }
 
     /**
@@ -222,13 +345,16 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         private boolean onUpgradeCalled = false;
         private boolean onDowngradeCalled = false;
         private boolean onTablesCreatedCalled = false;
+        private int dbOpenFailureCount = 0;
         private int migrationFailedOldVersion = 0;
         private int migrationFailedNewVersion = 0;
 
+        private boolean shouldThrowDuringOpen = false;
         private boolean shouldThrowDuringMigration = false;
         private boolean shouldRecreateInMigration = false;
         private boolean shouldRecreateInOnMigrationFailed = false;
         private boolean shouldRethrowInOnMigrationFailed = false;
+        private DbOpenFailedHandler dbOpenFailedHandler = null;
 
         public BadDatabase() {
             super();
@@ -247,6 +373,9 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         @Override
         protected void onTablesCreated(ISQLiteDatabase db) {
             onTablesCreatedCalled = true;
+            if (shouldThrowDuringOpen) {
+                throw new RuntimeException("Simulating DB open failure");
+            }
         }
 
         @Override
@@ -283,26 +412,25 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             }
         }
 
-        public void setShouldThrowDuringMigration(boolean flag) {
-            shouldThrowDuringMigration = flag;
-        }
-
-        public void setShouldRecreateInMigration(boolean flag) {
-            shouldRecreateInMigration = flag;
-        }
-
-        public void setShouldRecreateInOnMigrationFailed(boolean flag) {
-            shouldRecreateInOnMigrationFailed = flag;
-        }
-
-        public void setShouldRethrowInOnMigrationFailed(boolean flag) {
-            shouldRethrowInOnMigrationFailed = flag;
+        @Override
+        protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
+            dbOpenFailureCount = openFailureCount;
+            if (dbOpenFailedHandler != null) {
+                dbOpenFailedHandler.dbOpenFailed(failure, openFailureCount);
+            } else {
+                super.onDatabaseOpenFailed(failure, openFailureCount);
+            }
         }
 
         @Override
         protected boolean tryAddColumn(Property<?> property) {
             return super.tryAddColumn(property);
         }
+    }
+
+    private interface DbOpenFailedHandler {
+
+        void dbOpenFailed(RuntimeException failure, int openFailureCount);
     }
 
     public void testBasicInsertAndFetch() {

@@ -20,13 +20,11 @@
 
 package org.sqlite.database.sqlite;
 
-import org.sqlite.database.ExtraUtils;
-
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
-
-import android.os.StrictMode;
 import android.util.Log;
+
+import org.sqlite.database.ExtraUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -111,7 +109,6 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         mQuery = query;
 
         mColumns = query.getColumnNames();
-        mRowIdColumnIndex = ExtraUtils.findRowIdColumnIndex(mColumns);
     }
 
     /**
