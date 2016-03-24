@@ -57,7 +57,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a
  * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the database.
- * You can close it again using {@link #close()}.
+ * You can close it again using {@link #close()}. For information about writing migrations or pre-populating a new
+ * database see the {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)} and
+ * {@link #onTablesCreated(SQLiteDatabaseWrapper)} hooks.
  * <p>
  * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
  * get a Cursor, use {@link #query(Class, Query)}.
@@ -154,26 +156,42 @@ public abstract class SquidDatabase {
      *
      * <pre>
      * switch(oldVersion) {
+     * boolean result = true;
      * case 1:
-     *     tryAddColumn(MyModel.NEW_COL_1);
+     *     result &= tryAddColumn(MyModel.NEW_COL_1);
      * case 2:
-     *     tryCreateTable(MyNewModel.TABLE);
+     *     result &= tryCreateTable(MyNewModel.TABLE);
+     * }
+     * return result;
      * </pre>
+     *
+     * If this method returns false or throws an exception, a call to
+     * {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default implementation of
+     * onMigrationFailed rethrows the exception. It is highly recommended that you override onMigrationFailed to handle
+     * errors, for example by calling {@link #recreate()} to delete all data in the database and start from scratch.
+     * More sophisticated recovery logic would require a different means of opening the database file.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
+     * @see {@link #onMigrationFailed(MigrationFailedException)}
      */
     protected abstract boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion);
 
     /**
-     * Called when the database should be downgraded from one version to another
+     * Called when the database should be downgraded from one version to another. If this method returns false or throws
+     * an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
+     * implementation of onMigrationFailed rethrows the exception. It is highly recommended that you override
+     * onMigrationFailed to handle errors, for example by calling {@link #recreate()} to delete all data in the
+     * database and start from scratch. More sophisticated recovery logic would require a different means of opening
+     * the database file.
      *
      * @param db the {@link SQLiteDatabaseWrapper} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
+     * @see {@link #onMigrationFailed(MigrationFailedException)}
      */
     protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
@@ -182,15 +200,51 @@ public abstract class SquidDatabase {
     /**
      * Called to notify of a failure in {@link #onUpgrade(SQLiteDatabaseWrapper, int, int) onUpgrade()} or
      * {@link #onDowngrade(SQLiteDatabaseWrapper, int, int) onDowngrade()}, either because it returned false or because
-     * an unexpected exception occurred. Subclasses can take drastic corrective action here, e.g. recreating the
-     * database with {@link #recreate()}. The default implementation throws an exception.
+     * an unexpected exception occurred.
      * <p>
-     * Note that taking no action here leaves the database in whatever state it was in when the error occurred, which
-     * can result in unexpected errors if callers are allowed to invoke further operations on the database.
+     * The default implementation of this method rethrows the MigrationFailedException parameter. Subclasses can take
+     * drastic corrective action here, e.g. recreating the database with {@link #recreate()}. If instead of calling
+     * recreate() you choose to take other corrective action, you should finish by calling
+     * {@link SQLiteDatabaseWrapper#setVersion(int)} to reflect that you were able to recover and complete the migration
+     * successfully.
+     * <p>
+     * Calling {@link #getDatabase()} or any other DB access method from within this hook is generally unsafe, as the
+     * database is not open when this hook is called, and attempting to reopen it without correcting the problem may
+     * result in recursion, unless you specifically write your {@link #onUpgrade(SQLiteDatabaseWrapper, int, int)}
+     * or {@link #onDowngrade(SQLiteDatabaseWrapper, int, int)} logic to handle such cases. ({@link #recreate()} is
+     * still safe however). You also should not suppress this exception without taking any action. If this method
+     * exits without throwing but the database is not open, another exception will be thrown that is likely to cause
+     * a crash.
+     * <p>
+     * Failures to open the database not caused by an error in the migration flow are handled by
+     * the {@link #onDatabaseOpenFailed(RuntimeException, int)} hook.
      *
      * @param failure details about the upgrade or downgrade that failed
      */
     protected void onMigrationFailed(MigrationFailedException failure) {
+        throw failure;
+    }
+
+    /**
+     * Called if the database has failed to open for any reason. Migration failures should be handled by the
+     * {@link #onMigrationFailed(MigrationFailedException)} hook, but if you do not override that method, migration
+     * failures will be forwarded to this hook instead. Non-migration failures that trigger this hook should be rare:
+     * the result of programming errors, disk I/O failures, or corrupt databases. The default implementation of this
+     * hook rethrows the exception, which will likely cause a crash. If you want to implement more sophisticated
+     * failure handling, reasonable actions might be one or both of the following:
+     * <ul>
+     * <li>Call {@link #getDatabase()} to attempt reopening the database. This is a recursive operation, so it will
+     * increment the retryCount argument if opening fails again. You shouldn't let the retry count grow infinitely,
+     * lest you risk stack overflows.</li>
+     * <li>Call {@link #recreate()} to delete the database file and recreate an empty one</li>
+     * </ul>
+     *
+     * @param openFailureCount the number times this hook has been called, if you've called getDatabase() recursively.
+     * The value will be 1 the first time this hook is called, 2 the second time, and so on.
+     * @param failure the exception that caused opening the database to fail
+     */
+    @Beta
+    protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
         throw failure;
     }
 
@@ -267,8 +321,9 @@ public abstract class SquidDatabase {
      */
     private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap;
 
-    private boolean isInMigration;
-    private boolean isInMigrationFailedHook;
+    private boolean isInMigration = false;
+    private boolean isInMigrationFailedHook = false;
+    private int databaseOpenFailedRetryCount = 0;
 
     /**
      * Create a new SquidDatabase
@@ -374,21 +429,28 @@ public abstract class SquidDatabase {
             helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
         }
 
-        boolean performRecreate = false;
         try {
             try {
                 SQLiteDatabaseWrapper db = helper.openForWriting();
                 setDatabase(db);
             } catch (RecreateDuringMigrationException recreate) {
-                performRecreate = true;
+                recreateLocked();
             } catch (MigrationFailedException fail) {
                 onError(fail.getMessage(), fail);
                 isInMigrationFailedHook = true;
                 try {
+                    // We don't want to be holding on to an invalid DB instance here
+                    if (!isOpen()) {
+                        closeLocked();
+                    }
                     onMigrationFailed(fail);
                 } finally {
                     isInMigrationFailedHook = false;
                 }
+            }
+            if (!isOpen()) {
+                closeLocked();
+                throw new RuntimeException("Failed to open database");
             }
         } catch (RuntimeException e) {
             onError("Failed to open database: " + getName(), e);
@@ -396,11 +458,19 @@ public abstract class SquidDatabase {
             // If any runtime exception occurs, make sure we aren't holding on to a partially open DB instance.
             // It would be invalid if the exception were suppressed accidentally
             closeLocked();
-            throw e;
-        }
 
-        if (performRecreate) {
-            recreateLocked(); // OK to call this here, locks are already held
+            int retryCount = ++databaseOpenFailedRetryCount;
+            try {
+                onDatabaseOpenFailed(e, retryCount);
+                // If this hook exits cleanly but the db still isn't open, the user probably did something bad in
+                // the hook, so we should clean up and rethrow
+                if (!isOpen()) {
+                    closeLocked();
+                    throw e;
+                }
+            } finally {
+                databaseOpenFailedRetryCount = 0;
+            }
         }
     }
 
@@ -601,7 +671,7 @@ public abstract class SquidDatabase {
     public final void recreate() {
         if (isInMigration) {
             throw new RecreateDuringMigrationException();
-        } else if (isInMigrationFailedHook) {
+        } else if (isInMigrationFailedHook || databaseOpenFailedRetryCount > 0) {
             recreateLocked(); // Safe to call here, necessary locks are already held in this case
         } else {
             acquireExclusiveLock();
