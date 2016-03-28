@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 
 public class TypeConstants {
 
@@ -23,6 +24,17 @@ public class TypeConstants {
             .asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
     public static final List<Modifier> PRIVATE_STATIC_FINAL = Arrays
             .asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+    public static final List<Modifier> STATIC_FINAL = Arrays
+            .asList(Modifier.STATIC, Modifier.FINAL);
+
+    public static boolean isConstant(VariableElement field) {
+        Set<Modifier> modifiers = field.getModifiers();
+        return modifiers != null && modifiers.containsAll(STATIC_FINAL);
+    }
+
+    public static boolean isVisibleConstant(VariableElement field) {
+        return isConstant(field) && !field.getModifiers().contains(Modifier.PRIVATE);
+    }
 
     public static final String SQUIDB_PACKAGE = "com.yahoo.squidb";
     public static final String SQUIDB_SQL_PACKAGE = SQUIDB_PACKAGE + ".sql";

@@ -32,6 +32,8 @@ public class TestModelSpec {
     public static final String STRING_CONST = "Hello";
     public static final Map<String, Property<?>> CONST_MAP = new HashMap<String, Property<?>>();
 
+    static final String PACKAGE_PROTECTED_CONST = "somePackageProtectedConst";
+
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
 

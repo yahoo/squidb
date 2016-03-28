@@ -36,7 +36,7 @@ public class EnumFieldReferencePlugin extends FieldReferencePlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        return field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)
+        return TypeConstants.isVisibleConstant(field)
                 && TypeConstants.ENUM_PROPERTY.equals(fieldType);
     }
 

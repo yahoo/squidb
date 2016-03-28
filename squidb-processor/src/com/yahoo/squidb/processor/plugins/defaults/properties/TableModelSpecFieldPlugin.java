@@ -24,9 +24,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.Propert
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
@@ -52,9 +50,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
-        Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            // Might be a constant, ignore
+        if (TypeConstants.isConstant(field)) {
+            // Looks like a constant, ignore
             return false;
         } else {
             if (field.getAnnotation(PrimaryKey.class) != null) {
