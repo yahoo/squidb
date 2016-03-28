@@ -154,4 +154,8 @@ public class ModelTest extends DatabaseTestCase {
         TestModel fromDatabase = new TestModel(cursor);
         assertEquals(enumValue, fromDatabase.getSomeEnum());
     }
+
+    public void testNonPublicConstantCopying() {
+        assertEquals("somePackageProtectedConst", TestModel.PACKAGE_PROTECTED_CONST);
+    }
 }

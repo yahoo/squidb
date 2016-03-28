@@ -36,6 +36,8 @@ public class TestModelSpec {
     public static final Map<String, Property<?>> CONST_MAP = new HashMap<String, Property<?>>();
     public static final Order DEFAULT_ORDER = TestModel.FIRST_NAME.asc();
 
+    static final String PACKAGE_PROTECTED_CONST = "somePackageProtectedConst";
+
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
 

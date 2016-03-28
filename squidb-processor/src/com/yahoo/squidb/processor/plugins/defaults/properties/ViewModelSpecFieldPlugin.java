@@ -13,9 +13,6 @@ import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
-import java.util.Set;
-
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
@@ -39,8 +36,7 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
         boolean isViewProperty = TypeConstants.isBasicPropertyType(fieldType);
         ViewQuery isViewQuery = field.getAnnotation(ViewQuery.class);
-        Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
+        if (TypeConstants.isVisibleConstant(field)) {
             if (isViewQuery != null) {
                 if (!TypeConstants.QUERY.equals(fieldType)) {
                     utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
