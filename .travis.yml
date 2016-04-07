@@ -28,7 +28,7 @@ matrix:
 android:
   components:
     - tools
-    - build-tools-23.0.2
+    - build-tools-23.0.3
     - android-15
     - sys-img-armeabi-v7a-android-15
     - android-16
