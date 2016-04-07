@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.0.0'
         if (gradle.gradleVersion.startsWith('2.2') || gradle.gradleVersion.startsWith('2.3')) {
             classpath 'com.github.dcendents:android-maven-plugin:1.2'
         } else {
@@ -27,7 +27,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     sourceSets {
         main {
@@ -51,7 +51,7 @@ android {
 
 dependencies {
     compile project(':squidb')
-    compile 'com.android.support:recyclerview-v7:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'
