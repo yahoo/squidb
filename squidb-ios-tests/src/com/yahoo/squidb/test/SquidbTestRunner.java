@@ -269,7 +269,7 @@ public class SquidbTestRunner {
                                                    }
                                                    }
                                                    }
-                                                   @catch (JavaLangThrowable *t) {
+                                                   @catch (NSException *t) {
                                                    // Ignore any exceptions thrown by class initialization.
                                                    }
                                                    }
