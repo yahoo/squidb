@@ -51,7 +51,7 @@ android {
 
 dependencies {
     compile project(':squidb')
-    compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.android.support:support-v4:23.2.1'
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'
