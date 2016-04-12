@@ -429,6 +429,8 @@ public abstract class SquidDatabase {
             helper = getOpenHelper(context, getName(), new OpenHelperDelegate(), getVersion());
         }
 
+        boolean areDataChangedNotificationsEnabled = areDataChangedNotificationsEnabled();
+        setDataChangedNotificationsEnabled(false);
         try {
             try {
                 SQLiteDatabaseWrapper db = helper.openForWriting();
@@ -471,6 +473,8 @@ public abstract class SquidDatabase {
             } finally {
                 databaseOpenFailedRetryCount = 0;
             }
+        } finally {
+            setDataChangedNotificationsEnabled(areDataChangedNotificationsEnabled);
         }
     }
 
@@ -2115,6 +2119,13 @@ public abstract class SquidDatabase {
      */
     public void setDataChangedNotificationsEnabled(boolean enabled) {
         dataChangedNotificationsEnabled = enabled;
+    }
+
+    /**
+     * @return true if data change notifications are enabled for this database; false otherwise
+     */
+    public boolean areDataChangedNotificationsEnabled() {
+        return dataChangedNotificationsEnabled;
     }
 
     private void notifyForTable(DataChangedNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table,
