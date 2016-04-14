@@ -158,9 +158,9 @@ public abstract class SquidDatabase {
      * switch(oldVersion) {
      * boolean result = true;
      * case 1:
-     *     result &= tryAddColumn(MyModel.NEW_COL_1);
+     *     result &amp;= tryAddColumn(MyModel.NEW_COL_1);
      * case 2:
-     *     result &= tryCreateTable(MyNewModel.TABLE);
+     *     result &amp;= tryCreateTable(MyNewModel.TABLE);
      * }
      * return result;
      * </pre>
