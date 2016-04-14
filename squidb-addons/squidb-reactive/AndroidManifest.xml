@@ -7,8 +7,8 @@
  *-->
 <manifest package="com.yahoo.squidb.reactive"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="6"
-    android:versionName="2.0.2">
+    android:versionCode="7"
+    android:versionName="2.0.3">
 
     <uses-sdk android:minSdkVersion="14" />
 
