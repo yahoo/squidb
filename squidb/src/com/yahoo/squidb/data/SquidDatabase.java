@@ -743,8 +743,10 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#insert(String table, String nullColumnHack, ContentValues values)
      */
+    @Deprecated
     protected long insert(String table, String nullColumnHack, ContentValues values) {
         acquireNonExclusiveLock();
         try {
@@ -755,8 +757,10 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#insertOrThrow(String table, String nullColumnHack, ContentValues values)
      */
+    @Deprecated
     protected long insertOrThrow(String table, String nullColumnHack, ContentValues values) {
         acquireNonExclusiveLock();
         try {
@@ -767,8 +771,10 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#insertWithOnConflict(String, String, android.content.ContentValues, int)
      */
+    @Deprecated
     protected long insertWithOnConflict(String table, String nullColumnHack, ContentValues values,
             int conflictAlgorithm) {
         acquireNonExclusiveLock();
@@ -796,9 +802,11 @@ public abstract class SquidDatabase {
 
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
+     * <br>
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#delete(String, String, String[])
      */
+    @Deprecated
     protected int delete(String table, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
         try {
@@ -825,9 +833,11 @@ public abstract class SquidDatabase {
 
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
+     * <br>
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#update(String table, ContentValues values, String whereClause, String[] whereArgs)
      */
+    @Deprecated
     protected int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         acquireNonExclusiveLock();
         try {
@@ -839,10 +849,12 @@ public abstract class SquidDatabase {
 
     /**
      * See the note at the top of this file about the potential bugs when using String[] whereArgs
-     *
+     * <br>
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @see SQLiteDatabase#updateWithOnConflict(String table, ContentValues values, String whereClause, String[]
      * whereArgs, int conflictAlgorithm)
      */
+    @Deprecated
     protected int updateWithOnConflict(String table, ContentValues values, String whereClause, String[] whereArgs,
             int conflictAlgorithm) {
         acquireNonExclusiveLock();
@@ -1045,9 +1057,11 @@ public abstract class SquidDatabase {
     /**
      * Convenience method for calling {@link ContentResolver#notifyChange(Uri, android.database.ContentObserver)
      * ContentResolver.notifyChange(uri, null)}.
-     *
+     * <br>
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @param uri the Uri to notify
      */
+    @Deprecated
     public void notifyChange(Uri uri) {
         context.getContentResolver().notifyChange(uri, null);
     }
@@ -1055,9 +1069,11 @@ public abstract class SquidDatabase {
     /**
      * Convenience method for calling {@link ContentResolver#notifyChange(Uri, android.database.ContentObserver)
      * ContentResolver.notifyChange(uri, null)} on all the provided Uris.
-     *
+     * <br>
+     * This method is deprecated and will be removed in SquiDB 3.0
      * @param uris the Uris to notify
      */
+    @Deprecated
     public void notifyChange(Collection<Uri> uris) {
         if (uris != null && !uris.isEmpty()) {
             ContentResolver resolver = context.getContentResolver();
