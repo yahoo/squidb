@@ -129,9 +129,9 @@ public abstract class SquidDatabase {
      * switch(oldVersion) {
      * boolean result = true;
      * case 1:
-     *     result &= tryAddColumn(MyModel.NEW_COL_1);
+     *     result &amp;= tryAddColumn(MyModel.NEW_COL_1);
      * case 2:
-     *     result &= tryCreateTable(MyNewModel.TABLE);
+     *     result &amp;= tryCreateTable(MyNewModel.TABLE);
      * }
      * return result;
      * </pre>
@@ -146,7 +146,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
-     * @see {@link #onMigrationFailed(MigrationFailedException)}
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected abstract boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion);
 
@@ -162,7 +162,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
-     * @see {@link #onMigrationFailed(MigrationFailedException)}
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
@@ -407,6 +407,8 @@ public abstract class SquidDatabase {
     }
 
     private void openForWritingLocked() {
+        boolean areDataChangedNotificationsEnabled = areDataChangedNotificationsEnabled();
+        setDataChangedNotificationsEnabled(false);
         try {
             try {
                 ISQLiteDatabase db = getOpenHelper().openForWriting();
@@ -449,6 +451,8 @@ public abstract class SquidDatabase {
             } finally {
                 databaseOpenFailedRetryCount = 0;
             }
+        } finally {
+            setDataChangedNotificationsEnabled(areDataChangedNotificationsEnabled);
         }
     }
 
@@ -2030,6 +2034,13 @@ public abstract class SquidDatabase {
      */
     public void setDataChangedNotificationsEnabled(boolean enabled) {
         dataChangedNotificationsEnabled = enabled;
+    }
+
+    /**
+     * @return true if data change notifications are enabled for this database; false otherwise
+     */
+    public boolean areDataChangedNotificationsEnabled() {
+        return dataChangedNotificationsEnabled;
     }
 
     private void notifyForTable(DataChangedNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table,

@@ -1,8 +1,18 @@
 Change Log
 ==========
 
+Version 2.0.3 *(2016-04-15)*
+----------------------------
+* Add the ability to use enum types in column definitions. Enums properties serialize their values to strings for storage
+* Significantly improved some internal locking code so that it is safe to call `close()`/`clear()`/`recreate()` on a SquidDatabase from any thread. These methods will now block if any transactions are ongoing to ensure that the database cannot be closed from one thread while another is writing to it
+* Add an experimental hook `onDatabaseOpenFailed()` that allows users to attempt to recover if the database could not be opened for a reason other than a failed migration. This hook is considered beta and experimental, so it may change in the future
+* Fix a bug in the code generator that would generate column definitions from `private static final` fields in model specs
+* Fix a bug where data changed notifiers could be triggered during database open if database writes occurred during any of the open or upgrade hooks
+* Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.12.1
+* Deprecated a few methods in SquidDatabase that will be removed in SquiDB 3.0
+
 Version 2.0.2 *(2015-12-10)*
----------------------------
+----------------------------
 * Adjustment to code generation so that constants are written after schema declaration. This allows constants to be defined in terms of Property objects in the generated model (e.g. `public static final Order DEFAULT_ORDER = Model.TIMESTAMP.asc()`). Also introduces the `@Constants` annotation, which allows annotating a static inner class of constants in a model spec for when class loading order is important (as it is in ViewModels).
 * Add some utilities for logging the contents of a cursor in a formatted way (see `SquidUtilities.dumpCursor`)
 * Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.9.2

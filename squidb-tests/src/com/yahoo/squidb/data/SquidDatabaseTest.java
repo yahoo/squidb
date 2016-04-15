@@ -337,6 +337,53 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(eventualRecovery, badDatabase.isOpen());
     }
 
+    public void testDataChangeNotifiersDisabledDuringDbOpen() {
+        testDataChangeNotifiersDisabledDuringDbOpen(true, true);
+        testDataChangeNotifiersDisabledDuringDbOpen(true, false);
+        testDataChangeNotifiersDisabledDuringDbOpen(false, true);
+        testDataChangeNotifiersDisabledDuringDbOpen(false, false);
+    }
+
+    private void testDataChangeNotifiersDisabledDuringDbOpen(boolean startEnabled, final boolean openFailure) {
+        final AtomicBoolean notifierCalled = new AtomicBoolean();
+        final AtomicBoolean failOnOpen = new AtomicBoolean(openFailure);
+        SimpleDataChangedNotifier simpleNotifier = new SimpleDataChangedNotifier(Thing.TABLE) {
+            @Override
+            protected void onDataChanged() {
+                notifierCalled.set(true);
+            }
+        };
+        TestDatabase testDb = new TestDatabase() {
+            @Override
+            public String getName() {
+                return super.getName() + "2";
+            }
+
+            @Override
+            protected void onTablesCreated(ISQLiteDatabase db) {
+                super.onTablesCreated(db);
+                persist(new Thing().setFoo("foo").setBar(1));
+                if (failOnOpen.getAndSet(false)) {
+                    throw new RuntimeException("Failed to open db");
+                }
+            }
+
+            @Override
+            protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
+                getDatabase();
+            }
+        };
+        testDb.setDataChangedNotificationsEnabled(startEnabled);
+        testDb.registerDataChangedNotifier(simpleNotifier);
+        testDb.getDatabase();
+        assertFalse(notifierCalled.get());
+        assertEquals(1, testDb.countAll(Thing.class));
+        assertEquals(startEnabled, testDb.areDataChangedNotificationsEnabled());
+        testDb.persist(new Thing().setFoo("foo2").setBar(2));
+        assertEquals(startEnabled, notifierCalled.get());
+        testDb.clear();
+    }
+
     /**
      * {@link TestDatabase} that intentionally fails in onUpgrade and onDowngrade
      */
