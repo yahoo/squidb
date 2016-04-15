@@ -158,9 +158,9 @@ public abstract class SquidDatabase {
      * switch(oldVersion) {
      * boolean result = true;
      * case 1:
-     *     result &= tryAddColumn(MyModel.NEW_COL_1);
+     *     result &amp;= tryAddColumn(MyModel.NEW_COL_1);
      * case 2:
-     *     result &= tryCreateTable(MyNewModel.TABLE);
+     *     result &amp;= tryCreateTable(MyNewModel.TABLE);
      * }
      * return result;
      * </pre>
@@ -175,7 +175,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
-     * @see {@link #onMigrationFailed(MigrationFailedException)}
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected abstract boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion);
 
@@ -191,7 +191,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
-     * @see {@link #onMigrationFailed(MigrationFailedException)}
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
