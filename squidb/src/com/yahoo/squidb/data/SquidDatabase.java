@@ -175,7 +175,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being upgraded to
      * @return true if the upgrade was handled successfully, false otherwise
-     * @see onMigrationFailed(MigrationFailedException)
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected abstract boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion);
 
@@ -191,7 +191,7 @@ public abstract class SquidDatabase {
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
      * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
-     * @see onMigrationFailed(MigrationFailedException)
+     * @see #onMigrationFailed(MigrationFailedException)
      */
     protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
         return true;
