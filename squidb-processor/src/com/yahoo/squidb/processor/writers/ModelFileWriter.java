@@ -132,7 +132,8 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     private void beginClassDeclaration() throws IOException {
         writer.writeComment("Generated code -- do not modify!");
-        writer.writeComment("This class was generated from the model spec at " + modelSpec.getModelSpecName());
+        writer.writeString("/** This class was generated from the model spec at {@link "
+                + modelSpec.getModelSpecName() + "} */\n");
         if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
