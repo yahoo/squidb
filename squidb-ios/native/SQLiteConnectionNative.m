@@ -353,7 +353,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
             return [NSString stringWithCharacters:chars];
         }
     }
-    return NULL;
+    return nil;
 }
 
 + (jint) nativeExecuteForChangedRowCount:(NSObject *)connectionPtr statement:(NSObject *)statementPtr {

@@ -115,7 +115,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
-        return NULL;
+        return nil;
     }
 
     int32_t type = fieldSlot->type;
@@ -127,7 +127,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         if (!byteArray) {
 //            env->ExceptionClear();
             throw_sqlite3_exception_message(NULL, "Native could not create new byte[]");
-            return NULL;
+            return nil;
         }
 //        env->SetByteArrayRegion(byteArray, 0, size, static_cast<const jbyte*>(value));
         return byteArray;
@@ -140,7 +140,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     } else {
         throwUnknownTypeException(type);
     }
-    return NULL;
+    return nil;
 }
 
 + (NSString *)nativeGetString:(NSObject *)windowPtr row:(jint)row column:(jint)column {
@@ -150,7 +150,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     struct FieldSlot *fieldSlot = [window getFieldSlot:row column:column];
     if (!fieldSlot) {
         throwExceptionWithRowCol(row, column);
-        return NULL;
+        return nil;
     }
 
     int32_t type = fieldSlot->type;
@@ -175,13 +175,13 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
         double value = fieldSlot->data.d;
         return [NSString stringWithFormat:@"%f", value];
     } else if (type == FIELD_TYPE_NULL) {
-        return NULL;
+        return nil;
     } else if (type == FIELD_TYPE_BLOB) {
         throw_sqlite3_exception_message(NULL, "Unable to convert BLOB to string");
-        return NULL;
+        return nil;
     } else {
         throwUnknownTypeException(type);
-        return NULL;
+        return nil;
     }
 }
 
