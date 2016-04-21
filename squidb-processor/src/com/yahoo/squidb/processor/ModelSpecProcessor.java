@@ -107,10 +107,9 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                                 .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                     }
                 }
-            }
-            else {
-                utils.getMessager()
-                        .printMessage(Kind.WARNING, "Skipping unsupported annotation received by processor: " + annotationType);
+            } else {
+                utils.getMessager().printMessage(Kind.WARNING,
+                        "Skipping unsupported annotation received by processor: " + annotationType);
             }
         }
 
