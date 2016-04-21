@@ -5,15 +5,12 @@
  */
 package com.yahoo.squidb.data;
 
-import android.util.Log;
-
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
-import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -235,11 +232,9 @@ public abstract class ViewModel extends AbstractModel {
                         return (TableModelMappingVisitor<T>) visitor;
                     }
                 } else {
-                    // Log an error and return null
-                    Log.e(SquidUtilities.LOG_TAG, "Attempted to mapToModel for class " + cls + ", but multiple" +
-                            " table aliases were found and none was specified. Use ViewModel.mapToModel(Class, " +
-                            "SqlTable) with a non-null second argument");
-                    return null;
+                    throw new UnsupportedOperationException("Attempted to mapToModel for class " + cls +
+                            ", but multiple table aliases were found and none was specified. Use " +
+                            "ViewModel.mapToModel(Class, SqlTable) with a non-null second argument");
                 }
             } else {
                 return (TableModelMappingVisitor<T>) visitors.get(table);
