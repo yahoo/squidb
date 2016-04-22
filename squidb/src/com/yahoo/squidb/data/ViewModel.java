@@ -232,7 +232,7 @@ public abstract class ViewModel extends AbstractModel {
                         return (TableModelMappingVisitor<T>) visitor;
                     }
                 } else {
-                    throw new UnsupportedOperationException("Attempted to mapToModel for class " + cls +
+                    throw new IllegalArgumentException("Attempted to mapToModel for class " + cls +
                             ", but multiple table aliases were found and none was specified. Use " +
                             "ViewModel.mapToModel(Class, SqlTable) with a non-null second argument");
                 }
