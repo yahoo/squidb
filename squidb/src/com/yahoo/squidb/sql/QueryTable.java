@@ -14,8 +14,9 @@ abstract class QueryTable extends SqlTable<ViewModel> {
 
     final Query query;
 
-    protected QueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
-        super(modelClass, properties, name);
+    protected QueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name,
+            String databaseName, Query query) {
+        super(modelClass, properties, name, databaseName);
         this.query = query;
     }
 

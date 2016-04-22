@@ -13,7 +13,7 @@ import com.yahoo.squidb.data.ViewModel;
 public class SubqueryTable extends QueryTable {
 
     private SubqueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
-        super(modelClass, properties, name, query);
+        super(modelClass, properties, name, null, query);
     }
 
     /**
