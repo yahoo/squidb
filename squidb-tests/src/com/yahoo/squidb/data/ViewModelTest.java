@@ -308,6 +308,8 @@ public class ViewModelTest extends DatabaseTestCase {
                 assertEquals(allReadThings.get(0).getId(), readThing1.getId());
                 assertEquals(allReadThings.get(0).getFoo(), readThing1.getFoo());
                 assertEquals(allReadThings.get(0).getBar(), readThing1.getBar());
+                assertEquals(things[position], readThing1);
+                assertEquals(allReadThings.get(0), readThing1);
 
                 assertEquals(things[position + 1].getId(), readThing2.getId());
                 assertEquals(things[position + 1].getFoo(), readThing2.getFoo());
@@ -315,6 +317,8 @@ public class ViewModelTest extends DatabaseTestCase {
                 assertEquals(allReadThings.get(1).getId(), readThing2.getId());
                 assertEquals(allReadThings.get(1).getFoo(), readThing2.getFoo());
                 assertEquals(allReadThings.get(1).getBar(), readThing2.getBar());
+                assertEquals(things[position + 1], readThing2);
+                assertEquals(allReadThings.get(1), readThing2);
 
                 assertEquals(things[position + 2].getId(), readThing3.getId());
                 assertEquals(things[position + 2].getFoo(), readThing3.getFoo());
@@ -322,6 +326,8 @@ public class ViewModelTest extends DatabaseTestCase {
                 assertEquals(allReadThings.get(2).getId(), readThing3.getId());
                 assertEquals(allReadThings.get(2).getFoo(), readThing3.getFoo());
                 assertEquals(allReadThings.get(2).getBar(), readThing3.getBar());
+                assertEquals(things[position + 2], readThing3);
+                assertEquals(allReadThings.get(2), readThing3);
 
             }
         } finally {
