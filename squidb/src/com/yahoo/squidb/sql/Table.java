@@ -19,7 +19,7 @@ import com.yahoo.squidb.utility.VersionCode;
 public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
-    private LongProperty idProperty;
+    protected LongProperty idProperty;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
         this(modelClass, properties, name, null);

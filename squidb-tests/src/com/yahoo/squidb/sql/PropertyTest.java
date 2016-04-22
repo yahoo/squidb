@@ -88,11 +88,11 @@ public class PropertyTest extends DatabaseTestCase {
     }
 
     public void testAliasedTableAliasesAllProperties() {
-        Table testModelAlias = TestModel.TABLE.as("testModelAlias");
-        LongProperty testModelAliasId = testModelAlias.getIdProperty();
-        assertEquals("testModelAlias._id", testModelAliasId.getQualifiedExpression());
-
         testTableAndViewAliasing(TestModel.class, TestModel.TABLE);
+    }
+
+    public void testAliasedVirtualTableAliasesAllProperties() {
+        testTableAndViewAliasing(TestVirtualModel.class, TestVirtualModel.TABLE);
     }
 
     public void testAliasedViewAliasesAllProperties() {
@@ -103,9 +103,14 @@ public class PropertyTest extends DatabaseTestCase {
         testTableAndViewAliasing(TestSubqueryModel.class, TestSubqueryModel.SUBQUERY);
     }
 
-    private <T extends SqlTable<?>> void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass,
-            T tableOrView) {
-        T testModelAlias = (T) tableOrView.as("testModelAlias");
+    private void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass,
+            SqlTable<?> tableOrView) {
+        SqlTable<?> testModelAlias = tableOrView.as("testModelAlias");
+        if (testModelAlias instanceof Table) {
+            LongProperty testModelAliasId = ((Table) testModelAlias).getIdProperty();
+            String idName = testModelAlias instanceof VirtualTable ? "rowid" : "_id";
+            assertEquals("testModelAlias." + idName, testModelAliasId.getQualifiedExpression());
+        }
 
         Property<?>[] originalProperties = tableOrView.getProperties();
         Property<?>[] aliasedProperties = testModelAlias.getProperties();
