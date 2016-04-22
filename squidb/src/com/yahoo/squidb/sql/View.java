@@ -76,14 +76,12 @@ public class View extends QueryTable {
 
     @Override
     public View as(String newAlias) {
-        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
-        View result = new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
-        if (newProperties != null) {
-            for (int i = 0; i < newProperties.length; i++) {
-                newProperties[i] = result.qualifyField(properties[i]);
-            }
-        }
-        return result;
+        return (View) super.as(newAlias);
+    }
+
+    @Override
+    protected View asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
     }
 
     /**

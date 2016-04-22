@@ -42,6 +42,16 @@ public class SubqueryTable extends QueryTable {
     }
 
     @Override
+    public SubqueryTable as(String newAlias) {
+        return (SubqueryTable) super.as(newAlias);
+    }
+
+    @Override
+    protected SubqueryTable asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new SubqueryTable(modelClass, newProperties, newAlias, query);
+    }
+
+    @Override
     void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("(");
         query.appendToSqlBuilder(builder, forSqlValidation);

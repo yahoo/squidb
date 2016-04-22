@@ -113,4 +113,18 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
         return properties;
     }
 
+    @Override
+    public SqlTable<T> as(String newAlias) {
+        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
+        SqlTable<T> result = asNewAliasWithPropertiesArray(newAlias, newProperties);
+        if (newProperties != null) {
+            for (int i = 0; i < newProperties.length; i++) {
+                newProperties[i] = result.qualifyField(properties[i]);
+            }
+        }
+        return result;
+    }
+
+    protected abstract SqlTable<T> asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties);
+
 }

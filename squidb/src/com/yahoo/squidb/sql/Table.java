@@ -50,15 +50,14 @@ public class Table extends SqlTable<TableModel> {
 
     @Override
     public Table as(String newAlias) {
-        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
-        Table result = new Table(modelClass, newProperties, getExpression(), qualifier, tableConstraint, newAlias);
-        if (newProperties != null) {
-            for (int i = 0; i < newProperties.length; i++) {
-                newProperties[i] = result.qualifyField(properties[i]);
-            }
-        }
+        Table result = (Table) super.as(newAlias);
         result.idProperty = idProperty == null ? null : result.qualifyField(idProperty);
         return result;
+    }
+
+    @Override
+    protected Table asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new Table(modelClass, newProperties, getExpression(), qualifier, tableConstraint, newAlias);
     }
 
     /**
