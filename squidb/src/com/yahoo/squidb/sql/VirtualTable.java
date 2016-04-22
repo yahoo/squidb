@@ -42,12 +42,19 @@ public class VirtualTable extends Table {
 
     @Override
     public VirtualTable qualifiedFromDatabase(String databaseName) {
-        return new VirtualTable(modelClass, properties, getExpression(), databaseName, moduleName, alias);
+        VirtualTable result = new VirtualTable(modelClass, properties, getExpression(), databaseName, moduleName, alias);
+        result.idProperty = idProperty;
+        return result;
     }
 
     @Override
     public VirtualTable as(String newAlias) {
-        return new VirtualTable(modelClass, properties, getExpression(), qualifier, moduleName, newAlias);
+        return (VirtualTable) super.as(newAlias);
+    }
+
+    @Override
+    protected VirtualTable asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new VirtualTable(modelClass, newProperties, getExpression(), qualifier, moduleName, newAlias);
     }
 
     /**

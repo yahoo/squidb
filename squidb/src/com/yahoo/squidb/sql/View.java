@@ -15,9 +15,10 @@ public class View extends QueryTable {
 
     private boolean temporary;
 
-    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression, Query query,
-            boolean temporary) {
-        super(modelClass, properties, expression, query);
+    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression,
+            String databaseName, String alias, Query query, boolean temporary) {
+        super(modelClass, properties, expression, databaseName, query);
+        this.alias = alias;
         this.temporary = temporary;
     }
 
@@ -42,7 +43,7 @@ public class View extends QueryTable {
      */
     public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
             Property<?>[] properties) {
-        return new View(modelClass, properties, name, query, false);
+        return new View(modelClass, properties, name, null, null, query, false);
     }
 
     /**
@@ -66,7 +67,21 @@ public class View extends QueryTable {
      */
     public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
             Property<?>[] properties) {
-        return new View(modelClass, properties, name, query, true);
+        return new View(modelClass, properties, name, null, null, query, true);
+    }
+
+    public View qualifiedFromDatabase(String databaseName) {
+        return new View(modelClass, properties, getExpression(), databaseName, alias, query, temporary);
+    }
+
+    @Override
+    public View as(String newAlias) {
+        return (View) super.as(newAlias);
+    }
+
+    @Override
+    protected View asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
     }
 
     /**
