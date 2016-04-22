@@ -18,6 +18,7 @@ import com.yahoo.squidb.test.Thing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -250,8 +251,8 @@ public class QueryTest extends DatabaseTestCase {
         int rowsWithManager = database.count(Employee.class, Employee.MANAGER_ID.gt(0));
         assertEquals(5, rowsWithManager);
 
-        List<String> resultEmployees = new ArrayList<String>(5);
-        List<String> resultManagers = new ArrayList<String>(5);
+        List<String> resultEmployees = new ArrayList<>(5);
+        List<String> resultManagers = new ArrayList<>(5);
         resultEmployees.add(cookieMonster.getName());
         resultManagers.add(bigBird.getName());
         resultEmployees.add(elmo.getName());
@@ -440,7 +441,7 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testReusableQuery() {
-        AtomicReference<String> name = new AtomicReference<String>();
+        AtomicReference<String> name = new AtomicReference<>();
         Query query = Query.select().where(Employee.NAME.eq(name));
         testReusableQueryInternal(name, "bigBird", query);
         testReusableQueryInternal(name, "cookieMonster", query);
@@ -520,7 +521,7 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testReusableQueryWithInCriterion() {
-        Set<String> collection = new HashSet<String>();
+        Set<String> collection = new HashSet<>();
         Query query = Query.select().where(Employee.NAME.in(collection));
         testReusableQueryWithInCriterionInternal(collection, query, "bigBird", "cookieMonster", "elmo");
         testReusableQueryWithInCriterionInternal(collection, query, "bigBird", "cookieMonster");
@@ -545,7 +546,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testQueryWithMaxSqlArgs() {
         int numRows = SqlStatement.MAX_VARIABLE_NUMBER + 1;
-        Set<Long> rowIds = new HashSet<Long>();
+        Set<Long> rowIds = new HashSet<>();
 
         database.beginTransaction();
         try {
@@ -615,7 +616,7 @@ public class QueryTest extends DatabaseTestCase {
         long end = System.currentTimeMillis();
         System.err.println("Unoptimized took " + (end - start) + " millis");
 
-        AtomicReference<String> reference = new AtomicReference<String>();
+        AtomicReference<String> reference = new AtomicReference<>();
         Query query = Query.select().where(Employee.NAME.eq(reference));
         start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
@@ -628,11 +629,11 @@ public class QueryTest extends DatabaseTestCase {
 
     public void x_testReusableListQueryPerformance() {
         List<?>[] testSets = {
-                Arrays.asList(new String[]{"bigBird", "cookieMonster", "elmo"}),
-                Arrays.asList(new String[]{"bigBird", "cookieMonster"}),
-                Arrays.asList(new String[]{"bert", "ernie"}),
-                Arrays.asList(new String[]{"oscar"}),
-                Arrays.asList(new String[]{})
+                Arrays.asList("bigBird", "cookieMonster", "elmo"),
+                Arrays.asList("bigBird", "cookieMonster"),
+                Arrays.asList("bert", "ernie"),
+                Collections.singletonList("oscar"),
+                Collections.emptyList()
         };
 
         int numIterations = 10000;
@@ -649,7 +650,7 @@ public class QueryTest extends DatabaseTestCase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        AtomicReference<Collection<?>> ref = new AtomicReference<Collection<?>>();
+        AtomicReference<Collection<?>> ref = new AtomicReference<>();
         Query query = Query.select().where(Employee.NAME.in(ref));
         start = System.currentTimeMillis();
         for (int i = 0; i < numIterations; i++) {
@@ -776,7 +777,7 @@ public class QueryTest extends DatabaseTestCase {
 
     private void testJoinWithUsingClauseInternal(boolean leftJoin) {
         final String separator = "|";
-        final Map<Long, String> expectedResults = new HashMap<Long, String>();
+        final Map<Long, String> expectedResults = new HashMap<>();
         expectedResults.put(cookieMonster.getId(), "2|3|4");
         expectedResults.put(elmo.getId(), "2|3|4");
         expectedResults.put(oscar.getId(), "2|3|4");

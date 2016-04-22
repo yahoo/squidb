@@ -306,8 +306,8 @@ public class TriggerTest extends DatabaseTestCase {
         database.tryExecSql(compiledLogDelete.sql, compiledLogDelete.sqlArgs);
         database.tryExecSql(compiledLogUpdate.sql, compiledLogUpdate.sqlArgs);
 
-        List<Integer> expectedBefore = new ArrayList<Integer>(10);
-        List<Integer> expectedAfter = new ArrayList<Integer>(10);
+        List<Integer> expectedBefore = new ArrayList<>(10);
+        List<Integer> expectedAfter = new ArrayList<>(10);
 
         // insert
         final int randomLuckyNumber = (int) (Math.random() * 1000);
