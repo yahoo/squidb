@@ -169,7 +169,7 @@ public class ContentProviderQueryBuilder {
             }
             if (projectionIn != null && projectionIn.length > 0) {
                 // convert what we're given to Fields
-                projection = new ArrayList<Field<?>>(projectionIn.length);
+                projection = new ArrayList<>(projectionIn.length);
                 for (String expression : projectionIn) {
                     projection.add(Field.field(expression));
                 }
@@ -179,7 +179,7 @@ public class ContentProviderQueryBuilder {
                 projection = projectionMap.getDefaultProjection();
             } else {
                 // convert projection elements, ignoring ones not in the projection map
-                projection = new ArrayList<Field<?>>(projectionIn.length);
+                projection = new ArrayList<>(projectionIn.length);
                 for (String expression : projectionIn) {
                     Field<?> column = projectionMap.get(expression);
                     if (column != null) {

@@ -22,7 +22,7 @@ public final class SqlBuilder {
 
     SqlBuilder(VersionCode sqliteVersion, boolean withBoundArguments) {
         this.sqliteVersion = sqliteVersion;
-        this.args = withBoundArguments ? new ArrayList<Object>() : null;
+        this.args = withBoundArguments ? new ArrayList<>() : null;
     }
 
     /**

@@ -22,8 +22,8 @@ public class Update extends TableStatement {
 
     private final SqlTable<?> table;
     private ConflictAlgorithm conflictAlgorithm = ConflictAlgorithm.NONE;
-    private final Map<String, Object> valuesToUpdate = new HashMap<String, Object>();
-    private final List<Criterion> criterions = new ArrayList<Criterion>();
+    private final Map<String, Object> valuesToUpdate = new HashMap<>();
+    private final List<Criterion> criterions = new ArrayList<>();
 
     protected Update(SqlTable<?> table) {
         this.table = table;

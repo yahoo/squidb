@@ -35,9 +35,9 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     private TriggerType triggerType;
     private TriggerEvent triggerEvent;
     private boolean isTemp;
-    private final List<Property<?>> columns = new ArrayList<Property<?>>();
-    private final List<Criterion> criterions = new ArrayList<Criterion>();
-    private final List<TableStatement> statements = new ArrayList<TableStatement>();
+    private final List<Property<?>> columns = new ArrayList<>();
+    private final List<Criterion> criterions = new ArrayList<>();
+    private final List<TableStatement> statements = new ArrayList<>();
 
     private enum TriggerType {
         BEFORE("BEFORE"), AFTER("AFTER"), INSTEAD("INSTEAD OF");

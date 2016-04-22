@@ -18,8 +18,8 @@ public class Insert extends TableStatement {
 
     private final SqlTable<?> table;
     private ConflictAlgorithm conflictAlgorithm = ConflictAlgorithm.NONE;
-    private final List<String> columns = new ArrayList<String>();
-    private final List<List<Object>> valuesToInsert = new ArrayList<List<Object>>();
+    private final List<String> columns = new ArrayList<>();
+    private final List<List<Object>> valuesToInsert = new ArrayList<>();
     private Query query;
     private boolean defaultValues;
 

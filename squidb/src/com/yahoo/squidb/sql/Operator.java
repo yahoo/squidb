@@ -55,7 +55,7 @@ public enum Operator {
     /** MATCH */
     match(" MATCH ");
 
-    private static final Map<Operator, Operator> contraryRegistry = new HashMap<Operator, Operator>();
+    private static final Map<Operator, Operator> contraryRegistry = new HashMap<>();
 
     static {
         contraryRegistry.put(eq, neq);
