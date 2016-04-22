@@ -10,6 +10,7 @@ import android.content.Context;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.DataChangedNotifier;
 import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.SqlTable;
 
 import java.util.Collection;
@@ -57,6 +58,12 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<SqlTable<?>>();
     static {
         INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
+            @Override
+            protected SqlTable<AbstractModel> asNewAliasWithPropertiesArray(String newAlias,
+                    Property<?>[] newProperties) {
+                throw new UnsupportedOperationException("Fake initial table for ReactiveSquidDatabase should never " +
+                        "be aliased");
+            }
         });
     }
 
