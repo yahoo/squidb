@@ -13,6 +13,7 @@ import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
@@ -93,7 +94,18 @@ public class PropertyTest extends DatabaseTestCase {
         LongProperty testModelAliasId = testModelAlias.getIdProperty();
         assertEquals("testModelAlias._id", testModelAliasId.getQualifiedExpression());
 
-        Property<?>[] originalProperties = TestModel.TABLE.getProperties();
+        testTableAndViewAliasing(TestModel.class, TestModel.TABLE);
+    }
+
+    public void testAliasedViewAliasesAllProperties() {
+        testTableAndViewAliasing(TestViewModel.class, TestViewModel.VIEW);
+    }
+
+    private <T extends SqlTable<?>> void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass,
+            T tableOrView) {
+        T testModelAlias = (T) tableOrView.as("testModelAlias");
+
+        Property<?>[] originalProperties = tableOrView.getProperties();
         Property<?>[] aliasedProperties = testModelAlias.getProperties();
         assertEquals(originalProperties.length, aliasedProperties.length);
         for (int i = 0; i < aliasedProperties.length; i++) {
@@ -111,9 +123,9 @@ public class PropertyTest extends DatabaseTestCase {
                 expectedSql.append(", ");
             }
         }
-        expectedSql.append(" FROM ").append(TestModel.TABLE.getName()).append(" AS testModelAlias");
+        expectedSql.append(" FROM ").append(tableOrView.getName()).append(" AS testModelAlias");
         assertEquals(expectedSql.toString(), query.compile(database.getSqliteVersion()).sql);
-        SquidCursor<TestModel> cursor = database.query(TestModel.class, query); // Test that this is valid SQL
+        SquidCursor<?> cursor = database.query(modelClass, query); // Test that this is valid SQL
         try {
             assertEquals(0, cursor.getCount());
         } finally {

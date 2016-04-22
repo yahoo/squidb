@@ -15,9 +15,10 @@ public class View extends QueryTable {
 
     private boolean temporary;
 
-    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression, String databaseName,
-            Query query, boolean temporary) {
+    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression,
+            String databaseName, String alias, Query query, boolean temporary) {
         super(modelClass, properties, expression, databaseName, query);
+        this.alias = alias;
         this.temporary = temporary;
     }
 
@@ -42,7 +43,7 @@ public class View extends QueryTable {
      */
     public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
             Property<?>[] properties) {
-        return new View(modelClass, properties, name, null, query, false);
+        return new View(modelClass, properties, name, null, null, query, false);
     }
 
     /**
@@ -66,11 +67,23 @@ public class View extends QueryTable {
      */
     public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
             Property<?>[] properties) {
-        return new View(modelClass, properties, name, null, query, true);
+        return new View(modelClass, properties, name, null, null, query, true);
     }
 
     public View qualifiedFromDatabase(String databaseName) {
-        return new View(modelClass, properties, getExpression(), databaseName, query, temporary);
+        return new View(modelClass, properties, getExpression(), databaseName, alias, query, temporary);
+    }
+
+    @Override
+    public View as(String newAlias) {
+        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
+        View result = new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
+        if (newProperties != null) {
+            for (int i = 0; i < newProperties.length; i++) {
+                newProperties[i] = result.qualifyField(properties[i]);
+            }
+        }
+        return result;
     }
 
     /**
