@@ -284,7 +284,7 @@ public class ViewModelTest extends DatabaseTestCase {
                 List<AbstractModel> allReadModels = thingJoin.mapToSourceModels();
                 assertEquals(3, allReadModels.size());
 
-                List<Thing> allReadThings = new ArrayList<Thing>(3);
+                List<Thing> allReadThings = new ArrayList<>(3);
                 for (AbstractModel model : allReadModels) {
                     allReadThings.add((Thing) model);
                 }

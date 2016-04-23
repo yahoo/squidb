@@ -305,7 +305,7 @@ public abstract class ViewModel extends AbstractModel {
             TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
         if (cls != null) {
             TableModelMappingVisitor<T> visitor =
-                    new TableModelMappingVisitor<T>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
+                    new TableModelMappingVisitor<>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
             visitors.put(cls, table, visitor);
         }
     }
