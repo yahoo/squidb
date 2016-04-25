@@ -17,7 +17,7 @@ public class MapValuesStorage extends ValuesStorage {
     final Map<String, Object> values;
 
     public MapValuesStorage() {
-        this.values = new HashMap<String, Object>();
+        this.values = new HashMap<>();
     }
 
     public MapValuesStorage(Map<String, Object> values) {

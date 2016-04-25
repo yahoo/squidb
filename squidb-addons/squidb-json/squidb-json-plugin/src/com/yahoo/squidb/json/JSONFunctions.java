@@ -45,7 +45,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jmini">The json() function</a>
      */
     public static Function<String> json(Object arg) {
-        return new JSONArgumentFunction<String>("json", arg);
+        return new JSONArgumentFunction<>("json", arg);
     }
 
     /**
@@ -54,7 +54,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jarray">The json_array() function</a>
      */
     public static Function<String> jsonArray(Object... args) {
-        return new JSONArgumentFunction<String>("json_array", null, args);
+        return new JSONArgumentFunction<>("json_array", null, args);
     }
 
     /**
@@ -64,7 +64,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jarraylen">The json_array_length() function</a>
      */
     public static Function<Integer> jsonArrayLength(Object json) {
-        return new JSONArgumentFunction<Integer>("json_array_length", json);
+        return new JSONArgumentFunction<>("json_array_length", json);
     }
 
     /**
@@ -75,7 +75,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jarraylen">The json_array_length() function</a>
      */
     public static Function<Integer> jsonArrayLength(Object json, String path) {
-        return new JSONArgumentFunction<Integer>("json_array_length", json, path);
+        return new JSONArgumentFunction<>("json_array_length", json, path);
     }
 
     /**
@@ -86,7 +86,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
     public static <T> Function<T> jsonExtract(Object json, String path) {
-        return new JSONArgumentFunction<T>("json_extract", json, path);
+        return new JSONArgumentFunction<>("json_extract", json, path);
     }
 
     /**
@@ -97,7 +97,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
     public static Function<String> jsonExtract(Object json, String... paths) {
-        return new JSONArgumentFunction<String>("json_extract", json, (Object[]) paths);
+        return new JSONArgumentFunction<>("json_extract", json, (Object[]) paths);
     }
 
     /**
@@ -107,7 +107,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jtype">The json_type() function</a>
      */
     public static Function<String> jsonType(Object json) {
-        return new JSONArgumentFunction<String>("json_type", json);
+        return new JSONArgumentFunction<>("json_type", json);
     }
 
     /**
@@ -118,7 +118,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jtype">The json_type() function</a>
      */
     public static Function<String> jsonType(Object json, String path) {
-        return new JSONArgumentFunction<String>("json_type", json, path);
+        return new JSONArgumentFunction<>("json_type", json, path);
     }
 
     /**
@@ -130,7 +130,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jins">The json_insert() function</a>
      */
     public static Function<String> jsonInsert(Object json, Object... pathValuePairs) {
-        return new JSONArgumentFunction<String>("json_insert", json, pathValuePairs);
+        return new JSONArgumentFunction<>("json_insert", json, pathValuePairs);
     }
 
     /**
@@ -142,7 +142,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jrepl">The json_replace() function</a>
      */
     public static Function<String> jsonReplace(Object json, Object... pathValuePairs) {
-        return new JSONArgumentFunction<String>("json_replace", json, pathValuePairs);
+        return new JSONArgumentFunction<>("json_replace", json, pathValuePairs);
     }
 
     /**
@@ -154,7 +154,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jset">The json_set() function</a>
      */
     public static Function<String> jsonSet(Object json, Object... pathValuePairs) {
-        return new JSONArgumentFunction<String>("json_set", json, pathValuePairs);
+        return new JSONArgumentFunction<>("json_set", json, pathValuePairs);
     }
 
     /**
@@ -165,7 +165,7 @@ public class JSONFunctions {
      * @see <a href = "http://sqlite.org/json1.html#jrm">the json_remove() function</a>
      */
     public static Function<String> jsonRemove(Object json, Object... paths) {
-        return new JSONArgumentFunction<String>("json_remove", json, paths);
+        return new JSONArgumentFunction<>("json_remove", json, paths);
     }
 
     /**
@@ -175,7 +175,7 @@ public class JSONFunctions {
      * @see <a href = "http://sqlite.org/json1.html#jobj">the json_object() function</a>
      */
     public static Function<String> jsonObject(Object... labelValuePairs) {
-        return new JSONArgumentFunction<String>("json_object", null, labelValuePairs);
+        return new JSONArgumentFunction<>("json_object", null, labelValuePairs);
     }
 
     /**
@@ -184,7 +184,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jvalid">The json_valid() function</a>
      */
     public static Function<Integer> jsonValid(Object arg) {
-        return new JSONArgumentFunction<Integer>("json_valid", arg);
+        return new JSONArgumentFunction<>("json_valid", arg);
     }
 
     /**
@@ -194,7 +194,7 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jgrouparray">The json_group_array() function</a>
      */
     public static Function<String> jsonGroupArray(Field<?> arg) {
-        return new JSONArgumentFunction<String>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_array", arg);
+        return new JSONArgumentFunction<>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_array", arg);
     }
 
     /**
@@ -204,6 +204,6 @@ public class JSONFunctions {
      * @see <a href="http://sqlite.org/json1.html#jgroupobject">The json_group_object() function</a>
      */
     public static Function<String> jsonGroupObject(Field<?> keys, Field<?> values) {
-        return new JSONArgumentFunction<String>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_object", keys, values);
+        return new JSONArgumentFunction<>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_object", keys, values);
     }
 }

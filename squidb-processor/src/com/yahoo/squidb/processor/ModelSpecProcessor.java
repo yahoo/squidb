@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -54,16 +53,20 @@ import javax.tools.Diagnostic.Kind;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public final class ModelSpecProcessor extends AbstractProcessor {
 
+    private Set<String> supportedAnnotationTypes = new HashSet<String>();
+
     private AptUtils utils;
     private PluginEnvironment pluginEnv;
 
+    public ModelSpecProcessor() {
+        supportedAnnotationTypes.add(TableModelSpec.class.getName());
+        supportedAnnotationTypes.add(ViewModelSpec.class.getName());
+        supportedAnnotationTypes.add(InheritedModelSpec.class.getName());
+    }
+
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> result = new HashSet<String>();
-        result.add(TableModelSpec.class.getName());
-        result.add(ViewModelSpec.class.getName());
-        result.add(InheritedModelSpec.class.getName());
-        return result;
+        return supportedAnnotationTypes;
     }
 
     @Override
@@ -86,18 +89,23 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         for (TypeElement annotationType : annotations) {
-            for (Element element : env.getElementsAnnotatedWith(annotationType)) {
-                if (element.getKind() == ElementKind.CLASS) {
-                    TypeElement typeElement = (TypeElement) element;
-                    try {
-                        getFileWriter(typeElement).writeJava();
-                    } catch (IOException e) {
-                        utils.getMessager().printMessage(Kind.ERROR, "Unable to write model file", element);
+            if (supportedAnnotationTypes.contains(annotationType.getQualifiedName().toString())) {
+                for (Element element : env.getElementsAnnotatedWith(annotationType)) {
+                    if (element.getKind() == ElementKind.CLASS) {
+                        TypeElement typeElement = (TypeElement) element;
+                        try {
+                            getFileWriter(typeElement).writeJava();
+                        } catch (IOException e) {
+                            utils.getMessager().printMessage(Kind.ERROR, "Unable to write model file", element);
+                        }
+                    } else {
+                        utils.getMessager()
+                                .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                     }
-                } else {
-                    utils.getMessager()
-                            .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                 }
+            } else {
+                utils.getMessager().printMessage(Kind.WARNING,
+                        "Skipping unsupported annotation received by processor: " + annotationType);
             }
         }
 

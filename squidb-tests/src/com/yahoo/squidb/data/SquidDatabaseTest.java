@@ -755,8 +755,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testConcurrencyStressTest() {
         int numThreads = 20;
-        final AtomicReference<Exception> exception = new AtomicReference<Exception>();
-        List<Thread> workers = new ArrayList<Thread>();
+        final AtomicReference<Exception> exception = new AtomicReference<>();
+        List<Thread> workers = new ArrayList<>();
         for (int i = 0; i < numThreads; i++) {
             Thread t = new Thread(new Runnable() {
                 @Override

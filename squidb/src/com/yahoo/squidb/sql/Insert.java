@@ -21,8 +21,8 @@ public class Insert extends TableStatement {
 
     private final SqlTable<?> table;
     private ConflictAlgorithm conflictAlgorithm = ConflictAlgorithm.NONE;
-    private final List<String> columns = new ArrayList<String>();
-    private final List<List<Object>> valuesToInsert = new ArrayList<List<Object>>();
+    private final List<String> columns = new ArrayList<>();
+    private final List<List<Object>> valuesToInsert = new ArrayList<>();
     private Query query;
     private boolean defaultValues;
 
@@ -76,10 +76,10 @@ public class Insert extends TableStatement {
      * Specify a set of values to insert. The number of values must equal the number of columns specified and the order
      * must match the order of the columns.
      * <p>
-     * If you are using a SQLite version %lt; 3.7.11 (Android API %lt; 16 for stock SQLite), you should not call this method
-     * more than once, as inserting multiple rows with a single statement is only supported for SQLite version 3.7.11
-     * and higher. Calling this method more than once may cause an exception to be thrown when trying to execute the
-     * statement.
+     * If you are using a SQLite version %lt; 3.7.11 (Android API %lt; 16 for stock SQLite), you should not call this
+     * method more than once, as inserting multiple rows with a single statement is only supported for SQLite version
+     * 3.7.11 and higher. Calling this method more than once may cause an exception to be thrown when trying to execute
+     * the statement.
      *
      * @param values the values to insert
      * @return this Insert object, to allow chaining method calls
@@ -113,7 +113,7 @@ public class Insert extends TableStatement {
      * @return this Insert object, to allow chaining method calls
      */
     public Insert fromValues(ValuesStorage values) {
-        List<Object> valuesToInsert = new ArrayList<Object>();
+        List<Object> valuesToInsert = new ArrayList<>();
         for (Map.Entry<String, Object> entry : values.valueSet()) {
             this.columns.add(entry.getKey());
             valuesToInsert.add(entry.getValue());

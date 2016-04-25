@@ -92,7 +92,7 @@ public abstract class ModelSpec<T extends Annotation> {
                             "Element type " + typeName + " is not a concrete type, will be ignored", e);
                 } else if (!pluginBundle.processVariableElement((VariableElement) e, (DeclaredTypeName) typeName)) {
                     // Deprecated things are generally ignored by plugins, so don't warn about them
-                    // private static final fields are always internal to the spec itself, so don't warn about them
+                    // private static final fields are generally internal model spec constants, so don't warn about them
                     if (e.getAnnotation(Deprecated.class) == null &&
                             !e.getModifiers().containsAll(TypeConstants.PRIVATE_STATIC_FINAL)) {
                         utils.getMessager().printMessage(Diagnostic.Kind.WARNING,

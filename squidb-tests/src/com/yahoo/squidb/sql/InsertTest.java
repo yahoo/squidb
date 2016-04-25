@@ -254,7 +254,7 @@ public class InsertTest extends DatabaseTestCase {
 
             @Override
             public void run() {
-                Insert insert = Insert.into(TestModel.TABLE).values(Integer.valueOf(0xF00), "bar");
+                Insert insert = Insert.into(TestModel.TABLE).values(0xF00, "bar");
                 insert.compile(database.getSqliteVersion());
             }
         }, IllegalStateException.class);
@@ -271,7 +271,7 @@ public class InsertTest extends DatabaseTestCase {
                         // insert into testModels (firstName, lastName) values ("Jack", "Sparrow"), ("James", "Bond", 007),
                         // ("Bugs", "Bunny");
                         Object[] values1 = new Object[]{"Jack", "Sparrow"};
-                        Object[] values2 = new Object[]{"James", "Bond", Integer.valueOf(007)};
+                        Object[] values2 = new Object[]{"James", "Bond", Integer.parseInt("007")};
                         Object[] values3 = new Object[]{"Bugs", "Bunny"};
                         Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)
                                 .values(values1).values(values2).values(values3);

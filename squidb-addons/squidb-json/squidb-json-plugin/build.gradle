@@ -10,8 +10,8 @@ version = '3.0.0-beta'
 apply plugin: 'java'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 dependencies {
     compile project(':squidb')

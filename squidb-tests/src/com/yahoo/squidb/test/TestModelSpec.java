@@ -33,7 +33,7 @@ public class TestModelSpec {
     public static final int INT_CONST = 0;
     public static final int ANOTHER_INT_CONST = 1;
     public static final String STRING_CONST = "Hello";
-    public static final Map<String, Property<?>> CONST_MAP = new HashMap<String, Property<?>>();
+    public static final Map<String, Property<?>> CONST_MAP = new HashMap<>();
     public static final Order DEFAULT_ORDER = TestModel.FIRST_NAME.asc();
 
     static final String PACKAGE_PROTECTED_CONST = "somePackageProtectedConst";

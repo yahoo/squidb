@@ -13,7 +13,7 @@ import com.yahoo.squidb.data.ViewModel;
 public class SubqueryTable extends QueryTable {
 
     private SubqueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
-        super(modelClass, properties, name, query);
+        super(modelClass, properties, name, null, query);
     }
 
     /**
@@ -39,6 +39,16 @@ public class SubqueryTable extends QueryTable {
     public static SubqueryTable fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
             Property<?>[] properties) {
         return new SubqueryTable(modelClass, properties, name, query);
+    }
+
+    @Override
+    public SubqueryTable as(String newAlias) {
+        return (SubqueryTable) super.as(newAlias);
+    }
+
+    @Override
+    protected SubqueryTable asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new SubqueryTable(modelClass, newProperties, newAlias, query);
     }
 
     @Override

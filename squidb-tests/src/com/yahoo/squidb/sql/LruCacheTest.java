@@ -6,7 +6,7 @@ import com.yahoo.squidb.test.SquidTestCase;
 public class LruCacheTest extends SquidTestCase {
 
     private SimpleLruCache<String, String> cacheWithCapacity(int capacity) {
-        return new SimpleLruCache<String, String>(capacity);
+        return new SimpleLruCache<>(capacity);
     }
 
     private void populateCache(SimpleLruCache<String, String> cache, int times) {

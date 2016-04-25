@@ -39,7 +39,7 @@ public class UriNotifierTest extends DatabaseTestCase {
         }
     }
 
-    private List<ContentObserver> observers = new ArrayList<ContentObserver>();
+    private List<ContentObserver> observers = new ArrayList<>();
 
     @Override
     protected void setUp() throws Exception {

@@ -146,10 +146,10 @@ public class SquidUtilities {
     }
 
     /**
-     * A wrapper around {@link Collections#addAll(Collection, Object[])} that performs a null check on the objects
-     * array before attempting the add
+     * A version of {@link Collection#addAll(Collection)} that performs a null check on its second argument. It can be
+     * safely used with a varargs array its caller has or with any other array.
      */
-    public static <T> void addAll(Collection<T> collection, T... objects) {
+    public static <T> void addAll(Collection<T> collection, T[] objects) {
         if (objects != null) {
             Collections.addAll(collection, objects);
         }

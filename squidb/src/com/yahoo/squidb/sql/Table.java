@@ -16,7 +16,7 @@ import com.yahoo.squidb.utility.VersionCode;
 public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
-    private LongProperty idProperty;
+    protected LongProperty idProperty;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
         this(modelClass, properties, name, null);
@@ -47,9 +47,14 @@ public class Table extends SqlTable<TableModel> {
 
     @Override
     public Table as(String newAlias) {
-        Table result = new Table(modelClass, properties, getExpression(), qualifier, tableConstraint, newAlias);
-        result.idProperty = result.qualifyField(idProperty);
+        Table result = (Table) super.as(newAlias);
+        result.idProperty = idProperty == null ? null : result.qualifyField(idProperty);
         return result;
+    }
+
+    @Override
+    protected Table asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+        return new Table(modelClass, newProperties, getExpression(), qualifier, tableConstraint, newAlias);
     }
 
     /**

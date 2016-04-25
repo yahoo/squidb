@@ -35,7 +35,7 @@ public class JSONProperty<T> extends StringProperty {
      * @param selectAs the alias to use. May be null.
      */
     public static <T> JSONProperty<T> fromJSONFunction(Function<String> function, String selectAs) {
-        return new JSONProperty<T>(function, selectAs);
+        return new JSONProperty<>(function, selectAs);
     }
 
     /**

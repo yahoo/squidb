@@ -3,24 +3,23 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.data;
+package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.sql.Function;
-import com.yahoo.squidb.sql.Property;
+import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.BooleanProperty;
 import com.yahoo.squidb.sql.Property.DoubleProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
-import com.yahoo.squidb.sql.Query;
-import com.yahoo.squidb.sql.Table;
-import com.yahoo.squidb.test.SquidTestCase;
+import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
+import com.yahoo.squidb.test.TestSubqueryModel;
 import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.TestVirtualModel;
 import com.yahoo.squidb.test.Thing;
 
-public class PropertyTest extends SquidTestCase {
+public class PropertyTest extends DatabaseTestCase {
 
     public void testPropertyAliasing() {
         LongProperty p = TestModel.ID;
@@ -88,10 +87,64 @@ public class PropertyTest extends SquidTestCase {
         assertEquals(test5.hashCode(), test6.hashCode());
     }
 
-    public void testAliasedTableHasIdProperty() {
-        Table testModelAlias = TestModel.TABLE.as("testModelAlias");
-        LongProperty testModelAliasId = testModelAlias.getIdProperty();
-        assertEquals("testModelAlias._id", testModelAliasId.getQualifiedExpression());
+    public void testAliasedTableAliasesAllProperties() {
+        testTableAndViewAliasing(TestModel.class, TestModel.TABLE);
+    }
+
+    public void testAliasedVirtualTableAliasesAllProperties() {
+        testTableAndViewAliasing(TestVirtualModel.class, TestVirtualModel.TABLE);
+    }
+
+    public void testAliasedViewAliasesAllProperties() {
+        testTableAndViewAliasing(TestViewModel.class, TestViewModel.VIEW);
+    }
+
+    public void testAliasedSubqueryAliasesAllProperties() {
+        testTableAndViewAliasing(TestSubqueryModel.class, TestSubqueryModel.SUBQUERY);
+    }
+
+    private void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass,
+            SqlTable<?> tableOrView) {
+        SqlTable<?> testModelAlias = tableOrView.as("testModelAlias");
+        if (testModelAlias instanceof Table) {
+            LongProperty testModelAliasId = ((Table) testModelAlias).getIdProperty();
+            String idName = testModelAlias instanceof VirtualTable ? "rowid" : "_id";
+            assertEquals("testModelAlias." + idName, testModelAliasId.getQualifiedExpression());
+        }
+
+        Property<?>[] originalProperties = tableOrView.getProperties();
+        Property<?>[] aliasedProperties = testModelAlias.getProperties();
+        assertEquals(originalProperties.length, aliasedProperties.length);
+        for (int i = 0; i < aliasedProperties.length; i++) {
+            String expectedExpression = "testModelAlias." + originalProperties[i].getName();
+            assertEquals(expectedExpression, aliasedProperties[i].getQualifiedExpression());
+        }
+
+        Query query = Query.select().from(testModelAlias);
+        StringBuilder expectedSql = new StringBuilder("SELECT ");
+        for (int i = 0; i < originalProperties.length; i++) {
+            String expectedExpression = "testModelAlias." + originalProperties[i].getName() +
+                    " AS " + originalProperties[i].getName();
+            expectedSql.append(expectedExpression);
+            if (i < originalProperties.length - 1) {
+                expectedSql.append(", ");
+            }
+        }
+        expectedSql.append(" FROM ");
+        if (tableOrView instanceof SubqueryTable) {
+            expectedSql.append("(");
+            String compiledSql = ((SubqueryTable) tableOrView).query.compile(database.getSqliteVersion()).sql;
+            expectedSql.append(compiledSql).append(") AS testModelAlias");
+        } else {
+            expectedSql.append(tableOrView.getName()).append(" AS testModelAlias");
+        }
+        assertEquals(expectedSql.toString(), query.compile(database.getSqliteVersion()).sql);
+        SquidCursor<?> cursor = database.query(modelClass, query); // Test that this is valid SQL
+        try {
+            assertEquals(0, cursor.getCount());
+        } finally {
+            cursor.close();
+        }
     }
 
     public void testLiteralProperties() {

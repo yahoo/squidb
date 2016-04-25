@@ -42,7 +42,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a
- * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the database.
+ * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the
+ * database.
  * You can close it again using {@link #close()}. For information about writing migrations or pre-populating a new
  * database see the {@link #onUpgrade(ISQLiteDatabase, int, int)} and
  * {@link #onTablesCreated(ISQLiteDatabase)} hooks.
@@ -151,7 +152,8 @@ public abstract class SquidDatabase {
     protected abstract boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion);
 
     /**
-     * Called when the database should be downgraded from one version to another. If this method returns false or throws
+     * Called when the database should be downgraded from one version to another. If this method returns false or
+     * throws
      * an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
      * implementation of onMigrationFailed rethrows the exception. It is highly recommended that you override
      * onMigrationFailed to handle errors, for example by calling {@link #recreate()} to delete all data in the
@@ -289,8 +291,7 @@ public abstract class SquidDatabase {
     /**
      * Map of class objects to corresponding tables
      */
-    private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap
-            = new HashMap<Class<? extends AbstractModel>, SqlTable<?>>();
+    private Map<Class<? extends AbstractModel>, SqlTable<?>> tableMap = new HashMap<>();
 
     private boolean isInMigration = false;
     private boolean isInMigrationFailedHook = false;
@@ -896,7 +897,7 @@ public abstract class SquidDatabase {
     // is also considered to have failed.
     private static class TransactionSuccessState {
 
-        Deque<Boolean> nestedSuccessStack = new LinkedList<Boolean>();
+        Deque<Boolean> nestedSuccessStack = new LinkedList<>();
         boolean outerTransactionSuccess = true;
 
         private void beginTransaction() {
@@ -1009,7 +1010,8 @@ public abstract class SquidDatabase {
     // --- helper classes
 
     /**
-     * Delegate class passed to a {@link ISQLiteOpenHelper} instance that allows the SQLiteOpenHelperWrapper to call back
+     * Delegate class passed to a {@link ISQLiteOpenHelper} instance that allows the SQLiteOpenHelperWrapper to call
+     * back
      * into its owning SquidDatabase after the database has been created or opened.
      */
     public final class OpenHelperDelegate {
@@ -1469,7 +1471,7 @@ public abstract class SquidDatabase {
             ensureSqlCompiles(validateSql); // throws if the statement fails to compile
         }
         ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
-        return new SquidCursor<TYPE>(cursor, query.getFields());
+        return new SquidCursor<>(cursor, query.getFields());
     }
 
     /**
@@ -1951,16 +1953,15 @@ public abstract class SquidDatabase {
 
     private final Object notifiersLock = new Object();
     private boolean dataChangedNotificationsEnabled = true;
-    private List<DataChangedNotifier<?>> globalNotifiers = new ArrayList<DataChangedNotifier<?>>();
-    private Map<SqlTable<?>, List<DataChangedNotifier<?>>> tableNotifiers
-            = new HashMap<SqlTable<?>, List<DataChangedNotifier<?>>>();
+    private List<DataChangedNotifier<?>> globalNotifiers = new ArrayList<>();
+    private Map<SqlTable<?>, List<DataChangedNotifier<?>>> tableNotifiers = new HashMap<>();
 
     // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
     // transactions are also associated with the thread they run on
     private ThreadLocal<Set<DataChangedNotifier<?>>> notifierAccumulator
             = new ThreadLocal<Set<DataChangedNotifier<?>>>() {
         protected Set<DataChangedNotifier<?>> initialValue() {
-            return new HashSet<DataChangedNotifier<?>>();
+            return new HashSet<>();
         }
     };
 
@@ -1983,7 +1984,7 @@ public abstract class SquidDatabase {
                 for (SqlTable<?> table : tables) {
                     List<DataChangedNotifier<?>> notifiersForTable = tableNotifiers.get(table);
                     if (notifiersForTable == null) {
-                        notifiersForTable = new ArrayList<DataChangedNotifier<?>>();
+                        notifiersForTable = new ArrayList<>();
                         tableNotifiers.put(table, notifiersForTable);
                     }
                     notifiersForTable.add(notifier);

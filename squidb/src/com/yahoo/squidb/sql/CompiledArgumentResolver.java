@@ -37,10 +37,10 @@ class CompiledArgumentResolver {
         this.sqlArgs = builder.getBoundArguments();
         this.needsValidation = builder.needsValidation();
         if (compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER)) {
-            collectionArgs = new ArrayList<Collection<?>>();
+            collectionArgs = new ArrayList<>();
             findCollectionArgs();
-            compiledSqlCache = new SimpleLruCache<String, String>(CACHE_SIZE);
-            argArrayCache = new SimpleLruCache<String, Object[]>(CACHE_SIZE);
+            compiledSqlCache = new SimpleLruCache<>(CACHE_SIZE);
+            argArrayCache = new SimpleLruCache<>(CACHE_SIZE);
         }
     }
 

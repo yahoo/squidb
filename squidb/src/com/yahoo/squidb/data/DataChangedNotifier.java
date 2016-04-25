@@ -49,14 +49,14 @@ public abstract class DataChangedNotifier<T> {
         DELETE
     }
 
-    private final Set<SqlTable<?>> tables = new HashSet<SqlTable<?>>();
+    private final Set<SqlTable<?>> tables = new HashSet<>();
     private boolean enabled = true;
 
     // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
     // transactions are also associated with the thread they run on
     private ThreadLocal<Set<T>> notifyObjectAccumulator = new ThreadLocal<Set<T>>() {
         protected Set<T> initialValue() {
-            return new HashSet<T>();
+            return new HashSet<>();
         }
     };
 

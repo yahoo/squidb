@@ -306,7 +306,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
                         .toRawSql(database.getSqliteVersion()), null);
                 try {
                     JSONArray resultArray = new JSONArray(result);
-                    Set<String> resultValues = new HashSet<String>();
+                    Set<String> resultValues = new HashSet<>();
                     for (int i = 0; i < resultArray.length(); i++) {
                         resultValues.add(resultArray.getString(i));
                     }

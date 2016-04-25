@@ -219,7 +219,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     }
 
     public void testVariableArgumentsWorkInFunctions() {
-        AtomicReference<String> name = new AtomicReference<String>("Sam");
+        AtomicReference<String> name = new AtomicReference<>("Sam");
         Function<Integer> caseWhen = Function.caseWhen(TestModel.FIRST_NAME.eq(name));
         BooleanProperty nameMatches = BooleanProperty.fromFunction(caseWhen, "nameMatches");
 
@@ -239,7 +239,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
     }
 
     public void testOrderByFunction() {
-        AtomicReference<String> name = new AtomicReference<String>("Sam");
+        AtomicReference<String> name = new AtomicReference<>("Sam");
         Function<Integer> caseWhen = Function.caseWhen(TestModel.FIRST_NAME.eq(name));
         BooleanProperty nameMatches = BooleanProperty.fromFunction(caseWhen, "nameMatches");
 

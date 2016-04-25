@@ -11,7 +11,7 @@ import java.util.List;
 
 class ConjunctionCriterion extends Criterion {
 
-    private final List<Criterion> criterions = new ArrayList<Criterion>();
+    private final List<Criterion> criterions = new ArrayList<>();
 
     ConjunctionCriterion(Operator operator, Criterion baseCriterion, Criterion... additionalCriterions) {
         super(operator);

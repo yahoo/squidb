@@ -14,7 +14,7 @@ import java.util.List;
 public class Delete extends TableStatement {
 
     private final SqlTable<?> table;
-    private final List<Criterion> criterions = new ArrayList<Criterion>();
+    private final List<Criterion> criterions = new ArrayList<>();
 
     protected Delete(SqlTable<?> table) {
         this.table = table;

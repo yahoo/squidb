@@ -87,7 +87,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
         }
 
         private <T> Map<String, T> deserializeMap(JSONObject object, Type valueType) throws JSONException {
-            Map<String, T> result = new HashMap<String, T>();
+            Map<String, T> result = new HashMap<>();
             Iterator<String> keys = object.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
@@ -104,7 +104,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
         }
 
         private <T> List<T> deserializeArray(JSONArray array, Type type) throws JSONException {
-            List<T> result = new ArrayList<T>();
+            List<T> result = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
                 result.add((T) deserializeObject(array.get(i), type));
             }
@@ -167,7 +167,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
             @Override
             public void run() {
                 TestModel model = new TestModel();
-                Map<String, Integer> numbers = new HashMap<String, Integer>();
+                Map<String, Integer> numbers = new HashMap<>();
                 numbers.put("1", 2);
                 numbers.put("2", 4);
                 numbers.put("3", 6);
@@ -251,14 +251,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
     }
 
     private Map<String, Map<String, List<Integer>>> mockComplicatedMap() {
-        HashMap<String, Map<String, List<Integer>>> crazyMap = new HashMap<String, Map<String, List<Integer>>>();
+        HashMap<String, Map<String, List<Integer>>> crazyMap = new HashMap<>();
 
-        Map<String, List<Integer>> internalMap1 = new HashMap<String, List<Integer>>();
+        Map<String, List<Integer>> internalMap1 = new HashMap<>();
         internalMap1.put("123", Arrays.asList(1, 2, 3));
         internalMap1.put("4567", Arrays.asList(4, 5, 6, 7));
 
         crazyMap.put("ABC", internalMap1);
-        Map<String, List<Integer>> internalMap2 = new HashMap<String, List<Integer>>();
+        Map<String, List<Integer>> internalMap2 = new HashMap<>();
         internalMap2.put("XYZ", Arrays.asList(Character.getNumericValue('x'), Character.getNumericValue('y'),
                 Character.getNumericValue('z')));
         internalMap2.put("Empty", new ArrayList<Integer>());
