@@ -416,7 +416,7 @@ public abstract class AbstractModel implements Parcelable, Cloneable {
      */
     public void putTransitory(String key, Object value) {
         if (transitoryData == null) {
-            transitoryData = new HashMap<String, Object>();
+            transitoryData = new HashMap<>();
         }
         transitoryData.put(key, value);
     }

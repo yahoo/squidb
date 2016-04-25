@@ -78,7 +78,7 @@ public class ProjectionMapTest extends SquidTestCase {
     public void testDefaultProjection() {
         final String BIRTHDAY = "birthday";
         final String IS_HAPPY = "isHappy";
-        final List<Field<?>> columns = new ArrayList<Field<?>>();
+        final List<Field<?>> columns = new ArrayList<>();
         columns.add(TestModel.FIRST_NAME);
         columns.add(TestModel.LAST_NAME);
         columns.add(TestModel.BIRTHDAY.as(BIRTHDAY));

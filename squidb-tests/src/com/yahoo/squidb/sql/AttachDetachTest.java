@@ -120,7 +120,7 @@ public class AttachDetachTest extends DatabaseTestCase {
     }
 
     private void testAttachDetachConcurrency(final boolean transactionBeforeAttach) throws Exception {
-        final AtomicReference<Exception> threadFailed = new AtomicReference<Exception>(null);
+        final AtomicReference<Exception> threadFailed = new AtomicReference<>(null);
 
         Thread anotherThread = new Thread() {
             @Override
@@ -186,7 +186,7 @@ public class AttachDetachTest extends DatabaseTestCase {
      * not have WAL enabled, this test should always pass.
      */
     public void testAttacherInTransactionOnAnotherThread() throws Exception {
-        final AtomicReference<Exception> threadFailed = new AtomicReference<Exception>(null);
+        final AtomicReference<Exception> threadFailed = new AtomicReference<>(null);
 
         Thread anotherThread = new Thread() {
             @Override

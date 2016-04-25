@@ -26,7 +26,7 @@ public class ProjectionMap {
      * Construct an empty ProjectionMap
      */
     public ProjectionMap() {
-        map = new LinkedHashMap<String, Field<?>>();
+        map = new LinkedHashMap<>();
     }
 
     /**
@@ -34,7 +34,7 @@ public class ProjectionMap {
      * @param other the other ProjectionMap to copy
      */
     public ProjectionMap(ProjectionMap other) {
-        map = new LinkedHashMap<String, Field<?>>(other.map);
+        map = new LinkedHashMap<>(other.map);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ProjectionMap {
      * @return a list of {@link Field Fields} in the map
      */
     public List<Field<?>> getDefaultProjection() {
-        return new ArrayList<Field<?>>(map.values());
+        return new ArrayList<>(map.values());
     }
 
     /**

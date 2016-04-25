@@ -1004,7 +1004,7 @@ public abstract class SquidDatabase {
     // is also considered to have failed.
     private static class TransactionSuccessState {
 
-        Deque<Boolean> nestedSuccessStack = new LinkedList<Boolean>();
+        Deque<Boolean> nestedSuccessStack = new LinkedList<>();
         boolean outerTransactionSuccess = true;
 
         private void beginTransaction() {
@@ -1608,7 +1608,7 @@ public abstract class SquidDatabase {
             compileStatement(validateSql); // throws if the statement fails to compile
         }
         Cursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
-        return new SquidCursor<TYPE>(cursor, query.getFields());
+        return new SquidCursor<>(cursor, query.getFields());
     }
 
 
@@ -2052,16 +2052,15 @@ public abstract class SquidDatabase {
 
     private final Object notifiersLock = new Object();
     private boolean dataChangedNotificationsEnabled = true;
-    private List<DataChangedNotifier<?>> globalNotifiers = new ArrayList<DataChangedNotifier<?>>();
-    private Map<SqlTable<?>, List<DataChangedNotifier<?>>> tableNotifiers
-            = new HashMap<SqlTable<?>, List<DataChangedNotifier<?>>>();
+    private List<DataChangedNotifier<?>> globalNotifiers = new ArrayList<>();
+    private Map<SqlTable<?>, List<DataChangedNotifier<?>>> tableNotifiers = new HashMap<>();
 
     // Using a ThreadLocal makes it easy to have one accumulator set per transaction, since
     // transactions are also associated with the thread they run on
     private ThreadLocal<Set<DataChangedNotifier<?>>> notifierAccumulator
             = new ThreadLocal<Set<DataChangedNotifier<?>>>() {
         protected Set<DataChangedNotifier<?>> initialValue() {
-            return new HashSet<DataChangedNotifier<?>>();
+            return new HashSet<>();
         }
     };
 
@@ -2084,7 +2083,7 @@ public abstract class SquidDatabase {
                 for (SqlTable<?> table : tables) {
                     List<DataChangedNotifier<?>> notifiersForTable = tableNotifiers.get(table);
                     if (notifiersForTable == null) {
-                        notifiersForTable = new ArrayList<DataChangedNotifier<?>>();
+                        notifiersForTable = new ArrayList<>();
                         tableNotifiers.put(table, notifiersForTable);
                     }
                     notifiersForTable.add(notifier);

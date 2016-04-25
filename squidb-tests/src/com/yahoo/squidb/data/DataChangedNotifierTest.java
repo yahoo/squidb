@@ -212,15 +212,15 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
     }
 
     public void testGlobalNotifiersNotifiedForAllTables() {
-        final Set<SqlTable<?>> calledForTables = new HashSet<SqlTable<?>>();
+        final Set<SqlTable<?>> calledForTables = new HashSet<>();
         TestDataChangedNotifier globalNotifier = new TestDataChangedNotifier() {
             @Override
             protected boolean accumulateNotificationObjects(Set<TestDataChangedNotifier> accumulatorSet,
-                    SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                    SqlTable<?> table, SquidDatabase database, DBOperation operation,
+                    AbstractModel modelValues, long rowId) {
                 calledForTables.add(table);
-                return super
-                        .accumulateNotificationObjects(accumulatorSet, table, database, operation, modelValues, rowId);
+                return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
+                        modelValues, rowId);
             }
         };
 

@@ -40,8 +40,8 @@ public class CaseBuilder {
         }
         if (whens == null) {
             // always initialized together
-            whens = new ArrayList<Object>();
-            thens = new ArrayList<Object>();
+            whens = new ArrayList<>();
+            thens = new ArrayList<>();
         }
         whens.add(when);
         thens.add(then);

@@ -18,7 +18,7 @@ import java.util.Collections;
 public class Field<TYPE> extends DBObject<Field<TYPE>> {
 
     /** SQLite NULL literal value */
-    public static final Field<Void> NULL = new Field<Void>("NULL");
+    public static final Field<Void> NULL = new Field<>("NULL");
 
     /**
      * @param expression the string-literal representation of this field
@@ -41,7 +41,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param expression the string-literal representation of the returned field
      */
     public static <T> Field<T> field(String expression) {
-        return new Field<T>(expression);
+        return new Field<>(expression);
     }
 
     /**
@@ -51,7 +51,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param qualifier the string-literal representation of a qualifying object, e.g. a table name
      */
     public static <T> Field<T> field(String expression, String qualifier) {
-        return new Field<T>(expression, qualifier);
+        return new Field<>(expression, qualifier);
     }
 
     /**

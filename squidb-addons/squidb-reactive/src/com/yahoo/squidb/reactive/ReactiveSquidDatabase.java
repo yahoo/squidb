@@ -55,7 +55,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     private final PublishSubject<Set<SqlTable<?>>> changedTablePublisher = PublishSubject.create();
 
-    private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<SqlTable<?>>();
+    private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<>();
     static {
         INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
             @Override
