@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ColumnSpec;
@@ -93,8 +94,8 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         if (isDeprecated) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
-        List<String> constructorArgs = new ArrayList<String>();
-        constructorArgs.add(TableModelFileWriter.TABLE_NAME);
+        List<Object> constructorArgs = new ArrayList<Object>();
+        constructorArgs.add(TableModelFileWriter.TABLE_MODEL_NAME);
         constructorArgs.add("\"" + columnName + "\"");
         String columnDef = getColumnDefinition();
         if (!AptUtils.isEmpty(columnDef)) {

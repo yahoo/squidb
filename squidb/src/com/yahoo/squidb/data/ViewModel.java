@@ -9,7 +9,7 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlTable;
-import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.TableModelName;
 import com.yahoo.squidb.sql.View;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public abstract class ViewModel extends AbstractModel {
      * @return the destination model object
      */
     public <T extends AbstractModel> T mapToModel(T dst) {
-        return mapToModel(dst, null);
+        return mapToModel(dst, (String) null);
     }
 
     /**
@@ -56,6 +56,10 @@ public abstract class ViewModel extends AbstractModel {
      * @return the destination model object
      */
     public <T extends AbstractModel> T mapToModel(T dst, SqlTable<?> tableAlias) {
+        return mapToModel(dst, tableAlias.getName());
+    }
+
+    public <T extends AbstractModel> T mapToModel(T dst, String tableAlias) {
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
             @SuppressWarnings("unchecked")
@@ -72,13 +76,13 @@ public abstract class ViewModel extends AbstractModel {
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
             Set<Map.Entry<Class<? extends AbstractModel>,
-                    Map<SqlTable<?>, TableModelMappingVisitor<?>>>> allMappings = visitors.allMappings();
+                    Map<String, TableModelMappingVisitor<?>>>> allMappings = visitors.allMappings();
             for (Map.Entry<Class<? extends AbstractModel>,
-                    Map<SqlTable<?>, TableModelMappingVisitor<?>>> entry : allMappings) {
+                    Map<String, TableModelMappingVisitor<?>>> entry : allMappings) {
                 try {
                     Class<? extends AbstractModel> cls = entry.getKey();
-                    Map<SqlTable<?>, TableModelMappingVisitor<?>> clsMappers = entry.getValue();
-                    for (SqlTable<?> table : clsMappers.keySet()) {
+                    Map<String, TableModelMappingVisitor<?>> clsMappers = entry.getValue();
+                    for (String table : clsMappers.keySet()) {
                         result.add(mapToModel(cls.newInstance(), table));
                     }
                 } catch (InstantiationException e) {
@@ -193,8 +197,8 @@ public abstract class ViewModel extends AbstractModel {
             String name = base.getName();
             if (duplicates.contains(name)) {
                 String alias;
-                if (base.table instanceof Table && ((Table) base.table).getIdProperty().equals(base)) {
-                    alias = base.table.getName() + "Id";
+                if (base.isPrimaryKey()) {
+                    alias = base.tableModelName.tableName + "Id";
                 } else {
                     int occurrence = numOccurences.get(name);
                     alias = name + "_" + occurrence;
@@ -207,26 +211,26 @@ public abstract class ViewModel extends AbstractModel {
 
     protected static class TableMappingVisitors {
 
-        private Map<Class<? extends AbstractModel>, Map<SqlTable<?>, TableModelMappingVisitor<?>>> map
+        private Map<Class<? extends AbstractModel>, Map<String, TableModelMappingVisitor<?>>> map
                 = new HashMap<>();
 
-        private <T extends AbstractModel> void put(Class<T> cls, SqlTable<?> table,
+        private <T extends AbstractModel> void put(Class<T> cls, String tableName,
                 TableModelMappingVisitor<T> mapper) {
-            Map<SqlTable<?>, TableModelMappingVisitor<?>> visitors = map.get(cls);
+            Map<String, TableModelMappingVisitor<?>> visitors = map.get(cls);
             if (visitors == null) {
                 visitors = new HashMap<>();
                 map.put(cls, visitors);
             }
-            visitors.put(table, mapper);
+            visitors.put(tableName, mapper);
         }
 
         @SuppressWarnings("unchecked")
-        public <T extends AbstractModel> TableModelMappingVisitor<T> get(Class<T> cls, SqlTable<?> table) {
-            Map<SqlTable<?>, TableModelMappingVisitor<?>> visitors = map.get(cls);
+        public <T extends AbstractModel> TableModelMappingVisitor<T> get(Class<T> cls, String tableName) {
+            Map<String, TableModelMappingVisitor<?>> visitors = map.get(cls);
             if (visitors == null) {
                 return null;
             }
-            if (table == null) {
+            if (tableName == null) {
                 if (visitors.size() == 1) {
                     for (TableModelMappingVisitor<?> visitor : visitors.values()) {
                         return (TableModelMappingVisitor<T>) visitor;
@@ -237,13 +241,13 @@ public abstract class ViewModel extends AbstractModel {
                             "ViewModel.mapToModel(Class, SqlTable) with a non-null second argument");
                 }
             } else {
-                return (TableModelMappingVisitor<T>) visitors.get(table);
+                return (TableModelMappingVisitor<T>) visitors.get(tableName);
             }
             return null;
         }
 
         public Set<Map.Entry<Class<? extends AbstractModel>,
-                Map<SqlTable<?>, TableModelMappingVisitor<?>>>> allMappings() {
+                Map<String, TableModelMappingVisitor<?>>>> allMappings() {
             return map.entrySet();
         }
     }
@@ -258,8 +262,8 @@ public abstract class ViewModel extends AbstractModel {
             namesToPositions.put(aliasedProperties[i].getName(), i);
         }
 
-        Map<SqlTable<?>, List<Property<?>>> tableToPropertyMap = new HashMap<>();
-        Map<SqlTable<?>, Map<Property<?>, Property<?>>> aliasedPropertiesMap = new HashMap<>();
+        Map<TableModelName, List<Property<?>>> tableToPropertyMap = new HashMap<>();
+        Map<TableModelName, Map<Property<?>, Property<?>>> aliasedPropertiesMap = new HashMap<>();
         for (Property<?> p : viewModelProperties) {
             String name = p.getName();
             Integer position = namesToPositions.get(name);
@@ -269,7 +273,7 @@ public abstract class ViewModel extends AbstractModel {
 
             Property<?> baseProperty = baseProperties[position];
 
-            SqlTable<?> table = baseProperty.table;
+            TableModelName table = baseProperty.tableModelName;
             if (table == null) { // Not part of any other model, e.g. a function
                 continue;
             }
@@ -292,21 +296,21 @@ public abstract class ViewModel extends AbstractModel {
             }
         }
 
-        for (Map.Entry<SqlTable<?>, List<Property<?>>> entry : tableToPropertyMap.entrySet()) {
-            SqlTable<?> table = entry.getKey();
+        for (Map.Entry<TableModelName, List<Property<?>>> entry : tableToPropertyMap.entrySet()) {
+            TableModelName tableModelName = entry.getKey();
             List<Property<?>> properties = entry.getValue();
-            Map<Property<?>, Property<?>> aliasMap = aliasedPropertiesMap.get(table);
-            constructVisitor(table.getModelClass(), table, result, properties, aliasMap);
+            Map<Property<?>, Property<?>> aliasMap = aliasedPropertiesMap.get(tableModelName);
+            constructVisitor(tableModelName.modelClass, tableModelName.tableName, result, properties, aliasMap);
         }
         return result;
     }
 
-    private static <T extends AbstractModel> void constructVisitor(Class<T> cls, SqlTable<?> table,
+    private static <T extends AbstractModel> void constructVisitor(Class<T> cls, String tableName,
             TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
         if (cls != null) {
             TableModelMappingVisitor<T> visitor =
                     new TableModelMappingVisitor<>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
-            visitors.put(cls, table, visitor);
+            visitors.put(cls, tableName, visitor);
         }
     }
 

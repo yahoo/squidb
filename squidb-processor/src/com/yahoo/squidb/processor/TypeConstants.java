@@ -76,6 +76,7 @@ public class TypeConstants {
     public static final DeclaredTypeName VIRTUAL_TABLE = new DeclaredTypeName(SQUIDB_SQL_PACKAGE, "VirtualTable");
     public static final DeclaredTypeName VIEW = new DeclaredTypeName(SQUIDB_SQL_PACKAGE, "View");
     public static final DeclaredTypeName SUBQUERY_TABLE = new DeclaredTypeName(SQUIDB_SQL_PACKAGE, "SubqueryTable");
+    public static final DeclaredTypeName TABLE_MODEL_NAME = new DeclaredTypeName(SQUIDB_SQL_PACKAGE, "TableModelName");
 
     public static final DeclaredTypeName BYTE_ARRAY;
 

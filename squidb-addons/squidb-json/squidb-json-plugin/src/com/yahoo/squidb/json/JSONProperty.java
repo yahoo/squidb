@@ -8,19 +8,20 @@ package com.yahoo.squidb.json;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.SqlTable;
+import com.yahoo.squidb.sql.TableModelName;
 
 public class JSONProperty<T> extends StringProperty {
 
-    public JSONProperty(SqlTable<?> table, String name) {
-        super(table, name);
+    public JSONProperty(TableModelName tableModelName, String name) {
+        super(tableModelName, name);
     }
 
-    public JSONProperty(SqlTable<?> table, String name, String columnDefinition) {
-        super(table, name, columnDefinition);
+    public JSONProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        super(tableModelName, name, columnDefinition);
     }
 
-    public JSONProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-        super(table, name, alias, columnDefinition);
+    public JSONProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        super(tableModelName, name, alias, columnDefinition);
     }
 
     public JSONProperty(Function<String> function, String alias) {
