@@ -110,13 +110,14 @@ public class PropertyTest extends DatabaseTestCase {
         testTableAndViewAliasing(TestSubqueryModel.class, TestSubqueryModel.SUBQUERY);
     }
 
-    private void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass,
-            SqlTable<?> tableOrView) {
+    private void testTableAndViewAliasing(Class<? extends AbstractModel> modelClass, SqlTable<?> tableOrView) {
         SqlTable<?> testModelAlias = tableOrView.as("testModelAlias");
+        TableModelName expectedTableModelName = new TableModelName(modelClass, "testModelAlias");
         if (testModelAlias instanceof Table) {
             LongProperty testModelAliasId = ((Table) testModelAlias).getIdProperty();
             String idName = testModelAlias instanceof VirtualTable ? "rowid" : "_id";
             assertEquals("testModelAlias." + idName, testModelAliasId.getQualifiedExpression());
+            assertEquals(expectedTableModelName, testModelAliasId.tableModelName);
         }
 
         Property<?>[] originalProperties = tableOrView.getProperties();
@@ -125,6 +126,7 @@ public class PropertyTest extends DatabaseTestCase {
         for (int i = 0; i < aliasedProperties.length; i++) {
             String expectedExpression = "testModelAlias." + originalProperties[i].getName();
             assertEquals(expectedExpression, aliasedProperties[i].getQualifiedExpression());
+            assertEquals(expectedTableModelName, aliasedProperties[i].tableModelName);
         }
 
         Query query = Query.select().from(testModelAlias);
