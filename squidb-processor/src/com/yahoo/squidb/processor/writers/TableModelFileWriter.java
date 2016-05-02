@@ -29,7 +29,7 @@ import javax.tools.Diagnostic.Kind;
 public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper> {
 
     public static final String TABLE_NAME = "TABLE";
-    public static final String TABLE_MODEL_NAME = "TABLE_MODEL";
+    public static final String TABLE_MODEL_NAME = "TABLE_MODEL_NAME";
 
     public TableModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
         super(new TableModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
