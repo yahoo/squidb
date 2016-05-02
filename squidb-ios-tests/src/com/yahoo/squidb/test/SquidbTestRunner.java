@@ -127,6 +127,7 @@ public class SquidbTestRunner {
                 TestViewModel.class,
                 TestVirtualModel.class,
                 Thing.class,
+                ThingJoin.class,
                 TriggerTester.class,
                 ViewlessViewModel.class
         };
