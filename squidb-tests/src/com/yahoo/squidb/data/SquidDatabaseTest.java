@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.sql.TableModelName;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
@@ -62,10 +63,12 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testTryAddColumn() {
-        StringProperty goodProperty = new StringProperty(TestModel.TABLE, "good_column");
+        StringProperty goodProperty = new StringProperty(
+                new TableModelName(TestModel.class, TestModel.TABLE.getName()), "good_column");
         badDatabase.tryAddColumn(goodProperty); // don't care about the result, just that it didn't throw
 
-        final StringProperty badProperty = new StringProperty(TestViewModel.VIEW, "bad_column");
+        final StringProperty badProperty = new StringProperty(
+                new TableModelName(TestViewModel.class, TestViewModel.VIEW.getName()), "bad_column");
         testThrowsException(new Runnable() {
             @Override
             public void run() {

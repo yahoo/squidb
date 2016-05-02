@@ -58,6 +58,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.LONG_PROPERTY);
         imports.add(TypeConstants.TABLE_MODEL);
+        imports.add(TypeConstants.TABLE_MODEL_NAME);
         imports.add(tableType);
     }
 

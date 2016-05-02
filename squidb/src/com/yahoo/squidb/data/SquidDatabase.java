@@ -1151,14 +1151,20 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     protected boolean tryAddColumn(Property<?> property) {
-        if (!(property.table instanceof Table)) {
+        if (!propertyBelongsToTable(property)) {
             throw new IllegalArgumentException("Can't alter table: property does not belong to a Table");
         }
         SqlConstructorVisitor visitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        sql.append("ALTER TABLE ").append(property.table.getExpression()).append(" ADD ");
+        sql.append("ALTER TABLE ").append(property.tableModelName.tableName).append(" ADD ");
         property.accept(visitor, sql);
         return tryExecSql(sql.toString());
+    }
+
+    private boolean propertyBelongsToTable(Property<?> property) {
+        return property.tableModelName.modelClass != null &&
+                TableModel.class.isAssignableFrom(property.tableModelName.modelClass) &&
+                !SqlUtils.isEmpty(property.tableModelName.tableName);
     }
 
     /**

@@ -25,7 +25,7 @@ package com.yahoo.squidb.sql;
 public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
 
     /** The database table this property represents a column of */
-    public final SqlTable<?> table;
+    public final TableModelName tableModelName;
 
     /** Extras for column definition (e.g. "COLLATE NOCASE") */
     public final String columnDefinition;
@@ -35,25 +35,25 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     /**
      * Create a property by table and column name
      */
-    protected Property(SqlTable<?> table, String columnName) {
-        this(table, columnName, null, null);
+    protected Property(TableModelName tableModelName, String columnName) {
+        this(tableModelName, columnName, null, null);
     }
 
     /**
      * Create a property by table and column name. The additional column definition information will be used when
      * creating the table.
      */
-    protected Property(SqlTable<?> table, String columnName, String columnDef) {
-        this(table, columnName, null, columnDef);
+    protected Property(TableModelName tableModelName, String columnName, String columnDef) {
+        this(tableModelName, columnName, null, columnDef);
     }
 
     /**
      * Create a property by table and column name and with the given alias. The additional column definition
      * information will be used when creating the table.
      */
-    protected Property(SqlTable<?> table, String columnName, String alias, String columnDefinition) {
-        super(columnName, table == null ? null : table.getName());
-        this.table = table;
+    protected Property(TableModelName tableModelName, String columnName, String alias, String columnDefinition) {
+        super(columnName, tableModelName == null ? null : tableModelName.tableName);
+        this.tableModelName = tableModelName;
         this.alias = alias;
         this.columnDefinition = columnDefinition;
     }
@@ -68,6 +68,10 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public String getColumnDefinition() {
         return columnDefinition;
+    }
+
+    public boolean isPrimaryKey() {
+        return columnDefinition != null && columnDefinition.contains("PRIMARY KEY");
     }
 
     @Override
@@ -141,8 +145,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         if (SqlUtils.isEmpty(tableAlias) || function != null) {
             return as(columnAlias);
         }
-        SqlTable<?> aliasedTable = table == null ? null : table.as(tableAlias);
-        return as(aliasedTable, columnAlias);
+        return cloneWithExpressionAndAlias(new TableModelName(tableModelName.modelClass, tableAlias),
+                getExpression(), columnAlias);
     }
 
     /**
@@ -159,7 +163,11 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         if (function != null) {
             return as(newAlias);
         }
-        return cloneWithExpressionAndAlias(newTable, getExpression(), newAlias);
+        if (newTable == null) {
+            return as(newAlias);
+        }
+        return cloneWithExpressionAndAlias(new TableModelName(newTable.getModelClass(), newTable.getName()),
+                getExpression(), newAlias);
     }
 
     /**
@@ -177,14 +185,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * @return a clone of this property
      */
     public Property<TYPE> asSelectionFromTable(SqlTable<?> newTable, String newAlias) {
-        return cloneWithExpressionAndAlias(newTable, getName(), newAlias);
+        TableModelName newTableModelName = newTable == null ? null :
+                new TableModelName(newTable.getModelClass(), newTable.getName());
+        return cloneWithExpressionAndAlias(newTableModelName, getName(), newAlias);
     }
 
     @SuppressWarnings("unchecked")
-    private Property<TYPE> cloneWithExpressionAndAlias(SqlTable<?> table, String expression, String alias) {
+    private Property<TYPE> cloneWithExpressionAndAlias(TableModelName tableModelName, String expression, String alias) {
         try {
-            return getClass().getConstructor(SqlTable.class, String.class, String.class,
-                    String.class).newInstance(table, expression, alias, null);
+            return getClass().getConstructor(TableModelName.class, String.class, String.class,
+                    String.class).newInstance(tableModelName, expression, alias, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -235,16 +245,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class IntegerProperty extends Property<Integer> {
 
-        public IntegerProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public IntegerProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public IntegerProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public IntegerProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public IntegerProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public IntegerProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public IntegerProperty(Function<Integer> function, String alias) {
@@ -326,16 +336,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class StringProperty extends Property<String> {
 
-        public StringProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public StringProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public StringProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public StringProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public StringProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public StringProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public StringProperty(Function<String> function, String alias) {
@@ -423,16 +433,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class DoubleProperty extends Property<Double> {
 
-        public DoubleProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public DoubleProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public DoubleProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public DoubleProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public DoubleProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public DoubleProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public DoubleProperty(Function<Double> function, String selectAs) {
@@ -496,16 +506,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class LongProperty extends Property<Long> {
 
-        public LongProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public LongProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public LongProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public LongProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public LongProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public LongProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public LongProperty(Function<Long> function, String selectAs) {
@@ -569,16 +579,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class BooleanProperty extends Property<Boolean> {
 
-        public BooleanProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public BooleanProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public BooleanProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public BooleanProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public BooleanProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public BooleanProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public BooleanProperty(Function<Integer> function, String selectAs) {
@@ -659,16 +669,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class BlobProperty extends Property<byte[]> {
 
-        public BlobProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public BlobProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public BlobProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public BlobProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public BlobProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public BlobProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         @Override
@@ -706,20 +716,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     /**
      * Extension of {@link StringProperty} meant for storing enum values. Uses a type parameter so that the enum type
      * being serialized is known at compile time.
+     *
      * @param <T> an enum type for this property to hold
      */
     public static class EnumProperty<T extends Enum<T>> extends StringProperty {
 
-        public EnumProperty(SqlTable<?> table, String name) {
-            super(table, name);
+        public EnumProperty(TableModelName tableModelName, String name) {
+            super(tableModelName, name);
         }
 
-        public EnumProperty(SqlTable<?> table, String name, String columnDefinition) {
-            super(table, name, columnDefinition);
+        public EnumProperty(TableModelName tableModelName, String name, String columnDefinition) {
+            super(tableModelName, name, columnDefinition);
         }
 
-        public EnumProperty(SqlTable<?> table, String name, String alias, String columnDefinition) {
-            super(table, name, alias, columnDefinition);
+        public EnumProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+            super(tableModelName, name, alias, columnDefinition);
         }
 
         public EnumProperty(Function<String> function, String alias) {
@@ -727,7 +738,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         }
 
         /**
-         * Construct an EnumProperty from a literal enum value and with the given alias, e.g. "'ENUM_VAL_1' AS greeting"
+         * Construct an EnumProperty from a literal enum value and with the given alias, e.g. "'ENUM_VAL_1' AS
+         * greeting"
          *
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
@@ -764,8 +776,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        String tableName = table == null ? "null" : table.getExpression();
-        sb.append(" Table=").append(tableName).append(" ColumnDefinition=")
+        sb.append(" Table=").append(tableModelName.tableName).append(" ColumnDefinition=")
                 .append(columnDefinition);
         return sb.toString();
     }
