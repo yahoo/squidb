@@ -47,7 +47,8 @@ static void throwUnknownTypeException(jint type) {
 }
 
 + (void) nativeDispose:(NSObject *)windowPtr {
-    // Nothing to do, ARC will dealloc automatically
+    CursorWindowNative *window = (CursorWindowNative *)(windowPtr);
+    [window dispose];
 }
 
 + (void) nativeClear:(NSObject *)windowPtr {
@@ -347,6 +348,12 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     return self;
 }
 
+- (void)dispose {
+    free(data);
+    data = NULL;
+    mHeader = NULL;
+}
+
 - (status_t) clear {
     if (self.mIsReadOnly) {
         return INVALID_OPERATION;
@@ -571,12 +578,6 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
     fieldSlot->data.buffer.offset = 0;
     fieldSlot->data.buffer.size = 0;
     return OK;
-}
-
-- (void)dealloc {
-    free(data);
-    data = NULL;
-    mHeader = NULL;
 }
 
 @end
