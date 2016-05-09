@@ -111,6 +111,8 @@ struct FieldSlot {
 
 - (id) initWithName:(NSString *)name size:(uint32_t)size isReadOnly:(BOOL)readOnly;
 
+- (void)dispose;
+
 - (status_t) clear;
 
 - (status_t) setNumColumns:(uint32_t)numColumns;
