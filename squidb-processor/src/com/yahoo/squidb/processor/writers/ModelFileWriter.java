@@ -51,7 +51,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
 
     static {
-        List<TypeName> extend = new ArrayList<TypeName>();
+        List<TypeName> extend = new ArrayList<>();
         extend.add(TypeConstants.ABSTRACT_MODEL);
         GenericName returnGeneric = new GenericName(GenericName.WILDCARD_CHAR, extend, null);
         DeclaredTypeName returnType = TypeConstants.CREATOR.clone();
@@ -123,7 +123,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void emitImports() throws IOException {
-        Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
+        Set<DeclaredTypeName> imports = new HashSet<>();
         modelSpec.addRequiredImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
@@ -147,7 +147,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
-        Set<DeclaredTypeName> interfaces = new LinkedHashSet<DeclaredTypeName>();
+        Set<DeclaredTypeName> interfaces = new LinkedHashSet<>();
         modelSpec.getPluginBundle().addInterfacesToImplement(interfaces);
         return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }

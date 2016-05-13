@@ -10,11 +10,10 @@ version = '2.0.3'
 apply plugin: 'java'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 dependencies {
-    compile 'com.yahoo.squidb:apt-utils:1.0.0'
     compile project(':squidb-processor')
     compile project(':squidb-jackson-annotations')
 }

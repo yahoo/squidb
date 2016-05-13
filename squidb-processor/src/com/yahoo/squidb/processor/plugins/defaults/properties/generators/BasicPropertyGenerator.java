@@ -100,7 +100,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
 
     @Override
     public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        List<String> constructorArgs = new ArrayList<String>();
+        List<String> constructorArgs = new ArrayList<>();
         constructorArgs.add(TableModelFileWriter.TABLE_NAME);
         constructorArgs.add("\"" + columnName + "\"");
         String columnDef = getColumnDefinition();
@@ -201,7 +201,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         }
 
         String methodToInvoke;
-        List<Object> arguments = new ArrayList<Object>();
+        List<Object> arguments = new ArrayList<>();
         arguments.add(Expressions.callMethodOn(propertyName, "getName"));
         if (ColumnSpec.DEFAULT_NULL.equals(defaultValue)) {
             methodToInvoke = "putNull";

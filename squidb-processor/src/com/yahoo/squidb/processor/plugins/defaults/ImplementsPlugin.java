@@ -28,7 +28,7 @@ import javax.lang.model.element.TypeElement;
  */
 public class ImplementsPlugin extends Plugin {
 
-    private final List<DeclaredTypeName> interfaces = new ArrayList<DeclaredTypeName>();
+    private final List<DeclaredTypeName> interfaces = new ArrayList<>();
 
     public ImplementsPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
