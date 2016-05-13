@@ -78,7 +78,7 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
         if (AptUtils.isEmpty(typeArgs)) {
             return Expressions.classObject(fieldType);
         } else {
-            List<Expression> parameterizedTypeBuilderArgs = new ArrayList<Expression>();
+            List<Expression> parameterizedTypeBuilderArgs = new ArrayList<>();
             parameterizedTypeBuilderArgs.add(Expressions.classObject(fieldType));
             for (TypeName typeArg : typeArgs) {
                 // The cast to DeclaredTypeName is safe because we recursively check all type args before constructing
