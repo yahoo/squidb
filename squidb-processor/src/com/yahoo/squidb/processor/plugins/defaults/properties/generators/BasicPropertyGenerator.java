@@ -9,7 +9,6 @@ import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ColumnSpec;
@@ -94,7 +93,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         if (isDeprecated) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
-        List<Object> constructorArgs = new ArrayList<Object>();
+        List<Object> constructorArgs = new ArrayList<>();
         constructorArgs.add(TableModelFileWriter.TABLE_MODEL_NAME);
         constructorArgs.add("\"" + columnName + "\"");
         String columnDef = getColumnDefinition();
@@ -202,7 +201,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         }
 
         String methodToInvoke;
-        List<Object> arguments = new ArrayList<Object>();
+        List<Object> arguments = new ArrayList<>();
         arguments.add(Expressions.callMethodOn(propertyName, "getName"));
         if (ColumnSpec.DEFAULT_NULL.equals(defaultValue)) {
             methodToInvoke = "putNull";

@@ -53,9 +53,9 @@ public class PluginEnvironment {
     private final AptUtils utils;
     private final Map<String, String> envOptions;
     private final Set<String> squidbOptions;
-    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<Class<? extends Plugin>>();
-    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<Class<? extends Plugin>>();
-    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<Class<? extends Plugin>>();
+    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
 
     public enum PluginPriority {
         LOW,
@@ -122,7 +122,7 @@ public class PluginEnvironment {
     }
 
     private Set<String> parseOptions() {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         String optionsString = envOptions.get(OPTIONS_KEY);
         if (!AptUtils.isEmpty(optionsString)) {
             String[] allOptions = optionsString.split(SEPARATOR);
@@ -260,7 +260,7 @@ public class PluginEnvironment {
      * @return a new {@link PluginBundle} containing Plugins initialized to handle the given model spec
      */
     public PluginBundle getPluginBundleForModelSpec(ModelSpec<?> modelSpec) {
-        List<Plugin> plugins = new ArrayList<Plugin>();
+        List<Plugin> plugins = new ArrayList<>();
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);

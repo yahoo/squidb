@@ -42,7 +42,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     private void emitTableDeclaration() throws IOException {
         writer.writeComment("--- table declaration");
-        List<Object> arguments = new ArrayList<Object>();
+        List<Object> arguments = new ArrayList<>();
         arguments.add(Expressions.classObject(modelSpec.getGeneratedClassName())); // modelClass
         arguments.add(PROPERTIES_ARRAY_NAME); // properties
         arguments.add("\"" + modelSpec.getSpecAnnotation().tableName() + "\""); // name

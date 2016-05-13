@@ -102,7 +102,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private void emitImports() throws IOException {
-        Set<DeclaredTypeName> imports = new HashSet<DeclaredTypeName>();
+        Set<DeclaredTypeName> imports = new HashSet<>();
         modelSpec.addRequiredImports(imports);
         writer.writeImports(imports);
         writer.registerOtherKnownNames(TypeConstants.CREATOR,
@@ -123,7 +123,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     }
 
     private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
-        Set<DeclaredTypeName> interfaces = new LinkedHashSet<DeclaredTypeName>();
+        Set<DeclaredTypeName> interfaces = new LinkedHashSet<>();
         modelSpec.getPluginBundle().addInterfacesToImplement(interfaces);
         return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
     }

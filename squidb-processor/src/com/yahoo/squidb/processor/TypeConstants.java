@@ -110,7 +110,7 @@ public class TypeConstants {
         PROPERTY_VARARGS.setIsVarArgs(true);
     }
 
-    private static final Set<DeclaredTypeName> BASIC_PROPERTY_TYPES = new HashSet<DeclaredTypeName>();
+    private static final Set<DeclaredTypeName> BASIC_PROPERTY_TYPES = new HashSet<>();
 
     static {
         BASIC_PROPERTY_TYPES.add(TypeConstants.BLOB_PROPERTY);

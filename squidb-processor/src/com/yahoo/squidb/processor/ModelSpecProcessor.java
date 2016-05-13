@@ -50,10 +50,10 @@ import javax.tools.Diagnostic.Kind;
  * }
  * </pre>
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class ModelSpecProcessor extends AbstractProcessor {
 
-    private Set<String> supportedAnnotationTypes = new HashSet<String>();
+    private Set<String> supportedAnnotationTypes = new HashSet<>();
 
     private AptUtils utils;
     private PluginEnvironment pluginEnv;
@@ -71,7 +71,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedOptions() {
-        Set<String> supportedOptions = new HashSet<String>();
+        Set<String> supportedOptions = new HashSet<>();
         supportedOptions.add(PluginEnvironment.PLUGINS_KEY);
         supportedOptions.add(PluginEnvironment.OPTIONS_KEY);
         return supportedOptions;

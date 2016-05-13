@@ -50,9 +50,9 @@ public abstract class ModelSpec<T extends Annotation> {
     protected final DeclaredTypeName modelSpecName;
     protected final TypeElement modelSpecElement;
 
-    private final List<PropertyGenerator> propertyGenerators = new ArrayList<PropertyGenerator>();
-    private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<PropertyGenerator>();
-    private final Map<String, Object> metadataMap = new HashMap<String, Object>();
+    private final List<PropertyGenerator> propertyGenerators = new ArrayList<>();
+    private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<>();
+    private final Map<String, Object> metadataMap = new HashMap<>();
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;

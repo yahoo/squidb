@@ -37,9 +37,8 @@ import javax.tools.Diagnostic;
  */
 public class ConstantCopyingPlugin extends Plugin {
 
-    private final List<VariableElement> constantElements = new ArrayList<VariableElement>();
-    private final Map<String, List<VariableElement>> innerClassConstants
-            = new HashMap<String, List<VariableElement>>();
+    private final List<VariableElement> constantElements = new ArrayList<>();
+    private final Map<String, List<VariableElement>> innerClassConstants = new HashMap<>();
 
     public ConstantCopyingPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
@@ -74,7 +73,7 @@ public class ConstantCopyingPlugin extends Plugin {
                 }
 
                 TypeElement constantClass = (TypeElement) element;
-                List<VariableElement> constantList = new ArrayList<VariableElement>();
+                List<VariableElement> constantList = new ArrayList<>();
                 innerClassConstants.put(constantClass.getSimpleName().toString(), constantList);
 
                 for (Element e : constantClass.getEnclosedElements()) {

@@ -35,8 +35,7 @@ import javax.tools.Diagnostic.Kind;
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
-    private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap
-            = new HashMap<DeclaredTypeName, Class<? extends PropertyGenerator>>();
+    private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap = new HashMap<>();
 
     public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
