@@ -40,8 +40,8 @@ import javax.tools.Diagnostic;
  */
 public class ModelMethodPlugin extends Plugin {
 
-    private final List<ExecutableElement> modelMethods = new ArrayList<ExecutableElement>();
-    private final List<ExecutableElement> staticModelMethods = new ArrayList<ExecutableElement>();
+    private final List<ExecutableElement> modelMethods = new ArrayList<>();
+    private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
 
     public ModelMethodPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
@@ -69,7 +69,7 @@ public class ModelMethodPlugin extends Plugin {
         MethodDeclarationParameters params = utils.methodDeclarationParamsFromExecutableElement(e, modifiers);
 
         ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        List<Object> arguments = new ArrayList<Object>();
+        List<Object> arguments = new ArrayList<>();
         if (methodAnnotation != null) {
             String name = methodAnnotation.name();
             if (!AptUtils.isEmpty(name)) {
