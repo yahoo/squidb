@@ -25,7 +25,7 @@ public final class Query extends TableStatement {
     private ArrayList<Field<?>> fields = null;
     private ArrayList<Criterion> criterions = null;
     private ArrayList<Join> joins = null;
-    private ArrayList<Field<?>> groupBies = null;
+    private ArrayList<Field<?>> groupByFields = null;
     private ArrayList<Criterion> havings = null;
     private ArrayList<CompoundSelect> compoundSelects = null;
     private ArrayList<Order> orders = null;
@@ -281,10 +281,10 @@ public final class Query extends TableStatement {
         if (immutable) {
             return fork().groupBy(fields);
         }
-        if (this.groupBies == null) {
-            this.groupBies = new ArrayList<>();
+        if (this.groupByFields == null) {
+            this.groupByFields = new ArrayList<>();
         }
-        SquidUtilities.addAll(this.groupBies, fields);
+        SquidUtilities.addAll(this.groupByFields, fields);
         invalidateCompileCache();
         return this;
     }
@@ -571,11 +571,11 @@ public final class Query extends TableStatement {
     }
 
     private void visitGroupByClause(SqlBuilder builder, boolean forSqlValidation) {
-        if (isEmpty(groupBies)) {
+        if (isEmpty(groupByFields)) {
             return;
         }
         builder.sql.append(" GROUP BY");
-        for (Field<?> groupBy : groupBies) {
+        for (Field<?> groupBy : groupByFields) {
             builder.sql.append(" ");
             groupBy.appendQualifiedExpression(builder, forSqlValidation);
             builder.sql.append(",");
@@ -671,7 +671,7 @@ public final class Query extends TableStatement {
         newQuery.table = table;
         newQuery.criterions = forkList(criterions);
         newQuery.joins = forkList(joins);
-        newQuery.groupBies = forkList(groupBies);
+        newQuery.groupByFields = forkList(groupByFields);
         newQuery.compoundSelects = forkList(compoundSelects);
         newQuery.orders = forkList(orders);
         newQuery.havings = forkList(havings);
