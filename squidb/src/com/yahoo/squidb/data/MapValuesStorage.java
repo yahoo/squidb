@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class MapValuesStorage extends ValuesStorage {
 
-    final Map<String, Object> values;
+    private final Map<String, Object> values;
 
     public MapValuesStorage() {
         this.values = new HashMap<>();

@@ -23,11 +23,6 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     @Override
-    protected void emitModelSpecificFields() throws IOException {
-        // Nothing to do
-    }
-
-    @Override
     protected void emitAllProperties() throws IOException {
         for (PropertyGenerator e : modelSpec.getPropertyGenerators()) {
             emitSinglePropertyDeclaration(e);

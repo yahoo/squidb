@@ -72,7 +72,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     private String getColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !"".equals(columnDef.name())) {
+        if (columnDef != null && !AptUtils.isEmpty(columnDef.name())) {
             return columnDef.name();
         }
         return camelCasePropertyName;

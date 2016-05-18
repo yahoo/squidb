@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class ContentValuesStorage extends ValuesStorage implements Parcelable {
 
-    final ContentValues values;
+    private final ContentValues values;
 
     public ContentValuesStorage() {
         this.values = new ContentValues();

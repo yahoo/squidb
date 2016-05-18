@@ -33,9 +33,7 @@ public final class ModelCreator<TYPE extends AbstractModel & Parcelable>
         TYPE model;
         try {
             model = cls.newInstance();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         model.readFromParcel(source);
