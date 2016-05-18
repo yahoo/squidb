@@ -42,8 +42,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * SquidDatabase is a database abstraction which wraps a SQLite database.
  * <p>
  * Use this class to control the lifecycle of your database where you would normally use a
- * {@link android.database.sqlite.SQLiteOpenHelper}. The first call to a read or write operation will open the
- * database.
+ * android.database.sqlite.SQLiteOpenHelper. The first call to a read or write operation will open the database.
  * You can close it again using {@link #close()}. For information about writing migrations or pre-populating a new
  * database see the {@link #onUpgrade(ISQLiteDatabase, int, int)} and
  * {@link #onTablesCreated(ISQLiteDatabase)} hooks.
@@ -1672,7 +1671,8 @@ public abstract class SquidDatabase {
 
     /**
      * Update all rows matching the given {@link Criterion}, setting values based on the provided template model. Any
-     * constraint violations will be resolved using the specified {@link TableStatement.ConflictAlgorithm}.
+     * constraint violations will be resolved using the specified
+     * {@link com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm ConflictAlgorithm}.
      *
      * @param where the criterion to match. Note: passing null will update all rows!
      * @param template a model containing new values for the properties (columns) that should be updated
@@ -1744,7 +1744,8 @@ public abstract class SquidDatabase {
     /**
      * Save a model to the database. Creates a new row if the model does not have an ID, otherwise updates the row with
      * the corresponding row ID. If a new row is inserted, the model will have its ID set to the corresponding row ID.
-     * Any constraint violations will be resolved using the specified {@link TableStatement.ConflictAlgorithm}.
+     * Any constraint violations will be resolved using the specified
+     * {@link com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm ConflictAlgorithm}.
      *
      * @param item the model to save
      * @param conflictAlgorithm the conflict algorithm to use

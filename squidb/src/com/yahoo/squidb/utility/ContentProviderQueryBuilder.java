@@ -19,10 +19,10 @@ import java.util.List;
 
 /**
  * Helper class for building queries that use raw strings for projection, selection, and sort order. This is
- * particularly useful when these elements are provided by an outside party, e.g. through a
- * {@link android.content.ContentProvider#query(android.net.Uri, String[], String, String[], String)
- * ContentProvider query}. Use the set... methods to build its internal state, then call
- * {@link #build(String[], String, String[], String) build} with the raw arguments to construct an appropriate Query.
+ * particularly useful when these elements are provided by an outside party, e.g. through
+ * android.content.ContentProvider.query(Uri, String[], String, String[], String). Use the set... methods to build
+ * its internal state, then call {@link #build(String[], String, String[], String) build} with the raw arguments to
+ * construct an appropriate Query.
  * <p>
  * For maximum protection against SQL injection attacks, clients should do the following:
  * <ul>
