@@ -85,9 +85,7 @@ public abstract class ViewModel extends AbstractModel {
                     for (String table : clsMappers.keySet()) {
                         result.add(mapToModel(cls.newInstance(), table));
                     }
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -179,16 +177,16 @@ public abstract class ViewModel extends AbstractModel {
     }
 
     protected static void validateAliasedProperties(Property<?>[] aliasedPropertyArray) {
-        Map<String, Integer> numOccurences = new HashMap<>();
+        Map<String, Integer> numOccurrences = new HashMap<>();
         Set<String> duplicates = new HashSet<>();
 
         for (Property<?> p : aliasedPropertyArray) {
             String name = p.getName();
-            if (numOccurences.containsKey(name)) {
+            if (numOccurrences.containsKey(name)) {
                 duplicates.add(name);
-                numOccurences.put(name, numOccurences.get(name) + 1);
+                numOccurrences.put(name, numOccurrences.get(name) + 1);
             } else {
-                numOccurences.put(name, 1);
+                numOccurrences.put(name, 1);
             }
         }
 
@@ -200,11 +198,11 @@ public abstract class ViewModel extends AbstractModel {
                 if (base.isPrimaryKey()) {
                     alias = base.tableModelName.tableName + "Id";
                 } else {
-                    int occurrence = numOccurences.get(name);
+                    int occurrence = numOccurrences.get(name);
                     alias = name + "_" + occurrence;
                 }
                 aliasedPropertyArray[i] = base.as(alias);
-                numOccurences.put(name, numOccurences.get(name) - 1);
+                numOccurrences.put(name, numOccurrences.get(name) - 1);
             }
         }
     }
@@ -232,9 +230,7 @@ public abstract class ViewModel extends AbstractModel {
             }
             if (tableName == null) {
                 if (visitors.size() == 1) {
-                    for (TableModelMappingVisitor<?> visitor : visitors.values()) {
-                        return (TableModelMappingVisitor<T>) visitor;
-                    }
+                    return (TableModelMappingVisitor<T>) visitors.values().iterator().next();
                 } else {
                     throw new IllegalArgumentException("Attempted to mapToModel for class " + cls +
                             ", but multiple table aliases were found and none was specified. Use " +
@@ -243,7 +239,6 @@ public abstract class ViewModel extends AbstractModel {
             } else {
                 return (TableModelMappingVisitor<T>) visitors.get(tableName);
             }
-            return null;
         }
 
         public Set<Map.Entry<Class<? extends AbstractModel>,

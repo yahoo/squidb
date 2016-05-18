@@ -48,7 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * database see the {@link #onUpgrade(ISQLiteDatabase, int, int)} and
  * {@link #onTablesCreated(ISQLiteDatabase)} hooks.
  * <p>
- * SquidDatabase provides typesafe reads and writes using model classes. For example, rather than using rawQuery to
+ * SquidDatabase provides type safe reads and writes using model classes. For example, rather than using rawQuery to
  * get a Cursor, use {@link #query(Class, Query)}.
  * <p>
  * By convention, methods beginning with "try" (e.g. {@link #tryCreateTable(Table) tryCreateTable}) return true
@@ -1569,13 +1569,7 @@ public abstract class SquidDatabase {
             TYPE toReturn = modelClass.newInstance();
             toReturn.readPropertiesFromCursor(cursor);
             return toReturn;
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             cursor.close();

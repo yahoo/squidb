@@ -49,7 +49,7 @@ public interface ICursor {
     /**
      * Returns the current position of the cursor in the row set.
      * The value is zero-based. When the row set is first returned the cursor
-     * will be at positon -1, which is before the first row. After the
+     * will be at position -1, which is before the first row. After the
      * last row is returned another call to next() will leave the cursor past
      * the last entry, at a position of count().
      *
@@ -322,8 +322,6 @@ public interface ICursor {
 
     /**
      * Closes the Cursor, releasing all of its resources and making it completely invalid.
-     * Unlike {@link #deactivate()} a call to {@link #requery()} will not make the Cursor valid
-     * again.
      */
     void close();
 

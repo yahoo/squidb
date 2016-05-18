@@ -775,9 +775,6 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append(" Table=").append(tableModelName.tableName).append(" ColumnDefinition=")
-                .append(columnDefinition);
-        return sb.toString();
+        return super.toString() + " Table=" + tableModelName.tableName + " ColumnDefinition=" + columnDefinition;
     }
 }
