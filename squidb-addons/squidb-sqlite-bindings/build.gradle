@@ -7,21 +7,6 @@ project.ext.artifactId = 'squidb-sqlite-bindings'
 group = 'com.yahoo.squidb'
 version = '2.0.3'
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
-        if (gradle.gradleVersion.startsWith('2.2') || gradle.gradleVersion.startsWith('2.3')) {
-            classpath 'com.github.dcendents:android-maven-plugin:1.2'
-        } else {
-            classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
-        }
-    }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
