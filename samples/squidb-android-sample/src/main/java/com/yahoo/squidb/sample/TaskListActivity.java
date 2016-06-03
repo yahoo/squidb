@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.sample;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -58,6 +59,7 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         });
     }
 
+    @SuppressLint("ValidFragment")
     private class EditTaskDialogFragment extends DialogFragment {
 
         private Task mTask;
@@ -87,6 +89,7 @@ public class TaskListActivity extends Activity implements LoaderManager.LoaderCa
         }
     }
 
+    @SuppressLint("ValidFragment")
     private class NewTaskDialogFragment extends DialogFragment {
 
         @Override
