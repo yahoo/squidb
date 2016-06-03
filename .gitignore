@@ -12,7 +12,11 @@
 bin/
 gen/
 out/
+obj/**
 .apt_generated/
+*.so
+*.o
+*.o.d
 
 # lint
 lint.xml
