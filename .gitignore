@@ -14,6 +14,9 @@ gen/
 out/
 intermediate/
 .apt_generated/
+*.so
+*.o
+*.o.d
 
 # lint
 lint.xml

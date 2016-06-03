@@ -3,9 +3,6 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-project.ext.artifactId = 'squidb-json-compiler'
-group = 'com.yahoo.squidb'
-version = '3.0.0-beta.1'
 
 apply plugin: 'java'
 apply plugin: 'maven'
