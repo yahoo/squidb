@@ -9,6 +9,7 @@ Version 2.1.0 *(2016-06-14)*
 * Generated models now contain a Javadoc link back to their model specs for easier navigation in the IDE
 * Fix several harmless warnings that could be emitted by the code generator
 * Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.13.0
+* SquiDB 3.0 will be arriving soon, adding support for iOS via [Google's j2objc tool](http://j2objc.org/). Development is in progress on [this branch](https://github.com/yahoo/squidb/tree/dev_3.0).
 
 Version 2.0.3 *(2016-04-15)*
 ----------------------------
