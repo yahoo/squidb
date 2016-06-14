@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 2.1.0 *(2016-06-14)*
+----------------------------
+* The `ViewModel#mapToModel` API would break down if the ViewModel consisted of multiple joins on the same table with different aliases.
+  This release adds a new version of the `ViewModel#mapToModel` API that takes a second table alias argument to specify which table alias
+  should be used when mapping result columns back to their source table rows.
+* Generated models now contain a Javadoc link back to their model specs for easier navigation in the IDE
+* Fix several harmless warnings that could be emitted by the code generator
+* Bump the SQLite version in the `squidb-sqlite-bindings` project to 3.13.0
+
 Version 2.0.3 *(2016-04-15)*
 ----------------------------
 * Add the ability to use enum types in column definitions. Enums properties serialize their values to strings for storage
