@@ -194,9 +194,11 @@ public class Plugin {
      * most often it would be useful for annotating the generated method
      *
      * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be emitted
      * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    public void beforeEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         // Stub for subclasses to override
     }
 
@@ -205,9 +207,11 @@ public class Plugin {
      * although use cases for this hook will probably be rare
      *
      * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be emitted
      * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    public void afterEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void afterEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         // Stub for subclasses to override
     }
 
@@ -216,9 +220,11 @@ public class Plugin {
      * most often it would be useful for annotating the generated method
      *
      * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be emitted
      * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    public void beforeEmitSetter(JavaFileWriter writer, MethodDeclarationParameters setterParams) throws IOException {
+    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters setterParams) throws IOException {
         // Stub for subclasses to override
     }
 
@@ -227,9 +233,11 @@ public class Plugin {
      * although use cases for this hook will probably be rare
      *
      * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be emitted
      * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    public void afterEmitSetter(JavaFileWriter writer, MethodDeclarationParameters setterParams) throws IOException {
+    public void afterEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters setterParams) throws IOException {
         // Stub for subclasses to override
     }
 

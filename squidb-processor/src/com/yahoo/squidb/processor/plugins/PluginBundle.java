@@ -178,49 +178,57 @@ public class PluginBundle extends Plugin {
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     * Calls {@link Plugin#beforeEmitGetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * on all the bundled plugins
      */
     @Override
-    public void beforeEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitGetter(writer, getterParams);
+                plugin.beforeEmitGetter(writer, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitGetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     * Calls {@link Plugin#afterEmitGetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * on all the bundled plugins
      */
     @Override
-    public void afterEmitGetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void afterEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitGetter(writer, getterParams);
+                plugin.afterEmitGetter(writer, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     * Calls {@link Plugin#beforeEmitSetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * on all the bundled plugins
      */
     @Override
-    public void beforeEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitSetter(writer, getterParams);
+                plugin.beforeEmitSetter(writer, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitSetter(JavaFileWriter, MethodDeclarationParameters)} on all the bundled plugins
+     * Calls {@link Plugin#afterEmitSetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * on all the bundled plugins
      */
     @Override
-    public void afterEmitSetter(JavaFileWriter writer, MethodDeclarationParameters getterParams) throws IOException {
+    public void afterEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitSetter(writer, getterParams);
+                plugin.afterEmitSetter(writer, propertyGenerator, getterParams);
             }
         }
     }

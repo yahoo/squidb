@@ -146,11 +146,11 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setModifiers(Modifier.PUBLIC)
                 .setReturnType(getTypeForAccessors());
 
-        modelSpec.getPluginBundle().beforeEmitGetter(writer, params);
+        modelSpec.getPluginBundle().beforeEmitGetter(writer, this, params);
         writer.beginMethodDefinition(params);
         writeGetterBody(writer);
         writer.finishMethodDefinition();
-        modelSpec.getPluginBundle().afterEmitGetter(writer, params);
+        modelSpec.getPluginBundle().afterEmitGetter(writer, this, params);
     }
 
     @Override
@@ -176,11 +176,11 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setArgumentTypes(getTypeForAccessors())
                 .setArgumentNames(argName);
 
-        modelSpec.getPluginBundle().beforeEmitSetter(writer, params);
+        modelSpec.getPluginBundle().beforeEmitSetter(writer, this, params);
         writer.beginMethodDefinition(params);
         writeSetterBody(writer, argName);
         writer.finishMethodDefinition();
-        modelSpec.getPluginBundle().afterEmitSetter(writer, params);
+        modelSpec.getPluginBundle().afterEmitSetter(writer, this, params);
     }
 
     @Override
