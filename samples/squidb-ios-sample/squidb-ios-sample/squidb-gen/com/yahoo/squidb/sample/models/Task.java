@@ -8,10 +8,13 @@ import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.TableModelName;
 import java.util.Map;
 
+/**
+ * This class was generated from the model spec at {@link com.yahoo.squidb.sample.models.TaskSpec}
+ */
 // Generated code -- do not modify!
-// This class was generated from the model spec at com.yahoo.squidb.sample.models.TaskSpec
 public class Task extends TableModel {
 
     // --- allocate properties array
@@ -19,20 +22,21 @@ public class Task extends TableModel {
 
     // --- table declaration
     public static final Table TABLE = new Table(Task.class, PROPERTIES, "tasks", null);
+    public static final TableModelName TABLE_MODEL_NAME = new TableModelName(Task.class, TABLE.getName());
 
     // --- property declarations
-    public static final LongProperty ID = new LongProperty(TABLE, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
+    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
     static {
         TABLE.setIdProperty(ID);
     };
 
-    public static final StringProperty TITLE = new StringProperty(TABLE, "title", "NOT NULL");
+    public static final StringProperty TITLE = new StringProperty(TABLE_MODEL_NAME, "title", "NOT NULL");
 
-    public static final LongProperty COMPLETION_DATE = new LongProperty(TABLE, "completionDate", "DEFAULT 0");
+    public static final LongProperty COMPLETION_DATE = new LongProperty(TABLE_MODEL_NAME, "completionDate", "DEFAULT 0");
 
-    public static final LongProperty DUE_DATE = new LongProperty(TABLE, "dueDate", "DEFAULT 0");
+    public static final LongProperty DUE_DATE = new LongProperty(TABLE_MODEL_NAME, "dueDate", "DEFAULT 0");
 
-    public static final IntegerProperty PRIORITY = new IntegerProperty(TABLE, "priority", "DEFAULT 0");
+    public static final IntegerProperty PRIORITY = new IntegerProperty(TABLE_MODEL_NAME, "priority", "DEFAULT 0");
 
     @Override
     public LongProperty getIdProperty() {

@@ -7,10 +7,13 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Table;
+import com.yahoo.squidb.sql.TableModelName;
 import java.util.Map;
 
+/**
+ * This class was generated from the model spec at {@link com.yahoo.squidb.sample.models.TagSpec}
+ */
 // Generated code -- do not modify!
-// This class was generated from the model spec at com.yahoo.squidb.sample.models.TagSpec
 public class Tag extends TableModel {
 
     // --- allocate properties array
@@ -18,16 +21,17 @@ public class Tag extends TableModel {
 
     // --- table declaration
     public static final Table TABLE = new Table(Tag.class, PROPERTIES, "tags", null, "FOREIGN KEY(taskId) references tasks(_id) ON DELETE CASCADE");
+    public static final TableModelName TABLE_MODEL_NAME = new TableModelName(Tag.class, TABLE.getName());
 
     // --- property declarations
-    public static final LongProperty ID = new LongProperty(TABLE, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
+    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
     static {
         TABLE.setIdProperty(ID);
     };
 
-    public static final StringProperty TAG = new StringProperty(TABLE, "tag", "NOT NULL");
+    public static final StringProperty TAG = new StringProperty(TABLE_MODEL_NAME, "tag", "NOT NULL");
 
-    public static final LongProperty TASK_ID = new LongProperty(TABLE, "taskId", "NOT NULL");
+    public static final LongProperty TASK_ID = new LongProperty(TABLE_MODEL_NAME, "taskId", "NOT NULL");
 
     @Override
     public LongProperty getIdProperty() {
