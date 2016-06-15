@@ -26,7 +26,7 @@ install {
         pom {
             project {
                 packaging 'jar'
-                name 'SquiDB Core'
+                name 'SquiDB'
                 url siteUrl
                 licenses {
                     license {
