@@ -152,8 +152,7 @@ public abstract class SquidDatabase {
 
     /**
      * Called when the database should be downgraded from one version to another. If this method returns false or
-     * throws
-     * an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
+     * throws an exception, a call to {@link #onMigrationFailed(MigrationFailedException)} is triggered. The default
      * implementation of onMigrationFailed rethrows the exception. It is highly recommended that you override
      * onMigrationFailed to handle errors, for example by calling {@link #recreate()} to delete all data in the
      * database and start from scratch. More sophisticated recovery logic would require a different means of opening
@@ -1009,9 +1008,8 @@ public abstract class SquidDatabase {
     // --- helper classes
 
     /**
-     * Delegate class passed to a {@link ISQLiteOpenHelper} instance that allows the SQLiteOpenHelperWrapper to call
-     * back
-     * into its owning SquidDatabase after the database has been created or opened.
+     * Delegate class passed to a {@link ISQLiteOpenHelper} instance that allows the {@link ISQLiteOpenHelper}
+     * implementation to call back into its owning SquidDatabase after the database has been created or opened.
      */
     public final class OpenHelperDelegate {
 
