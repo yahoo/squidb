@@ -6,7 +6,6 @@
 package com.yahoo.squidb.android;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.net.Uri;
 
 import com.yahoo.squidb.data.AbstractModel;
@@ -43,25 +42,25 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     /**
      * Construct a UriNotifier that will be notified of changes to all tables
      */
-    public UriNotifier(Context context) {
+    public UriNotifier(ContentResolver contentResolver) {
         super();
-        this.contentResolver = context.getContentResolver();
+        this.contentResolver = contentResolver;
     }
 
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(Context context, SqlTable<?>... tables) {
+    public UriNotifier(ContentResolver contentResolver, SqlTable<?>... tables) {
         super(tables);
-        this.contentResolver = context.getContentResolver();
+        this.contentResolver = contentResolver;
     }
 
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(Context context, Collection<? extends SqlTable<?>> tables) {
+    public UriNotifier(ContentResolver contentResolver, Collection<? extends SqlTable<?>> tables) {
         super(tables);
-        this.contentResolver = context.getContentResolver();
+        this.contentResolver = contentResolver;
     }
 
     /**

@@ -29,7 +29,7 @@ public class UriNotifierTest extends DatabaseTestCase {
     private static class TestUriNotifier extends UriNotifier {
 
         public TestUriNotifier(Context context) {
-            super(context, TestModel.TABLE);
+            super(context.getContentResolver(), TestModel.TABLE);
         }
 
         @Override
@@ -183,14 +183,15 @@ public class UriNotifierTest extends DatabaseTestCase {
     }
 
     public void testUriNotifierConstructors() {
-        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext()) {
+        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver()) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
                 return false;
             }
         });
-        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext(), TestModel.TABLE) {
+        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver(),
+                TestModel.TABLE) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
@@ -198,8 +199,8 @@ public class UriNotifierTest extends DatabaseTestCase {
             }
         }, TestModel.TABLE);
 
-        testNotifierConstructorsInternal(
-                new UriNotifier(ContextProvider.getContext(), Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
+        testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver(),
+                        Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
                     @Override
                     protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                             SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
