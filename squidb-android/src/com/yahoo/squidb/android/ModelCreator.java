@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  * This class is used by {@link AndroidTableModel} and {@link AndroidViewModel} subclasses to facilitate implementing
  * {@link Parcelable}
  */
-public final class ModelCreator<TYPE extends AbstractModel & Parcelable>
+public final class ModelCreator<TYPE extends AbstractModel & ParcelableModel>
         implements Parcelable.Creator<TYPE> {
 
     private final Class<TYPE> cls;

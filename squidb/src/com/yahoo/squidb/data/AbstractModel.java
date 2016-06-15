@@ -9,7 +9,6 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
-import com.yahoo.squidb.utility.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -187,17 +186,6 @@ public abstract class AbstractModel implements Cloneable {
             clone.values.putAll(values);
         }
         return clone;
-    }
-
-    /**
-     * Android-specific method for initializing object state from a Parcel object. The default implementation of this
-     * method logs an error, as only its overridden version in AndroidTableModel and AndroidViewModel should ever be
-     * called.
-     *
-     * @param source a Parcel object to read from
-     */
-    public void readFromParcel(Object source) {
-        Logger.w(Logger.LOG_TAG, "Called readFromParcel on a non-parcelable model", new Throwable());
     }
 
     /**

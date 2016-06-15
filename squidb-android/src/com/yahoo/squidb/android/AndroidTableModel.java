@@ -12,14 +12,13 @@ import android.os.Parcelable;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.Property;
-import com.yahoo.squidb.utility.Logger;
 
 /**
  * Extension of {#link TableModel} that adds some Android-specific APIs and features. Android models implement
  * {@link Parcelable} and allow working with ContentValues instead of Maps. The code generator will generate table
  * models extending this subclass if the 'androidModels' option is set.
  */
-public abstract class AndroidTableModel extends TableModel implements Parcelable {
+public abstract class AndroidTableModel extends TableModel implements ParcelableModel {
 
     @Override
     protected ValuesStorage newValuesStorage() {
@@ -62,13 +61,8 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
     }
 
     @Override
-    public void readFromParcel(Object source) {
-        if (!(source instanceof Parcel)) {
-            Logger.w(Logger.LOG_TAG, "readFromParcel called with non-Parcel argument", new Throwable());
-            return;
-        }
-        Parcel parcel = (Parcel) source;
-        this.setValues = parcel.readParcelable(ContentValuesStorage.class.getClassLoader());
-        this.values = parcel.readParcelable(ContentValuesStorage.class.getClassLoader());
+    public void readFromParcel(Parcel source) {
+        this.setValues = source.readParcelable(ContentValuesStorage.class.getClassLoader());
+        this.values = source.readParcelable(ContentValuesStorage.class.getClassLoader());
     }
 }
