@@ -695,6 +695,8 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 String result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     * <br>
+     * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param sql a sql statement
      * @param sqlArgs arguments to bind to the sql statement
@@ -712,6 +714,8 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 long result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     * <br>
+     * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param sql a sql statement
      * @param sqlArgs arguments to bind to the sql statement
@@ -724,6 +728,34 @@ public abstract class SquidDatabase {
         } finally {
             releaseNonExclusiveLock();
         }
+    }
+
+    /**
+     * Execute a statement that returns a 1x1 String result. If you know your result set will only have one row and
+     * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     * <br>
+     * Note: This will throw an exception if the given SQL query returns a result that is not a single column
+     *
+     * @param query a sql query
+     * @return the String result of the query
+     */
+    public String simpleQueryForString(Query query) {
+        CompiledStatement compiled = query.compile(getSqliteVersion());
+        return simpleQueryForString(compiled.sql, compiled.sqlArgs);
+    }
+
+    /**
+     * Execute a statement that returns a 1x1 long result. If you know your result set will only have one row and
+     * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
+     * <br>
+     * Note: This will throw an exception if the given SQL query returns a result that is not a single column
+     *
+     * @param query a sql query
+     * @return the long result of the query
+     */
+    public long simpleQueryForLong(Query query) {
+        CompiledStatement compiled = query.compile(getSqliteVersion());
+        return simpleQueryForLong(compiled.sql, compiled.sqlArgs);
     }
 
     /**

@@ -30,8 +30,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
             @Override
             public void run() {
                 Function<String> json = JSONFunctions.json(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
-                String minified = database.simpleQueryForString(Query.select(json).toRawSql(
-                        database.getSqliteVersion()), null);
+                String minified = database.simpleQueryForString(Query.select(json));
                 assertEquals("{\"this\":\"is\",\"a\":[\"test\"]}", minified);
             }
         });
@@ -45,8 +44,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
                     @Override
                     public void run() {
                         Function<String> json = JSONFunctions.json(" { \"this\" : \"is\", \"a\": [ \"test\"  } ");
-                        String minified = database.simpleQueryForString(Query.select(json).toRawSql(
-                                database.getSqliteVersion()), null);
+                        String minified = database.simpleQueryForString(Query.select(json));
                         assertNull(minified);
                     }
                 });
@@ -59,8 +57,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
             @Override
             public void run() {
                 Function<String> jsonArray = JSONFunctions.jsonArray(1, 1, 2, 3, 5, 8, 13);
-                String result = database.simpleQueryForString(Query.select(jsonArray).toRawSql(
-                        database.getSqliteVersion()), null);
+                String result = database.simpleQueryForString(Query.select(jsonArray));
                 assertEquals("[1,1,2,3,5,8,13]", result);
             }
         });
@@ -72,8 +69,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
             public void run() {
                 Function<Integer> jsonArrayLength = JSONFunctions.jsonArrayLength(
                         JSONFunctions.jsonArray(1, 1, 2, 3, 5, 8, 13));
-                long result = database.simpleQueryForLong(Query.select(jsonArrayLength).toRawSql(
-                        database.getSqliteVersion()), null);
+                long result = database.simpleQueryForLong(Query.select(jsonArrayLength));
                 assertEquals(7, result);
             }
         });
@@ -85,8 +81,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
             public void run() {
                 Function<String> json = JSONFunctions.json(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
                 Function<Integer> jsonArrayLength = JSONFunctions.jsonArrayLength(json, "$.a");
-                long result = database.simpleQueryForLong(Query.select(jsonArrayLength).toRawSql(
-                        database.getSqliteVersion()), null);
+                long result = database.simpleQueryForLong(Query.select(jsonArrayLength));
                 assertEquals(1, result);
             }
         });
@@ -109,13 +104,13 @@ public class JSONFunctionTest extends DatabaseTestCase {
 
     private <T> void testJsonExtractSinglePathInternal(String json, String path, T expectedValue) {
         Function<T> extract = JSONFunctions.jsonExtract(json, path);
-        String sql = Query.select(extract).toRawSql(database.getSqliteVersion());
+        Query sql = Query.select(extract);
         Object value;
         if (expectedValue instanceof String || expectedValue == null) {
-            value = database.simpleQueryForString(sql, null);
+            value = database.simpleQueryForString(sql);
             assertEquals(expectedValue, value);
         } else if (expectedValue instanceof Number) {
-            value = database.simpleQueryForLong(sql, null);
+            value = database.simpleQueryForLong(sql);
             assertEquals(((Number) expectedValue).longValue(), value);
         } else {
             fail("Invalid expected value");
@@ -135,7 +130,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
 
     private void testJsonExtractMultiplePathsInternal(String json, String expectedValue, String... paths) {
         Function<String> extract = JSONFunctions.jsonExtract(json, paths);
-        String value = database.simpleQueryForString(Query.select(extract).toRawSql(database.getSqliteVersion()), null);
+        String value = database.simpleQueryForString(Query.select(extract));
         assertEquals(expectedValue, value);
     }
 
@@ -166,7 +161,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
         } else {
             type = JSONFunctions.jsonType(json, path);
         }
-        String result = database.simpleQueryForString(Query.select(type).toRawSql(database.getSqliteVersion()), null);
+        String result = database.simpleQueryForString(Query.select(type));
         assertEquals(expectedType, result);
     }
 
@@ -225,7 +220,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
             default:
                 fail("Unsupported insert/replace/set type " + type);
         }
-        String result = database.simpleQueryForString(Query.select(func).toRawSql(database.getSqliteVersion()), null);
+        String result = database.simpleQueryForString(Query.select(func));
         assertEquals(expectedResult, result);
     }
 
@@ -250,8 +245,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
 
     private void testJsonRemoveInternal(String jsonString, String expectedResult, String... paths) {
         Function<String> jsonRemove = JSONFunctions.jsonRemove(jsonString, (Object[]) paths);
-        String result = database.simpleQueryForString(Query.select(jsonRemove).toRawSql(
-                database.getSqliteVersion()), null);
+        String result = database.simpleQueryForString(Query.select(jsonRemove));
         assertEquals(expectedResult, result);
     }
 
@@ -269,8 +263,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
 
     private void testJsonObjectInternal(String expectedResult, Object... args) {
         Function<String> jsonObject = JSONFunctions.jsonObject(args);
-        String result = database.simpleQueryForString(Query.select(jsonObject).toRawSql(
-                database.getSqliteVersion()), null);
+        String result = database.simpleQueryForString(Query.select(jsonObject));
         assertEquals(expectedResult, result);
     }
 
@@ -281,12 +274,10 @@ public class JSONFunctionTest extends DatabaseTestCase {
                 Function<Integer> valid = JSONFunctions.jsonValid(" { \"this\" : \"is\", \"a\": [ \"test\" ] } ");
                 Function<Integer> invalid = JSONFunctions.jsonValid(" { \"this\" : \"is\", \"a\": [ \"test\"  } ");
 
-                long validResult = database.simpleQueryForLong(Query.select(valid).toRawSql(
-                        database.getSqliteVersion()), null);
+                long validResult = database.simpleQueryForLong(Query.select(valid));
                 assertEquals(1, validResult);
 
-                long invalidResult = database.simpleQueryForLong(Query.select(invalid).toRawSql(
-                        database.getSqliteVersion()), null);
+                long invalidResult = database.simpleQueryForLong(Query.select(invalid));
                 assertEquals(0, invalidResult);
             }
         });
@@ -302,8 +293,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
                     database.createNew(thing);
                 }
                 Function<String> groupArray = JSONFunctions.jsonGroupArray(Thing.FOO);
-                String result = database.simpleQueryForString(Query.select(groupArray).from(Thing.TABLE)
-                        .toRawSql(database.getSqliteVersion()), null);
+                String result = database.simpleQueryForString(Query.select(groupArray).from(Thing.TABLE));
                 try {
                     JSONArray resultArray = new JSONArray(result);
                     Set<String> resultValues = new HashSet<>();
@@ -330,8 +320,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
                     database.createNew(thing);
                 }
                 Function<String> groupObject = JSONFunctions.jsonGroupObject(Thing.FOO, Thing.BAR);
-                String result = database.simpleQueryForString(Query.select(groupObject).from(Thing.TABLE)
-                        .toRawSql(database.getSqliteVersion()), null);
+                String result = database.simpleQueryForString(Query.select(groupObject).from(Thing.TABLE));
                 try {
                     JSONObject resultObject = new JSONObject(result);
                     assertEquals(5, resultObject.length());
