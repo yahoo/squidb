@@ -113,8 +113,8 @@ public abstract class SquidRecyclerAdapter<M extends AbstractModel, V extends Sq
      * the returned old SquidCursor is <em>not</em> closed.
      *
      * @param newCursor the new SquidCursor
-     * @return Returns the previously set SquidCursor. If no SquidCursor was previously set, new SquidCursor is the
-     * same instance is the previously set one, null is returned.
+     * @return the previously set SquidCursor. If no SquidCursor was previously set, or if the new SquidCursor
+     * is the same instance as the previously set one, null is returned.
      */
     public SquidCursor<? extends M> swapCursor(SquidCursor<? extends M> newCursor) {
         if (cursor == newCursor) {
