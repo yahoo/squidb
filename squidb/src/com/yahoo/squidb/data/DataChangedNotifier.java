@@ -122,8 +122,7 @@ public abstract class DataChangedNotifier<T> {
      * @param database the SquidDatabase instance this change occurred in
      * @param operation the type of database write that occurred
      * @param modelValues the model values that triggered this database update. This parameter may be null; the
-     * database
-     * will provide it when possible, but it is not always present. If you only need a row id, check the rowId
+     * database will provide it when possible, but it is not always present. If you only need a row id, check the rowId
      * parameter. This parameter will be null for delete operations, and will contain only the changed columns and
      * their new values for updates.
      * @param rowId the single row id that was updated, if applicable
