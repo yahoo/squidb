@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.TextUtils;
-
 /**
  * A SQLite database object
  */
@@ -51,14 +49,14 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * @return true if this object has an alias
      */
     public boolean hasAlias() {
-        return !TextUtils.isEmpty(alias);
+        return !SqlUtils.isEmpty(alias);
     }
 
     /**
      * @return true if this object has a qualifier
      */
     public boolean hasQualifier() {
-        return !TextUtils.isEmpty(qualifier);
+        return !SqlUtils.isEmpty(qualifier);
     }
 
     @Override

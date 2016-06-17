@@ -7,8 +7,6 @@ package com.yahoo.squidb.processor.writers;
 
 import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.GenericName;
-import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.JavaFileWriter.Type;
@@ -22,18 +20,13 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import javax.tools.JavaFileObject;
 
 public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
@@ -47,24 +40,13 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
 
-    private static final MethodDeclarationParameters GET_CREATOR_PARAMS;
     private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
 
     static {
-        List<TypeName> extend = new ArrayList<>();
-        extend.add(TypeConstants.ABSTRACT_MODEL);
-        GenericName returnGeneric = new GenericName(GenericName.WILDCARD_CHAR, extend, null);
-        DeclaredTypeName returnType = TypeConstants.CREATOR.clone();
-        returnType.setTypeArgs(Collections.singletonList(returnGeneric));
-        GET_CREATOR_PARAMS = new MethodDeclarationParameters()
-                .setMethodName("getCreator")
-                .setModifiers(Modifier.PROTECTED)
-                .setReturnType(returnType);
-
         GET_DEFAULT_VALUES_PARAMS = new MethodDeclarationParameters()
                 .setMethodName("getDefaultValues")
                 .setModifiers(Modifier.PUBLIC)
-                .setReturnType(TypeConstants.CONTENT_VALUES);
+                .setReturnType(TypeConstants.VALUES_STORAGE);
     }
 
     public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv, AptUtils utils) {
@@ -73,18 +55,15 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         this.utils = utils;
     }
 
-    public final void writeJava(Filer filer) throws IOException {
-        initFileWriter(filer);
+    public final void writeJava() throws IOException {
+        initFileWriter();
         writeJavaFile();
         writer.close();
     }
 
-    private void initFileWriter(Filer filer) throws IOException {
+    private void initFileWriter() throws IOException {
         if (this.writer == null) {
-            JavaFileObject jfo = filer.createSourceFile(modelSpec.getGeneratedClassName().toString(),
-                    modelSpec.getModelSpecElement());
-            Writer writer = jfo.openWriter();
-            this.writer = new JavaFileWriter(writer);
+            this.writer = utils.newJavaFileWriter(modelSpec.getGeneratedClassName(), modelSpec.getModelSpecElement());
         } else {
             throw new IllegalStateException("JavaFileWriter already initialized");
         }
@@ -95,6 +74,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
         emitPackage();
         emitImports();
+        plugins.beforeEmitClassDeclaration(writer);
         beginClassDeclaration();
 
         plugins.beforeEmitSchema(writer);
@@ -111,7 +91,6 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         plugins.emitMethods(writer);
         plugins.afterEmitMethods(writer);
 
-        emitCreator();
         emitModelSpecificHelpers();
         plugins.emitAdditionalJava(writer);
 
@@ -126,14 +105,11 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         Set<DeclaredTypeName> imports = new HashSet<>();
         modelSpec.addRequiredImports(imports);
         writer.writeImports(imports);
-        writer.registerOtherKnownNames(TypeConstants.CREATOR, TypeConstants.MODEL_CREATOR,
+        writer.registerOtherKnownNames(TypeConstants.CREATOR,
                 TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
     }
 
     private void beginClassDeclaration() throws IOException {
-        writer.writeComment("Generated code -- do not modify!");
-        writer.writeString("/** This class was generated from the model spec at {@link "
-                + modelSpec.getModelSpecName() + "} */\n");
         if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
@@ -187,8 +163,9 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
 
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");
-        writer.writeFieldDeclaration(TypeConstants.CONTENT_VALUES, DEFAULT_VALUES_NAME,
-                Expressions.callConstructor(TypeConstants.CONTENT_VALUES),
+        writer.writeFieldDeclaration(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
+                Expressions.callMethodOn(
+                        Expressions.callConstructor(modelSpec.getGeneratedClassName()), "newValuesStorage"),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
         if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
@@ -215,42 +192,10 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         } else {
             writer.writeComment("--- getters and setters");
             for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-                emitGetter(writer, generator);
-                emitSetter(writer, generator);
+                generator.emitGetter(writer);
+                generator.emitSetter(writer);
             }
         }
-    }
-
-    private void emitGetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitGetter(writer);
-        generator.emitGetter(writer);
-        generator.afterEmitGetter(writer);
-    }
-
-    private void emitSetter(JavaFileWriter writer, PropertyGenerator generator) throws IOException {
-        generator.beforeEmitSetter(writer);
-        generator.emitSetter(writer);
-        generator.afterEmitSetter(writer);
-    }
-
-    private void emitCreator() throws IOException {
-        writer.writeComment("--- parcelable helpers");
-        List<DeclaredTypeName> genericList = Collections.singletonList(modelSpec.getGeneratedClassName());
-        DeclaredTypeName creatorType = TypeConstants.CREATOR.clone();
-        DeclaredTypeName modelCreatorType = TypeConstants.MODEL_CREATOR.clone();
-        creatorType.setTypeArgs(genericList);
-        modelCreatorType.setTypeArgs(genericList);
-
-        writer.writeFieldDeclaration(creatorType,
-                "CREATOR", Expressions.callConstructor(modelCreatorType,
-                        Expressions.classObject(modelSpec.getGeneratedClassName())),
-                TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(GET_CREATOR_PARAMS)
-                .writeStringStatement("return CREATOR")
-                .finishMethodDefinition();
     }
 
     protected void emitModelSpecificHelpers() throws IOException {

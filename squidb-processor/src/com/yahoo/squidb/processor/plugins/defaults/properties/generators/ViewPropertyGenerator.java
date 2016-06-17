@@ -39,7 +39,7 @@ public class ViewPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return getAndSetType;
     }
 

@@ -1,3 +1,8 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.SquidCursor;
@@ -20,7 +25,7 @@ public class AttachDetachTest extends DatabaseTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        database2 = new TestDatabase(getContext()) {
+        database2 = new TestDatabase() {
             @Override
             public String getName() {
                 return "db2.db";
@@ -174,8 +179,9 @@ public class AttachDetachTest extends DatabaseTestCase {
             fail();
         }
 
-        if (threadFailed.get() != null) {
-            throw threadFailed.get();
+        Exception e = threadFailed.get();
+        if (e != null) {
+            throw e;
         }
         assertEquals(4, database.countAll(TestModel.class));
         assertEquals(3 + (transactionBeforeAttach ? 1 : 0), database2.countAll(TestModel.class));
@@ -227,8 +233,9 @@ public class AttachDetachTest extends DatabaseTestCase {
             fail();
         }
 
-        if (threadFailed.get() != null) {
-            throw threadFailed.get();
+        Exception e = threadFailed.get();
+        if (e != null) {
+            throw e;
         }
         assertEquals(4, database2.countAll(TestModel.class));
     }

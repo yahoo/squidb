@@ -3,6 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
+
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
@@ -35,6 +36,7 @@ android {
 
 dependencies {
     compile project(':squidb')
+    compile project(':squidb-android')
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'

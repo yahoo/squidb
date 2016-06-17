@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.utility.VersionCode;
 
 /**
@@ -20,8 +19,9 @@ import com.yahoo.squidb.utility.VersionCode;
  * SquidCursor&lt;Model&gt; cursor = db.query(Model.class, query);
  * </pre>
  *
- * This allows the value to be read directly from the cursor using {@link SquidCursor#get(Property) get(Property)}, or
- * to be read from a model instance that was created by reading from the cursor:
+ * This allows the value to be read directly from the cursor using
+ * {@link com.yahoo.squidb.data.SquidCursor#get(Property) get(Property)}, or to be read from a model instance that was
+ * created by reading from the cursor:
  *
  * <pre>
  * cursor.moveToPosition(position);
@@ -75,8 +75,8 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
-     * Create a Function call with the given name and list of arguments. Returns
-     * a function equivalent to "functionName(arg1, arg2, ...)"
+     * Create a Function call with the given name and list of arguments. Returns a function equivalent to
+     * "functionName(arg1, arg2, ...)"
      */
     public static <T> Function<T> functionWithArguments(String functionName, Object... arguments) {
         return new ArgumentFunction<>(functionName, arguments);

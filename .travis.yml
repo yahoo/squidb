@@ -1,10 +1,30 @@
-language: android
+language: generic
 env:
-  - ANDROID_TARGET=android-15 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-16 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-16 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-19 SQUIDB_BINDING=android ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  - ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+    global:
+        - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+
+matrix:
+    include:
+        - os: linux
+          language: android
+          env: ANDROID_TARGET=android-15 SQUIDB_BINDING=android
+        - os: linux
+          language: android
+          env: ANDROID_TARGET=android-16 SQUIDB_BINDING=android
+        - os: linux
+          language: android
+          env: ANDROID_TARGET=android-16 SQUIDB_BINDING=sqlite
+        - os: linux
+          language: android
+          env: ANDROID_TARGET=android-19 SQUIDB_BINDING=android
+        - os: linux
+          language: android
+          env: ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite
+        - os: osx
+          osx_image: xcode7.2
+          language: objective-c
+          env: CI_IOS_TESTS=true J2OBJC_VERSION=1.0.2 J2OBJC_HOME=/tmp/j2objc-$J2OBJC_VERSION
+
 android:
   components:
     - tools
@@ -17,11 +37,8 @@ android:
     - sys-img-armeabi-v7a-android-19
     - android-23
     - extra-android-m2repository
+
 before_script:
-    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a
-    - emulator -avd test -no-skin -no-audio -no-window &
-    - android-wait-for-emulator
-    - adb shell input keyevent 82 &
-    - ./gradlew squidb-tests:installDebug squidb-tests:installDebugAndroidTest
+    - ./scripts/before-test.sh
 script:
-    - adb shell am instrument -w -e squidb_binding $SQUIDB_BINDING com.yahoo.squidb.test/com.yahoo.squidb.test.SquidInstrumentationTestRunner
+    - ./scripts/run-tests.sh

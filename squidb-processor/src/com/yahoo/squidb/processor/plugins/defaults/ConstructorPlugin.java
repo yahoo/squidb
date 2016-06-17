@@ -38,7 +38,7 @@ public class ConstructorPlugin extends Plugin {
     @Override
     public void addRequiredImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.SQUID_CURSOR);
-        imports.add(TypeConstants.CONTENT_VALUES);
+        imports.add(TypeConstants.MAP);
     }
 
     @Override
@@ -59,18 +59,22 @@ public class ConstructorPlugin extends Plugin {
                 .writeStringStatement("readPropertiesFromCursor(cursor)")
                 .finishMethodDefinition();
 
-        params.setArgumentTypes(Collections.singletonList(TypeConstants.CONTENT_VALUES))
-                .setArgumentNames("contentValues");
+        String valuesName = "values";
+        DeclaredTypeName valuesType = TypeConstants.MAP_VALUES;
+
+        params.setArgumentTypes(Collections.singletonList(valuesType))
+                .setArgumentNames(valuesName);
         writer.beginConstructorDeclaration(params)
-                .writeStatement(Expressions.callMethod("this", "contentValues",
+                .writeStatement(Expressions.callMethod("this", valuesName,
                         ModelFileWriter.PROPERTIES_ARRAY_NAME))
                 .finishMethodDefinition();
 
-        params.setArgumentTypes(Arrays.asList(TypeConstants.CONTENT_VALUES, TypeConstants.PROPERTY_VARARGS))
-                .setArgumentNames("contentValues", "withProperties");
+        String methodName = "readPropertiesFromMap";
+        params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
+                .setArgumentNames(valuesName, "withProperties");
         writer.beginConstructorDeclaration(params)
                 .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromContentValues(contentValues, withProperties)")
+                .writeStringStatement(methodName + "(" + valuesName + ", withProperties)")
                 .finishMethodDefinition();
 
         MethodDeclarationParameters cloneParams = new MethodDeclarationParameters()

@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.text.TextUtils;
-
 import com.yahoo.squidb.sql.Field;
+import com.yahoo.squidb.sql.SqlUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,6 +30,7 @@ public class ProjectionMap {
 
     /**
      * Construct a ProjectionMap that is a copy of another.
+     *
      * @param other the other ProjectionMap to copy
      */
     public ProjectionMap(ProjectionMap other) {
@@ -49,10 +49,10 @@ public class ProjectionMap {
         if (column == null) {
             throw new IllegalArgumentException("Cannot use null column in ProjectionMap");
         }
-        if (TextUtils.isEmpty(name)) {
+        if (SqlUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Cannot use empty string as a key");
         }
-        if (!TextUtils.equals(name, column.getName())) {
+        if (!SqlUtils.equals(name, column.getName())) {
             column = column.as(name);
         }
         return map.put(name, column);
@@ -91,7 +91,7 @@ public class ProjectionMap {
      * @return the value of any previous mapping with the specified key, or null if there was no mapping
      */
     public Field<?> put(String expression) {
-        if (TextUtils.isEmpty(expression)) {
+        if (SqlUtils.isEmpty(expression)) {
             throw new IllegalArgumentException("Expression cannot be empty");
         }
         return map.put(expression, Field.field(expression));

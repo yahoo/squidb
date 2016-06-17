@@ -5,9 +5,6 @@
  */
 package com.yahoo.squidb.data;
 
-import android.database.ContentObserver;
-import android.net.Uri;
-
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -22,8 +19,8 @@ import java.util.Set;
  * notifications whenever a table they are interested in is updated.
  * <p>
  * A DataChangedNotifier can be constructed to listen for database operations on specific instances of {@link SqlTable}
- * (a {@link Table}, a {@link View}, etc.). If you want your DataChangedNotifier instance to be notified of all database
- * operations regardless of table, use the no-argument constructor.
+ * (a {@link Table}, a {@link View}, etc.). If you want your DataChangedNotifier instance to be notified of all
+ * database operations regardless of table, use the no-argument constructor.
  * <p>
  * When an instance of DataChangedNotifier is registered with a SquidDatabase, the db will call {@link
  * #onDataChanged(SqlTable, SquidDatabase, DBOperation, AbstractModel, long)} on the notifier whenever one of the
@@ -33,13 +30,16 @@ import java.util.Set;
  * DBOperation, AbstractModel, long)} and {@link #sendNotification(SquidDatabase, Object)}. In
  * accumulateNotificationObjects, the DataChangedNotifier subclass should add objects/metadata about that notification
  * that needs to be sent for that data change when the statement transaction has completed successfully. When the
- * statement or transaction completes successfully, sendNotification will be called for each object that was accumulated
- * during the transaction. The subclass should define in this method how to actually send the notification.
+ * statement or transaction completes successfully, sendNotification will be called for each object that was
+ * accumulated during the transaction. The subclass should define in this method how to actually send the notification.
+ *
+ * You can refer to com.yahoo.squidb.android.UriNotifier in the squidb-android module for an example of a
+ * DataChangedNotifier that can send ContentObserver notifications to Uris on data changes, or
+ * {@link SimpleDataChangedNotifier} for an example of a DataChangedNotifier that triggers a runnable when data changes
+ * occur.
  *
  * @param <T> the type of object/metadata to accumulate for sending notifications
  * @see SquidDatabase#registerDataChangedNotifier(DataChangedNotifier)
- * @see UriNotifier for an example of a DataChangedNotifier that can send ContentObserver notifications to Uris on data
- * changes
  */
 public abstract class DataChangedNotifier<T> {
 
@@ -121,8 +121,8 @@ public abstract class DataChangedNotifier<T> {
      * @param table the affected table.
      * @param database the SquidDatabase instance this change occurred in
      * @param operation the type of database write that occurred
-     * @param modelValues the model values that triggered this database update. This parameter may be null; the database
-     * will provide it when possible, but it is not always present. If you only need a row id, check the rowId
+     * @param modelValues the model values that triggered this database update. This parameter may be null; the
+     * database will provide it when possible, but it is not always present. If you only need a row id, check the rowId
      * parameter. This parameter will be null for delete operations, and will contain only the changed columns and
      * their new values for updates.
      * @param rowId the single row id that was updated, if applicable
@@ -145,6 +145,7 @@ public abstract class DataChangedNotifier<T> {
      * The default implementation of this method iterates over the notifyObjects set and calls
      * {@link #sendNotification(SquidDatabase, Object)} for each of them. Subclasses may override if they want to
      * handle notifying the entire set differently.
+     *
      * @param database the SquidDatabase the change occurred in
      * @param notifyObjects the objects to be used for sending a notification
      */
@@ -157,8 +158,8 @@ public abstract class DataChangedNotifier<T> {
     /**
      * Subclasses override this abstract method to define how to send a notification to the accumulated notifyObject.
      * For example, in UriNotifier, the object is a Uri, so UriNotifier calls
-     * {@link android.content.ContentResolver#notifyChange(Uri, ContentObserver)} with the Uri. If the object were a
-     * Runnable, the caller could simply call {@link Runnable#run() run()}.
+     * android.content.ContentResolver.notifyChange(android.net.Uri, android.database.ContentObserver)
+     * with the Uri. If the object were a Runnable, the caller could simply call {@link Runnable#run() run()}.
      *
      * @param database the SquidDatabase the change occurred in
      * @param notifyObject the object to be used for sending a notification

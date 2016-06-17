@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -57,8 +56,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private Set<String> supportedAnnotationTypes = new HashSet<>();
 
     private AptUtils utils;
-    private Filer filer;
-
     private PluginEnvironment pluginEnv;
 
     public ModelSpecProcessor() {
@@ -85,7 +82,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         super.init(env);
 
         utils = new AptUtils(env);
-        filer = env.getFiler();
 
         pluginEnv = new PluginEnvironment(utils, env.getOptions());
     }
@@ -98,7 +94,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                     if (element.getKind() == ElementKind.CLASS) {
                         TypeElement typeElement = (TypeElement) element;
                         try {
-                            getFileWriter(typeElement).writeJava(filer);
+                            getFileWriter(typeElement).writeJava();
                         } catch (IOException e) {
                             utils.getMessager().printMessage(Kind.ERROR, "Unable to write model file", element);
                         }

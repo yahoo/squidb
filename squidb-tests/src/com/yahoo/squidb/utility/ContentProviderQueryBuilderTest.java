@@ -5,10 +5,7 @@
  */
 package com.yahoo.squidb.utility;
 
-import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.provider.BaseColumns;
-
+import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Field;
@@ -186,9 +183,9 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         }
     }
 
-    private TestModel buildModelFromCursor(Cursor cursor) {
+    private TestModel buildModelFromCursor(ICursor cursor) {
         TestModel model = new TestModel();
-        model.setId(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        model.setId(cursor.getLong(cursor.getColumnIndex("_id")));
         model.setFirstName(cursor.getString(cursor.getColumnIndex(COL_GIVEN_NAME)));
         model.setLastName(cursor.getString(cursor.getColumnIndex(COL_SURNAME)));
         model.setLuckyNumber(cursor.getInt(cursor.getColumnIndex(COL_LUCKY_NUMBER)));
@@ -242,7 +239,6 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         assertEquals(TestSubqueryModel.SUBQUERY, query.getTable());
     }
 
-    @SuppressLint("DefaultLocale")
     public void testQueryUsingSubqueryModel() {
         Employee employee1 = new Employee().setName("Big bird");
         Employee employee2 = new Employee().setName("Elmo");

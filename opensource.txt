@@ -19,14 +19,6 @@ License: Apache 2.0
 
 *
 
-squidb-jackson-plugin uses:
-Jackson JSON Parser
-http://wiki.fasterxml.com/JacksonHome
-Copyright (c) 2007 -- Tatu Saloranta (tatu.saloranta@iki.fi)
-License: Apache 2.0
-
-*
-
 squidb-processor uses apt-utils from:
 java-traits
 https://github.com/sbosley/java-traits

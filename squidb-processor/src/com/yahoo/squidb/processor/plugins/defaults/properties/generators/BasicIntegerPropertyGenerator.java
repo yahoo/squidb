@@ -40,7 +40,7 @@ public class BasicIntegerPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return CoreTypes.JAVA_INTEGER;
     }
 

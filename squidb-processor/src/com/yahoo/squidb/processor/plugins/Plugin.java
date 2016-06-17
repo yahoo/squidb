@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
@@ -90,6 +91,23 @@ public class Plugin {
     }
 
     /**
+     * Plugin subclasses can override this method to declare a custom superclass for the generated model to extend.
+     * Only one plugin may specify a superclass for any given model, so the first plugin to return a non-null value will
+     * take priority. If no plugins return a non-null value, the default superclass for that model type will be used.
+     * <p>
+     * Note that the returned superclass should be of an appropriate type for that kind of model -- e.g. for table
+     * models, the superclass should itself be a subclass of TableModel, etc. Users can use
+     * {@link com.yahoo.squidb.processor.data.ModelSpec.ModelSpecVisitor} as one way to determine what kind of model
+     * spec the plugin is currently operating on.
+     *
+     * @return the name of a class to use as the model superclass, or null if N/A
+     */
+    public DeclaredTypeName getModelSuperclass() {
+        // Stub for subclasses to override
+        return null;
+    }
+
+    /**
      * Plugin subclasses can override this method to add any imports required by the code they generate to the generated
      * model class
      *
@@ -105,6 +123,40 @@ public class Plugin {
      * @param interfaces an accumulator set of type names for interfaces to implement
      */
     public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting the package and imports but before beginning the class declaration. Plugin subclasses can
+     * use this method to emit documentation/other comments or annotations.
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     */
+    public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called before emitting the static declaration for the given property. Plugin subclasses can generate arbitrary
+     * code here, but most often it would be useful for annotating the generated field
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator contain metadata about the property to be written (name, type, etc.)
+     */
+    public void beforeEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting the static declaration for the given property. Plugin subclasses can generate arbitrary
+     * code here
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator contain metadata about the property that was written (name, type, etc.)
+     */
+    public void afterEmitPropertyDeclaration(JavaFileWriter writer,
+            PropertyGenerator propertyGenerator) throws IOException {
         // Stub for subclasses to override
     }
 
@@ -134,6 +186,58 @@ public class Plugin {
      * @param writer a {@link JavaFileWriter} for writing to
      */
     public void emitConstructors(JavaFileWriter writer) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called before emitting a getter method for a property. Plugin subclasses can generate arbitrary code here, but
+     * most often it would be useful for annotating the generated method
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be emitted
+     * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting a getter method for a property. Plugin subclasses can generate arbitrary code here,
+     * although use cases for this hook will probably be rare
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be emitted
+     * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void afterEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called before emitting a setter method for a property. Plugin subclasses can generate arbitrary code here, but
+     * most often it would be useful for annotating the generated method
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be emitted
+     * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters setterParams) throws IOException {
+        // Stub for subclasses to override
+    }
+
+    /**
+     * Called after emitting a setter method for a property. Plugin subclasses can generate arbitrary code here,
+     * although use cases for this hook will probably be rare
+     *
+     * @param writer a {@link JavaFileWriter} for writing to
+     * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be emitted
+     * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
+     */
+    public void afterEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters setterParams) throws IOException {
         // Stub for subclasses to override
     }
 

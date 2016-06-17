@@ -3,16 +3,23 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-sample', ':squidb-tests'
+include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-tests', ':squidb-android', ':squidb-ios'
 
-include ':squidb-jackson-plugin'
-project(':squidb-jackson-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-plugin')
+include ':squidb-android-sample'
+project(':squidb-android-sample').projectDir = new File(settingsDir, 'samples/squidb-android-sample')
 
-include ':squidb-jackson-compiler'
-project(':squidb-jackson-compiler').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-compiler')
+include ':squidb-sample-core'
+project(':squidb-sample-core').projectDir = new File(settingsDir, 'samples/squidb-sample-core')
 
-include ':squidb-jackson-annotations'
-project(':squidb-jackson-annotations').projectDir = new File(settingsDir, 'squidb-addons/squidb-jackson-annotations')
+include ':squidb-json-plugin'
+project(':squidb-json-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-plugin')
+
+include ':squidb-json-compiler'
+project(':squidb-json-compiler').projectDir = new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-compiler')
+
+include ':squidb-json-annotations'
+project(':squidb-json-annotations').projectDir =
+        new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-annotations')
 
 include ':squidb-sqlite-bindings'
 project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-addons/squidb-sqlite-bindings')

@@ -18,7 +18,6 @@ import com.yahoo.squidb.test.Thing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -605,61 +604,61 @@ public class QueryTest extends DatabaseTestCase {
         }
     }
 
-    public void x_testReusableQueryPerformance() {
-        String[] values = {"bigBird", "cookieMonster", "elmo", "oscar"};
-        int numIterations = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            Query query = Query.select().where(Employee.NAME.eq(values[i % values.length]));
-            database.query(Employee.class, query);
-        }
-        long end = System.currentTimeMillis();
-        System.err.println("Unoptimized took " + (end - start) + " millis");
-
-        AtomicReference<String> reference = new AtomicReference<>();
-        Query query = Query.select().where(Employee.NAME.eq(reference));
-        start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            reference.set(values[i % values.length]);
-            database.query(Employee.class, query);
-        }
-        end = System.currentTimeMillis();
-        System.err.println("Optimized took " + (end - start) + " millis");
-    }
-
-    public void x_testReusableListQueryPerformance() {
-        List<?>[] testSets = {
-                Arrays.asList("bigBird", "cookieMonster", "elmo"),
-                Arrays.asList("bigBird", "cookieMonster"),
-                Arrays.asList("bert", "ernie"),
-                Collections.singletonList("oscar"),
-                Collections.emptyList()
-        };
-
-        int numIterations = 10000;
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            Query query = Query.select().where(Employee.NAME.in(testSets[i % testSets.length]));
-            database.query(Employee.class, query);
-        }
-        long end = System.currentTimeMillis();
-        System.err.println("Unoptimized took " + (end - start) + " millis");
-        System.gc();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        AtomicReference<Collection<?>> ref = new AtomicReference<>();
-        Query query = Query.select().where(Employee.NAME.in(ref));
-        start = System.currentTimeMillis();
-        for (int i = 0; i < numIterations; i++) {
-            ref.set(testSets[i % testSets.length]);
-            database.query(Employee.class, query);
-        }
-        end = System.currentTimeMillis();
-        System.err.println("Optimized took " + (end - start) + " millis");
-    }
+//    public void x_testReusableQueryPerformance() {
+//        String[] values = {"bigBird", "cookieMonster", "elmo", "oscar"};
+//        int numIterations = 10000;
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            Query query = Query.select().where(Employee.NAME.eq(values[i % values.length]));
+//            database.query(Employee.class, query);
+//        }
+//        long end = System.currentTimeMillis();
+//        System.err.println("Unoptimized took " + (end - start) + " millis");
+//
+//        AtomicReference<String> reference = new AtomicReference<>();
+//        Query query = Query.select().where(Employee.NAME.eq(reference));
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            reference.set(values[i % values.length]);
+//            database.query(Employee.class, query);
+//        }
+//        end = System.currentTimeMillis();
+//        System.err.println("Optimized took " + (end - start) + " millis");
+//    }
+//
+//    public void x_testReusableListQueryPerformance() {
+//        List<?>[] testSets = {
+//                Arrays.asList("bigBird", "cookieMonster", "elmo"),
+//                Arrays.asList("bigBird", "cookieMonster"),
+//                Arrays.asList("bert", "ernie"),
+//                Collections.singletonList("oscar"),
+//                Collections.emptyList()
+//        };
+//
+//        int numIterations = 10000;
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            Query query = Query.select().where(Employee.NAME.in(testSets[i % testSets.length]));
+//            database.query(Employee.class, query);
+//        }
+//        long end = System.currentTimeMillis();
+//        System.err.println("Unoptimized took " + (end - start) + " millis");
+//        System.gc();
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        AtomicReference<Collection<?>> ref = new AtomicReference<>();
+//        Query query = Query.select().where(Employee.NAME.in(ref));
+//        start = System.currentTimeMillis();
+//        for (int i = 0; i < numIterations; i++) {
+//            ref.set(testSets[i % testSets.length]);
+//            database.query(Employee.class, query);
+//        }
+//        end = System.currentTimeMillis();
+//        System.err.println("Optimized took " + (end - start) + " millis");
+//    }
 
     public void testSelectFromView() {
         View view = View.fromQuery(Query.select(Employee.PROPERTIES)
@@ -1171,5 +1170,16 @@ public class QueryTest extends DatabaseTestCase {
         } finally {
             cursor.close();
         }
+    }
+
+    public void testReadUnicodeStrings() {
+        // A bunch of random unicode characters
+        String unicode = "\u2e17\u301c\ufe58\uff0d\ufe32";
+        String reversedUnicode = "\ufe32\uff0d\ufe58\u301c\u2e17";
+        TestModel model = insertBasicTestModel(unicode, reversedUnicode, System.currentTimeMillis());
+
+        TestModel fetched = database.fetch(TestModel.class, model.getId());
+        assertEquals(unicode, fetched.getFirstName());
+        assertEquals(reversedUnicode, fetched.getLastName());
     }
 }

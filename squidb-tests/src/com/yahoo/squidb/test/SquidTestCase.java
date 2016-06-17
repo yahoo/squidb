@@ -5,12 +5,23 @@
  */
 package com.yahoo.squidb.test;
 
-import android.test.AndroidTestCase;
-
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.SqlStatement;
+import com.yahoo.squidb.utility.Logger;
 
-public class SquidTestCase extends AndroidTestCase {
+import junit.framework.TestCase;
+
+public class SquidTestCase extends TestCase {
+
+    static {
+        // Don't need squidb logs for unit tests
+        Logger.setLogLevel(Logger.Level.ASSERT);
+    }
+
+    public void testSquidTestCaseSetUpProperly() {
+        // JUnit doesn't like it if a test class has no tests in it
+        assertNotNull(this);
+    }
 
     protected int getReplaceableArgCount(String sql) {
         int argCount = 0;

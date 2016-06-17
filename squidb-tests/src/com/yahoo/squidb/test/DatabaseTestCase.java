@@ -5,14 +5,13 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Calendar;
 
-
 public class DatabaseTestCase extends SquidTestCase {
 
-    protected SquidDatabase database;
+    protected TestDatabase database;
 
     protected final long testDate;
 
@@ -53,7 +52,7 @@ public class DatabaseTestCase extends SquidTestCase {
      * operations.
      */
     protected void setupDatabase() {
-        database = new TestDatabase(getContext());
+        database = new TestDatabase();
         database.clear();
     }
 
@@ -70,6 +69,12 @@ public class DatabaseTestCase extends SquidTestCase {
     protected void tearDownDatabase() {
         if (database != null) {
             database.close();
+        }
+    }
+
+    protected void testForMinVersionCode(VersionCode minVersionCode, Runnable toTest) {
+        if (database.getSqliteVersion().isAtLeast(minVersionCode)) {
+            toTest.run();
         }
     }
 }

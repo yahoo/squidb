@@ -40,7 +40,7 @@ public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return CoreTypes.JAVA_STRING;
     }
 

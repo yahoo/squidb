@@ -72,7 +72,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     private String getColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !"".equals(columnDef.name())) {
+        if (columnDef != null && !AptUtils.isEmpty(columnDef.name())) {
             return columnDef.name();
         }
         return camelCasePropertyName;
@@ -83,25 +83,18 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         // Nothing to do
     }
 
-    protected abstract DeclaredTypeName getTypeForGetAndSet();
-
     @Override
     public String getPropertyName() {
         return propertyName;
     }
 
     @Override
-    public void beforeEmitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        super.beforeEmitPropertyDeclaration(writer);
+    public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             writer.writeAnnotation(CoreTypes.DEPRECATED);
         }
-    }
-
-    @Override
-    public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
-        List<String> constructorArgs = new ArrayList<>();
-        constructorArgs.add(TableModelFileWriter.TABLE_NAME);
+        List<Object> constructorArgs = new ArrayList<>();
+        constructorArgs.add(TableModelFileWriter.TABLE_MODEL_NAME);
         constructorArgs.add("\"" + columnName + "\"");
         String columnDef = getColumnDefinition();
         if (!AptUtils.isEmpty(columnDef)) {
@@ -144,20 +137,24 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     @Override
-    public void emitGetter(JavaFileWriter writer) throws IOException {
+    public final void emitGetter(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             return;
         }
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setMethodName(getterMethodName())
                 .setModifiers(Modifier.PUBLIC)
-                .setReturnType(getTypeForGetAndSet());
+                .setReturnType(getTypeForAccessors());
+
+        modelSpec.getPluginBundle().beforeEmitGetter(writer, this, params);
         writer.beginMethodDefinition(params);
         writeGetterBody(writer);
         writer.finishMethodDefinition();
+        modelSpec.getPluginBundle().afterEmitGetter(writer, this, params);
     }
 
-    protected String getterMethodName() {
+    @Override
+    public String getterMethodName() {
         return "get" + StringUtils.capitalize(camelCasePropertyName);
     }
 
@@ -166,7 +163,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     @Override
-    public void emitSetter(JavaFileWriter writer) throws IOException {
+    public final void emitSetter(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
             return;
         }
@@ -176,15 +173,18 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 .setMethodName(setterMethodName())
                 .setReturnType(modelSpec.getGeneratedClassName())
                 .setModifiers(Modifier.PUBLIC)
-                .setArgumentTypes(getTypeForGetAndSet())
+                .setArgumentTypes(getTypeForAccessors())
                 .setArgumentNames(argName);
 
+        modelSpec.getPluginBundle().beforeEmitSetter(writer, this, params);
         writer.beginMethodDefinition(params);
         writeSetterBody(writer, argName);
         writer.finishMethodDefinition();
+        modelSpec.getPluginBundle().afterEmitSetter(writer, this, params);
     }
 
-    protected String setterMethodName() {
+    @Override
+    public String setterMethodName() {
         return "set" + StringUtils.capitalize(camelCasePropertyName);
     }
 

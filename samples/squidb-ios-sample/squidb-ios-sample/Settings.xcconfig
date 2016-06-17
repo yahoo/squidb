@@ -1,0 +1,33 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
+//
+//  Settings.xcconfig
+//  squidb-ios-sample
+//
+
+// Change J2OBJC_HOME to point to the path of the binaries of the j2objc distribution directory.
+// If building j2objc from source, that would be j2objc/dist.
+
+// You can also leave J2OBJC_HOME as-is and create a symbolic link
+// with the name “j2objc-dist” to the parent directory of this project.
+
+// The path should be written without quotes, when modified use Xcode's Product -> Clean
+J2OBJC_HOME = ${SRCROOT}/../../../j2objc-1.0.2;
+
+SQUIDB_ROOT = ${SRCROOT}/../..;
+
+GEN=${SRCROOT}/squidb-ios-sample/squidb-gen;
+
+SQUIDB_SRC=${SQUIDB_ROOT}/squidb/src;
+SQUIDB_ANNOTATIONS_SRC=${SQUIDB_ROOT}/squidb-annotations/src;
+SQUIDB_CORE_SRC=${SQUIDB_ROOT}/samples/squidb-sample-core/src/main/java;
+SQUIDB_IOS_SRC=${SQUIDB_ROOT}/squidb-ios/src;
+
+SOURCEPATH=${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_CORE_SRC}:${SQUIDB_IOS_SRC};
+
+HEADER_SEARCH_PATHS = $(inherited) ${J2OBJC_HOME}/include ${DERIVED_FILES_DIR};
+LIBRARY_SEARCH_PATHS = $(inherited) ${J2OBJC_HOME}/lib;
+OTHER_LDFLAGS = $(inherited) -l"jre_emul" -l"icucore";

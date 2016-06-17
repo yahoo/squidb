@@ -17,7 +17,7 @@
         tools:overrideLibrary="com.yahoo.squidb.sqlitebindings" />
 
     <instrumentation
-        android:name="com.yahoo.squidb.test.SquidInstrumentationTestRunner"
+        android:name="com.yahoo.squidb.android.SquidInstrumentationTestRunner"
         android:targetPackage="com.yahoo.squidb.test" />
 
     <application
@@ -25,7 +25,7 @@
         android:label="@string/app_name">
         <uses-library android:name="android.test.runner" />
 
-        <activity android:name=".TestActivity">
+        <activity android:name="com.yahoo.squidb.android.TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>

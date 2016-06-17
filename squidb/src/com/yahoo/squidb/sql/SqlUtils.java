@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.text.TextUtils;
-
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,6 +13,15 @@ public class SqlUtils {
 
     private SqlUtils() {
         /* no instantiation */
+    }
+
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
+    public static boolean equals(String a, String b) {
+        return a == b ||
+                (a != null && b != null && a.length() == b.length() && a.equals(b));
     }
 
     public static Object resolveArgReferences(Object arg) {
@@ -121,7 +128,7 @@ public class SqlUtils {
         if (escape == '%' || escape == '_') {
             throw new IllegalArgumentException("Invalid escape character: " + escape);
         }
-        if (TextUtils.isEmpty(pattern)) {
+        if (isEmpty(pattern)) {
             return "";
         }
         StringBuilder sb = new StringBuilder();

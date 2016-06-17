@@ -26,24 +26,31 @@ android {
     }
 
     defaultConfig {
-        testInstrumentationRunner "com.yahoo.squidb.test.SquidInstrumentationTestRunner"
+        testInstrumentationRunner "com.yahoo.squidb.android.SquidInstrumentationTestRunner"
     }
 }
 
 dependencies {
     compile project(':squidb')
+    compile project(':squidb-android')
     compile project(':squidb-annotations')
-    compile project(':squidb-jackson-plugin')
-    compile project(':squidb-jackson-annotations')
+    compile project(':squidb-json-plugin')
+    compile project(':squidb-json-annotations')
     compile project(':squidb-sqlite-bindings')
     compile project(':squidb-reactive')
     compile project(':squidb-recyclerview')
-    apt project(':squidb-jackson-compiler')
+    apt project(':squidb-json-compiler')
     apt project(':squidb-processor')
+
+    // The following three dependencies are used to test the squidb-json plugin
+    compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
+    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
+    compile 'com.google.code.gson:gson:2.5'
 }
 
 apt {
     arguments {
-        squidbPlugins 'com.yahoo.squidb.jackson.JacksonFieldPlugin'
+        squidbPlugins 'com.yahoo.squidb.json.JSONPlugin'
+        squidbOptions 'androidModels'
     }
 }

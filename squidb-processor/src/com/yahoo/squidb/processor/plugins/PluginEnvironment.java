@@ -7,9 +7,11 @@ package com.yahoo.squidb.processor.plugins;
 
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.EnumPluginBundle;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
@@ -93,9 +95,19 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS = "disableGettersAndSetters";
 
     /**
+     * Option for disabling javadoc copying
+     */
+    public static final String OPTIONS_DISABLE_JAVADOC_COPYING = "disableJavadoc";
+
+    /**
      * Option for disabling the default support for Enum properties
      */
     public static final String OPTIONS_DISABLE_ENUM_PROPERTIES = "disableEnumProperties";
+
+    /**
+     * Option for generating models that have Android-specific features
+     */
+    public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
     /**
      * @param utils annotation processing utilities class
@@ -120,6 +132,10 @@ public class PluginEnvironment {
     }
 
     private void initializeDefaultPlugins() {
+        if (hasOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
+            normalPriorityPlugins.add(AndroidModelPlugin.class);
+        }
+
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             normalPriorityPlugins.add(ConstructorPlugin.class);
         }
@@ -128,6 +144,9 @@ public class PluginEnvironment {
         }
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
             normalPriorityPlugins.add(ModelMethodPlugin.class);
+        }
+        if (!hasOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
+            normalPriorityPlugins.add(JavadocPlugin.class);
         }
 
         // Can't disable these, but they can be overridden by user plugins with high priority
@@ -141,8 +160,9 @@ public class PluginEnvironment {
 
         if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
-            // the generated model
-            normalPriorityPlugins.add(ConstantCopyingPlugin.class);
+            // the generated model. Set to low priority so that by default user plugins can have first pass at
+            // handing such fields.
+            lowPriorityPlugins.add(ConstantCopyingPlugin.class);
         }
     }
 

@@ -32,6 +32,11 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         }
     }
 
+    @Override
+    public <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        return visitor.visitTableModel(this, data);
+    }
+
     /**
      * @return true if the table model is for a virtual table, false otherwise
      */
@@ -45,7 +50,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     }
 
     @Override
-    public DeclaredTypeName getModelSuperclass() {
+    protected DeclaredTypeName getDefaultModelSuperclass() {
         return TypeConstants.TABLE_MODEL;
     }
 
@@ -53,6 +58,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
         imports.add(TypeConstants.LONG_PROPERTY);
         imports.add(TypeConstants.TABLE_MODEL);
+        imports.add(TypeConstants.TABLE_MODEL_NAME);
         imports.add(tableType);
     }
 

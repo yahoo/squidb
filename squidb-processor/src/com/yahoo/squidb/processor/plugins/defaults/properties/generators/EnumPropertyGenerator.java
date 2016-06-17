@@ -43,7 +43,7 @@ public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return enumType;
     }
 

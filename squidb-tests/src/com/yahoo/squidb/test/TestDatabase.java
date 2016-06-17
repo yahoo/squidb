@@ -5,12 +5,9 @@
  */
 package com.yahoo.squidb.test;
 
-import android.content.Context;
-
+import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
-import com.yahoo.squidb.data.adapter.SQLiteOpenHelperWrapper;
-import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -22,8 +19,8 @@ public class TestDatabase extends SquidDatabase {
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
 
-    public TestDatabase(Context context) {
-        super(context);
+    public TestDatabase() {
+        super();
     }
 
     @Override
@@ -56,9 +53,8 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected SQLiteOpenHelperWrapper getOpenHelper(Context context, String databaseName,
-            OpenHelperDelegate delegate, int version) {
-        return SquidTestRunner.selectedBinding.getOpenHelper(context, databaseName, delegate, version);
+    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
+        return SQLiteBindingProvider.provideOpenHelper(databaseName, delegate, version);
     }
 
     @Override
@@ -67,28 +63,28 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected void onTablesCreated(SQLiteDatabaseWrapper db) {
+    protected void onTablesCreated(ISQLiteDatabase db) {
         super.onTablesCreated(db);
     }
 
     @Override
-    protected boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
     }
 
     @Override
-    protected void onOpen(SQLiteDatabaseWrapper db) {
+    protected void onOpen(ISQLiteDatabase db) {
         super.onOpen(db);
     }
 
     @Override
-    protected void onConfigure(SQLiteDatabaseWrapper db) {
+    protected void onConfigure(ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         db.enableWriteAheadLogging();
     }
 
     @Override
-    protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
         throw new CustomMigrationException(getName(), oldVersion, newVersion);
     }
 

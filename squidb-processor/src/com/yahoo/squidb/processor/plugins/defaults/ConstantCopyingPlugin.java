@@ -118,6 +118,7 @@ public class ConstantCopyingPlugin extends Plugin {
 
     private void writeConstantField(JavaFileWriter writer, DeclaredTypeName containingClassName,
             VariableElement constant) throws IOException {
+        JavadocPlugin.writeJavadocFromElement(pluginEnv, writer, constant);
         writer.writeFieldDeclaration(
                 utils.getTypeNameFromTypeMirror(constant.asType()),
                 constant.getSimpleName().toString(),

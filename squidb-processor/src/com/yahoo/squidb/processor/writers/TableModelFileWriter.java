@@ -29,6 +29,7 @@ import javax.tools.Diagnostic.Kind;
 public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper> {
 
     public static final String TABLE_NAME = "TABLE";
+    public static final String TABLE_MODEL_NAME = "TABLE_MODEL_NAME";
 
     public TableModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
         super(new TableModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
@@ -57,8 +58,13 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
             arguments.add("\"" + modelSpec.getSpecAnnotation().tableConstraint() + "\"");
         }
         writer.writeFieldDeclaration(modelSpec.getTableType(), TABLE_NAME,
-                Expressions.callConstructor(modelSpec.getTableType(), arguments), TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
+                Expressions.callConstructor(modelSpec.getTableType(), arguments), TypeConstants.PUBLIC_STATIC_FINAL);
+        writer.writeFieldDeclaration(TypeConstants.TABLE_MODEL_NAME, TABLE_MODEL_NAME,
+                Expressions.callConstructor(TypeConstants.TABLE_MODEL_NAME,
+                        Expressions.classObject(modelSpec.getGeneratedClassName()),
+                        Expressions.callMethodOn(TableModelFileWriter.TABLE_NAME, "getName")),
+                TypeConstants.PUBLIC_STATIC_FINAL);
+        writer.writeNewline();
     }
 
     @Override
@@ -70,16 +76,16 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void emitAllProperties() throws IOException {
         emitIdPropertyDeclaration();
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-            generator.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
             generator.emitPropertyDeclaration(writer);
-            generator.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
             writer.writeNewline();
         }
 
         for (PropertyGenerator deprecatedProperty : modelSpec.getDeprecatedPropertyGenerators()) {
-            deprecatedProperty.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, deprecatedProperty);
             deprecatedProperty.emitPropertyDeclaration(writer);
-            deprecatedProperty.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, deprecatedProperty);
             writer.writeNewline();
         }
 
@@ -89,18 +95,18 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     private void emitIdPropertyDeclaration() throws IOException {
         PropertyGenerator idPropertyGenerator = modelSpec.getIdPropertyGenerator();
         if (idPropertyGenerator != null) {
-            idPropertyGenerator.beforeEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, idPropertyGenerator);
             idPropertyGenerator.emitPropertyDeclaration(writer);
-            idPropertyGenerator.afterEmitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, idPropertyGenerator);
         } else {
             // Default ID property
             Expression constructor;
             if (modelSpec.isVirtualTable()) {
-                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY, TABLE_NAME,
-                        Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"), "null");
+                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
+                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"), "null");
             } else {
-                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY, TABLE_NAME,
-                        Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
+                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
+                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
                         "\"PRIMARY KEY AUTOINCREMENT\"");
             }
 

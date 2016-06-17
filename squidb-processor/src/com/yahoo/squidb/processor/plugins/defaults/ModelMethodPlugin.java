@@ -85,6 +85,7 @@ public class ModelMethodPlugin extends Plugin {
         if (!CoreTypes.VOID.equals(params.getReturnType())) {
             methodCall = methodCall.returnExpr();
         }
+        JavadocPlugin.writeJavadocFromElement(pluginEnv, writer, e);
         writer.beginMethodDefinition(params)
                 .writeStatement(methodCall)
                 .finishMethodDefinition();

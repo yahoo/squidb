@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import com.yahoo.squidb.utility.VersionCode;
 
 /**
@@ -23,42 +21,32 @@ public abstract class TableStatement extends CompilableWithArguments implements 
         /**
          * No conflict algorithm specified.
          */
-        NONE(SQLiteDatabase.CONFLICT_NONE),
+        NONE,
         /**
          * Aborts the command and reverts any changes made within the same transaction up to this point.
          */
-        ROLLBACK(SQLiteDatabase.CONFLICT_ROLLBACK),
+        ROLLBACK,
         /**
          * Aborts the command and reverts any changes made by this command up to this point. Changes made by other
          * commands in the same transaction as this command and which have already completed are preserved.
          */
-        ABORT(SQLiteDatabase.CONFLICT_ABORT),
+        ABORT,
         /**
          * Aborts the command, but any changes to the database that the command made prior to encountering the
          * constraint violation are preserved.
          */
-        FAIL(SQLiteDatabase.CONFLICT_FAIL),
+        FAIL,
         /**
          * When a constraint violation occurs, the one row that contains the constraint violation is not inserted or
          * changed. Other rows before and after the row that contained the constraint violation continue to be inserted
          * or updated normally.
          */
-        IGNORE(SQLiteDatabase.CONFLICT_IGNORE),
+        IGNORE,
         /**
          * When a UNIQUE constraint violation occurs, the pre-existing row that caused the constraint violation is
          * removed prior to inserting or updating the current row.
          */
-        REPLACE(SQLiteDatabase.CONFLICT_REPLACE);
-
-        private final int androidValue;
-
-        ConflictAlgorithm(int androidValue) {
-            this.androidValue = androidValue;
-        }
-
-        public int getAndroidValue() {
-            return androidValue;
-        }
+        REPLACE
     }
 
     private CompiledArgumentResolver compiledArgumentResolver = null;

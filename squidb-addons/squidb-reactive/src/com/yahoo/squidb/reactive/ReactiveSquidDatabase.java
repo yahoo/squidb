@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.reactive;
 
-import android.content.Context;
-
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.DataChangedNotifier;
 import com.yahoo.squidb.data.SquidDatabase;
@@ -56,6 +54,7 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     private final PublishSubject<Set<SqlTable<?>>> changedTablePublisher = PublishSubject.create();
 
     private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<>();
+
     static {
         INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
             @Override
@@ -89,11 +88,9 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
 
     /**
      * Create a new ReactiveSquidDatabase.
-     *
-     * @param context the Context, must not be null
      */
-    public ReactiveSquidDatabase(Context context) {
-        super(context);
+    public ReactiveSquidDatabase() {
+        super();
         registerDataChangedNotifier(new PublishingDataChangedNotifier());
     }
 

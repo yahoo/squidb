@@ -57,7 +57,7 @@ public class BasicLongPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected DeclaredTypeName getTypeForGetAndSet() {
+    public DeclaredTypeName getTypeForAccessors() {
         return CoreTypes.JAVA_LONG;
     }
 

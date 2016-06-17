@@ -5,25 +5,18 @@
  */
 package com.yahoo.squidb.data;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
-
-import com.yahoo.squidb.data.adapter.SQLiteDatabaseWrapper;
 import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
+import com.yahoo.squidb.sql.TableModelName;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
-import com.yahoo.squidb.test.SquidTestRunner;
-import com.yahoo.squidb.test.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.Thing;
-import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +34,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     @Override
     protected void setupDatabase() {
         super.setupDatabase();
-        badDatabase = new BadDatabase(getContext());
+        badDatabase = new BadDatabase();
         badDatabase.getDatabase(); // init
     }
 
@@ -53,7 +46,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testRawQuery() {
         badDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
-        Cursor cursor = null;
+        ICursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
             assertEquals(1, badDatabase.countAll(TestModel.class));
@@ -70,10 +63,12 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testTryAddColumn() {
-        StringProperty goodProperty = new StringProperty(TestModel.TABLE, "good_column");
+        StringProperty goodProperty = new StringProperty(
+                new TableModelName(TestModel.class, TestModel.TABLE.getName()), "good_column");
         badDatabase.tryAddColumn(goodProperty); // don't care about the result, just that it didn't throw
 
-        final StringProperty badProperty = new StringProperty(TestViewModel.VIEW, "bad_column");
+        final StringProperty badProperty = new StringProperty(
+                new TableModelName(TestViewModel.class, TestViewModel.VIEW.getName()), "bad_column");
         testThrowsException(new Runnable() {
             @Override
             public void run() {
@@ -105,7 +100,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.shouldRecreateInOnMigrationFailed = shouldRecreateOnMigrationFailed;
 
         // set version manually
-        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+        ISQLiteDatabase db = badDatabase.getDatabase();
         final int version = db.getVersion();
         final int previousVersion = upgrade ? version - 1 : version + 1;
         db.setVersion(previousVersion);
@@ -163,7 +158,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testMigrationFailureCalled(upgrade, recreateDuringMigration, true, recreateDuringMigration);
 
         // verify the db was recreated with the appropriate version and no previous data
-        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+        ISQLiteDatabase db = badDatabase.getDatabase();
         assertEquals(badDatabase.getVersion(), db.getVersion());
         assertEquals(0, badDatabase.countAll(Employee.class));
     }
@@ -178,7 +173,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             @Override
             public void run() {
                 // set version manually
-                SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+                ISQLiteDatabase db = badDatabase.getDatabase();
                 final int version = db.getVersion();
                 final int previousVersion = version - 1;
                 db.setVersion(previousVersion);
@@ -219,8 +214,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testCustomMigrationException() {
-        final TestDatabase database = new TestDatabase(getContext());
-        SQLiteDatabaseWrapper db = database.getDatabase();
+        final TestDatabase database = new TestDatabase();
+        ISQLiteDatabase db = database.getDatabase();
         // force a downgrade
         final int version = db.getVersion();
         final int previousVersion = version + 1;
@@ -266,7 +261,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         badDatabase.persist(new Employee().setName("Cindy"));
         assertEquals(3, badDatabase.countAll(Employee.class));
 
-        SQLiteDatabaseWrapper db = badDatabase.getDatabase();
+        ISQLiteDatabase db = badDatabase.getDatabase();
         db.setVersion(db.getVersion() + 1);
         badDatabase.close();
         badDatabase.shouldThrowDuringMigration = true;
@@ -361,14 +356,14 @@ public class SquidDatabaseTest extends DatabaseTestCase {
                 notifierCalled.set(true);
             }
         };
-        TestDatabase testDb = new TestDatabase(getContext()) {
+        TestDatabase testDb = new TestDatabase() {
             @Override
             public String getName() {
                 return super.getName() + "2";
             }
 
             @Override
-            protected void onTablesCreated(SQLiteDatabaseWrapper db) {
+            protected void onTablesCreated(ISQLiteDatabase db) {
                 super.onTablesCreated(db);
                 persist(new Thing().setFoo("foo").setBar(1));
                 if (failOnOpen.getAndSet(false)) {
@@ -412,8 +407,8 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         private boolean shouldRethrowInOnMigrationFailed = false;
         private DbOpenFailedHandler dbOpenFailedHandler = null;
 
-        public BadDatabase(Context context) {
-            super(context);
+        public BadDatabase() {
+            super();
         }
 
         @Override
@@ -427,7 +422,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onTablesCreated(SQLiteDatabaseWrapper db) {
+        protected void onTablesCreated(ISQLiteDatabase db) {
             onTablesCreatedCalled = true;
             if (shouldThrowDuringOpen) {
                 throw new RuntimeException("Simulating DB open failure");
@@ -435,10 +430,10 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected final boolean onUpgrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+        protected final boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
-                throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
+                throw new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
             } else if (shouldRecreateInMigration) {
                 recreate();
             }
@@ -446,10 +441,10 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean onDowngrade(SQLiteDatabaseWrapper db, int oldVersion, int newVersion) {
+        protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
-                throw new SQLiteException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
+                throw new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
             } else if (shouldRecreateInMigration) {
                 recreate();
             }
@@ -526,24 +521,32 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     public void testQueriesWithBooleanPropertiesWork() {
         insertBasicTestModel();
 
+        TestModel model;
         SquidCursor<TestModel> result = database.query(TestModel.class,
                 Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isTrue()));
-        assertEquals(1, result.getCount());
-        result.moveToFirst();
-        TestModel model = new TestModel(result);
-        assertTrue(model.isHappy());
+        try {
+            assertEquals(1, result.getCount());
+            result.moveToFirst();
+            model = new TestModel(result);
+            assertTrue(model.isHappy());
 
-        model.setIsHappy(false);
-        database.persist(model);
-        result.close();
+            model.setIsHappy(false);
+            database.persist(model);
+        } finally {
+            result.close();
+        }
 
         result = database.query(TestModel.class,
                 Query.select(TestModel.PROPERTIES).where(TestModel.IS_HAPPY.isFalse()));
 
-        assertEquals(1, result.getCount());
-        result.moveToFirst();
-        model = new TestModel(result);
-        assertFalse(model.isHappy());
+        try {
+            assertEquals(1, result.getCount());
+            result.moveToFirst();
+            model = new TestModel(result);
+            assertFalse(model.isHappy());
+        } finally {
+            result.close();
+        }
     }
 
     public void testConflict() {
@@ -566,21 +569,6 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             expected = e;
         }
         assertNotNull(expected);
-    }
-
-    public void testListProperty() {
-        TestModel model = insertBasicTestModel();
-        List<String> numbers = Arrays.asList("0", "1", "2", "3");
-        model.setSomeList(numbers);
-
-        database.persist(model);
-
-        model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
-        List<String> readNumbers = model.getSomeList();
-        assertEquals(numbers.size(), readNumbers.size());
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(numbers.get(i), readNumbers.get(i));
-        }
     }
 
     public void testFetchByQueryResetsLimitAndTable() {
@@ -620,12 +608,6 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(modelId, model.getId());
         assertNotNull(database.fetch(TestModel.class, model.getId()));
         assertEquals(1, database.countAll(TestModel.class));
-    }
-
-    public void testVersionForCustomBinding() {
-        if (SquidTestRunner.selectedBinding == SquidbBinding.SQLITE) {
-            assertEquals(VersionCode.LATEST, database.getSqliteVersion());
-        }
     }
 
     public void testDropView() {
@@ -685,6 +667,43 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertEquals(2, database.countAll(TestModel.class));
         database.deleteAll(TestModel.class);
         assertEquals(0, database.countAll(TestModel.class));
+    }
+
+    public void testBlobs() {
+        List<byte[]> randomBlobs = new ArrayList<byte[]>();
+        Random r = new Random();
+
+        randomBlobs.add(new byte[0]); // Test 0-length blob
+        int numBlobs = 10;
+        for (int i = 0; i < numBlobs; i++) {
+            byte[] blob = new byte[i + 1];
+            r.nextBytes(blob);
+            randomBlobs.add(blob);
+        }
+
+        Thing t = new Thing();
+        database.beginTransaction();
+        try {
+            for (byte[] blob : randomBlobs) {
+                t.setBlob(blob);
+                database.createNew(t);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
+        SquidCursor<Thing> cursor = database.query(Thing.class, Query.select(Thing.BLOB).orderBy(Thing.ID.asc()));
+        try {
+            assertEquals(randomBlobs.size(), cursor.getCount());
+            for (int i = 0; i < randomBlobs.size(); i++) {
+                cursor.moveToPosition(i);
+                byte[] blob = cursor.get(Thing.BLOB);
+                assertTrue(Arrays.equals(randomBlobs.get(i), blob));
+            }
+        } finally {
+            cursor.close();
+        }
     }
 
     public void testConcurrentReadsWithWAL() {
@@ -794,6 +813,22 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             }
         } catch (Exception e) {
             exception.set(e);
+        }
+    }
+
+    public void testSimpleQueries() {
+        database.beginTransactionNonExclusive();
+        try {
+            // the changes() function only works inside a transaction, because otherwise you may not get
+            // the same connection to the sqlite database depending on what the connection pool feels like giving you.
+            String sql = "SELECT CHANGES()";
+            insertBasicTestModel();
+
+            assertEquals(1, database.simpleQueryForLong(sql, null));
+            assertEquals("1", database.simpleQueryForString(sql, null));
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
         }
     }
 }
