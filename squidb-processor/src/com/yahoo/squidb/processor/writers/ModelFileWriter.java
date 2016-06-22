@@ -168,7 +168,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         Expressions.callConstructor(modelSpec.getGeneratedClassName()), "newValuesStorage"),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
-        if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONTENT_VALUES)) {
+        if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {
             writer.writeComment("--- property defaults disabled by plugin flag");
         } else {
             writer.beginInitializerBlock(true, true)
