@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 3.0.0 *(2016-06-23)*
+----------------------------
+* Version 3.0 adds cross-platform support by supporting compiling SquiDB with [Google's j2objc tool](http://j2objc.org/). The new `squidb-android` and `squidb-ios` modules provide low-level platform-specific SQLite access, while users interact only with the higher-level SquidDatabase and SQL builder APIs. Write your database code and other business logic in Java, and compile it to run on both Android and iOS devices. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for instructions on how to update to the new version.
+* Introduce the new `squidb-json` addon, which facilitates serializing arbitrary objects to String columns as JSON and working with the new [SQLite json1 extension](http://sqlite.org/json1.html). See [this wiki page](https://github.com/yahoo/squidb/wiki/JSON-support-in-SquiDB) for documentation about what you can do with this addon.
+
 Version 2.1.0 *(2016-06-14)*
 ----------------------------
 * The `ViewModel#mapToModel` API would break down if the ViewModel consisted of multiple joins on the same table with different aliases.
