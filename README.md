@@ -2,18 +2,13 @@
 
 
 ## Introducing SquiDB
-SquiDB is a SQLite database layer for Android. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
+SquiDB is a cross-platform SQLite database layer for Android and iOS. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders. Cross-platform support is provided via [Google's j2objc tool](http://j2objc.org/).
+
+### SquiDB 3.0
+The current major version of SquiDB is 3.0, which adds support for compiling with [Google's j2objc tool](http://j2objc.org/). In other words, SquiDB can be used as a SQLite data layer to develop cross-platform business logic that will run on both Android and iOS platforms. If you don't need this feature, you can ignore it -- SquiDB will continue to work on Android exactly as it always has, with only minor, easy to update API changes. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for a more detailed discussion of the changes.
 
 ## Getting started
 Add SquiDB to your existing project by following the instructions in [Adding SquiDB as a dependency](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
-
-### SquiDB 3.0 beta
-SquiDB 3.0 is currently in development on [this branch](https://github.com/yahoo/squidb/tree/dev_3.0). This new version of SquiDB will add support for using the library with [Google's j2objc tool](http://j2objc.org/). In other words, SquiDB can be used as a SQLite data layer to develop cross-platform business logic that will run on both Android and iOS platforms. If you don't need this feature, you can ignore it -- SquiDB will continue to work on Android exactly as it always has, with only minor, low-level API changes. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for a more detailed discussion of the changes.
-
-The branch is currently in beta. There are currently no known issues -- all unit tests pass on both Android and iOS, and we think it is stable enough to develop with -- but the API still may undergo minor changes, and there may still be undiscovered bugs. We welcome any feedback and/or bug reports!
-
-### Upgrading from SquiDB 1.x
-SquiDB was recently updated to version 2.0, which contains some breaking API changes. Don't worry, they're easy to fix! Just follow the instructions on [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-2.0) to update your code and take advantage of the latest and greatest SquiDB has to offer.
 
 ## Model objects
 SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A SquidDatabase object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
@@ -21,18 +16,18 @@ SquiDB represents rows in your SQLite tables as objects (similar to how an ORM m
 ```java
 // This is a table schema
 @TableModelSpec(className = "Person", tableName = "people")
-public class PersonSpec {
+class PersonSpec {
 
     // A text column named "firstName"
-    public String firstName;
+    String firstName;
 
     // A text column named "lastName"
-    public String lastName;
+    String lastName;
 
     // A long column named "creationDate", but referred to as "birthday"
     // when working with the model
     @ColumnSpec(name = "creationDate")
-    public long birthday;
+    long birthday;
 }
 
 // This is how you'd set up a database instance
@@ -40,12 +35,13 @@ public class MyDatabase extends SquidDatabase {
 
     private static final int VERSION = 1;
 
-    public MyDatabase(Context context) {
-        super(context);
+    public MyDatabase() {
+        super();
+        // Any other initialization of the instance
     }
 
     @Override
-    protected String getName() {
+    public String getName() {
         return "my-database.db";
     }
 
@@ -66,7 +62,7 @@ public class MyDatabase extends SquidDatabase {
     // omitted for brevity
 }
 
-MyDatabase db = new MyDatabase(context);
+MyDatabase db = new MyDatabase(); // Important: db instances should always be singletons
 
 // This is how you'd work with the generated model
 Person newPerson = new Person()
