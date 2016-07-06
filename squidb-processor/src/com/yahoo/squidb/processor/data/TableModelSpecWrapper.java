@@ -75,11 +75,15 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         PropertyGenerator rowidAliasPropertyGenerator = getRowIdAliasPropertyGenerator();
         if (rowidAliasPropertyGenerator != null) {
             return rowidAliasPropertyGenerator.getPropertyName();
-        } else if (hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) || modelSpecAnnotation.noRowIdAlias()) {
+        } else if (shouldGenerateROWIDProperty()) {
             return DEFAULT_ROWID_PROPERTY_NAME;
         } else {
             return DEFAULT_ID_PROPERTY_NAME;
         }
+    }
+
+    public boolean shouldGenerateROWIDProperty() {
+        return isVirtualTable() || hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) || modelSpecAnnotation.noRowIdAlias();
     }
 
     /**

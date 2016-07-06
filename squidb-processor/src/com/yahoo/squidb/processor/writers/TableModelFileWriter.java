@@ -102,9 +102,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         } else {
             // Default ID property
             Expression constructor;
-            if (modelSpec.isVirtualTable() ||
-                    modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY) ||
-                    modelSpec.getSpecAnnotation().noRowIdAlias()) {
+            if (modelSpec.shouldGenerateROWIDProperty()) {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
                         TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"));
             } else {
@@ -121,6 +119,13 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
             writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
                     TypeConstants.PUBLIC_STATIC_FINAL);
+            if (modelSpec.isVirtualTable()) {
+                writer.writeAnnotation(CoreTypes.DEPRECATED);
+                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
+                        TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
+                        Expressions.fromString(TableModelSpecWrapper.DEFAULT_ROWID_PROPERTY_NAME),
+                        TypeConstants.PUBLIC_STATIC_FINAL);
+            }
         }
         writer.beginInitializerBlock(true, true);
         writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", propertyName));
