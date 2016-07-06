@@ -111,7 +111,12 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
                         TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
                         "\"PRIMARY KEY AUTOINCREMENT\"");
-                // TODO: Warn here
+                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
+                        " is currently generating an integer primary key ID property to act as an alias to the table's "
+                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
+                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
+                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
+                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
             }
 
             writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
