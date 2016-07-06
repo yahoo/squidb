@@ -101,6 +101,9 @@ public class Table extends SqlTable<TableModel> {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
         boolean needsComma = false;
         for (Property<?> property : properties) {
+            if (TableModel.ROWID.equals(property.getExpression())) {
+                continue;
+            }
             if (needsComma) {
                 sql.append(", ");
             }
