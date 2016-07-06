@@ -1614,7 +1614,7 @@ public abstract class SquidDatabase {
      */
     public boolean delete(Class<? extends TableModel> modelClass, long id) {
         Table table = getTable(modelClass);
-        int rowsUpdated = deleteInternal(Delete.from(table).where(table.getIdProperty().eq(id)));
+        int rowsUpdated = deleteInternal(Delete.from(table).where(table.getRowIdProperty().eq(id)));
         if (rowsUpdated > 0) {
             notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, id);
         }
@@ -1889,7 +1889,7 @@ public abstract class SquidDatabase {
 
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        Update update = Update.table(table).fromTemplate(item).where(table.getIdProperty().eq(item.getRowId()));
+        Update update = Update.table(table).fromTemplate(item).where(table.getRowIdProperty().eq(item.getRowId()));
         if (conflictAlgorithm != null) {
             update.onConflict(conflictAlgorithm);
         }
@@ -1926,7 +1926,7 @@ public abstract class SquidDatabase {
     protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
             Property<?>... properties) {
         Table table = getTable(modelClass);
-        return fetchFirstItem(modelClass, table.getIdProperty().eq(id), properties);
+        return fetchFirstItem(modelClass, table.getRowIdProperty().eq(id), properties);
     }
 
     protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,

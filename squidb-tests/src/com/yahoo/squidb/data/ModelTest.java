@@ -60,7 +60,7 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestModel.class));
 
         // query
-        final long id = model.getId();
+        final long id = model.getRowId();
         TestModel fetched = database.fetch(TestModel.class, id, TestModel.PROPERTIES);
         assertNotNull(fetched);
 
@@ -77,19 +77,19 @@ public class ModelTest extends DatabaseTestCase {
     public void testCrudMethodsWithNonDefaultPrimaryKey() {
         Thing thing = new Thing();
         database.persist(thing);
-        assertEquals(1, thing.getId());
+        assertEquals(1, thing.getRowId());
 
-        Thing fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        Thing fetched = database.fetch(Thing.class, thing.getRowId(), Thing.PROPERTIES);
         assertNotNull(fetched);
 
         thing.setFoo("new foo");
         database.persist(thing);
-        fetched = database.fetch(Thing.class, thing.getId(), Thing.PROPERTIES);
+        fetched = database.fetch(Thing.class, thing.getRowId(), Thing.PROPERTIES);
         assertEquals("new foo", fetched.getFoo());
         assertEquals(1, database.countAll(Thing.class));
 
         // delete
-        assertTrue(database.delete(Thing.class, thing.getId()));
+        assertTrue(database.delete(Thing.class, thing.getRowId()));
         assertEquals(0, database.countAll(Thing.class));
     }
 

@@ -20,7 +20,7 @@ public class VirtualModelTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestVirtualModel.class));
 
         // query
-        final long id = model.getId();
+        final long id = model.getRowId();
         TestVirtualModel fetched = database.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
         assertEquals(model, fetched);
 
@@ -31,7 +31,7 @@ public class VirtualModelTest extends DatabaseTestCase {
         assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown")));
 
         // update using setId on a template
-        TestVirtualModel model2 = new TestVirtualModel().setTitle("Charlie Brown 2").setId(model.getId());
+        TestVirtualModel model2 = new TestVirtualModel().setTitle("Charlie Brown 2").setRowId(model.getRowId());
         assertTrue(database.saveExisting(model2));
         assertEquals(1, database.countAll(TestVirtualModel.class));
         assertEquals(1, database.count(TestVirtualModel.class, TestVirtualModel.TITLE.eq("Charlie Brown 2")));
@@ -47,9 +47,9 @@ public class VirtualModelTest extends DatabaseTestCase {
                 .setTestNumber(testNum);
         assertTrue(database.createNew(model));
 
-        final long id = model.getId();
+        final long id = model.getRowId();
         TestVirtualModel fetched = database.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
-        assertEquals(id, fetched.getId());
+        assertEquals(id, fetched.getRowId());
         assertEquals(testNum, fetched.getTestNumber());
     }
 
@@ -60,10 +60,10 @@ public class VirtualModelTest extends DatabaseTestCase {
                 .setBody("Charlie and the Chocolate Factory");
         assertTrue(database.createNew(model));
 
-        long expectedId = model.getId();
+        long expectedId = model.getRowId();
 
         TestVirtualModel fetchedModel = database.fetchByQuery(TestVirtualModel.class, Query.select());
-        assertEquals(expectedId, fetchedModel.getId());
+        assertEquals(expectedId, fetchedModel.getRowId());
         assertEquals(model, fetchedModel);
     }
 

@@ -76,7 +76,7 @@ public class AttachDetachTest extends DatabaseTestCase {
             cursor.close();
         }
         assertEquals(virtualModel,
-                database2.fetch(TestVirtualModel.class, virtualModel.getId(), TestVirtualModel.PROPERTIES));
+                database2.fetch(TestVirtualModel.class, virtualModel.getRowId(), TestVirtualModel.PROPERTIES));
 
         assertFalse(database2.tryExecStatement(insert)); // Should fail after detach
     }

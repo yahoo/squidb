@@ -79,13 +79,13 @@ public class SqlUtilsTest extends DatabaseTestCase {
         TestModel model = new TestModel().setFirstName(badString).setLastName("Bosley").setBirthday(testDate);
         database.persist(model);
 
-        model = database.fetch(TestModel.class, model.getId());
+        model = database.fetch(TestModel.class, model.getRowId());
         assertEquals(badString, model.getFirstName());
 
         database.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
 
-        model = database.fetch(TestModel.class, model.getId());
+        model = database.fetch(TestModel.class, model.getRowId());
         assertEquals("Sam", model.getFirstName());
-        database.delete(TestModel.class, model.getId());
+        database.delete(TestModel.class, model.getRowId());
     }
 }

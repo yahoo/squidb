@@ -96,8 +96,8 @@ public class TriggerTest extends DatabaseTestCase {
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
         database.persist(test1);
         database.persist(test2);
-        final long idTest1 = test1.getId();
-        final long idTest2 = test2.getId();
+        final long idTest1 = test1.getRowId();
+        final long idTest2 = test2.getRowId();
 
         // create trigger set_value2_before before update of value1 on trigger_testers begin
         //      update trigger_testers set value2 = value1 where _id = NEW._id;
@@ -139,8 +139,8 @@ public class TriggerTest extends DatabaseTestCase {
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
         database.persist(test1);
         database.persist(test2);
-        final long idTest1 = test1.getId();
-        final long idTest2 = test2.getId();
+        final long idTest1 = test1.getRowId();
+        final long idTest2 = test2.getRowId();
 
         // create trigger set_value2_after after update of value1 on trigger_testers begin
         //      update trigger_testers set value2 = value1 where _id = NEW._id;
@@ -322,7 +322,7 @@ public class TriggerTest extends DatabaseTestCase {
         // delete
         expectedBefore.add(randomLuckyNumber);
         expectedAfter.add(0);
-        assertTrue(database.delete(TestModel.class, chesterCheetah.getId())); // +1 trigger
+        assertTrue(database.delete(TestModel.class, chesterCheetah.getRowId())); // +1 trigger
 
         // update
         SquidCursor<TestModel> modelCursor = database.query(TestModel.class, Query.select(TestModel.LUCKY_NUMBER)

@@ -17,7 +17,7 @@ public class InheritanceModelTest extends DatabaseTestCase {
         data.setData1("1").setData2("2").setData3("3").setSomeEnum(TestEnum.BANANA);
         database.persist(data);
 
-        SpecificData sd = database.fetch(SpecificData.class, data.getId(), SpecificData.PROPERTIES);
+        SpecificData sd = database.fetch(SpecificData.class, data.getRowId(), SpecificData.PROPERTIES);
         assertNotNull(sd);
         assertEquals("1", sd.getFirstName());
         assertEquals("2", sd.getLastName());

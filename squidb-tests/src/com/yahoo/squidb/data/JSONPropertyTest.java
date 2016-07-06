@@ -155,7 +155,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
                 database.persist(model);
 
-                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
                 List<String> readNumbers = model.getSomeList();
                 assertEquals(numbers, readNumbers);
             }
@@ -176,7 +176,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model.setSomeMap(numbers);
                 database.persist(model);
 
-                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
                 Map<String, Integer> readNumbers = model.getSomeMap();
                 assertEquals(numbers, readNumbers);
             }
@@ -194,7 +194,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model.setComplicatedMap(crazyMap);
                 database.persist(model);
 
-                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
                 Map<String, Map<String, List<Integer>>> readMap = model.getComplicatedMap();
                 assertEquals(crazyMap, readMap);
             }
@@ -211,7 +211,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model.setSomePojo(pojo);
                 database.persist(model);
 
-                model = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+                model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
                 JSONPojo readPojo = model.getSomePojo();
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
                 assertEquals(pojo.pojoInt, readPojo.pojoInt);

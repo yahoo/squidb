@@ -56,8 +56,8 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestViewModel model = new TestViewModel(cursor);
-            assertEquals(t1.getId(), model.getTestModelId().longValue());
-            assertEquals(e1.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
@@ -66,8 +66,8 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
 
-            assertEquals(t2.getId(), model.getTestModelId().longValue());
-            assertEquals(e2.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(t2.getSomeEnum(), model.getTestEnum());
             assertEquals(e2.getName(), model.getEmployeeName());
@@ -86,8 +86,8 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
-            assertEquals(t1.getId(), model.getTestModelId().longValue());
-            assertEquals(e1.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
@@ -96,8 +96,8 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
 
-            assertEquals(t2.getId(), model.getTestModelId().longValue());
-            assertEquals(e2.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(e2.getName(), model.getEmployeeName());
             assertEquals(e2.getName().toUpperCase(), model.getUppercaseName());
@@ -149,7 +149,7 @@ public class ViewModelTest extends DatabaseTestCase {
             TestModel testModel = new TestModel();
             model.mapToModel(testModel);
 
-            assertEquals(t1.getId(), testModel.getId());
+            assertEquals(t1.getRowId(), testModel.getRowId());
             assertEquals(t1.getFirstName(), testModel.getFirstName());
             assertEquals(t1.getSomeEnum(), testModel.getSomeEnum());
             assertFalse(testModel.containsValue(Employee.NAME));
@@ -158,7 +158,7 @@ public class ViewModelTest extends DatabaseTestCase {
             Employee employee = new Employee();
             model.mapToModel(employee);
 
-            assertEquals(e1.getId(), employee.getId());
+            assertEquals(e1.getRowId(), employee.getRowId());
             assertEquals(e1.getName(), employee.getName());
             assertFalse(employee.containsValue(TestModel.FIRST_NAME));
             assertFalse(employee.containsValue(TestViewModel.UPPERCASE_NAME));
@@ -191,16 +191,16 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToFirst();
 
             ViewlessViewModel model = new ViewlessViewModel(cursor);
-            assertEquals(t1.getId(), model.getTestModelId().longValue());
-            assertEquals(e1.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(e1.getName(), model.getEmployeeName());
             assertEquals(e1.getName().toUpperCase(), model.getUppercaseName());
 
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
-            assertEquals(t2.getId(), model.getTestModelId().longValue());
-            assertEquals(e2.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
+            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(e2.getName(), model.getEmployeeName());
             assertEquals(e2.getName().toUpperCase(), model.getUppercaseName());
@@ -226,7 +226,7 @@ public class ViewModelTest extends DatabaseTestCase {
             TestModel testModel = new TestModel();
             model.mapToModel(testModel);
 
-            assertEquals(t1.getId(), testModel.getId());
+            assertEquals(t1.getRowId(), testModel.getRowId());
             assertEquals(t1.getFirstName(), testModel.getFirstName());
             assertFalse(testModel.containsValue(Employee.NAME));
             assertFalse(testModel.containsValue(TestViewModel.UPPERCASE_NAME));
@@ -234,7 +234,7 @@ public class ViewModelTest extends DatabaseTestCase {
             Employee employee = new Employee();
             model.mapToModel(employee);
 
-            assertEquals(e1.getId(), employee.getId());
+            assertEquals(e1.getRowId(), employee.getRowId());
             assertEquals(e1.getName(), employee.getName());
             assertFalse(employee.containsValue(TestModel.FIRST_NAME));
             assertFalse(employee.containsValue(TestViewModel.UPPERCASE_NAME));
@@ -246,7 +246,7 @@ public class ViewModelTest extends DatabaseTestCase {
     }
 
     public void testMapToModelWithMultipleAliases() {
-        Thing[] things = new Thing[] {
+        Thing[] things = new Thing[]{
                 new Thing().setFoo("Thing 1").setBar(0),
                 new Thing().setFoo("Thing 2").setBar(1),
                 new Thing().setFoo("Thing 3").setBar(2),
@@ -287,9 +287,9 @@ public class ViewModelTest extends DatabaseTestCase {
                 Collections.sort(allReadThings, new Comparator<Thing>() {
                     @Override
                     public int compare(Thing lhs, Thing rhs) {
-                        if (lhs.getId() == rhs.getId()) {
+                        if (lhs.getRowId() == rhs.getRowId()) {
                             return 0;
-                        } else if (lhs.getId() < rhs.getId()) {
+                        } else if (lhs.getRowId() < rhs.getRowId()) {
                             return -1;
                         } else {
                             return 1;
@@ -297,28 +297,28 @@ public class ViewModelTest extends DatabaseTestCase {
                     }
                 });
 
-                assertEquals(things[position].getId(), readThing1.getId());
+                assertEquals(things[position].getRowId(), readThing1.getRowId());
                 assertEquals(things[position].getFoo(), readThing1.getFoo());
                 assertEquals(things[position].getBar(), readThing1.getBar());
-                assertEquals(allReadThings.get(0).getId(), readThing1.getId());
+                assertEquals(allReadThings.get(0).getRowId(), readThing1.getRowId());
                 assertEquals(allReadThings.get(0).getFoo(), readThing1.getFoo());
                 assertEquals(allReadThings.get(0).getBar(), readThing1.getBar());
                 assertEquals(things[position], readThing1);
                 assertEquals(allReadThings.get(0), readThing1);
 
-                assertEquals(things[position + 1].getId(), readThing2.getId());
+                assertEquals(things[position + 1].getRowId(), readThing2.getRowId());
                 assertEquals(things[position + 1].getFoo(), readThing2.getFoo());
                 assertEquals(things[position + 1].getBar(), readThing2.getBar());
-                assertEquals(allReadThings.get(1).getId(), readThing2.getId());
+                assertEquals(allReadThings.get(1).getRowId(), readThing2.getRowId());
                 assertEquals(allReadThings.get(1).getFoo(), readThing2.getFoo());
                 assertEquals(allReadThings.get(1).getBar(), readThing2.getBar());
                 assertEquals(things[position + 1], readThing2);
                 assertEquals(allReadThings.get(1), readThing2);
 
-                assertEquals(things[position + 2].getId(), readThing3.getId());
+                assertEquals(things[position + 2].getRowId(), readThing3.getRowId());
                 assertEquals(things[position + 2].getFoo(), readThing3.getFoo());
                 assertEquals(things[position + 2].getBar(), readThing3.getBar());
-                assertEquals(allReadThings.get(2).getId(), readThing3.getId());
+                assertEquals(allReadThings.get(2).getRowId(), readThing3.getRowId());
                 assertEquals(allReadThings.get(2).getFoo(), readThing3.getFoo());
                 assertEquals(allReadThings.get(2).getBar(), readThing3.getBar());
                 assertEquals(things[position + 2], readThing3);
