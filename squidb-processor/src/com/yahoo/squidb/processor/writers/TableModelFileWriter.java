@@ -89,7 +89,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
             writer.writeNewline();
         }
 
-        emitGetIdPropertyMethod();
+        emitGetRowIdPropertyMethod();
     }
 
     private void emitIdPropertyDeclaration() throws IOException {
@@ -119,12 +119,12 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         writer.writeNewline();
     }
 
-    private void emitGetIdPropertyMethod() throws IOException {
+    private void emitGetRowIdPropertyMethod() throws IOException {
         writer.writeAnnotation(CoreTypes.OVERRIDE);
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setModifiers(Modifier.PUBLIC)
                 .setReturnType(TypeConstants.LONG_PROPERTY)
-                .setMethodName("getIdProperty");
+                .setMethodName("getRowIdProperty");
         writer.beginMethodDefinition(params);
         writer.writeStringStatement("return " + modelSpec.getIdPropertyName());
         writer.finishMethodDefinition();

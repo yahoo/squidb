@@ -74,6 +74,7 @@ public abstract class TableModel extends AbstractModel {
     /**
      * Deprecated alias for {@link #setRowId(long)}
      */
+    @Deprecated
     public TableModel setId(long id) {
         return setRowId(id);
     }
