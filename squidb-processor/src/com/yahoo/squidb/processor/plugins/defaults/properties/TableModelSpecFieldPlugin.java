@@ -15,9 +15,9 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBlobPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBooleanPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicDoublePropertyGenerator;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIdPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIntegerPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLongPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
@@ -35,7 +35,7 @@ import javax.tools.Diagnostic.Kind;
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
-    private Map<DeclaredTypeName, Class<? extends PropertyGenerator>> generatorMap = new HashMap<>();
+    private Map<DeclaredTypeName, Class<? extends BasicPropertyGenerator>> generatorMap = new HashMap<>();
 
     public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
@@ -54,20 +54,25 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             return false;
         } else {
             if (field.getAnnotation(PrimaryKey.class) != null) {
-                if (!BasicLongPropertyGenerator.handledColumnTypes().contains(fieldType)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Only long primary key columns are supported at this time.", field);
-                } else if (modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_ID_PROPERTY_GENERATOR)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Only a single primary key column is supported at this time.", field);
-                } else if (modelSpec instanceof TableModelSpecWrapper
+                if (modelSpec instanceof TableModelSpecWrapper
                         && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
                     utils.getMessager().printMessage(Kind.ERROR,
                             "Virtual tables cannot declare a custom primary key", field);
+                } else if (modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY)) {
+                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                            "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
+                                    + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
+                                    + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.",
+                            field);
                 } else {
-                    modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ID_PROPERTY_GENERATOR,
-                            getPropertyGenerator(field, fieldType));
-                    return true;
+                    modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY, true);
+                    if (TypeConstants.isIntegerType(fieldType)) {
+                        modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR,
+                                getPropertyGenerator(field, fieldType));
+                        return true;
+                    } else {
+                        return super.processVariableElement(field, fieldType);
+                    }
                 }
             } else {
                 return super.processVariableElement(field, fieldType);
@@ -83,14 +88,16 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        Class<? extends PropertyGenerator> generatorClass = generatorMap.get(fieldType);
+        Class<? extends BasicPropertyGenerator> generatorClass = generatorMap.get(fieldType);
         try {
-            if (field.getAnnotation(PrimaryKey.class) != null &&
-                    BasicLongPropertyGenerator.class.equals(generatorClass)) {
-                return new BasicIdPropertyGenerator(modelSpec, field, utils);
+            BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
+                    VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
+            if ("rowid".equalsIgnoreCase(propertyGenerator.getColumnName())) {
+                utils.getMessager().printMessage(Kind.ERROR, "Columns in a table model spec cannot be named rowid, as "
+                        + "they would clash with the internal SQLite rowid column.");
+                return null;
             }
-            return generatorClass.getConstructor(ModelSpec.class, VariableElement.class, AptUtils.class)
-                    .newInstance(modelSpec, field, utils);
+            return propertyGenerator;
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
@@ -108,7 +115,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     private void registerHandledTypes(List<DeclaredTypeName> handledTypes,
-            Class<? extends PropertyGenerator> generatorClass) {
+            Class<? extends BasicPropertyGenerator> generatorClass) {
         for (DeclaredTypeName type : handledTypes) {
             generatorMap.put(type, generatorClass);
         }

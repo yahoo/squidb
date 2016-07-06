@@ -93,7 +93,8 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     }
 
     private void emitRowIdPropertyDeclaration() throws IOException {
-        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdPropertyGenerator();
+        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdAliasPropertyGenerator();
+        String propertyName = modelSpec.getRowIdAliasPropertyName();
         if (rowidPropertyGenerator != null) {
             modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, rowidPropertyGenerator);
             rowidPropertyGenerator.emitPropertyDeclaration(writer);
@@ -101,20 +102,23 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         } else {
             // Default ID property
             Expression constructor;
-            if (modelSpec.isVirtualTable()) {
+            if (modelSpec.isVirtualTable() ||
+                    modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY) ||
+                    modelSpec.getSpecAnnotation().noRowIdAlias()) {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
-                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"), "null");
+                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"));
             } else {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
                         TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
                         "\"PRIMARY KEY AUTOINCREMENT\"");
+                // TODO: Warn here
             }
 
-            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
-                    constructor, TypeConstants.PUBLIC_STATIC_FINAL);
+            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
+                    TypeConstants.PUBLIC_STATIC_FINAL);
         }
         writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", modelSpec.getIdPropertyName()));
+        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", propertyName));
         writer.finishInitializerBlock(true, true);
         writer.writeNewline();
     }
@@ -126,7 +130,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                 .setReturnType(TypeConstants.LONG_PROPERTY)
                 .setMethodName("getRowIdProperty");
         writer.beginMethodDefinition(params);
-        writer.writeStringStatement("return " + modelSpec.getIdPropertyName());
+        writer.writeStringStatement("return " + modelSpec.getRowIdAliasPropertyName());
         writer.finishMethodDefinition();
     }
 
@@ -134,7 +138,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void writePropertiesInitializationBlock() throws IOException {
         writer.writeStatement(Expressions
                 .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, 0),
-                        Expressions.fromString(modelSpec.getIdPropertyName())));
+                        Expressions.fromString(modelSpec.getRowIdAliasPropertyName())));
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             writer.writeStatement(Expressions
                     .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i + 1),

@@ -19,7 +19,9 @@ import javax.lang.model.element.TypeElement;
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
-    public static final String METADATA_KEY_ID_PROPERTY_GENERATOR = "idPropertyGenerator";
+    public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
+    public static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
+    public static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
     private final DeclaredTypeName tableType;
 
@@ -65,14 +67,16 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     /**
      * @return a {@link PropertyGenerator} for the model's id property
      */
-    public PropertyGenerator getRowIdPropertyGenerator() {
-        return getMetadata(METADATA_KEY_ID_PROPERTY_GENERATOR);
+    public PropertyGenerator getRowIdAliasPropertyGenerator() {
+        return getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
     }
 
-    public String getIdPropertyName() {
-        PropertyGenerator idPropertyGenerator = getRowIdPropertyGenerator();
-        if (idPropertyGenerator != null) {
-            return idPropertyGenerator.getPropertyName();
+    public String getRowIdAliasPropertyName() {
+        PropertyGenerator rowidAliasPropertyGenerator = getRowIdAliasPropertyGenerator();
+        if (rowidAliasPropertyGenerator != null) {
+            return rowidAliasPropertyGenerator.getPropertyName();
+        } else if (hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) || modelSpecAnnotation.noRowIdAlias()) {
+            return DEFAULT_ROWID_PROPERTY_NAME;
         } else {
             return DEFAULT_ID_PROPERTY_NAME;
         }
