@@ -97,12 +97,26 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         + "they would clash with the internal SQLite rowid column.");
                 return null;
             }
+
+            String propertyName = propertyGenerator.getPropertyName();
+            if ("ID".equals(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
+                utils.getMessager().printMessage(Kind.ERROR, "User-defined non-primary-key columns cannot currently be "
+                        + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
+                        + "future version of SquiDB.");
+                return null;
+            }
+
             return propertyGenerator;
         } catch (Exception e) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
         }
         return null;
+    }
+
+    private boolean isIntegerPrimaryKey(VariableElement field, DeclaredTypeName fieldType) {
+        return field.getAnnotation(PrimaryKey.class) != null &&
+                TypeConstants.isIntegerType(fieldType);
     }
 
     private void registerBasicPropertyGenerators() {
