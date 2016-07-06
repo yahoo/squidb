@@ -153,15 +153,29 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void emitGettersAndSetters() throws IOException {
         super.emitGettersAndSetters();
         if (!pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+
             MethodDeclarationParameters params = new MethodDeclarationParameters()
                     .setModifiers(Modifier.PUBLIC)
                     .setMethodName("setId")
                     .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
                     .setArgumentNames("id")
                     .setReturnType(modelSpec.getGeneratedClassName());
+            writer.writeAnnotation(CoreTypes.DEPRECATED);
             writer.writeAnnotation(CoreTypes.OVERRIDE)
                     .beginMethodDefinition(params)
-                    .writeStringStatement("super.setId(id)")
+                    .writeStringStatement("super.setRowId(id)")
+                    .writeStringStatement("return this")
+                    .finishMethodDefinition();
+
+            params = new MethodDeclarationParameters()
+                    .setModifiers(Modifier.PUBLIC)
+                    .setMethodName("setRowId")
+                    .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
+                    .setArgumentNames("rowid")
+                    .setReturnType(modelSpec.getGeneratedClassName());
+            writer.writeAnnotation(CoreTypes.OVERRIDE)
+                    .beginMethodDefinition(params)
+                    .writeStringStatement("super.setRowId(rowid)")
                     .writeStringStatement("return this")
                     .finishMethodDefinition();
         }
