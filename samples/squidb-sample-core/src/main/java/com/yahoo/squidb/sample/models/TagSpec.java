@@ -6,11 +6,16 @@
 package com.yahoo.squidb.sample.models;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "Tag", tableName = "tags",
         tableConstraint = "FOREIGN KEY(taskId) references tasks(_id) ON DELETE CASCADE")
 public class TagSpec {
+
+    @PrimaryKey
+    @ColumnSpec(name = "_id")
+    long id;
 
     @ColumnSpec(constraints = "NOT NULL")
     String tag;
