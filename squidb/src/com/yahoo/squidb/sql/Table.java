@@ -16,7 +16,7 @@ import com.yahoo.squidb.utility.VersionCode;
 public class Table extends SqlTable<TableModel> {
 
     private final String tableConstraint;
-    protected LongProperty idProperty;
+    protected LongProperty rowidProperty;
 
     public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
         this(modelClass, properties, name, null);
@@ -41,14 +41,14 @@ public class Table extends SqlTable<TableModel> {
 
     public Table qualifiedFromDatabase(String databaseName) {
         Table result = new Table(modelClass, properties, getExpression(), databaseName, tableConstraint, alias);
-        result.idProperty = idProperty;
+        result.rowidProperty = rowidProperty;
         return result;
     }
 
     @Override
     public Table as(String newAlias) {
         Table result = (Table) super.as(newAlias);
-        result.idProperty = idProperty == null ? null : result.qualifyField(idProperty);
+        result.rowidProperty = rowidProperty == null ? null : result.qualifyField(rowidProperty);
         return result;
     }
 
@@ -117,22 +117,30 @@ public class Table extends SqlTable<TableModel> {
      * Sets the primary key column for this table. Do not call this method! Exposed only so that it can be set
      * when initializing a model class.
      *
-     * @param idProperty a LongProperty representing the table's primary key id column
+     * @param rowidProperty a LongProperty representing the table's primary key id column
      */
-    public void setIdProperty(LongProperty idProperty) {
-        if (this.idProperty != null) {
-            throw new UnsupportedOperationException("Can't call setIdProperty on a Table more than once");
+    public void setRowIdProperty(LongProperty rowidProperty) {
+        if (this.rowidProperty != null) {
+            throw new UnsupportedOperationException("Can't call setRowIdProperty on a Table more than once");
         }
-        this.idProperty = idProperty;
+        this.rowidProperty = rowidProperty;
     }
 
     /**
-     * @return the property representing the table's primary key id column
+     * @return the property representing the table's rowid column (or a integer primary key rowid alias if one exists)
      */
-    public LongProperty getIdProperty() {
-        if (idProperty == null) {
+    public LongProperty getRowIdProperty() {
+        if (rowidProperty == null) {
             throw new UnsupportedOperationException("Table " + getExpression() + " has no id property defined");
         }
-        return idProperty;
+        return rowidProperty;
+    }
+
+    /**
+     * Deprecated alias for {@link #getRowIdProperty()}
+     */
+    @Deprecated
+    public LongProperty getIdProperty() {
+        return getRowIdProperty();
     }
 }

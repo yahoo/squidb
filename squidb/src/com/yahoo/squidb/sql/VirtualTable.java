@@ -41,8 +41,9 @@ public class VirtualTable extends Table {
 
     @Override
     public VirtualTable qualifiedFromDatabase(String databaseName) {
-        VirtualTable result = new VirtualTable(modelClass, properties, getExpression(), databaseName, moduleName, alias);
-        result.idProperty = idProperty;
+        VirtualTable result = new VirtualTable(modelClass, properties, getExpression(),
+                databaseName, moduleName, alias);
+        result.rowidProperty = rowidProperty;
         return result;
     }
 

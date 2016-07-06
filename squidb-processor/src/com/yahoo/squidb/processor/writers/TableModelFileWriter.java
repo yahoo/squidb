@@ -114,7 +114,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                     constructor, TypeConstants.PUBLIC_STATIC_FINAL);
         }
         writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setIdProperty", modelSpec.getIdPropertyName()));
+        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", modelSpec.getIdPropertyName()));
         writer.finishInitializerBlock(true, true);
         writer.writeNewline();
     }
