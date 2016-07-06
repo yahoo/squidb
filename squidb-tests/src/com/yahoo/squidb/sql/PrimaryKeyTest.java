@@ -26,6 +26,10 @@ public class PrimaryKeyTest extends DatabaseTestCase {
 
         TestNonIntegerPrimaryKey fetched = database.fetch(TestNonIntegerPrimaryKey.class, test.getRowId());
         assertEquals(test, fetched);
+
+        TestNonIntegerPrimaryKey fetched2 = database.fetchByCriterion(TestNonIntegerPrimaryKey.class,
+                TestNonIntegerPrimaryKey.KEY.eq("A"));
+        assertEquals(test, fetched2);
     }
 
     public void testMultiColumnPrimaryKey() {
@@ -39,6 +43,12 @@ public class PrimaryKeyTest extends DatabaseTestCase {
 
         TestMultiColumnKey fetched = database.fetch(TestMultiColumnKey.class, test.getRowId());
         assertEquals(test, fetched);
+
+        TestMultiColumnKey fetched2 = database.fetchByCriterion(TestMultiColumnKey.class,
+                TestMultiColumnKey.KEY_COL_1.eq("A")
+                        .and(TestMultiColumnKey.KEY_COL_2.eq("B")
+                                .and(TestMultiColumnKey.KEY_COL_3.eq("C"))));
+        assertEquals(test, fetched2);
     }
 
 }
