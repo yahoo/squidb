@@ -9,7 +9,7 @@ import com.yahoo.squidb.sql.Property.LongProperty;
 
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
- * can be retrieved by calling {@link #getId()}. Conventionally, the presence of an ID other than {@link #NO_ID}
+ * can be retrieved by calling {@link #getRowId()} ()}. Conventionally, the presence of an ID other than {@link #NO_ID}
  * signifies that this item exists in the table; calling {@link #isSaved()} performs this check for you.
  */
 public abstract class TableModel extends AbstractModel {
@@ -82,7 +82,7 @@ public abstract class TableModel extends AbstractModel {
      * @return true if this model has been persisted to the database
      */
     public boolean isSaved() {
-        return getId() != NO_ID;
+        return getRowId() != NO_ID;
     }
 
     /**

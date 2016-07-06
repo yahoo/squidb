@@ -74,7 +74,7 @@ public class TaskUtils {
             if (mTasksDatabase.persist(task)) {
                 for (String tag : tags) {
                     if (tag != null && !tag.isEmpty()) {
-                        if (!mTasksDatabase.persist(new Tag().setTag(tag).setTaskId(task.getId()))) {
+                        if (!mTasksDatabase.persist(new Tag().setTag(tag).setTaskId(task.getRowId()))) {
                             return false;
                         }
                     }
@@ -94,7 +94,7 @@ public class TaskUtils {
     }
 
     public boolean deleteTask(Task task) {
-        return mTasksDatabase.delete(Task.class, task.getId());
+        return mTasksDatabase.delete(Task.class, task.getRowId());
     }
 
 }

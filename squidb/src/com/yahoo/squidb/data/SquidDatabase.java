@@ -1800,7 +1800,7 @@ public abstract class SquidDatabase {
      * @return true if current the model data is stored in the database
      */
     public boolean createNew(TableModel item) {
-        item.setId(TableModel.NO_ID);
+        item.setRowId(TableModel.NO_ID);
         return insertRow(item, null);
     }
 
@@ -1854,7 +1854,7 @@ public abstract class SquidDatabase {
         boolean result = newRow > 0;
         if (result) {
             notifyForTable(DataChangedNotifier.DBOperation.INSERT, item, table, newRow);
-            item.setId(newRow);
+            item.setRowId(newRow);
             item.markSaved();
         }
         return result;
@@ -1889,13 +1889,13 @@ public abstract class SquidDatabase {
 
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        Update update = Update.table(table).fromTemplate(item).where(table.getIdProperty().eq(item.getId()));
+        Update update = Update.table(table).fromTemplate(item).where(table.getIdProperty().eq(item.getRowId()));
         if (conflictAlgorithm != null) {
             update.onConflict(conflictAlgorithm);
         }
         boolean result = updateInternal(update) > 0;
         if (result) {
-            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, item, table, item.getId());
+            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, item, table, item.getRowId());
             item.markSaved();
         }
         return result;
