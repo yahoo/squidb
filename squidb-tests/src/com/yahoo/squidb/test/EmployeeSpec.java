@@ -6,10 +6,15 @@
 package com.yahoo.squidb.test;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "Employee", tableName = "employees")
 public class EmployeeSpec {
+
+    @PrimaryKey
+    @ColumnSpec(name = "_id")
+    long id;
 
     @ColumnSpec(constraints = "NOT NULL")
     String name;
