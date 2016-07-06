@@ -24,9 +24,9 @@ public class Tag extends TableModel {
     public static final TableModelName TABLE_MODEL_NAME = new TableModelName(Tag.class, TABLE.getName());
 
     // --- property declarations
-    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
+    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, "_id", "PRIMARY KEY AUTOINCREMENT");
     static {
-        TABLE.setIdProperty(ID);
+        TABLE.setRowIdProperty(ID);
     };
 
     public static final StringProperty TAG = new StringProperty(TABLE_MODEL_NAME, "tag", "NOT NULL");
@@ -34,7 +34,7 @@ public class Tag extends TableModel {
     public static final LongProperty TASK_ID = new LongProperty(TABLE_MODEL_NAME, "taskId", "NOT NULL");
 
     @Override
-    public LongProperty getIdProperty() {
+    public LongProperty getRowIdProperty() {
         return ID;
     }
 
@@ -100,9 +100,16 @@ public class Tag extends TableModel {
         return this;
     }
 
+    @Deprecated
     @Override
     public Tag setId(long id) {
-        super.setId(id);
+        super.setRowId(id);
+        return this;
+    }
+
+    @Override
+    public Tag setRowId(long rowid) {
+        super.setRowId(rowid);
         return this;
     }
 
