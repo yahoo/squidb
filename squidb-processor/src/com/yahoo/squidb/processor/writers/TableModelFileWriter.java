@@ -54,7 +54,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                                 modelSpec.getModelSpecElement());
             }
             arguments.add("\"" + modelSpec.getSpecAnnotation().virtualModule() + "\"");
-        } else if (!modelSpec.getSpecAnnotation().tableConstraint().isEmpty()) {
+        } else if (!AptUtils.isEmpty(modelSpec.getSpecAnnotation().tableConstraint())) {
             arguments.add("\"" + modelSpec.getSpecAnnotation().tableConstraint() + "\"");
         }
         writer.writeFieldDeclaration(modelSpec.getTableType(), TABLE_NAME,
@@ -74,7 +74,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     @Override
     protected void emitAllProperties() throws IOException {
-        emitIdPropertyDeclaration();
+        emitRowIdPropertyDeclaration();
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
             generator.emitPropertyDeclaration(writer);
@@ -92,12 +92,12 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         emitGetRowIdPropertyMethod();
     }
 
-    private void emitIdPropertyDeclaration() throws IOException {
-        PropertyGenerator idPropertyGenerator = modelSpec.getIdPropertyGenerator();
-        if (idPropertyGenerator != null) {
-            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, idPropertyGenerator);
-            idPropertyGenerator.emitPropertyDeclaration(writer);
-            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, idPropertyGenerator);
+    private void emitRowIdPropertyDeclaration() throws IOException {
+        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdPropertyGenerator();
+        if (rowidPropertyGenerator != null) {
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, rowidPropertyGenerator);
+            rowidPropertyGenerator.emitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, rowidPropertyGenerator);
         } else {
             // Default ID property
             Expression constructor;

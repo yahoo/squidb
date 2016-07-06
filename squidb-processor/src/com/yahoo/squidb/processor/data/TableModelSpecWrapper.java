@@ -65,12 +65,12 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     /**
      * @return a {@link PropertyGenerator} for the model's id property
      */
-    public PropertyGenerator getIdPropertyGenerator() {
+    public PropertyGenerator getRowIdPropertyGenerator() {
         return getMetadata(METADATA_KEY_ID_PROPERTY_GENERATOR);
     }
 
     public String getIdPropertyName() {
-        PropertyGenerator idPropertyGenerator = getIdPropertyGenerator();
+        PropertyGenerator idPropertyGenerator = getRowIdPropertyGenerator();
         if (idPropertyGenerator != null) {
             return idPropertyGenerator.getPropertyName();
         } else {
