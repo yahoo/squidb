@@ -39,7 +39,7 @@ public class EnumFieldPlugin extends BaseFieldPlugin {
         }
 
         TypeElement typeElement = (TypeElement) utils.getTypes().asElement(field.asType());
-        return typeElement.getKind() == ElementKind.ENUM;
+        return typeElement != null && typeElement.getKind() == ElementKind.ENUM;
     }
 
     @Override
