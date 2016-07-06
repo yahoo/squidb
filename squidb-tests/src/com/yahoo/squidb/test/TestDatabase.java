@@ -36,7 +36,9 @@ public class TestDatabase extends SquidDatabase {
                 Employee.TABLE,
                 TriggerTester.TABLE,
                 BasicData.TABLE,
-                TestVirtualModel.TABLE
+                TestVirtualModel.TABLE,
+                TestMultiColumnKey.TABLE,
+                TestNonIntegerPrimaryKey.TABLE
         };
     }
 
