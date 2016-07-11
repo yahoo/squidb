@@ -140,7 +140,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 }
             } else {
                 utils.getMessager().printMessage(Kind.WARNING, "Duplicate primary key definition in column constraints."
-                        + " Use the PrimaryKey annotation instead of declaring the constraint in ColumnSpec.");
+                        + " Use the @PrimaryKey annotation instead of declaring the constraint in ColumnSpec.");
             }
         }
 
