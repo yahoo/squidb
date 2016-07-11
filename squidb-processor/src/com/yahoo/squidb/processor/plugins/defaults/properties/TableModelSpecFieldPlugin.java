@@ -88,7 +88,13 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        Class<? extends BasicPropertyGenerator> generatorClass = generatorMap.get(fieldType);
+        Class<? extends BasicPropertyGenerator> generatorClass;
+        if (isIntegerPrimaryKey(field, fieldType)) {
+            // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
+            generatorClass = getLongPropertyGenerator();
+        } else {
+            generatorClass = generatorMap.get(fieldType);
+        }
         try {
             BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
                     VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
