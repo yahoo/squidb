@@ -8,6 +8,7 @@ package com.yahoo.squidb.data;
 import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
+import com.yahoo.squidb.sql.Query;
 
 import java.util.List;
 
@@ -30,6 +31,9 @@ import java.util.List;
  */
 public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
 
+    /** Model class that is suggested for reading from this cursor */
+    private final Class<TYPE> modelHint;
+
     /** Properties read by this cursor */
     private final List<? extends Field<?>> fields;
 
@@ -45,9 +49,18 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      * @param cursor the backing cursor
      * @param fields properties read from this cursor
      */
-    public SquidCursor(ICursor cursor, List<? extends Field<?>> fields) {
+    public SquidCursor(ICursor cursor, Class<TYPE> modelHint, List<? extends Field<?>> fields) {
         this.cursor = cursor;
+        this.modelHint = modelHint;
         this.fields = fields;
+    }
+
+    /**
+     * Deprecated in favor of {@link #SquidCursor(ICursor, Class, List)}
+     */
+    @Deprecated
+    public SquidCursor(ICursor cursor, List<? extends Field<?>> fields) {
+        this(cursor, null, fields);
     }
 
     /**
@@ -68,6 +81,15 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      */
     public ICursor getCursor() {
         return cursor;
+    }
+
+    /**
+     * @return the class object that represents a "hint" about which class should be used to read from this cursor.
+     * This class is only a suggestion, and may be null if the cursor was not constructed with a model hint (this
+     * may be the case if a null class was passed to {@link SquidDatabase#query(Class, Query)})
+     */
+    public Class<TYPE> getModelHintClass() {
+        return modelHint;
     }
 
     /**

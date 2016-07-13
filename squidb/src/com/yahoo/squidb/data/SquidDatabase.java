@@ -1506,7 +1506,7 @@ public abstract class SquidDatabase {
             ensureSqlCompiles(validateSql); // throws if the statement fails to compile
         }
         ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
-        return new SquidCursor<>(cursor, query.getFields());
+        return new SquidCursor<>(cursor, modelClass, query.getFields());
     }
 
     /**
