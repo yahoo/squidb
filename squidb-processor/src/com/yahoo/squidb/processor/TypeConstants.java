@@ -9,6 +9,8 @@ import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.GenericName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIntegerPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLongPropertyGenerator;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -127,5 +129,10 @@ public class TypeConstants {
 
     public static boolean isPrimitiveType(DeclaredTypeName type) {
         return AptUtils.isEmpty(type.getPackageName());
+    }
+
+    public static boolean isIntegerType(DeclaredTypeName type) {
+        return BasicIntegerPropertyGenerator.handledColumnTypes().contains(type) ||
+                BasicLongPropertyGenerator.handledColumnTypes().contains(type);
     }
 }

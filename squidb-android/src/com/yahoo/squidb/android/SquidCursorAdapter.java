@@ -52,7 +52,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @see #SquidCursorAdapter(AbstractModel, Property)
      */
     public SquidCursorAdapter(T model) {
-        this(model, model instanceof TableModel ? ((TableModel) model).getIdProperty() : null);
+        this(model, model instanceof TableModel ? ((TableModel) model).getRowIdProperty() : null);
     }
 
     /**

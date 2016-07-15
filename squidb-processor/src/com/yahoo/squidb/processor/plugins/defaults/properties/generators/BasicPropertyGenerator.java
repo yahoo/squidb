@@ -12,6 +12,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -88,6 +89,10 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         return propertyName;
     }
 
+    public String getColumnName() {
+        return columnName;
+    }
+
     @Override
     public void emitPropertyDeclaration(JavaFileWriter writer) throws IOException {
         if (isDeprecated) {
@@ -110,25 +115,40 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     protected String getColumnDefinition() {
-        String toReturn = null;
+        StringBuilder toReturn = new StringBuilder();
         String constraints = extras != null ? extras.constraints() : ColumnSpec.DEFAULT_NONE;
-        if (!ColumnSpec.DEFAULT_NONE.equals(constraints) || !ColumnSpec.DEFAULT_NONE.equals(getColumnDefault())) {
-            toReturn = constraints;
+        if (!ColumnSpec.DEFAULT_NONE.equals(constraints)) {
+            toReturn.append(constraints);
+        }
 
+        if (!ColumnSpec.DEFAULT_NONE.equals(getColumnDefault())) {
             String columnDefaultValue = getColumnDefinitionDefaultValue();
 
-            if (ColumnSpec.DEFAULT_NONE.equals(toReturn)) {
-                toReturn = "DEFAULT " + columnDefaultValue;
-            } else if (!ColumnSpec.DEFAULT_NONE.equals(columnDefaultValue)) {
-                if (!toReturn.toUpperCase().contains("DEFAULT")) {
-                    toReturn += " DEFAULT " + columnDefaultValue;
-                } else {
-                    utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", field);
-                }
+            if (!toReturn.toString().toUpperCase().contains("DEFAULT")) {
+                toReturn.append(" DEFAULT ").append(columnDefaultValue);
+            } else {
+                utils.getMessager().printMessage(Kind.WARNING, "Duplicate default value definitions", field);
             }
-            toReturn = "\"" + toReturn + "\"";
         }
-        return toReturn;
+
+        if (field != null && field.getAnnotation(PrimaryKey.class) != null) {
+            PrimaryKey primaryKeyAnnotation = field.getAnnotation(PrimaryKey.class);
+            if (!toReturn.toString().toUpperCase().contains("PRIMARY KEY")) {
+                toReturn.append(" PRIMARY KEY ");
+                if (TypeConstants.isIntegerType(getTypeForAccessors()) && primaryKeyAnnotation.autoincrement()) {
+                    toReturn.append("AUTOINCREMENT");
+                }
+            } else {
+                utils.getMessager().printMessage(Kind.WARNING, "Duplicate primary key definition in column constraints."
+                        + " Use the @PrimaryKey annotation instead of declaring the constraint in ColumnSpec.");
+            }
+        }
+
+        String toReturnString = toReturn.toString().trim();
+        if (!AptUtils.isEmpty(toReturnString)) {
+            return "\"" + toReturnString + "\"";
+        }
+        return null;
     }
 
     protected String getColumnDefinitionDefaultValue() {

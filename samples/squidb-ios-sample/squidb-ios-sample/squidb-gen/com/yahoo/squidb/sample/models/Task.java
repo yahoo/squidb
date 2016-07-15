@@ -25,9 +25,9 @@ public class Task extends TableModel {
     public static final TableModelName TABLE_MODEL_NAME = new TableModelName(Task.class, TABLE.getName());
 
     // --- property declarations
-    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, TableModel.DEFAULT_ID_COLUMN, "PRIMARY KEY AUTOINCREMENT");
+    public static final LongProperty ID = new LongProperty(TABLE_MODEL_NAME, "_id", "PRIMARY KEY AUTOINCREMENT");
     static {
-        TABLE.setIdProperty(ID);
+        TABLE.setRowIdProperty(ID);
     };
 
     public static final StringProperty TITLE = new StringProperty(TABLE_MODEL_NAME, "title", "NOT NULL");
@@ -39,7 +39,7 @@ public class Task extends TableModel {
     public static final IntegerProperty PRIORITY = new IntegerProperty(TABLE_MODEL_NAME, "priority", "DEFAULT 0");
 
     @Override
-    public LongProperty getIdProperty() {
+    public LongProperty getRowIdProperty() {
         return ID;
     }
 
@@ -128,9 +128,16 @@ public class Task extends TableModel {
         return this;
     }
 
+    @Deprecated
     @Override
     public Task setId(long id) {
-        super.setId(id);
+        super.setRowId(id);
+        return this;
+    }
+
+    @Override
+    public Task setRowId(long rowid) {
+        super.setRowId(rowid);
         return this;
     }
 

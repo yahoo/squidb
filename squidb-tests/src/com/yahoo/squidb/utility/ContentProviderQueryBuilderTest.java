@@ -185,7 +185,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
     private TestModel buildModelFromCursor(ICursor cursor) {
         TestModel model = new TestModel();
-        model.setId(cursor.getLong(cursor.getColumnIndex("_id")));
+        model.setRowId(cursor.getLong(cursor.getColumnIndex("_id")));
         model.setFirstName(cursor.getString(cursor.getColumnIndex(COL_GIVEN_NAME)));
         model.setLastName(cursor.getString(cursor.getColumnIndex(COL_SURNAME)));
         model.setLuckyNumber(cursor.getInt(cursor.getColumnIndex(COL_LUCKY_NUMBER)));
@@ -256,16 +256,16 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
-            assertEquals(model1.getId(), model.getTestModelId().longValue());
-            assertEquals(employee1.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(model1.getRowId(), model.getTestModelId().longValue());
+            assertEquals(employee1.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(model1.getFirstName(), model.getTestName());
             assertEquals(employee1.getName(), model.getEmployeeName());
             assertEquals(employee1.getName().toUpperCase(), model.getUppercaseName());
 
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
-            assertEquals(model2.getId(), model.getTestModelId().longValue());
-            assertEquals(employee2.getId(), model.getEmployeeModelId().longValue());
+            assertEquals(model2.getRowId(), model.getTestModelId().longValue());
+            assertEquals(employee2.getRowId(), model.getEmployeeModelId().longValue());
             assertEquals(model2.getFirstName(), model.getTestName());
             assertEquals(employee2.getName(), model.getEmployeeName());
             assertEquals(employee2.getName().toUpperCase(), model.getUppercaseName());

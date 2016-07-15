@@ -54,7 +54,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                                 modelSpec.getModelSpecElement());
             }
             arguments.add("\"" + modelSpec.getSpecAnnotation().virtualModule() + "\"");
-        } else if (!modelSpec.getSpecAnnotation().tableConstraint().isEmpty()) {
+        } else if (!AptUtils.isEmpty(modelSpec.getSpecAnnotation().tableConstraint())) {
             arguments.add("\"" + modelSpec.getSpecAnnotation().tableConstraint() + "\"");
         }
         writer.writeFieldDeclaration(modelSpec.getTableType(), TABLE_NAME,
@@ -74,7 +74,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     @Override
     protected void emitAllProperties() throws IOException {
-        emitIdPropertyDeclaration();
+        emitRowIdPropertyDeclaration();
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
             generator.emitPropertyDeclaration(writer);
@@ -89,44 +89,58 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
             writer.writeNewline();
         }
 
-        emitGetIdPropertyMethod();
+        emitGetRowIdPropertyMethod();
     }
 
-    private void emitIdPropertyDeclaration() throws IOException {
-        PropertyGenerator idPropertyGenerator = modelSpec.getIdPropertyGenerator();
-        if (idPropertyGenerator != null) {
-            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, idPropertyGenerator);
-            idPropertyGenerator.emitPropertyDeclaration(writer);
-            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, idPropertyGenerator);
+    private void emitRowIdPropertyDeclaration() throws IOException {
+        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdAliasPropertyGenerator();
+        String propertyName = modelSpec.getRowIdAliasPropertyName();
+        if (rowidPropertyGenerator != null) {
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, rowidPropertyGenerator);
+            rowidPropertyGenerator.emitPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, rowidPropertyGenerator);
         } else {
             // Default ID property
             Expression constructor;
-            if (modelSpec.isVirtualTable()) {
+            if (modelSpec.shouldGenerateROWIDProperty()) {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
-                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"), "null");
+                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"));
             } else {
                 constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
                         TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
                         "\"PRIMARY KEY AUTOINCREMENT\"");
+                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
+                        " is currently generating an integer primary key ID property to act as an alias to the table's "
+                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
+                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
+                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
+                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
             }
 
-            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
-                    constructor, TypeConstants.PUBLIC_STATIC_FINAL);
+            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
+                    TypeConstants.PUBLIC_STATIC_FINAL);
+            if (modelSpec.isVirtualTable()) {
+                writer.writeAnnotation(CoreTypes.DEPRECATED);
+                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
+                        TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
+                        Expressions.fromString(TableModelSpecWrapper.DEFAULT_ROWID_PROPERTY_NAME),
+                        TypeConstants.PUBLIC_STATIC_FINAL);
+            }
         }
         writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setIdProperty", modelSpec.getIdPropertyName()));
+        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", propertyName));
         writer.finishInitializerBlock(true, true);
         writer.writeNewline();
     }
 
-    private void emitGetIdPropertyMethod() throws IOException {
+    private void emitGetRowIdPropertyMethod() throws IOException {
         writer.writeAnnotation(CoreTypes.OVERRIDE);
         MethodDeclarationParameters params = new MethodDeclarationParameters()
                 .setModifiers(Modifier.PUBLIC)
                 .setReturnType(TypeConstants.LONG_PROPERTY)
-                .setMethodName("getIdProperty");
+                .setMethodName("getRowIdProperty");
         writer.beginMethodDefinition(params);
-        writer.writeStringStatement("return " + modelSpec.getIdPropertyName());
+        writer.writeStringStatement("return " + modelSpec.getRowIdAliasPropertyName());
         writer.finishMethodDefinition();
     }
 
@@ -134,7 +148,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void writePropertiesInitializationBlock() throws IOException {
         writer.writeStatement(Expressions
                 .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, 0),
-                        Expressions.fromString(modelSpec.getIdPropertyName())));
+                        Expressions.fromString(modelSpec.getRowIdAliasPropertyName())));
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             writer.writeStatement(Expressions
                     .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i + 1),
@@ -153,15 +167,29 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void emitGettersAndSetters() throws IOException {
         super.emitGettersAndSetters();
         if (!pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+
             MethodDeclarationParameters params = new MethodDeclarationParameters()
                     .setModifiers(Modifier.PUBLIC)
                     .setMethodName("setId")
                     .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
                     .setArgumentNames("id")
                     .setReturnType(modelSpec.getGeneratedClassName());
+            writer.writeAnnotation(CoreTypes.DEPRECATED);
             writer.writeAnnotation(CoreTypes.OVERRIDE)
                     .beginMethodDefinition(params)
-                    .writeStringStatement("super.setId(id)")
+                    .writeStringStatement("super.setRowId(id)")
+                    .writeStringStatement("return this")
+                    .finishMethodDefinition();
+
+            params = new MethodDeclarationParameters()
+                    .setModifiers(Modifier.PUBLIC)
+                    .setMethodName("setRowId")
+                    .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
+                    .setArgumentNames("rowid")
+                    .setReturnType(modelSpec.getGeneratedClassName());
+            writer.writeAnnotation(CoreTypes.OVERRIDE)
+                    .beginMethodDefinition(params)
+                    .writeStringStatement("super.setRowId(rowid)")
                     .writeStringStatement("return this")
                     .finishMethodDefinition();
         }

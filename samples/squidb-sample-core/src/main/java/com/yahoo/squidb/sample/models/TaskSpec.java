@@ -7,10 +7,15 @@ package com.yahoo.squidb.sample.models;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ModelMethod;
+import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "Task", tableName = "tasks")
 public class TaskSpec {
+
+    @PrimaryKey
+    @ColumnSpec(name = "_id")
+    long id;
 
     @ColumnSpec(constraints = "NOT NULL")
     String title;

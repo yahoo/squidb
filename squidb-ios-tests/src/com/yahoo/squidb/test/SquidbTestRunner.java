@@ -123,6 +123,8 @@ public class SquidbTestRunner {
                 Employee.class,
                 SpecificData.class,
                 TestModel.class,
+                TestMultiColumnKey.class,
+                TestNonIntegerPrimaryKey.class,
                 TestSubqueryModel.class,
                 TestViewModel.class,
                 TestVirtualModel.class,

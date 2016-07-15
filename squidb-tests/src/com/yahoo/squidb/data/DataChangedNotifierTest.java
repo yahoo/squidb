@@ -75,7 +75,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
 
         notifier.reset();
         database.unregisterDataChangedNotifier(notifier);
-        database.delete(TestModel.class, t1.getId());
+        database.delete(TestModel.class, t1.getRowId());
         assertFalse(notifier.accumulateCalled);
         assertFalse(notifier.sendNotificationCalled);
     }
@@ -120,7 +120,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
                 database.persist(t1);
             }
         };
-        testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.UPDATE, t1, t1.getId());
+        testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.UPDATE, t1, t1.getRowId());
 
         insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis());
         final TestModel template = new TestModel().setFirstName("The");
@@ -147,10 +147,10 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         Runnable toRun = new Runnable() {
             @Override
             public void run() {
-                database.delete(TestModel.class, t1.getId());
+                database.delete(TestModel.class, t1.getRowId());
             }
         };
-        testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.DELETE, null, t1.getId());
+        testForParameters(toRun, TestModel.TABLE, DataChangedNotifier.DBOperation.DELETE, null, t1.getRowId());
 
         insertBasicTestModel("Sam", "Bosley", System.currentTimeMillis());
         toRun = new Runnable() {

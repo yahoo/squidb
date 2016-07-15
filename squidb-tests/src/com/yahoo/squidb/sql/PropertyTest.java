@@ -55,9 +55,9 @@ public class PropertyTest extends DatabaseTestCase {
         assertEquals("superAlias", asSelectionFromTableWithAlias.getName());
         assertEquals("SELECT testView.newAlias AS superAlias", Query.select(asSelectionFromTableWithAlias).toString());
 
-        assertEquals(TestVirtualModel.ID.getQualifiedExpression(), "virtual_models.rowid");
-        assertEquals(TestVirtualModel.ID.getExpression(), "rowid");
-        assertEquals(TestVirtualModel.ID.getName(), "rowid");
+        assertEquals(TestVirtualModel.ROWID.getQualifiedExpression(), "virtual_models.rowid");
+        assertEquals(TestVirtualModel.ROWID.getExpression(), "rowid");
+        assertEquals(TestVirtualModel.ROWID.getName(), "rowid");
 
         assertEquals(Thing.ID.getQualifiedExpression(), "things.id");
         assertEquals(Thing.ID.getExpression(), "id");
@@ -114,7 +114,7 @@ public class PropertyTest extends DatabaseTestCase {
         SqlTable<?> testModelAlias = tableOrView.as("testModelAlias");
         TableModelName expectedTableModelName = new TableModelName(modelClass, "testModelAlias");
         if (testModelAlias instanceof Table) {
-            LongProperty testModelAliasId = ((Table) testModelAlias).getIdProperty();
+            LongProperty testModelAliasId = ((Table) testModelAlias).getRowIdProperty();
             String idName = testModelAlias instanceof VirtualTable ? "rowid" : "_id";
             assertEquals("testModelAlias." + idName, testModelAliasId.getQualifiedExpression());
             assertEquals(expectedTableModelName, testModelAliasId.tableModelName);

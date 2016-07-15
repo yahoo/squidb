@@ -487,7 +487,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     public void testBasicInsertAndFetch() {
         TestModel model = insertBasicTestModel();
 
-        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
         assertEquals("Sam", fetch.getFirstName());
         assertEquals("Bosley", fetch.getLastName());
         assertEquals(testDate, fetch.getBirthday().longValue());
@@ -502,7 +502,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         assertNull(model.getLastName());
         database.persist(model);
 
-        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
         assertNull(fetch.getFirstName());
         assertNull(fetch.getLastName());
     }
@@ -514,7 +514,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         model.setIsHappy(false);
         assertFalse(model.isHappy());
         database.persist(model);
-        TestModel fetch = database.fetch(TestModel.class, model.getId(), TestModel.PROPERTIES);
+        TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
         assertFalse(fetch.isHappy());
     }
 
@@ -581,7 +581,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
         Query query = Query.select().limit(2, 1);
         TestModel fetched = database.fetchByQuery(TestModel.class, query);
-        assertEquals(model2.getId(), fetched.getId());
+        assertEquals(model2.getRowId(), fetched.getRowId());
         assertEquals(Field.field("2"), query.getLimit());
         assertEquals(Field.field("1"), query.getOffset());
         assertEquals(null, query.getTable());
@@ -597,16 +597,16 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     public void testInsertRow() {
         TestModel model = insertBasicTestModel();
-        assertNotNull(database.fetch(TestModel.class, model.getId()));
+        assertNotNull(database.fetch(TestModel.class, model.getRowId()));
 
-        database.delete(TestModel.class, model.getId());
-        assertNull(database.fetch(TestModel.class, model.getId()));
+        database.delete(TestModel.class, model.getRowId());
+        assertNull(database.fetch(TestModel.class, model.getRowId()));
 
-        long modelId = model.getId();
+        long modelId = model.getRowId();
         database.insertRow(model); // Should reinsert the row with the same id
 
-        assertEquals(modelId, model.getId());
-        assertNotNull(database.fetch(TestModel.class, model.getId()));
+        assertEquals(modelId, model.getRowId());
+        assertNotNull(database.fetch(TestModel.class, model.getRowId()));
         assertEquals(1, database.countAll(TestModel.class));
     }
 
@@ -670,7 +670,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testBlobs() {
-        List<byte[]> randomBlobs = new ArrayList<byte[]>();
+        List<byte[]> randomBlobs = new ArrayList<>();
         Random r = new Random();
 
         randomBlobs.add(new byte[0]); // Test 0-length blob

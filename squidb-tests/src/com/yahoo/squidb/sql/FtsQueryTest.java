@@ -53,7 +53,7 @@ public class FtsQueryTest extends DatabaseTestCase {
 
     public void testQueryUsingIdProperty() {
         // sanity check that ID works as intended
-        testQueryResults(TestVirtualModel.ID.lt(3), model1, model2);
+        testQueryResults(TestVirtualModel.ROWID.lt(3), model1, model2);
     }
 
     public void testMatchCriterion() {

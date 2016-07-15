@@ -37,4 +37,11 @@ public @interface TableModelSpec {
      */
     String virtualModule() default "";
 
+    /**
+     * Optional flag to specify that the table model should not generate an explicit INTEGER PRIMARY KEY as an alias
+     * to the table's rowid. This option should be enabled if a multi-column primary key is specified in
+     * {@link #tableConstraint()}, or if the user does not wish to declare an explicit alias to the rowid column.
+     */
+    boolean noRowIdAlias() default false;
+
 }

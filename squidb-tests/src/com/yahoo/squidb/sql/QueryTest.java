@@ -46,23 +46,23 @@ public class QueryTest extends DatabaseTestCase {
         database.persist(bigBird);
 
         cookieMonster = new Employee();
-        cookieMonster.setName("cookieMonster").setManagerId(bigBird.getId());
+        cookieMonster.setName("cookieMonster").setManagerId(bigBird.getRowId());
         database.persist(cookieMonster);
 
         elmo = new Employee();
-        elmo.setName("elmo").setManagerId(bigBird.getId());
+        elmo.setName("elmo").setManagerId(bigBird.getRowId());
         database.persist(elmo);
 
         oscar = new Employee();
-        oscar.setName("oscar").setManagerId(bigBird.getId()).setIsHappy(false);
+        oscar.setName("oscar").setManagerId(bigBird.getRowId()).setIsHappy(false);
         database.persist(oscar);
 
         bert = new Employee();
-        bert.setName("bert").setManagerId(cookieMonster.getId());
+        bert.setName("bert").setManagerId(cookieMonster.getRowId());
         database.persist(bert);
 
         ernie = new Employee();
-        ernie.setName("ernie").setManagerId(bert.getId());
+        ernie.setName("ernie").setManagerId(bert.getRowId());
         database.persist(ernie);
     }
 
@@ -220,7 +220,7 @@ public class QueryTest extends DatabaseTestCase {
             assertEquals(expected.size(), cursor.getCount());
             for (Employee e : expected) {
                 cursor.moveToNext();
-                assertEquals(e.getId(), cursor.get(Employee.ID).longValue());
+                assertEquals(e.getRowId(), cursor.get(Employee.ID).longValue());
                 assertEquals(e.getName(), cursor.get(Employee.NAME));
             }
         } finally {
@@ -426,7 +426,7 @@ public class QueryTest extends DatabaseTestCase {
         TestModel fetched = database.fetchByCriterion(TestModel.class,
                 TestModel.FIRST_NAME.isEmpty().and(TestModel.LAST_NAME.isEmpty()), TestModel.ID);
         assertNotNull(fetched);
-        assertEquals(model.getId(), fetched.getId());
+        assertEquals(model.getRowId(), fetched.getRowId());
     }
 
     public void testIsNotEmptyCriterion() {
@@ -436,7 +436,7 @@ public class QueryTest extends DatabaseTestCase {
         TestModel fetched = database.fetchByCriterion(TestModel.class,
                 TestModel.FIRST_NAME.isNotEmpty().and(TestModel.LAST_NAME.isEmpty()), TestModel.ID);
         assertNotNull(fetched);
-        assertEquals(model.getId(), fetched.getId());
+        assertEquals(model.getRowId(), fetched.getRowId());
     }
 
     public void testReusableQuery() {
@@ -490,7 +490,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, unhappyEmployee.getCount());
             unhappyEmployee.moveToFirst();
-            assertEquals(oscar.getId(), unhappyEmployee.get(Employee.ID).longValue());
+            assertEquals(oscar.getRowId(), unhappyEmployee.get(Employee.ID).longValue());
         } finally {
             unhappyEmployee.close();
         }
@@ -552,7 +552,7 @@ public class QueryTest extends DatabaseTestCase {
             for (int i = 0; i < numRows; i++) {
                 TestModel testModel = new TestModel();
                 database.persist(testModel);
-                rowIds.add(testModel.getId());
+                rowIds.add(testModel.getRowId());
             }
             database.setTransactionSuccessful();
         } finally {
@@ -662,7 +662,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testSelectFromView() {
         View view = View.fromQuery(Query.select(Employee.PROPERTIES)
-                .from(Employee.TABLE).where(Employee.MANAGER_ID.eq(bigBird.getId())), "bigBirdsEmployees");
+                .from(Employee.TABLE).where(Employee.MANAGER_ID.eq(bigBird.getRowId())), "bigBirdsEmployees");
 
         database.tryCreateView(view);
 
@@ -763,7 +763,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(bigBird.getId(), cursor.get(Employee.MANAGER_ID).longValue());
+            assertEquals(bigBird.getRowId(), cursor.get(Employee.MANAGER_ID).longValue());
         } finally {
             cursor.close();
         }
@@ -777,13 +777,13 @@ public class QueryTest extends DatabaseTestCase {
     private void testJoinWithUsingClauseInternal(boolean leftJoin) {
         final String separator = "|";
         final Map<Long, String> expectedResults = new HashMap<>();
-        expectedResults.put(cookieMonster.getId(), "2|3|4");
-        expectedResults.put(elmo.getId(), "2|3|4");
-        expectedResults.put(oscar.getId(), "2|3|4");
+        expectedResults.put(cookieMonster.getRowId(), "2|3|4");
+        expectedResults.put(elmo.getRowId(), "2|3|4");
+        expectedResults.put(oscar.getRowId(), "2|3|4");
         if (!leftJoin) {
-            expectedResults.put(bigBird.getId(), "1");
-            expectedResults.put(bert.getId(), "5");
-            expectedResults.put(ernie.getId(), "6");
+            expectedResults.put(bigBird.getRowId(), "1");
+            expectedResults.put(bert.getRowId(), "5");
+            expectedResults.put(ernie.getRowId(), "6");
         }
 
         /*
@@ -1178,7 +1178,7 @@ public class QueryTest extends DatabaseTestCase {
         String reversedUnicode = "\ufe32\uff0d\ufe58\u301c\u2e17";
         TestModel model = insertBasicTestModel(unicode, reversedUnicode, System.currentTimeMillis());
 
-        TestModel fetched = database.fetch(TestModel.class, model.getId());
+        TestModel fetched = database.fetch(TestModel.class, model.getRowId());
         assertEquals(unicode, fetched.getFirstName());
         assertEquals(reversedUnicode, fetched.getLastName());
     }
