@@ -166,11 +166,12 @@ public abstract class SquidDatabase {
      * @param db the {@link ISQLiteDatabase} being upgraded
      * @param oldVersion the current database version
      * @param newVersion the database version being downgraded to
-     * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns true.
+     * @return true if the downgrade was handled successfully, false otherwise. The default implementation returns false
+     * as downgrades are not considered successful unless explicitly handled.
      * @see #onMigrationFailed(MigrationFailedException)
      */
     protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
-        return true;
+        return false;
     }
 
     /**
