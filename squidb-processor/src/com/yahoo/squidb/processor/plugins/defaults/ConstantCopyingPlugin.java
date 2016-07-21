@@ -19,6 +19,7 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,11 @@ public class ConstantCopyingPlugin extends Plugin {
 
     public ConstantCopyingPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
+    }
+
+    @Override
+    public List<String> getSupportedOptions() {
+        return Collections.singletonList(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING);
     }
 
     @Override

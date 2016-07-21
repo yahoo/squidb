@@ -13,6 +13,7 @@ import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -22,9 +23,9 @@ import javax.lang.model.element.TypeElement;
 
 /**
  * A {@link Plugin} that controls declaring that model classes implement interfaces. This plugin looks for and parses
- * the value of any {@link Implements} annotations on the given model spec to determine which interfaces to add. It is
- * enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING} flag set.
+ * the value of any {@link Implements} annotations on model spec classes to determine which interfaces to add to the
+ * generated model class. It is enabled by default and can be disabled by passing the
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING} option to the annotation processor.
  */
 public class ImplementsPlugin extends Plugin {
 
@@ -33,6 +34,11 @@ public class ImplementsPlugin extends Plugin {
     public ImplementsPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         parseInterfaces();
+    }
+
+    @Override
+    public List<String> getSupportedOptions() {
+        return Collections.singletonList(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING);
     }
 
     @Override
