@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-Version 3.1.0 *(2016-07-20)*
+Version 3.1.0 *(2016-07-27)*
 ----------------------------
 * Removed restrictions on the `@PrimaryKey` annotation so that columns of any type may be declared as the primary key for the table. SquiDB will stop generating the `ID` property as a rowid alias in a future version; as such the `getId()` and `setId()` methods in all `TableModel` subclasses are deprecated in favor of the more descriptively named `getRowId()` and `setRowId()`. See [this wiki page](https://github.com/yahoo/squidb/wiki/Primary-keys) for information on how to future-proof your existing model specs for this change.
 * SquidCursor now exposes the "hint" class object of its type argument via the `getModelHintClass()` method
