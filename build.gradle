@@ -23,7 +23,7 @@ allprojects {
 
 subprojects {
     group = 'com.yahoo.squidb'
-    version = '3.0.0'
+    version = '3.1.0'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {

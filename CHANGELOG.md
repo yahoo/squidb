@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 3.1.0 *(2016-07-27)*
+----------------------------
+* Removed restrictions on the `@PrimaryKey` annotation so that columns of any type may be declared as the primary key for the table. SquiDB will stop generating the `ID` property as a rowid alias in a future version; as such the `getId()` and `setId()` methods in all `TableModel` subclasses are deprecated in favor of the more descriptively named `getRowId()` and `setRowId()`. See [this wiki page](https://github.com/yahoo/squidb/wiki/Primary-keys) for information on how to future-proof your existing model specs for this change.
+* SquidCursor now exposes the "hint" class object of its type argument via the `getModelHintClass()` method
+
 Version 3.0.0 *(2016-06-23)*
 ----------------------------
 * Version 3.0 adds cross-platform support by supporting compiling SquiDB with [Google's j2objc tool](http://j2objc.org/). The new `squidb-android` and `squidb-ios` modules provide low-level platform-specific SQLite access, while users interact only with the higher-level SquidDatabase and SQL builder APIs. Write your database code and other business logic in Java, and compile it to run on both Android and iOS devices. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for instructions on how to update to the new version.
