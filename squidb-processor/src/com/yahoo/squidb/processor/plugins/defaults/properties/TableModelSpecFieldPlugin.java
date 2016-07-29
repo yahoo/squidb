@@ -124,6 +124,20 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             }
         }
         modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
+
+        // Sanity check to make sure there is exactly 1 RowidPropertyGenerator
+        RowidPropertyGenerator foundRowidPropertyGenerator = null;
+        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+            if (generator instanceof RowidPropertyGenerator) {
+                if (foundRowidPropertyGenerator != null) {
+                    utils.getMessager().printMessage(Kind.ERROR, "Found redundant rowid property generator for property"
+                            + generator.getPropertyName() + ". Rowid property generator " +
+                            foundRowidPropertyGenerator.getPropertyName() + " already exists");
+                } else {
+                    foundRowidPropertyGenerator = (RowidPropertyGenerator) generator;
+                }
+            }
+        }
     }
 
     private boolean shouldGenerateROWIDProperty() {
