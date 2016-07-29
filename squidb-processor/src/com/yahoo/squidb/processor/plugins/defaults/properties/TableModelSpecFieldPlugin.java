@@ -62,26 +62,30 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             return false;
         } else {
             if (field.getAnnotation(PrimaryKey.class) != null) {
-                if (modelSpec instanceof TableModelSpecWrapper
-                        && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
-                    utils.getMessager().printMessage(Kind.ERROR,
-                            "Virtual tables cannot declare a custom primary key", field);
-                } else if (modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
-                                    + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
-                                    + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.",
-                            field);
-                } else {
-                    modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY, true);
-                    if (TypeConstants.isIntegerType(fieldType)) {
-                        modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR,
-                                getPropertyGenerator(field, fieldType));
-                        return true;
-                    } else {
-                        return super.processVariableElement(field, fieldType);
-                    }
-                }
+                return handlePrimaryKeyField(field, fieldType);
+            } else {
+                return super.processVariableElement(field, fieldType);
+            }
+        }
+    }
+
+    private boolean handlePrimaryKeyField(VariableElement field, DeclaredTypeName fieldType) {
+        if (modelSpec instanceof TableModelSpecWrapper
+                && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
+            utils.getMessager().printMessage(Kind.ERROR,
+                    "Virtual tables cannot declare a custom primary key", field);
+        } else if (modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY)) {
+            utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
+                            + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
+                            + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.",
+                    field);
+        } else {
+            modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY, true);
+            if (TypeConstants.isIntegerType(fieldType)) {
+                modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR,
+                        getPropertyGenerator(field, fieldType));
+                return true;
             } else {
                 return super.processVariableElement(field, fieldType);
             }

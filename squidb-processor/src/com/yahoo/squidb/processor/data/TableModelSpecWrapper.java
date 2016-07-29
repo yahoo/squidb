@@ -23,15 +23,8 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     public static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
     public static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
-    private final DeclaredTypeName tableType;
-
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
-        if (isVirtualTable()) {
-            tableType = TypeConstants.VIRTUAL_TABLE;
-        } else {
-            tableType = TypeConstants.TABLE;
-        }
     }
 
     @Override
@@ -61,7 +54,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         imports.add(TypeConstants.LONG_PROPERTY);
         imports.add(TypeConstants.TABLE_MODEL);
         imports.add(TypeConstants.TABLE_MODEL_NAME);
-        imports.add(tableType);
+        imports.add(getTableType());
     }
 
     /**
@@ -90,6 +83,6 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
      * @return the name of the table class (e.g. Table or VirtualTable)
      */
     public DeclaredTypeName getTableType() {
-        return tableType;
+        return isVirtualTable() ? TypeConstants.VIRTUAL_TABLE : TypeConstants.TABLE;
     }
 }
