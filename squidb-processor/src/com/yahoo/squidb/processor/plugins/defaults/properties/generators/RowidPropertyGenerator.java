@@ -6,6 +6,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 
 import java.io.IOException;
 
@@ -38,7 +39,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     @Override
     public String getterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
-        if ("ROWID".equals(propertyName)) {
+        if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
             return "getRowId";
         }
         return super.getterMethodName();
@@ -47,7 +48,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     @Override
     public String setterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
-        if ("ROWID".equals(propertyName)) {
+        if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
             return "setRowId";
         }
         return super.setterMethodName();

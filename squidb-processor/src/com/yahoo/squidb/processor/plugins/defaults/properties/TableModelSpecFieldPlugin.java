@@ -43,8 +43,8 @@ import javax.tools.Diagnostic.Kind;
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
-    private static final String DEFAULT_ID_PROPERTY_NAME = "ID";
-    private static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
+    public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
+    public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
     private static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
     private static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
@@ -107,7 +107,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
         } else {
             if (shouldGenerateROWIDProperty()) {
-                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid", "ROWID", utils);
+                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid",
+                        DEFAULT_ROWID_PROPERTY_NAME, utils);
             } else {
                 utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
                         " is currently generating an integer primary key ID property to act as an alias to the table's "
@@ -115,7 +116,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         + "support for arbitrary primary keys. If you are using the ID property, you should update "
                         + "your model spec by explicitly declaring a field, named id with column name '_id' and "
                         + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
-                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "_id", "ID", utils) {
+                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "_id",
+                        DEFAULT_ID_PROPERTY_NAME, utils) {
                     @Override
                     protected String getColumnDefinition() {
                         return "PRIMARY KEY AUTOINCREMENT";
