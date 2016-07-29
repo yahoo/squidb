@@ -78,8 +78,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                     "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
                             + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
-                            + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.",
-                    field);
+                            + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.", field);
         } else {
             boolean result = false;
             if (TypeConstants.isIntegerType(fieldType)) {
@@ -101,7 +100,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     public void afterProcessVariableElements() {
-        // TODO: Ensure that model has some kind of rowid property (and exactly one)
         RowidPropertyGenerator rowidPropertyGenerator;
         if (modelSpec.hasMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR)) {
             rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
