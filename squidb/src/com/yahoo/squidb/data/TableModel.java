@@ -16,13 +16,6 @@ import com.yahoo.squidb.sql.Table;
  */
 public abstract class TableModel extends AbstractModel {
 
-    /**
-     * Default name for the primary key id column. This value has been deprecated and will be removed in a future
-     * version of SquiDB.
-     */
-    @Deprecated
-    public static final String DEFAULT_ID_COLUMN = "_id";
-
     /** SQLite internal rowid column name */
     public static final String ROWID = "rowid";
 
@@ -50,14 +43,6 @@ public abstract class TableModel extends AbstractModel {
     }
 
     /**
-     * Deprecated alias for {@link #getRowId()}
-     */
-    @Deprecated
-    public long getId() {
-        return getRowId();
-    }
-
-    /**
      * @param rowid the new rowid for this model
      * @return this model instance, to allow chaining calls
      */
@@ -74,14 +59,6 @@ public abstract class TableModel extends AbstractModel {
     }
 
     /**
-     * Deprecated alias for {@link #setRowId(long)}
-     */
-    @Deprecated
-    public TableModel setId(long id) {
-        return setRowId(id);
-    }
-
-    /**
      * @return true if this model has been persisted to the database
      */
     public boolean isSaved() {
@@ -92,14 +69,6 @@ public abstract class TableModel extends AbstractModel {
      * @return a {@link LongProperty representing the rowid of the table}
      */
     public abstract LongProperty getRowIdProperty();
-
-    /**
-     * Deprecated alias for {@link #getRowIdProperty()}
-     */
-    @Deprecated
-    public LongProperty getIdProperty() {
-        return getRowIdProperty();
-    }
 
     void bindValuesForInsert(Table table, ISQLitePreparedStatement preparedInsert) {
         LongProperty rowidProperty = getRowIdProperty();

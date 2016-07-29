@@ -56,14 +56,6 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
     }
 
     /**
-     * Deprecated in favor of {@link #SquidCursor(ICursor, Class, List)}
-     */
-    @Deprecated
-    public SquidCursor(ICursor cursor, List<? extends Field<?>> fields) {
-        this(cursor, null, fields);
-    }
-
-    /**
      * Get the value for column corresponding to the given {@link Property}
      *
      * @param property the property corresponding to the desired column

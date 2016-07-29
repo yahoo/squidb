@@ -137,12 +137,4 @@ public class Table extends SqlTable<TableModel> {
         }
         return rowidProperty;
     }
-
-    /**
-     * Deprecated alias for {@link #getRowIdProperty()}
-     */
-    @Deprecated
-    public LongProperty getIdProperty() {
-        return getRowIdProperty();
-    }
 }
