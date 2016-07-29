@@ -55,9 +55,30 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         registerBasicPropertyGenerators();
     }
 
+    private void registerBasicPropertyGenerators() {
+        registerHandledTypes(BasicStringPropertyGenerator.handledColumnTypes(), getStringPropertyGenerator());
+        registerHandledTypes(BasicLongPropertyGenerator.handledColumnTypes(), getLongPropertyGenerator());
+        registerHandledTypes(BasicIntegerPropertyGenerator.handledColumnTypes(), getIntegerPropertyGenerator());
+        registerHandledTypes(BasicDoublePropertyGenerator.handledColumnTypes(), getDoublePropertyGenerator());
+        registerHandledTypes(BasicBooleanPropertyGenerator.handledColumnTypes(), getBooleanPropertyGenerator());
+        registerHandledTypes(BasicBlobPropertyGenerator.handledColumnTypes(), getBlobPropertyGenerator());
+    }
+
+    private void registerHandledTypes(List<DeclaredTypeName> handledTypes,
+            Class<? extends BasicPropertyGenerator> generatorClass) {
+        for (DeclaredTypeName type : handledTypes) {
+            generatorMap.put(type, generatorClass);
+        }
+    }
+
     @Override
     public boolean hasChangesForModelSpec() {
         return modelSpec instanceof TableModelSpecWrapper;
+    }
+
+    @Override
+    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+        return !TypeConstants.isConstant(field) && generatorMap.containsKey(fieldType);
     }
 
     @Override
@@ -96,6 +117,46 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             return result;
         }
         return false;
+    }
+
+    @Override
+    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+        Class<? extends BasicPropertyGenerator> generatorClass;
+        if (isIntegerPrimaryKey(field, fieldType)) {
+            // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
+            generatorClass = getRowidPropertyGenerator();
+        } else {
+            generatorClass = generatorMap.get(fieldType);
+        }
+        try {
+            BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
+                    VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
+            if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
+                    DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
+                utils.getMessager().printMessage(Kind.ERROR, "Columns in a table model spec cannot be named rowid, as "
+                        + "they would clash with the SQLite rowid column used for SquiDB bookkeeping");
+                return null;
+            }
+
+            String propertyName = propertyGenerator.getPropertyName();
+            if (DEFAULT_ID_PROPERTY_NAME.equalsIgnoreCase(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
+                utils.getMessager().printMessage(Kind.ERROR, "User-defined non-primary-key columns cannot currently be "
+                        + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
+                        + "future version of SquiDB.");
+                return null;
+            }
+
+            return propertyGenerator;
+        } catch (Exception e) {
+            utils.getMessager().printMessage(Kind.ERROR,
+                    "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
+        }
+        return null;
+    }
+
+    private boolean isIntegerPrimaryKey(VariableElement field, DeclaredTypeName fieldType) {
+        return field.getAnnotation(PrimaryKey.class) != null &&
+                TypeConstants.isIntegerType(fieldType);
     }
 
     @Override
@@ -183,66 +244,30 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        return !TypeConstants.isConstant(field) && generatorMap.containsKey(fieldType);
+    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters getterParams) throws IOException {
+        addAccessorDocumentationForRowids(writer, propertyGenerator, true);
     }
 
     @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        Class<? extends BasicPropertyGenerator> generatorClass;
-        if (isIntegerPrimaryKey(field, fieldType)) {
-            // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
-            generatorClass = getRowidPropertyGenerator();
-        } else {
-            generatorClass = generatorMap.get(fieldType);
-        }
-        try {
-            BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
-                    VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
-            if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
-                    DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
-                utils.getMessager().printMessage(Kind.ERROR, "Columns in a table model spec cannot be named rowid, as "
-                        + "they would clash with the SQLite rowid column used for SquiDB bookkeeping");
-                return null;
+    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            MethodDeclarationParameters setterParams) throws IOException {
+        addAccessorDocumentationForRowids(writer, propertyGenerator, false);
+    }
+
+    private void addAccessorDocumentationForRowids(JavaFileWriter writer, PropertyGenerator propertyGenerator,
+            boolean getter) throws IOException {
+        if (propertyGenerator instanceof RowidPropertyGenerator) {
+            if (DEFAULT_ROWID_PROPERTY_NAME.equals(propertyGenerator.getPropertyName())) {
+                writer.writeAnnotation(CoreTypes.OVERRIDE);
+            } else {
+                writer.writeJavadoc(" This " + (getter ? "getter" : "setter") + " is an alias for " +
+                        (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY");
             }
-
-            String propertyName = propertyGenerator.getPropertyName();
-            if (DEFAULT_ID_PROPERTY_NAME.equalsIgnoreCase(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
-                utils.getMessager().printMessage(Kind.ERROR, "User-defined non-primary-key columns cannot currently be "
-                        + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
-                        + "future version of SquiDB.");
-                return null;
-            }
-
-            return propertyGenerator;
-        } catch (Exception e) {
-            utils.getMessager().printMessage(Kind.ERROR,
-                    "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
-        }
-        return null;
-    }
-
-    private boolean isIntegerPrimaryKey(VariableElement field, DeclaredTypeName fieldType) {
-        return field.getAnnotation(PrimaryKey.class) != null &&
-                TypeConstants.isIntegerType(fieldType);
-    }
-
-    private void registerBasicPropertyGenerators() {
-        registerHandledTypes(BasicStringPropertyGenerator.handledColumnTypes(), getStringPropertyGenerator());
-        registerHandledTypes(BasicLongPropertyGenerator.handledColumnTypes(), getLongPropertyGenerator());
-        registerHandledTypes(BasicIntegerPropertyGenerator.handledColumnTypes(), getIntegerPropertyGenerator());
-        registerHandledTypes(BasicDoublePropertyGenerator.handledColumnTypes(), getDoublePropertyGenerator());
-        registerHandledTypes(BasicBooleanPropertyGenerator.handledColumnTypes(), getBooleanPropertyGenerator());
-        registerHandledTypes(BasicBlobPropertyGenerator.handledColumnTypes(), getBlobPropertyGenerator());
-    }
-
-    private void registerHandledTypes(List<DeclaredTypeName> handledTypes,
-            Class<? extends BasicPropertyGenerator> generatorClass) {
-        for (DeclaredTypeName type : handledTypes) {
-            generatorMap.put(type, generatorClass);
         }
     }
 
+    // Users can subclass TableModelSpecFieldPlugin and override these methods to handle the core types differently
     protected Class<? extends BasicStringPropertyGenerator> getStringPropertyGenerator() {
         return BasicStringPropertyGenerator.class;
     }
