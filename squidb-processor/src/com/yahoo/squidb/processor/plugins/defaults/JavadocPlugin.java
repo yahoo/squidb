@@ -44,7 +44,9 @@ public class JavadocPlugin extends Plugin {
     @Override
     public void beforeEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
             throws IOException {
-        writeJavadocFromElement(pluginEnv, writer, propertyGenerator.getField());
+        if (propertyGenerator.getField() != null) {
+            writeJavadocFromElement(pluginEnv, writer, propertyGenerator.getField());
+        }
     }
 
     /**
