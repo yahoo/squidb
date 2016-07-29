@@ -93,6 +93,43 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         return false;
     }
 
+//    private void emitRowIdPropertyDeclaration() throws IOException {
+//        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdAliasPropertyGenerator();
+//        String propertyName = modelSpec.getRowIdAliasPropertyName();
+//        if (rowidPropertyGenerator != null) {
+//            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, rowidPropertyGenerator);
+//            rowidPropertyGenerator.emitPropertyDeclaration(writer);
+//            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, rowidPropertyGenerator);
+//        } else {
+//            // Default ID property
+//            Expression constructor;
+//            if (modelSpec.shouldGenerateROWIDProperty()) {
+//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
+//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"));
+//            } else {
+//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
+//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
+//                        "\"PRIMARY KEY AUTOINCREMENT\"");
+//                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
+//                        " is currently generating an integer primary key ID property to act as an alias to the table's "
+//                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
+//                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
+//                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
+//                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
+//            }
+//
+//            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
+//                    TypeConstants.PUBLIC_STATIC_FINAL);
+//            if (modelSpec.isVirtualTable()) {
+//                writer.writeAnnotation(CoreTypes.DEPRECATED);
+//                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
+//                        TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
+//                        Expressions.fromString(TableModelSpecWrapper.DEFAULT_ROWID_PROPERTY_NAME),
+//                        TypeConstants.PUBLIC_STATIC_FINAL);
+//            }
+//        }
+//    }
+
     @Override
     public void afterProcessVariableElements() {
         // TODO: Ensure that model has some kind of rowid property (and exactly one)
