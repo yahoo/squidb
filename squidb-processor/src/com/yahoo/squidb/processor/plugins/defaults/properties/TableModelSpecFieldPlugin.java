@@ -220,13 +220,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     public void afterEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
             throws IOException {
         if (propertyGenerator instanceof RowidPropertyGenerator) {
-            if (((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
-                writer.writeAnnotation(CoreTypes.DEPRECATED);
-                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
-                        DEFAULT_ID_PROPERTY_NAME,
-                        Expressions.fromString(DEFAULT_ROWID_PROPERTY_NAME),
-                        TypeConstants.PUBLIC_STATIC_FINAL);
-            }
             writeRowidSupportMethods(writer, propertyGenerator.getPropertyName());
         }
     }
