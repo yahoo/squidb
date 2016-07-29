@@ -199,14 +199,15 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         try {
             BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
                     VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
-            if ("rowid".equalsIgnoreCase(propertyGenerator.getColumnName())) {
+            if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
+                    DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
                 utils.getMessager().printMessage(Kind.ERROR, "Columns in a table model spec cannot be named rowid, as "
-                        + "they would clash with the internal SQLite rowid column.");
+                        + "they would clash with the SQLite rowid column used for SquiDB bookkeeping");
                 return null;
             }
 
             String propertyName = propertyGenerator.getPropertyName();
-            if ("ID".equals(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
+            if (DEFAULT_ID_PROPERTY_NAME.equalsIgnoreCase(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
                 utils.getMessager().printMessage(Kind.ERROR, "User-defined non-primary-key columns cannot currently be "
                         + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
                         + "future version of SquiDB.");
