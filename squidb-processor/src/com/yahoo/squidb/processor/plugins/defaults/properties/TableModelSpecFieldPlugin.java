@@ -141,14 +141,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                 return null;
             }
 
-            String propertyName = propertyGenerator.getPropertyName();
-            if (DEFAULT_ID_PROPERTY_NAME.equalsIgnoreCase(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
-                modelSpec.logError("User-defined non-primary-key columns cannot currently be "
-                        + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
-                        + "future version of SquiDB.", field);
-                return null;
-            }
-
             String columnName = propertyGenerator.getColumnName();
             if (!SqlUtils.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
                 return null;
