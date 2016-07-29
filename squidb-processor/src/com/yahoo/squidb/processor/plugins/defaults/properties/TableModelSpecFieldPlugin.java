@@ -7,6 +7,7 @@ package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -20,7 +21,9 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLo
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.RowidPropertyGenerator;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +85,23 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
+    public void afterProcessVariableElements() {
+        // TODO: Ensure that model has some kind of rowid property
+        // If the model spec has a value for METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, insert that at the front
+        // of the propertyGenerators list
+        // Else generate a default one and put that at the front of the list
+    }
+
+    @Override
+    public void afterEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
+            throws IOException {
+        if (propertyGenerator instanceof RowidPropertyGenerator) {
+            // TODO: Emit TABLE.setRowIdProperty() block
+            // TODO: Emit getRowIdProperty() method
+        }
+    }
+
+    @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return generatorMap.containsKey(fieldType);
     }
@@ -91,7 +111,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         Class<? extends BasicPropertyGenerator> generatorClass;
         if (isIntegerPrimaryKey(field, fieldType)) {
             // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
-            generatorClass = getLongPropertyGenerator();
+            generatorClass = getRowidPropertyGenerator();
         } else {
             generatorClass = generatorMap.get(fieldType);
         }
@@ -147,6 +167,10 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     protected Class<? extends BasicLongPropertyGenerator> getLongPropertyGenerator() {
         return BasicLongPropertyGenerator.class;
+    }
+
+    protected Class<? extends RowidPropertyGenerator> getRowidPropertyGenerator() {
+        return RowidPropertyGenerator.class;
     }
 
     protected Class<? extends BasicIntegerPropertyGenerator> getIntegerPropertyGenerator() {
