@@ -5,10 +5,8 @@
  */
 package com.yahoo.squidb.processor.writers;
 
-import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -18,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
@@ -96,38 +93,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void emitDefaultValuesInitializationBlock() throws IOException {
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             generator.emitPutDefault(writer, DEFAULT_VALUES_NAME);
-        }
-    }
-
-    @Override
-    protected void emitGettersAndSetters() throws IOException {
-        super.emitGettersAndSetters();
-        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
-
-            MethodDeclarationParameters params = new MethodDeclarationParameters()
-                    .setModifiers(Modifier.PUBLIC)
-                    .setMethodName("setId")
-                    .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
-                    .setArgumentNames("id")
-                    .setReturnType(modelSpec.getGeneratedClassName());
-            writer.writeAnnotation(CoreTypes.DEPRECATED);
-            writer.writeAnnotation(CoreTypes.OVERRIDE)
-                    .beginMethodDefinition(params)
-                    .writeStringStatement("super.setRowId(id)")
-                    .writeStringStatement("return this")
-                    .finishMethodDefinition();
-
-            params = new MethodDeclarationParameters()
-                    .setModifiers(Modifier.PUBLIC)
-                    .setMethodName("setRowId")
-                    .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
-                    .setArgumentNames("rowid")
-                    .setReturnType(modelSpec.getGeneratedClassName());
-            writer.writeAnnotation(CoreTypes.OVERRIDE)
-                    .beginMethodDefinition(params)
-                    .writeStringStatement("super.setRowId(rowid)")
-                    .writeStringStatement("return this")
-                    .finishMethodDefinition();
         }
     }
 }
