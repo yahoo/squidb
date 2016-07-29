@@ -116,4 +116,10 @@ public class Tag extends TableModel {
         return this;
     }
 
+    @Override
+    public Tag setRowId(long rowid) {
+        super.setRowId(rowid);
+        return this;
+    }
+
 }

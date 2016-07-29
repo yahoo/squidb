@@ -18,8 +18,7 @@ import java.io.IOException;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Special case of BasicLongPropertyGenerator specific to ROWID or INTEGER PRIMARY KEY properties that generates
- * the extra methods required for TableModels
+ * Special case of BasicLongPropertyGenerator specific to ROWID or INTEGER PRIMARY KEY properties
  */
 public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
 

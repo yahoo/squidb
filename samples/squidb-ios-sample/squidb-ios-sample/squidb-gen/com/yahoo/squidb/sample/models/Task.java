@@ -148,4 +148,10 @@ public class Task extends TableModel {
         return TaskSpec.isCompleted(this);
     }
 
+    @Override
+    public Task setRowId(long rowid) {
+        super.setRowId(rowid);
+        return this;
+    }
+
 }

@@ -220,16 +220,16 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         Expressions.fromString(DEFAULT_ROWID_PROPERTY_NAME),
                         TypeConstants.PUBLIC_STATIC_FINAL);
             }
-            writeRowidSupportMethods(writer, (RowidPropertyGenerator) propertyGenerator);
+            writeRowidSupportMethods(writer, propertyGenerator.getPropertyName());
         }
     }
 
-    private void writeRowidSupportMethods(JavaFileWriter writer, RowidPropertyGenerator propertyGenerator)
+    private void writeRowidSupportMethods(JavaFileWriter writer, String propertyName)
             throws IOException {
         // Write TABLE.setRowIdProperty call
         writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TableModelFileWriter.TABLE_NAME, "setRowIdProperty",
-                propertyGenerator.getPropertyName()));
+        writer.writeStatement(Expressions.callMethodOn(TableModelFileWriter.TABLE_NAME,
+                "setRowIdProperty", propertyName));
         writer.finishInitializerBlock(true, true);
         writer.writeNewline();
 
@@ -240,7 +240,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                 .setReturnType(TypeConstants.LONG_PROPERTY)
                 .setMethodName("getRowIdProperty");
         writer.beginMethodDefinition(params);
-        writer.writeStringStatement("return " + propertyGenerator.getPropertyName());
+        writer.writeStringStatement("return " + propertyName);
         writer.finishMethodDefinition();
     }
 
