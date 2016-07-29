@@ -183,6 +183,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                     }
                 };
             }
+            modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, rowidPropertyGenerator);
         }
         modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
 
@@ -263,6 +264,29 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             } else {
                 writer.writeJavadoc(" This " + (getter ? "getter" : "setter") + " is an alias for " +
                         (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY");
+            }
+        }
+    }
+
+    @Override
+    public void emitMethods(JavaFileWriter writer) throws IOException {
+        // If rowid property generator hasn't already done it, need to generate
+        // overridden setRowId with appropriate return type
+        if (!pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+            RowidPropertyGenerator rowidPropertyGenerator = modelSpec
+                    .getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
+            if (rowidPropertyGenerator != null && !"setRowId".equals(rowidPropertyGenerator.setterMethodName())) {
+                MethodDeclarationParameters params = new MethodDeclarationParameters()
+                        .setModifiers(Modifier.PUBLIC)
+                        .setMethodName("setRowId")
+                        .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
+                        .setArgumentNames("rowid")
+                        .setReturnType(modelSpec.getGeneratedClassName());
+                writer.writeAnnotation(CoreTypes.OVERRIDE)
+                        .beginMethodDefinition(params)
+                        .writeStringStatement("super.setRowId(rowid)")
+                        .writeStringStatement("return this")
+                        .finishMethodDefinition();
             }
         }
     }
