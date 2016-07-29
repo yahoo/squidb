@@ -115,10 +115,12 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         + "support for arbitrary primary keys. If you are using the ID property, you should update "
                         + "your model spec by explicitly declaring a field, named id with column name '_id' and "
                         + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
-                rowidPropertyGenerator = null; // TODO: Construct a default one
-//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
-//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
-//                        "\"PRIMARY KEY AUTOINCREMENT\"");
+                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "_id", "ID", utils) {
+                    @Override
+                    protected String getColumnDefinition() {
+                        return "PRIMARY KEY AUTOINCREMENT";
+                    }
+                };
             }
         }
         modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
