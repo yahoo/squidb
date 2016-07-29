@@ -10,18 +10,12 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
-
-    public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
-    public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
-    public static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
-    public static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
@@ -55,28 +49,6 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         imports.add(TypeConstants.TABLE_MODEL);
         imports.add(TypeConstants.TABLE_MODEL_NAME);
         imports.add(getTableType());
-    }
-
-    /**
-     * @return a {@link PropertyGenerator} for the model's id property
-     */
-    public PropertyGenerator getRowIdAliasPropertyGenerator() {
-        return getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
-    }
-
-    public String getRowIdAliasPropertyName() {
-        PropertyGenerator rowidAliasPropertyGenerator = getRowIdAliasPropertyGenerator();
-        if (rowidAliasPropertyGenerator != null) {
-            return rowidAliasPropertyGenerator.getPropertyName();
-        } else if (shouldGenerateROWIDProperty()) {
-            return DEFAULT_ROWID_PROPERTY_NAME;
-        } else {
-            return DEFAULT_ID_PROPERTY_NAME;
-        }
-    }
-
-    public boolean shouldGenerateROWIDProperty() {
-        return isVirtualTable() || hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) || modelSpecAnnotation.noRowIdAlias();
     }
 
     /**

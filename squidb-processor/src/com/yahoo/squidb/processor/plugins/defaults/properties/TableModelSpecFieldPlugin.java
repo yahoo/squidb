@@ -43,6 +43,11 @@ import javax.tools.Diagnostic.Kind;
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
+    private static final String DEFAULT_ID_PROPERTY_NAME = "ID";
+    private static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
+    private static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
+    private static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
+
     private Map<DeclaredTypeName, Class<? extends BasicPropertyGenerator>> generatorMap = new HashMap<>();
 
     public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
@@ -57,15 +62,10 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
-        if (TypeConstants.isConstant(field)) {
-            // Looks like a constant, ignore
-            return false;
+        if (field.getAnnotation(PrimaryKey.class) != null) {
+            return handlePrimaryKeyField(field, fieldType);
         } else {
-            if (field.getAnnotation(PrimaryKey.class) != null) {
-                return handlePrimaryKeyField(field, fieldType);
-            } else {
-                return super.processVariableElement(field, fieldType);
-            }
+            return super.processVariableElement(field, fieldType);
         }
     }
 
@@ -74,75 +74,74 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                 && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
             utils.getMessager().printMessage(Kind.ERROR,
                     "Virtual tables cannot declare a custom primary key", field);
-        } else if (modelSpec.hasMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY)) {
+        } else if (modelSpec.hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY)) {
             utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
                     "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
                             + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
                             + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.",
                     field);
         } else {
-            modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_HAS_PRIMARY_KEY, true);
+            boolean result = false;
             if (TypeConstants.isIntegerType(fieldType)) {
-                modelSpec.putMetadata(TableModelSpecWrapper.METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR,
-                        getPropertyGenerator(field, fieldType));
-                return true;
+                PropertyGenerator propertyGenerator = getPropertyGenerator(field, fieldType);
+                if (propertyGenerator != null) {
+                    modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, propertyGenerator);
+                    result = true;
+                }
             } else {
-                return super.processVariableElement(field, fieldType);
+                result = super.processVariableElement(field, fieldType);
             }
+            if (result) {
+                modelSpec.putMetadata(METADATA_KEY_HAS_PRIMARY_KEY, true);
+            }
+            return result;
         }
         return false;
     }
 
-//    private void emitRowIdPropertyDeclaration() throws IOException {
-//        PropertyGenerator rowidPropertyGenerator = modelSpec.getRowIdAliasPropertyGenerator();
-//        String propertyName = modelSpec.getRowIdAliasPropertyName();
-//        if (rowidPropertyGenerator != null) {
-//            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, rowidPropertyGenerator);
-//            rowidPropertyGenerator.emitPropertyDeclaration(writer);
-//            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, rowidPropertyGenerator);
-//        } else {
-//            // Default ID property
-//            Expression constructor;
-//            if (modelSpec.shouldGenerateROWIDProperty()) {
-//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
-//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "ROWID"));
-//            } else {
-//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
-//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
-//                        "\"PRIMARY KEY AUTOINCREMENT\"");
-//                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
-//                        " is currently generating an integer primary key ID property to act as an alias to the table's "
-//                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
-//                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
-//                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
-//                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
-//            }
-//
-//            writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY, propertyName, constructor,
-//                    TypeConstants.PUBLIC_STATIC_FINAL);
-//            if (modelSpec.isVirtualTable()) {
-//                writer.writeAnnotation(CoreTypes.DEPRECATED);
-//                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
-//                        TableModelSpecWrapper.DEFAULT_ID_PROPERTY_NAME,
-//                        Expressions.fromString(TableModelSpecWrapper.DEFAULT_ROWID_PROPERTY_NAME),
-//                        TypeConstants.PUBLIC_STATIC_FINAL);
-//            }
-//        }
-//    }
-
     @Override
     public void afterProcessVariableElements() {
         // TODO: Ensure that model has some kind of rowid property (and exactly one)
-        // If the model spec has a value for METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, insert that at the front
-        // of the propertyGenerators list
-        // Else generate a default one and put that at the front of the list
+        RowidPropertyGenerator rowidPropertyGenerator;
+        if (modelSpec.hasMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR)) {
+            rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
+        } else {
+            if (shouldGenerateROWIDProperty()) {
+                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid", "ROWID", utils);
+            } else {
+                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
+                        " is currently generating an integer primary key ID property to act as an alias to the table's "
+                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
+                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
+                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
+                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
+                rowidPropertyGenerator = null; // TODO: Construct a default one
+//                constructor = Expressions.callConstructor(TypeConstants.LONG_PROPERTY,
+//                        TABLE_MODEL_NAME, Expressions.staticReference(TypeConstants.TABLE_MODEL, "DEFAULT_ID_COLUMN"),
+//                        "\"PRIMARY KEY AUTOINCREMENT\"");
+            }
+        }
+        modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
+    }
+
+    private boolean shouldGenerateROWIDProperty() {
+        TableModelSpecWrapper tableModelSpec = (TableModelSpecWrapper) modelSpec;
+        return tableModelSpec.isVirtualTable() ||
+                tableModelSpec.hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) ||
+                tableModelSpec.getSpecAnnotation().noRowIdAlias();
     }
 
     @Override
     public void afterEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
             throws IOException {
-        // TODO: Is this instanceof the best way to check?
         if (propertyGenerator instanceof RowidPropertyGenerator) {
+            if (((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
+                writer.writeAnnotation(CoreTypes.DEPRECATED);
+                writer.writeFieldDeclaration(TypeConstants.LONG_PROPERTY,
+                        DEFAULT_ID_PROPERTY_NAME,
+                        Expressions.fromString(DEFAULT_ROWID_PROPERTY_NAME),
+                        TypeConstants.PUBLIC_STATIC_FINAL);
+            }
             writeRowidSupportMethods(writer, (RowidPropertyGenerator) propertyGenerator);
         }
     }
@@ -169,7 +168,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        return generatorMap.containsKey(fieldType);
+        return !TypeConstants.isConstant(field) && generatorMap.containsKey(fieldType);
     }
 
     @Override
