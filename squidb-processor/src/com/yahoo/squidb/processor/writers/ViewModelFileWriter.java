@@ -165,20 +165,6 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
     }
 
-    @Override
-    protected int getPropertiesArrayLength() {
-        return modelSpec.getPropertyGenerators().size();
-    }
-
-    @Override
-    protected void writePropertiesInitializationBlock() throws IOException {
-        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
-            writer.writeStatement(Expressions
-                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
-                            Expressions.fromString(modelSpec.getPropertyGenerators().get(i).getPropertyName())));
-        }
-    }
-
     private void emitTableModelMapper() throws IOException {
         writer.writeComment("--- mappers");
         writer.writeFieldDeclaration(TypeConstants.TABLE_MAPPING_VISITORS, "tableMappingInfo",

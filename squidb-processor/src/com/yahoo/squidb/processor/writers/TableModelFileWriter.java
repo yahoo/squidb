@@ -81,15 +81,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     }
 
     @Override
-    protected void writePropertiesInitializationBlock() throws IOException {
-        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
-            writer.writeStatement(Expressions
-                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
-                            Expressions.fromString(modelSpec.getPropertyGenerators().get(i).getPropertyName())));
-        }
-    }
-
-    @Override
     protected void emitDefaultValuesInitializationBlock() throws IOException {
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             generator.emitPutDefault(writer, DEFAULT_VALUES_NAME);
