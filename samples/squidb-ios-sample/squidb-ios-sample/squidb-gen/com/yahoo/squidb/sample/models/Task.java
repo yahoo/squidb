@@ -30,6 +30,12 @@ public class Task extends TableModel {
         TABLE.setRowIdProperty(ID);
     };
 
+    @Override
+    public LongProperty getRowIdProperty() {
+        return ID;
+    }
+
+
     public static final StringProperty TITLE = new StringProperty(TABLE_MODEL_NAME, "title", "NOT NULL");
 
     public static final LongProperty COMPLETION_DATE = new LongProperty(TABLE_MODEL_NAME, "completionDate", "DEFAULT 0");
@@ -37,11 +43,6 @@ public class Task extends TableModel {
     public static final LongProperty DUE_DATE = new LongProperty(TABLE_MODEL_NAME, "dueDate", "DEFAULT 0");
 
     public static final IntegerProperty PRIORITY = new IntegerProperty(TABLE_MODEL_NAME, "priority", "DEFAULT 0");
-
-    @Override
-    public LongProperty getRowIdProperty() {
-        return ID;
-    }
 
     static {
         PROPERTIES[0] = ID;
@@ -92,6 +93,21 @@ public class Task extends TableModel {
     }
 
     // --- getters and setters
+    /**
+     * This getter is an alias for getRowId(), as the underlying column is an INTEGER PRIMARY KEY
+     */
+    public long getId() {
+        return super.getRowId();
+    }
+
+    /**
+     * This setter is an alias for setRowId(), as the underlying column is an INTEGER PRIMARY KEY
+     */
+    public Task setId(long id) {
+        super.setRowId(id);
+        return this;
+    }
+
     public String getTitle() {
         return get(TITLE);
     }
@@ -125,19 +141,6 @@ public class Task extends TableModel {
 
     public Task setPriority(Integer priority) {
         set(PRIORITY, priority);
-        return this;
-    }
-
-    @Deprecated
-    @Override
-    public Task setId(long id) {
-        super.setRowId(id);
-        return this;
-    }
-
-    @Override
-    public Task setRowId(long rowid) {
-        super.setRowId(rowid);
         return this;
     }
 

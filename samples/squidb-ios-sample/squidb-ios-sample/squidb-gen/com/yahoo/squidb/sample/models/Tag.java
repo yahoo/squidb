@@ -29,14 +29,15 @@ public class Tag extends TableModel {
         TABLE.setRowIdProperty(ID);
     };
 
-    public static final StringProperty TAG = new StringProperty(TABLE_MODEL_NAME, "tag", "NOT NULL");
-
-    public static final LongProperty TASK_ID = new LongProperty(TABLE_MODEL_NAME, "taskId", "NOT NULL");
-
     @Override
     public LongProperty getRowIdProperty() {
         return ID;
     }
+
+
+    public static final StringProperty TAG = new StringProperty(TABLE_MODEL_NAME, "tag", "NOT NULL");
+
+    public static final LongProperty TASK_ID = new LongProperty(TABLE_MODEL_NAME, "taskId", "NOT NULL");
 
     static {
         PROPERTIES[0] = ID;
@@ -82,6 +83,21 @@ public class Tag extends TableModel {
     }
 
     // --- getters and setters
+    /**
+     * This getter is an alias for getRowId(), as the underlying column is an INTEGER PRIMARY KEY
+     */
+    public long getId() {
+        return super.getRowId();
+    }
+
+    /**
+     * This setter is an alias for setRowId(), as the underlying column is an INTEGER PRIMARY KEY
+     */
+    public Tag setId(long id) {
+        super.setRowId(id);
+        return this;
+    }
+
     public String getTag() {
         return get(TAG);
     }
@@ -97,19 +113,6 @@ public class Tag extends TableModel {
 
     public Tag setTaskId(Long taskId) {
         set(TASK_ID, taskId);
-        return this;
-    }
-
-    @Deprecated
-    @Override
-    public Tag setId(long id) {
-        super.setRowId(id);
-        return this;
-    }
-
-    @Override
-    public Tag setRowId(long rowid) {
-        super.setRowId(rowid);
         return this;
     }
 
