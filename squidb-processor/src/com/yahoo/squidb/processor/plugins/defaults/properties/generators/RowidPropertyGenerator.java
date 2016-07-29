@@ -36,6 +36,24 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     }
 
     @Override
+    public String getterMethodName() {
+        // Camel case translation doesn't quite work in this case, so override
+        if ("ROWID".equals(propertyName)) {
+            return "getRowId";
+        }
+        return super.getterMethodName();
+    }
+
+    @Override
+    public String setterMethodName() {
+        // Camel case translation doesn't quite work in this case, so override
+        if ("ROWID".equals(propertyName)) {
+            return "setRowId";
+        }
+        return super.setterMethodName();
+    }
+
+    @Override
     protected void writeGetterBody(JavaFileWriter writer) throws IOException {
         writer.writeStatement(Expressions.returnExpr(Expressions.fromString("super.getRowId()")));
     }
