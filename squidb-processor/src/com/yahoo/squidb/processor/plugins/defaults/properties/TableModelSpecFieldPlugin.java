@@ -5,9 +5,12 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
+import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -22,12 +25,14 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPr
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.RowidPropertyGenerator;
+import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
@@ -86,7 +91,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
     @Override
     public void afterProcessVariableElements() {
-        // TODO: Ensure that model has some kind of rowid property
+        // TODO: Ensure that model has some kind of rowid property (and exactly one)
         // If the model spec has a value for METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, insert that at the front
         // of the propertyGenerators list
         // Else generate a default one and put that at the front of the list
@@ -95,10 +100,30 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     @Override
     public void afterEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
             throws IOException {
+        // TODO: Is this instanceof the best way to check?
         if (propertyGenerator instanceof RowidPropertyGenerator) {
-            // TODO: Emit TABLE.setRowIdProperty() block
-            // TODO: Emit getRowIdProperty() method
+            writeRowidSupportMethods(writer, (RowidPropertyGenerator) propertyGenerator);
         }
+    }
+
+    private void writeRowidSupportMethods(JavaFileWriter writer, RowidPropertyGenerator propertyGenerator)
+            throws IOException {
+        // Write TABLE.setRowIdProperty call
+        writer.beginInitializerBlock(true, true);
+        writer.writeStatement(Expressions.callMethodOn(TableModelFileWriter.TABLE_NAME, "setRowIdProperty",
+                propertyGenerator.getPropertyName()));
+        writer.finishInitializerBlock(true, true);
+        writer.writeNewline();
+
+        // Write getRowIdProperty() method
+        writer.writeAnnotation(CoreTypes.OVERRIDE);
+        MethodDeclarationParameters params = new MethodDeclarationParameters()
+                .setModifiers(Modifier.PUBLIC)
+                .setReturnType(TypeConstants.LONG_PROPERTY)
+                .setMethodName("getRowIdProperty");
+        writer.beginMethodDefinition(params);
+        writer.writeStringStatement("return " + propertyGenerator.getPropertyName());
+        writer.finishMethodDefinition();
     }
 
     @Override

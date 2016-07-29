@@ -88,8 +88,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
             modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, deprecatedProperty);
             writer.writeNewline();
         }
-
-        emitGetRowIdPropertyMethod();
     }
 
     private void emitRowIdPropertyDeclaration() throws IOException {
@@ -127,21 +125,6 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
                         TypeConstants.PUBLIC_STATIC_FINAL);
             }
         }
-        writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TABLE_NAME, "setRowIdProperty", propertyName));
-        writer.finishInitializerBlock(true, true);
-        writer.writeNewline();
-    }
-
-    private void emitGetRowIdPropertyMethod() throws IOException {
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setReturnType(TypeConstants.LONG_PROPERTY)
-                .setMethodName("getRowIdProperty");
-        writer.beginMethodDefinition(params);
-        writer.writeStringStatement("return " + modelSpec.getRowIdAliasPropertyName());
-        writer.finishMethodDefinition();
     }
 
     @Override
