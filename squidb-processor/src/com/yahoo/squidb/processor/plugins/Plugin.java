@@ -13,6 +13,7 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
@@ -280,4 +281,14 @@ public class Plugin {
         // Stub for subclasses to override
     }
 
+    /**
+     * If the plugin inspects any Squidb options passed to the annotation processor, return them in a list here.
+     * Plugins which either don't report or misreport the options they inspect will still run normally, but the
+     * PluginEnvironment may log a warning for options that appear to be unused by any plugin.
+     *
+     * @return the list of options this plugin supports
+     */
+    public List<String> getSupportedOptions() {
+        return null;
+    }
 }

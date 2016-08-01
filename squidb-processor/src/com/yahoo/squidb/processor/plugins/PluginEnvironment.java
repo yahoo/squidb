@@ -57,6 +57,8 @@ public class PluginEnvironment {
     private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
     private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
 
+    private boolean checkHandledOptions = true;
+
     public enum PluginPriority {
         LOW,
         NORMAL,
@@ -264,6 +266,11 @@ public class PluginEnvironment {
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);
+
+        if (checkHandledOptions) {
+            checkHandledOptions(plugins);
+            checkHandledOptions = false;
+        }
         return new PluginBundle(modelSpec, this, plugins);
     }
 
@@ -277,6 +284,45 @@ public class PluginEnvironment {
                 utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
                         "Unable to instantiate plugin " + plugin + ", reason: " + e);
             }
+        }
+    }
+
+    private void checkHandledOptions(List<Plugin> plugins) {
+        Set<String> supportedOptions = new HashSet<>();
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING);
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS);
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING);
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING);
+        supportedOptions.add(OPTIONS_DISABLE_DEFAULT_VALUES);
+        supportedOptions.add(OPTIONS_DISABLE_ENUM_PROPERTIES);
+        supportedOptions.add(OPTIONS_DISABLE_JAVADOC_COPYING);
+        supportedOptions.add(OPTIONS_GENERATE_ANDROID_MODELS);
+
+        for (Plugin plugin : plugins) {
+            List<String> pluginOpts = plugin.getSupportedOptions();
+            if (pluginOpts != null) {
+                supportedOptions.addAll(pluginOpts);
+            }
+        }
+        reportUnusedOptions(supportedOptions);
+    }
+
+    private void reportUnusedOptions(Set<String> supportedOptions) {
+        StringBuilder builder = null;
+        for (String s : squidbOptions) {
+            if (supportedOptions.contains(s)) {
+                continue;
+            }
+            if (builder == null) {
+                builder = new StringBuilder("These SquiDB plugin options appear to be unused by any plugin: ");
+            } else {
+                builder.append(", ");
+            }
+            builder.append(s);
+        }
+        if (builder != null) {
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, builder.toString());
         }
     }
 }

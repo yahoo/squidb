@@ -20,6 +20,7 @@ import com.yahoo.squidb.processor.writers.ModelFileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -33,6 +34,11 @@ public class ConstructorPlugin extends Plugin {
 
     public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
+    }
+
+    @Override
+    public List<String> getSupportedOptions() {
+        return Collections.singletonList(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
     }
 
     @Override

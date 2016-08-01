@@ -13,6 +13,8 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import javax.lang.model.element.Element;
 
@@ -26,6 +28,11 @@ public class JavadocPlugin extends Plugin {
 
     public JavadocPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
+    }
+
+    @Override
+    public List<String> getSupportedOptions() {
+        return Collections.singletonList(PluginEnvironment.OPTIONS_DISABLE_JAVADOC_COPYING);
     }
 
     @Override

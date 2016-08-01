@@ -61,6 +61,12 @@ public class AndroidModelPlugin extends Plugin {
     }
 
     @Override
+    public List<String> getSupportedOptions() {
+        return Arrays.asList(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS,
+                PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+    }
+
+    @Override
     public DeclaredTypeName getModelSuperclass() {
         return modelSuperclass;
     }

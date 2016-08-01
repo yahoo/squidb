@@ -20,6 +20,7 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,11 @@ public class ModelMethodPlugin extends Plugin {
     public ModelMethodPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         parseModelMethods();
+    }
+
+    @Override
+    public List<String> getSupportedOptions() {
+        return Collections.singletonList(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING);
     }
 
     @Override
