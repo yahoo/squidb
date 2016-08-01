@@ -30,4 +30,24 @@ dependencies {
     compile project(':squidb')
     compile project(':squidb-annotations')
     apt project(':squidb-processor')
+
+    if (!generateIOSModels()) {
+        compile project(':squidb-android')
+    }
+}
+
+def generateIOSModels() {
+    // this environment variable is set by the Settings.xcconfig for IOS builds
+    !"$System.env.SQUIDB_IOS_SRC".isEmpty() && System.env.SQUIDB_IOS_SRC != null;
+}
+
+String squidbOptionsString = ''
+if (!generateIOSModels()) {
+    squidbOptionsString += 'androidModels'
+}
+
+apt {
+    arguments {
+        squidbOptions squidbOptionsString
+    }
 }

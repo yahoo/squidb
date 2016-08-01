@@ -32,9 +32,3 @@ dependencies {
     compile project(':squidb-sample-core')
     apt project(':squidb-processor')
 }
-
-apt {
-    arguments {
-        squidbOptions 'androidModels'
-    }
-}
