@@ -50,19 +50,6 @@ public class PluginEnvironment {
     public static final String OPTIONS_KEY = "squidbOptions";
     private static final String SEPARATOR = ",";
 
-    private final AptUtils utils;
-    private final Map<String, String> envOptions;
-    private final Set<String> squidbOptions;
-    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
-    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
-    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
-
-    public enum PluginPriority {
-        LOW,
-        NORMAL,
-        HIGH
-    }
-
     /**
      * Option for disabling the default constructors generated in each model class
      */
@@ -109,6 +96,40 @@ public class PluginEnvironment {
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
+    private static final Set<String> SQUIDB_SUPPORTED_OPTIONS;
+    static {
+        SQUIDB_SUPPORTED_OPTIONS = new HashSet<>(9);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_VALUES);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_JAVADOC_COPYING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_ENUM_PROPERTIES);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_GENERATE_ANDROID_MODELS);
+    }
+
+    private static final String UNSUPPORTED_OPTIONS_WARNING
+            = "The following squidbOptions are not supported by SquiDB: [%s]. If you are using custom plugins that "
+            + "inspect environment options, you should annotate those plugins with @javax.annotation.processing"
+            + ".SupportedOptions and use your own environment option key; see PluginEnvironment.getEnvOptions() and "
+            + "PluginEnvironment.hasEnvOption(String) for more information.";
+
+    private final AptUtils utils;
+
+    private final Map<String, String> envOptions;
+    private final Set<String> squidbOptions;
+    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
+
+    public enum PluginPriority {
+        LOW,
+        NORMAL,
+        HIGH
+    }
+
     /**
      * @param utils annotation processing utilities class
      * @param envOptions map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}
@@ -119,6 +140,7 @@ public class PluginEnvironment {
         this.squidbOptions = parseOptions();
         initializeDefaultPlugins();
         initializePluginsFromEnvironment();
+        reportUnsupportedOptions();
     }
 
     private Set<String> parseOptions() {
@@ -212,6 +234,37 @@ public class PluginEnvironment {
     }
 
     /**
+     * Add a {@link Plugin} class to the list of known plugins
+     *
+     * @param plugin the plugin class
+     * @param priority the priority to give the plugin
+     */
+    public void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
+        switch (priority) {
+            case LOW:
+                lowPriorityPlugins.add(plugin);
+                break;
+            case HIGH:
+                highPriorityPlugins.add(plugin);
+                break;
+            case NORMAL:
+            default:
+                normalPriorityPlugins.add(plugin);
+                break;
+        }
+    }
+
+    private void reportUnsupportedOptions() {
+        Set<String> unsupportedOptions = new HashSet<>(squidbOptions);
+        unsupportedOptions.removeAll(SQUIDB_SUPPORTED_OPTIONS);
+
+        if (!AptUtils.isEmpty(unsupportedOptions)) {
+            String message = String.format(UNSUPPORTED_OPTIONS_WARNING, String.join(SEPARATOR, unsupportedOptions));
+            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
+        }
+    }
+
+    /**
      * @param option the option to check
      * @return true if the option is set, false otherwise
      */
@@ -232,27 +285,6 @@ public class PluginEnvironment {
      */
     public AptUtils getUtils() {
         return utils;
-    }
-
-    /**
-     * Add a {@link Plugin} class to the list of known plugins
-     *
-     * @param plugin the plugin class
-     * @param priority the priority to give the plugin
-     */
-    public void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
-        switch (priority) {
-            case LOW:
-                lowPriorityPlugins.add(plugin);
-                break;
-            case HIGH:
-                highPriorityPlugins.add(plugin);
-                break;
-            case NORMAL:
-            default:
-                normalPriorityPlugins.add(plugin);
-                break;
-        }
     }
 
     /**
