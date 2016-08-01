@@ -16,6 +16,7 @@ import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 import com.yahoo.squidb.processor.writers.ViewModelFileWriter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +75,8 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         Set<String> supportedOptions = new HashSet<>();
         supportedOptions.add(PluginEnvironment.PLUGINS_KEY);
         supportedOptions.add(PluginEnvironment.OPTIONS_KEY);
-        return supportedOptions;
+        supportedOptions.addAll(pluginEnv.getPluginSupportedOptions());
+        return Collections.unmodifiableSet(supportedOptions);
     }
 
     @Override

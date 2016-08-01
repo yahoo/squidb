@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.SupportedOptions;
 import javax.tools.Diagnostic;
 
 /**
@@ -118,8 +119,13 @@ public class PluginEnvironment {
 
     private final AptUtils utils;
 
+    /** all environment options passed to APT */
     private final Map<String, String> envOptions;
+    /** options passed as the value for the "squidbOptions" key */
     private final Set<String> squidbOptions;
+    /** options keys supported by custom plugins */
+    private final Set<String> pluginSupportedOptions;
+
     private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
     private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
     private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
@@ -138,6 +144,8 @@ public class PluginEnvironment {
         this.utils = utils;
         this.envOptions = Collections.unmodifiableMap(envOptions == null ? new HashMap<String, String>() : envOptions);
         this.squidbOptions = parseOptions();
+        this.pluginSupportedOptions = new HashSet<>();
+
         initializeDefaultPlugins();
         initializePluginsFromEnvironment();
         reportUnsupportedOptions();
@@ -252,6 +260,14 @@ public class PluginEnvironment {
                 normalPriorityPlugins.add(plugin);
                 break;
         }
+
+        SupportedOptions supportedOptionsAnnotation = plugin.getAnnotation(SupportedOptions.class);
+        if (supportedOptionsAnnotation != null) {
+            String[] options = supportedOptionsAnnotation.value();
+            if (options != null) {
+                Collections.addAll(pluginSupportedOptions, options);
+            }
+        }
     }
 
     private void reportUnsupportedOptions() {
@@ -265,19 +281,65 @@ public class PluginEnvironment {
     }
 
     /**
+     * Returns whether the value of the "squidbOptions" environment option contains the given string
+     *
      * @param option the option to check
      * @return true if the option is set, false otherwise
+     * @deprecated use {@link #hasSquidbOption} instead
      */
+    @Deprecated
     public boolean hasOption(String option) {
+        return hasSquidbOption(option);
+    }
+
+    /**
+     * Returns whether the value of the "squidbOptions" environment option contains the given string
+     *
+     * @param option the option to check
+     * @return true if the option is set, false otherwise
+     * @deprecated use #removeOnGlobalLayoutListener instead
+     */
+    public boolean hasSquidbOption(String option) {
         return squidbOptions.contains(option);
     }
 
     /**
-     * @return envOptions map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}.
+     * Returns the map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}.
      * Plugins may access this map to check for their own custom options.
+     * <p>
+     * Note: Custom plugins should also be annotated with {@link SupportedOptions @SupportedOptions} to declare which
+     * environment options keys they support; these will be reported to the toolchain accordingly.
+     *
+     * @return the map of annotation processing options
+     *
+     * @see {@link #hasEnvOption(String)}
      */
     public Map<String, String> getEnvOptions() {
         return envOptions;
+    }
+
+    /**
+     * Returns whether the environment options obtained from {@link ProcessingEnvironment#getOptions()} contains the
+     * given key. This is a useful shortcut for plugins which declare their own options key but only need to check
+     * that the key is present, rather than checking the value for that key.
+     * <p>
+     * Note: Custom plugins should also be annotated with {@link SupportedOptions @SupportedOptions} to declare which
+     * environment options keys they support; these will be reported to the toolchain accordingly.
+     *
+     * @return true if the annotation processing options contains the given key, false otherwise
+     */
+    public boolean hasEnvOption(String key) {
+        return envOptions.containsKey(key);
+    }
+
+    /**
+     * Return the set of environment options keys supported by custom plugins. This does not include the
+     * <code>squidbPlugins</code> or <code>squidbOptions</code> keys, which are reserved for SquiDB use.
+     *
+     * @return the environment options keys supported by custom plugins
+     */
+    public Set<String> getPluginSupportedOptions() {
+        return Collections.unmodifiableSet(pluginSupportedOptions);
     }
 
     /**
