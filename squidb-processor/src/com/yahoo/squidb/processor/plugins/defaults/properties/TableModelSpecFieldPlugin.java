@@ -272,7 +272,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     public void emitMethods(JavaFileWriter writer) throws IOException {
         // If rowid property generator hasn't already done it, need to generate
         // overridden setRowId with appropriate return type
-        if (!pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             RowidPropertyGenerator rowidPropertyGenerator = modelSpec
                     .getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
             if (rowidPropertyGenerator != null && !"setRowId".equals(rowidPropertyGenerator.setterMethodName())) {
