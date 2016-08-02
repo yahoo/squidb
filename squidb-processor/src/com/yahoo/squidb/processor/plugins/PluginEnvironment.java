@@ -247,7 +247,7 @@ public class PluginEnvironment {
      * @param plugin the plugin class
      * @param priority the priority to give the plugin
      */
-    public void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
+    private void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
         switch (priority) {
             case LOW:
                 lowPriorityPlugins.add(plugin);
