@@ -159,7 +159,13 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
         writer.finishInitializerBlock(false, true);
     }
 
-    protected abstract void writePropertiesInitializationBlock() throws IOException;
+    protected void writePropertiesInitializationBlock() throws IOException {
+        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
+            writer.writeStatement(Expressions
+                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
+                            Expressions.fromString(modelSpec.getPropertyGenerators().get(i).getPropertyName())));
+        }
+    }
 
     protected void emitDefaultValues() throws IOException {
         writer.writeComment("--- default values");

@@ -10,7 +10,6 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
 
 import java.util.Set;
 
@@ -18,20 +17,8 @@ import javax.lang.model.element.TypeElement;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
-    public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
-    public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
-    public static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
-    public static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
-
-    private final DeclaredTypeName tableType;
-
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
-        if (isVirtualTable()) {
-            tableType = TypeConstants.VIRTUAL_TABLE;
-        } else {
-            tableType = TypeConstants.TABLE;
-        }
     }
 
     @Override
@@ -61,35 +48,13 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
         imports.add(TypeConstants.LONG_PROPERTY);
         imports.add(TypeConstants.TABLE_MODEL);
         imports.add(TypeConstants.TABLE_MODEL_NAME);
-        imports.add(tableType);
-    }
-
-    /**
-     * @return a {@link PropertyGenerator} for the model's id property
-     */
-    public PropertyGenerator getRowIdAliasPropertyGenerator() {
-        return getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
-    }
-
-    public String getRowIdAliasPropertyName() {
-        PropertyGenerator rowidAliasPropertyGenerator = getRowIdAliasPropertyGenerator();
-        if (rowidAliasPropertyGenerator != null) {
-            return rowidAliasPropertyGenerator.getPropertyName();
-        } else if (shouldGenerateROWIDProperty()) {
-            return DEFAULT_ROWID_PROPERTY_NAME;
-        } else {
-            return DEFAULT_ID_PROPERTY_NAME;
-        }
-    }
-
-    public boolean shouldGenerateROWIDProperty() {
-        return isVirtualTable() || hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) || modelSpecAnnotation.noRowIdAlias();
+        imports.add(getTableType());
     }
 
     /**
      * @return the name of the table class (e.g. Table or VirtualTable)
      */
     public DeclaredTypeName getTableType() {
-        return tableType;
+        return isVirtualTable() ? TypeConstants.VIRTUAL_TABLE : TypeConstants.TABLE;
     }
 }
