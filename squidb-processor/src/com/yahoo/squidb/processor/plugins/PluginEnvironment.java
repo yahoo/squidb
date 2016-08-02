@@ -321,7 +321,8 @@ public class PluginEnvironment {
      *
      * @return the map of annotation processing options
      *
-     * @see {@link #hasEnvOption(String)}
+     * @see #hasEnvOption(String)
+     * @see #getEnvOptionValue(String)
      */
     public Map<String, String> getEnvOptions() {
         return envOptions;
@@ -329,8 +330,8 @@ public class PluginEnvironment {
 
     /**
      * Returns whether the environment options obtained from {@link ProcessingEnvironment#getOptions()} contains the
-     * given key. This is a useful shortcut for plugins which declare their own options key but only need to check
-     * that the key is present, rather than checking the value for that key.
+     * given key. This is a convenience for plugins which declare their own options key but only need to check that the
+     * key is present, rather than checking the value for that key.
      * <p>
      * Note: Custom plugins should also be annotated with {@link SupportedOptions @SupportedOptions} to declare which
      * environment options keys they support; these will be reported to the toolchain accordingly.
@@ -339,6 +340,17 @@ public class PluginEnvironment {
      */
     public boolean hasEnvOption(String key) {
         return envOptions.containsKey(key);
+    }
+
+    /**
+     * Returns the value of the given option key from the environment options obtained from
+     * {@link ProcessingEnvironment#getOptions()}. Returns null if the key is not present or if the associated value
+     * is null. This is a convenience for plugins which declare their own options key.
+     *
+     * @return the value of the given environment option key
+     */
+    public String getEnvOptionValue(String key) {
+        return envOptions.get(key);
     }
 
     /**
