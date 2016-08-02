@@ -76,7 +76,7 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
-        this.androidModels = pluginEnv.hasOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
+        this.androidModels = pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();

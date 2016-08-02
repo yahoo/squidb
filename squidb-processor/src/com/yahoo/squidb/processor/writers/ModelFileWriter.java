@@ -168,7 +168,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
                         Expressions.callConstructor(modelSpec.getGeneratedClassName()), "newValuesStorage"),
                 Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
 
-        if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {
+        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {
             writer.writeComment("--- property defaults disabled by plugin flag");
         } else {
             writer.beginInitializerBlock(true, true)
@@ -187,7 +187,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?>> {
     protected abstract void emitDefaultValuesInitializationBlock() throws IOException;
 
     protected void emitGettersAndSetters() throws IOException {
-        if (pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
+        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             writer.writeComment("--- getters and setters disabled by plugin flag");
         } else {
             writer.writeComment("--- getters and setters");

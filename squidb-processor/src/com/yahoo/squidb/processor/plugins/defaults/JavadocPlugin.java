@@ -52,7 +52,7 @@ public class JavadocPlugin extends Plugin {
      */
     public static void writeJavadocFromElement(PluginEnvironment pluginEnv, JavaFileWriter writer, Element element)
             throws IOException {
-        if (!pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_JAVADOC_COPYING)) {
+        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_JAVADOC_COPYING)) {
             writer.writeJavadoc(pluginEnv.getUtils().getElements().getDocComment(element));
         }
     }

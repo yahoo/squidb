@@ -37,7 +37,7 @@ public class HelloSquiDBApplication extends Application {
                 return new AndroidOpenHelper(HelloSquiDBApplication.this, databaseName, delegate, version);
             }
         });
-        TasksDatabase.getInstance().registerDataChangedNotifier(new UriNotifier(this.getContentResolver(), Task.TABLE) {
+        TasksDatabase.getInstance().registerDataChangedNotifier(new UriNotifier(getContentResolver(), Task.TABLE) {
             @Override
             protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
                     SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.SupportedOptions;
 import javax.tools.Diagnostic;
 
 /**
@@ -49,19 +50,6 @@ public class PluginEnvironment {
     public static final String PLUGINS_KEY = "squidbPlugins";
     public static final String OPTIONS_KEY = "squidbOptions";
     private static final String SEPARATOR = ",";
-
-    private final AptUtils utils;
-    private final Map<String, String> envOptions;
-    private final Set<String> squidbOptions;
-    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
-    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
-    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
-
-    public enum PluginPriority {
-        LOW,
-        NORMAL,
-        HIGH
-    }
 
     /**
      * Option for disabling the default constructors generated in each model class
@@ -109,6 +97,45 @@ public class PluginEnvironment {
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
+    private static final Set<String> SQUIDB_SUPPORTED_OPTIONS;
+    static {
+        SQUIDB_SUPPORTED_OPTIONS = new HashSet<>(9);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_VALUES);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_JAVADOC_COPYING);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_ENUM_PROPERTIES);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_GENERATE_ANDROID_MODELS);
+    }
+
+    private static final String UNSUPPORTED_OPTIONS_WARNING
+            = "The following squidbOptions are not supported by SquiDB: [%s]. If you are using custom plugins that "
+            + "inspect environment options, you should annotate those plugins with @javax.annotation.processing"
+            + ".SupportedOptions and use your own environment option key; see PluginEnvironment.getEnvOptions() and "
+            + "PluginEnvironment.hasEnvOption(String) for more information.";
+
+    private final AptUtils utils;
+
+    /** all environment options passed to APT */
+    private final Map<String, String> envOptions;
+    /** options passed as the value for the "squidbOptions" key */
+    private final Set<String> squidbOptions;
+    /** options keys supported by custom plugins */
+    private final Set<String> pluginSupportedOptions;
+
+    private List<Class<? extends Plugin>> highPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> normalPriorityPlugins = new ArrayList<>();
+    private List<Class<? extends Plugin>> lowPriorityPlugins = new ArrayList<>();
+
+    public enum PluginPriority {
+        LOW,
+        NORMAL,
+        HIGH
+    }
+
     /**
      * @param utils annotation processing utilities class
      * @param envOptions map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}
@@ -117,8 +144,11 @@ public class PluginEnvironment {
         this.utils = utils;
         this.envOptions = Collections.unmodifiableMap(envOptions == null ? new HashMap<String, String>() : envOptions);
         this.squidbOptions = parseOptions();
+        this.pluginSupportedOptions = new HashSet<>();
+
         initializeDefaultPlugins();
         initializePluginsFromEnvironment();
+        reportUnsupportedOptions();
     }
 
     private Set<String> parseOptions() {
@@ -132,20 +162,20 @@ public class PluginEnvironment {
     }
 
     private void initializeDefaultPlugins() {
-        if (hasOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
+        if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
             normalPriorityPlugins.add(AndroidModelPlugin.class);
         }
 
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             normalPriorityPlugins.add(ConstructorPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
             normalPriorityPlugins.add(ImplementsPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
             normalPriorityPlugins.add(ModelMethodPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
             normalPriorityPlugins.add(JavadocPlugin.class);
         }
 
@@ -154,11 +184,11 @@ public class PluginEnvironment {
         normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
 
-        if (!hasOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
             normalPriorityPlugins.add(EnumPluginBundle.class);
         }
 
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
             // the generated model. Set to low priority so that by default user plugins can have first pass at
             // handing such fields.
@@ -212,35 +242,12 @@ public class PluginEnvironment {
     }
 
     /**
-     * @param option the option to check
-     * @return true if the option is set, false otherwise
-     */
-    public boolean hasOption(String option) {
-        return squidbOptions.contains(option);
-    }
-
-    /**
-     * @return envOptions map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}.
-     * Plugins may access this map to check for their own custom options.
-     */
-    public Map<String, String> getEnvOptions() {
-        return envOptions;
-    }
-
-    /**
-     * @return an AptUtils instance that provides useful annotation processing utility methods
-     */
-    public AptUtils getUtils() {
-        return utils;
-    }
-
-    /**
      * Add a {@link Plugin} class to the list of known plugins
      *
      * @param plugin the plugin class
      * @param priority the priority to give the plugin
      */
-    public void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
+    private void addPlugin(Class<? extends Plugin> plugin, PluginPriority priority) {
         switch (priority) {
             case LOW:
                 lowPriorityPlugins.add(plugin);
@@ -253,6 +260,113 @@ public class PluginEnvironment {
                 normalPriorityPlugins.add(plugin);
                 break;
         }
+
+        SupportedOptions supportedOptionsAnnotation = plugin.getAnnotation(SupportedOptions.class);
+        if (supportedOptionsAnnotation != null) {
+            String[] options = supportedOptionsAnnotation.value();
+            if (options != null) {
+                Collections.addAll(pluginSupportedOptions, options);
+            }
+        }
+    }
+
+    private void reportUnsupportedOptions() {
+        Set<String> unsupportedOptions = new HashSet<>(squidbOptions);
+        unsupportedOptions.removeAll(SQUIDB_SUPPORTED_OPTIONS);
+
+        if (AptUtils.isEmpty(unsupportedOptions)) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String option : unsupportedOptions) {
+            if (sb.length() > 0) {
+                sb.append(SEPARATOR);
+            }
+            sb.append(option);
+        }
+        String message = String.format(UNSUPPORTED_OPTIONS_WARNING, sb);
+        utils.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
+    }
+
+    /**
+     * Returns whether the value of the "squidbOptions" environment option contains the given string
+     *
+     * @param option the option to check
+     * @return true if the option is set, false otherwise
+     * @deprecated use {@link #hasSquidbOption} instead
+     */
+    @Deprecated
+    public boolean hasOption(String option) {
+        return hasSquidbOption(option);
+    }
+
+    /**
+     * Returns whether the value of the "squidbOptions" environment option contains the given string
+     *
+     * @param option the option to check
+     * @return true if the option is set, false otherwise
+     */
+    public boolean hasSquidbOption(String option) {
+        return squidbOptions.contains(option);
+    }
+
+    /**
+     * Returns the map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}.
+     * Plugins may access this map to check for their own custom options.
+     * <p>
+     * Note: Custom plugins should also be annotated with {@link SupportedOptions @SupportedOptions} to declare which
+     * environment options keys they support; these will be reported to the toolchain accordingly.
+     *
+     * @return the map of annotation processing options
+     *
+     * @see #hasEnvOption(String)
+     * @see #getEnvOptionValue(String)
+     */
+    public Map<String, String> getEnvOptions() {
+        return envOptions;
+    }
+
+    /**
+     * Returns whether the environment options obtained from {@link ProcessingEnvironment#getOptions()} contains the
+     * given key. This is a convenience for plugins which declare their own options key but only need to check that the
+     * key is present, rather than checking the value for that key.
+     * <p>
+     * Note: Custom plugins should also be annotated with {@link SupportedOptions @SupportedOptions} to declare which
+     * environment options keys they support; these will be reported to the toolchain accordingly.
+     *
+     * @return true if the annotation processing options contains the given key, false otherwise
+     */
+    public boolean hasEnvOption(String key) {
+        return envOptions.containsKey(key);
+    }
+
+    /**
+     * Returns the value of the given option key from the environment options obtained from
+     * {@link ProcessingEnvironment#getOptions()}. Returns null if the key is not present or if the associated value
+     * is null. This is a convenience for plugins which declare their own options key.
+     *
+     * @return the value of the given environment option key
+     */
+    public String getEnvOptionValue(String key) {
+        return envOptions.get(key);
+    }
+
+    /**
+     * Return the set of environment options keys supported by custom plugins. This does not include the
+     * <code>squidbPlugins</code> or <code>squidbOptions</code> keys, which are reserved for SquiDB use.
+     *
+     * @return the environment options keys supported by custom plugins
+     */
+    public Set<String> getPluginSupportedOptions() {
+        return Collections.unmodifiableSet(pluginSupportedOptions);
+    }
+
+    /**
+     * @return an AptUtils instance that provides useful annotation processing utility methods
+     */
+    public AptUtils getUtils() {
+        return utils;
     }
 
     /**
