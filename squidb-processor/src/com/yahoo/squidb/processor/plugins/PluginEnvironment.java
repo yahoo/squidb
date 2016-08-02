@@ -162,20 +162,20 @@ public class PluginEnvironment {
     }
 
     private void initializeDefaultPlugins() {
-        if (hasOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
+        if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
             normalPriorityPlugins.add(AndroidModelPlugin.class);
         }
 
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             normalPriorityPlugins.add(ConstructorPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
             normalPriorityPlugins.add(ImplementsPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
             normalPriorityPlugins.add(ModelMethodPlugin.class);
         }
-        if (!hasOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
             normalPriorityPlugins.add(JavadocPlugin.class);
         }
 
@@ -184,11 +184,11 @@ public class PluginEnvironment {
         normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
         normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
 
-        if (!hasOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
             normalPriorityPlugins.add(EnumPluginBundle.class);
         }
 
-        if (!hasOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
             // the generated model. Set to low priority so that by default user plugins can have first pass at
             // handing such fields.
@@ -306,7 +306,6 @@ public class PluginEnvironment {
      *
      * @param option the option to check
      * @return true if the option is set, false otherwise
-     * @deprecated use #removeOnGlobalLayoutListener instead
      */
     public boolean hasSquidbOption(String option) {
         return squidbOptions.contains(option);

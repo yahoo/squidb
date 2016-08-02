@@ -57,7 +57,7 @@ public class AndroidModelPlugin extends Plugin {
     public AndroidModelPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         modelSuperclass = modelSpec.accept(superclassVisitor, null);
-        generateConstructors = !pluginEnv.hasOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+        generateConstructors = !pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
     }
 
     @Override
