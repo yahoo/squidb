@@ -107,6 +107,7 @@ public class PluginEnvironment {
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
     private static final Set<String> SQUIDB_SUPPORTED_OPTIONS;
+
     static {
         SQUIDB_SUPPORTED_OPTIONS = new HashSet<>(9);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
@@ -306,18 +307,6 @@ public class PluginEnvironment {
      *
      * @param option the option to check
      * @return true if the option is set, false otherwise
-     * @deprecated use {@link #hasSquidbOption} instead
-     */
-    @Deprecated
-    public boolean hasOption(String option) {
-        return hasSquidbOption(option);
-    }
-
-    /**
-     * Returns whether the value of the "squidbOptions" environment option contains the given string
-     *
-     * @param option the option to check
-     * @return true if the option is set, false otherwise
      */
     public boolean hasSquidbOption(String option) {
         return squidbOptions.contains(option);
@@ -331,7 +320,6 @@ public class PluginEnvironment {
      * environment options keys they support; these will be reported to the toolchain accordingly.
      *
      * @return the map of annotation processing options
-     *
      * @see #hasEnvOption(String)
      * @see #getEnvOptionValue(String)
      */
