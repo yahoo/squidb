@@ -40,6 +40,11 @@ import javax.tools.Diagnostic.Kind;
 /**
  * This plugin controls generating property declarations, getters, and setters for fields in a table model. It can
  * create instances of {@link PropertyGenerator} for each of the basic supported column types (String, int, long, etc.)
+ * <p>
+ * Users who want to tweak the default field handling for table models can subclass this plugin and override the
+ * protected methods for determining PropertyGenerator subclasses ({@link #getStringPropertyGenerator()},
+ * {@link #getLongPropertyGenerator()}, etc.). Such a user plugin should be registered with "high" priority so it takes
+ * precedence over the default version of this plugin.
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
@@ -291,31 +296,51 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         }
     }
 
-    // Users can subclass TableModelSpecFieldPlugin and override these methods to handle the core types differently
+    /**
+     * @return the generator class this plugin should use for handling String fields
+     */
     protected Class<? extends BasicStringPropertyGenerator> getStringPropertyGenerator() {
         return BasicStringPropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling long fields
+     */
     protected Class<? extends BasicLongPropertyGenerator> getLongPropertyGenerator() {
         return BasicLongPropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling integer primary key fields
+     */
     protected Class<? extends RowidPropertyGenerator> getRowidPropertyGenerator() {
         return RowidPropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling integer fields
+     */
     protected Class<? extends BasicIntegerPropertyGenerator> getIntegerPropertyGenerator() {
         return BasicIntegerPropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling double or float fields
+     */
     protected Class<? extends BasicDoublePropertyGenerator> getDoublePropertyGenerator() {
         return BasicDoublePropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling boolean fields
+     */
     protected Class<? extends BasicBooleanPropertyGenerator> getBooleanPropertyGenerator() {
         return BasicBooleanPropertyGenerator.class;
     }
 
+    /**
+     * @return the generator class this plugin should use for handling blob fields
+     */
     protected Class<? extends BasicBlobPropertyGenerator> getBlobPropertyGenerator() {
         return BasicBlobPropertyGenerator.class;
     }
