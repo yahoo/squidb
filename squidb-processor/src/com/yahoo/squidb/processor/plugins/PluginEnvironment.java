@@ -274,10 +274,19 @@ public class PluginEnvironment {
         Set<String> unsupportedOptions = new HashSet<>(squidbOptions);
         unsupportedOptions.removeAll(SQUIDB_SUPPORTED_OPTIONS);
 
-        if (!AptUtils.isEmpty(unsupportedOptions)) {
-            String message = String.format(UNSUPPORTED_OPTIONS_WARNING, String.join(SEPARATOR, unsupportedOptions));
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
+        if (AptUtils.isEmpty(unsupportedOptions)) {
+            return;
         }
+
+        StringBuilder sb = new StringBuilder();
+        for (String option : unsupportedOptions) {
+            if (sb.length() > 0) {
+                sb.append(SEPARATOR);
+            }
+            sb.append(option);
+        }
+        String message = String.format(UNSUPPORTED_OPTIONS_WARNING, sb);
+        utils.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
     }
 
     /**
