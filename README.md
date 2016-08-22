@@ -171,7 +171,7 @@ try {
 }
 ```
 
-SquidCursor is an instance of Android's CursorWrapper, so you can use one anywhere a standard Android Cursor is expected. It also provides users a typesafe get() method that can work directly with table columns if you don’t want or need to inflate a full model object:
+SquidCursor also provides users a typesafe get() method that can work directly with table columns if you don’t want or need to inflate a full model object:
 
 ```java
 String firstName = personCursor.get(Person.FIRST_NAME);
@@ -179,6 +179,14 @@ Long birthday = personCursor.get(Person.BIRTHDAY);
 ```
 
 These are simple examples that only use a single table, but it's still easy to work with model objects even if you need to join across multiple tables.
+
+#### SquidCursor vs Android Cursor
+SquidCursor implements a re-declaration of the Android Cursor interface, so you can use it in the same way you would use an Android cursor -- methods like `moveToFirst()`, `moveToNext()`, `isAfterLast()` etc. all work in exactly the same way as a standard Android cursor. If in an Android app you need an actual instance of android.database.Cursor, you can cast the result of SquidCursor.getCursor() like so:
+
+```java
+SquidCursor<Person> myCursor = ...;
+Cursor androidCursor = (Cursor) myCursor.getCursor();
+```
 
 ## Data change notifications
 SquiDB supports listening for database changes and sending notifications or callbacks after write operations. The notification mechanism is extremely flexible and is customizable via user-defined objects subclassing `DataChangedNotifier`. DataChangedNotifier objects accumulate notifications based on metadata from the writes occurring during write operations or transactions (e.g. which tables have changed or which single row was updated). These notifications will then be sent if and only if the operation or transaction completes successfully.
