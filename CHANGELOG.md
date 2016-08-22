@@ -1,9 +1,9 @@
 Change Log
 ==========
 
-Version 3.1.1 *(2016-08-22)*
+Version 3.1.1 *(2016-08-23)*
 ----------------------------
-* Further enhancements to the `INTEGER PRIMARY KEY` changes found in version 3.1.0. Any columns acting as an alias to the model rowid will now have named getters and setters generated which will delegate to `getRowId()/setRowId()` under the hood. This makes rowid alias columns easier to work with.
+* Further enhancements to the `INTEGER PRIMARY KEY` changes introduced in version 3.1.0. Any columns acting as an alias to the model rowid will now generate named getters and setters, which will delegate to `getRowId()/setRowId()` under the hood. This makes rowid alias columns easier to work with.
 * Enhance code generation plugins by allowing them to declare compile-time options that they consume using the `@SupportedOptions` annotation. This makes it easier for the code generator to warn about unused/mistyped options passed to SquiDB as well as allowing user-defined plugins to consume their own custom option flags.
 
 Version 3.1.0 *(2016-07-27)*
