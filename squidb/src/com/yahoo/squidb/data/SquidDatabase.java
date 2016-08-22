@@ -1001,7 +1001,6 @@ public abstract class SquidDatabase {
      * until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been released, but will
      * prevent any new non-exclusive locks from being acquired while it blocks.
      */
-    @Beta
     protected void acquireExclusiveLock() {
         if (readWriteLock.getReadHoldCount() > 0 && readWriteLock.getWriteHoldCount() == 0) {
             throw new IllegalStateException("Can't acquire an exclusive lock when the calling thread is in a "
@@ -1013,7 +1012,6 @@ public abstract class SquidDatabase {
     /**
      * Release the exclusive lock acquired by {@link #acquireExclusiveLock()}
      */
-    @Beta
     protected void releaseExclusiveLock() {
         readWriteLock.writeLock().unlock();
     }
@@ -1024,7 +1022,6 @@ public abstract class SquidDatabase {
      * writes (see {@link #acquireExclusiveLock()} for why this is true). This will block if the exclusive lock is held
      * by some other thread. Many threads can hold non-exclusive locks as long as no thread holds the exclusive lock.
      */
-    @Beta
     protected void acquireNonExclusiveLock() {
         readWriteLock.readLock().lock();
     }
@@ -1032,7 +1029,6 @@ public abstract class SquidDatabase {
     /**
      * Releases a non-exclusive lock acquired with {@link #acquireNonExclusiveLock()}
      */
-    @Beta
     protected void releaseNonExclusiveLock() {
         readWriteLock.readLock().unlock();
     }
