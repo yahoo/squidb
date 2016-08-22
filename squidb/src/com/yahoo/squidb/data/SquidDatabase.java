@@ -996,10 +996,10 @@ public abstract class SquidDatabase {
      * database is attached to another database).
      * <p>
      * Only one thread can hold an exclusive lock at a time. Calling this while on a thread that already holds a non-
-     * exclusive lock is an error and will deadlock! We will throw an exception if this method is called while the
-     * calling thread is in a transaction. Otherwise, this method will block until all non-exclusive locks
-     * acquired with {@link #acquireNonExclusiveLock()} have been released, but will prevent any new non-exclusive
-     * locks from being acquired while it blocks.
+     * exclusive lock is an error! We will throw an exception if this method is called while the
+     * calling thread is in a transaction or otherwise holds the non-exclusive lock. Otherwise, this method will block
+     * until all non-exclusive locks acquired with {@link #acquireNonExclusiveLock()} have been released, but will
+     * prevent any new non-exclusive locks from being acquired while it blocks.
      */
     @Beta
     protected void acquireExclusiveLock() {
