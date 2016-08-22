@@ -1,14 +1,43 @@
 [![Build Status](https://travis-ci.org/yahoo/squidb.svg?branch=master)](https://travis-ci.org/yahoo/squidb) [![Download](https://api.bintray.com/packages/yahoo/maven/squidb/images/download.svg) ](https://bintray.com/yahoo/maven/squidb/_latestVersion)
 
-
 ## Introducing SquiDB
-SquiDB is a cross-platform SQLite database layer for Android and iOS. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders. Cross-platform support is provided via [Google's j2objc tool](http://j2objc.org/).
-
-### SquiDB 3.0
-The current major version of SquiDB is 3.0, which adds support for compiling with [Google's j2objc tool](http://j2objc.org/). In other words, SquiDB can be used as a SQLite data layer to develop cross-platform business logic that will run on both Android and iOS platforms. If you don't need this feature, you can ignore it -- SquiDB will continue to work on Android exactly as it always has, with only minor, easy to update API changes. See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) for a more detailed discussion of the changes.
+SquiDB is a cross-platform SQLite database layer for Android and iOS. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
 
 ## Getting started
-Add SquiDB to your existing project by following the instructions in [Adding SquiDB as a dependency](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency). Below is a quick primer on the basics of SquiDB; please refer to [the wiki pages](ttps://github.com/yahoo/squidb/wiki) for more information about all the features of the library.
+To add SquiDB as a dependency in your build.gradle file:
+```
+// This example is for a typical Android setup, j2objc/iOS setup may vary
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // android-apt plugin; https://bitbucket.org/hvisser/android-apt
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+apply plugin: 'com.neenbedankt.android-apt'
+
+dependencies {
+    compile 'com.yahoo.squidb:squidb:3.1.1'
+    compile 'com.yahoo.squidb:squidb-annotations:3.1.1'
+    compile 'com.yahoo.squidb:squidb-android:3.1.1' // For Android projects only
+    apt 'com.yahoo.squidb:squidb-processor:3.1.1'
+}
+```
+See [this wiki page](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency) for more detailed instructions on adding SquiDB as a dependency.
+
+#### A note on cross-platform support
+As of SquiDB 3.0, cross-platform support is provided by compiling with [Google's j2objc tool](http://j2objc.org/). In other words, SquiDB can be used as a SQLite data layer to develop cross-platform business logic that will run on both Android and iOS platforms. If you don't need this feature, you can ignore it -- SquiDB will continue to work on Android exactly as it always has, with only minor, easy to update API changes.
+
+#### Upgrading between major versions
+* See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-2.0) if upgrading from version 1.x to 2.x
+* See [this wiki page](https://github.com/yahoo/squidb/wiki/Changes-in-SquiDB-3.0) if upgrading from version 2.x to 3.x
 
 ## Model objects
 SquiDB represents rows in your SQLite tables as objects (similar to how an ORM might). Instead of directly defining these objects though, SquiDB uses compile time code generation to let you define your models/table schemas as minimally as possible--the actual code you will work with is generated at compile time. A SquidDatabase object mediates reading and writing these objects from the database. Setting up all these components is quick and easy. For example:
