@@ -1477,7 +1477,7 @@ public abstract class SquidDatabase {
         }
 
         public MigrationFailedException(String dbName, int oldVersion, int newVersion, Throwable throwable) {
-            super("Failed to migrate db " + dbName + " from version " + oldVersion + "to " + newVersion, throwable);
+            super("Failed to migrate db " + dbName + " from version " + oldVersion + " to " + newVersion, throwable);
             this.dbName = dbName;
             this.oldVersion = oldVersion;
             this.newVersion = newVersion;
