@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 3.1.1 *(2016-08-23)*
+----------------------------
+* Further enhancements to the `INTEGER PRIMARY KEY` changes introduced in version 3.1.0. Any columns acting as an alias to the model rowid will now generate named getters and setters, which will delegate to `getRowId()/setRowId()` under the hood. This makes rowid alias columns easier to work with.
+* Enhance code generation plugins by allowing them to declare compile-time options that they consume using the `@SupportedOptions` annotation. This makes it easier for the code generator to warn about unused/mistyped options passed to SquiDB as well as allowing user-defined plugins to consume their own custom option flags.
+
 Version 3.1.0 *(2016-07-27)*
 ----------------------------
 * Removed restrictions on the `@PrimaryKey` annotation so that columns of any type may be declared as the primary key for the table. SquiDB will stop generating the `ID` property as a rowid alias in a future version; as such the `getId()` and `setId()` methods in all `TableModel` subclasses are deprecated in favor of the more descriptively named `getRowId()` and `setRowId()`. See [this wiki page](https://github.com/yahoo/squidb/wiki/Primary-keys) for information on how to future-proof your existing model specs for this change.
