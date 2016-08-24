@@ -1,8 +1,13 @@
 Change Log
 ==========
 
+Version 3.1.2 *(2016-08-24)*
+----------------------------
+* Fix a bug introduced in version 3.1.1 where automatically generating the deprecated default ID property would cause a compilation error. This issue only affected users who have not yet updated their model specs as described in the 3.1.0 release notes.
+
 Version 3.1.1 *(2016-08-23)*
 ----------------------------
+* **Edit:** A bug with the deprecated default `INTEGER PRIMARY KEY` column existed in this version. Users should use 3.1.2 instead.
 * Further enhancements to the `INTEGER PRIMARY KEY` changes introduced in version 3.1.0. Any columns acting as an alias to the model rowid will now generate named getters and setters, which will delegate to `getRowId()/setRowId()` under the hood. This makes rowid alias columns easier to work with.
 * Enhance code generation plugins by allowing them to declare compile-time options that they consume using the `@SupportedOptions` annotation. This makes it easier for the code generator to warn about unused/mistyped options passed to SquiDB as well as allowing user-defined plugins to consume their own custom option flags.
 
