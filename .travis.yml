@@ -7,19 +7,13 @@ matrix:
     include:
         - os: linux
           language: android
-          env: ANDROID_TARGET=android-15 SQUIDB_BINDING=android
+          env: ANDROID_TARGET=android-15
         - os: linux
           language: android
-          env: ANDROID_TARGET=android-16 SQUIDB_BINDING=android
+          env: ANDROID_TARGET=android-16
         - os: linux
           language: android
-          env: ANDROID_TARGET=android-16 SQUIDB_BINDING=sqlite
-        - os: linux
-          language: android
-          env: ANDROID_TARGET=android-19 SQUIDB_BINDING=android
-        - os: linux
-          language: android
-          env: ANDROID_TARGET=android-19 SQUIDB_BINDING=sqlite
+          env: ANDROID_TARGET=android-19
         - os: osx
           osx_image: xcode7.3
           language: objective-c
