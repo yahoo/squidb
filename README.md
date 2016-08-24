@@ -24,10 +24,10 @@ repositories {
 apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.yahoo.squidb:squidb:3.1.1'
-    compile 'com.yahoo.squidb:squidb-annotations:3.1.1'
-    compile 'com.yahoo.squidb:squidb-android:3.1.1' // For Android projects only
-    apt 'com.yahoo.squidb:squidb-processor:3.1.1'
+    compile 'com.yahoo.squidb:squidb:3.1.2'
+    compile 'com.yahoo.squidb:squidb-annotations:3.1.2'
+    compile 'com.yahoo.squidb:squidb-android:3.1.2' // For Android projects only
+    apt 'com.yahoo.squidb:squidb-processor:3.1.2'
 }
 ```
 See [this wiki page](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency) for more detailed instructions on adding SquiDB as a dependency.
