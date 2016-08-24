@@ -184,7 +184,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         DEFAULT_ID_PROPERTY_NAME, utils) {
                     @Override
                     protected String getColumnDefinition() {
-                        return "PRIMARY KEY AUTOINCREMENT";
+                        return "\"PRIMARY KEY AUTOINCREMENT\"";
                     }
                 };
             }

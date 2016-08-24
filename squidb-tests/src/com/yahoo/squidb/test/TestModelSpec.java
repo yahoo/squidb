@@ -8,7 +8,6 @@ package com.yahoo.squidb.test;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
-import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.data.JSONPojo;
 import com.yahoo.squidb.json.annotations.JSONColumn;
@@ -41,10 +40,6 @@ public class TestModelSpec {
 
     @Deprecated
     public static final int DEPRECATED_CONST = -1;
-
-    @PrimaryKey
-    @ColumnSpec(name = "_id")
-    long id;
 
     @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
     String firstName;
