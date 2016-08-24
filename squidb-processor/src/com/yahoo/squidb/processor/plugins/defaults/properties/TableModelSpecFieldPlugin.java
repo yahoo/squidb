@@ -48,7 +48,6 @@ import javax.tools.Diagnostic.Kind;
  */
 public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
 
-    public static final String DEFAULT_ID_PROPERTY_NAME = "ID";
     public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
     private static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
     private static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
@@ -164,24 +163,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         if (modelSpec.hasMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR)) {
             rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
         } else {
-            if (shouldGenerateROWIDProperty()) {
-                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid",
-                        DEFAULT_ROWID_PROPERTY_NAME, utils);
-            } else {
-                utils.getMessager().printMessage(Kind.WARNING, "Model class " + modelSpec.getGeneratedClassName() +
-                        " is currently generating an integer primary key ID property to act as an alias to the table's "
-                        + "rowid. Future versions of SquiDB will remove this default property for the sake of better "
-                        + "support for arbitrary primary keys. If you are using the ID property, you should update "
-                        + "your model spec by explicitly declaring a field, named id with column name '_id' and "
-                        + "annotated with @PrimaryKey", modelSpec.getModelSpecElement());
-                rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "_id",
-                        DEFAULT_ID_PROPERTY_NAME, utils) {
-                    @Override
-                    protected String getColumnDefinition() {
-                        return "\"PRIMARY KEY AUTOINCREMENT\"";
-                    }
-                };
-            }
+            rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid",
+                    DEFAULT_ROWID_PROPERTY_NAME, utils);
             modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, rowidPropertyGenerator);
         }
         modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
@@ -199,13 +182,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                 }
             }
         }
-    }
-
-    private boolean shouldGenerateROWIDProperty() {
-        TableModelSpecWrapper tableModelSpec = (TableModelSpecWrapper) modelSpec;
-        return tableModelSpec.isVirtualTable() ||
-                tableModelSpec.hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY) ||
-                tableModelSpec.getSpecAnnotation().noRowIdAlias();
     }
 
     @Override
