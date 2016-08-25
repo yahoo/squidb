@@ -29,7 +29,8 @@ android:
     - sys-img-armeabi-v7a-android-16
     - android-19
     - sys-img-armeabi-v7a-android-19
-    - android-23
+    - android-24
+    - sys-img-armeabi-v7a-android-24
     - extra-android-m2repository
 
 before_script:
