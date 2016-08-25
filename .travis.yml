@@ -24,7 +24,8 @@ matrix:
 
 android:
   components:
-    - tools
+    - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+    - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
     - build-tools-24.0.2
     - android-15
     - sys-img-armeabi-v7a-android-15
