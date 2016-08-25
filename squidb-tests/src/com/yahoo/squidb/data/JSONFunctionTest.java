@@ -10,6 +10,7 @@ import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Thing;
+import com.yahoo.squidb.utility.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +23,18 @@ import java.util.Set;
 public class JSONFunctionTest extends DatabaseTestCase {
 
     private void testJsonFunction(Runnable toTest) {
-        testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
+        if (isJson1ExtensionEnabled()) {
+            testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
+        }
+    }
+
+    private boolean isJson1ExtensionEnabled() {
+        try {
+            return database.simpleQueryForLong(Query.select(JSONFunctions.jsonValid("{ \"a\" : \"b\" }"))) != 0;
+        } catch (RuntimeException e) {
+            Logger.d("JSONFunctionTest", "JSON1 extension not available", e);
+            return false;
+        }
     }
 
     public void testJson() {
