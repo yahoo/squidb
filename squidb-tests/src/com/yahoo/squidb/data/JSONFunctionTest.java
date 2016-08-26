@@ -11,6 +11,7 @@ import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Thing;
 import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.VersionCode;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +24,12 @@ import java.util.Set;
 public class JSONFunctionTest extends DatabaseTestCase {
 
     private void testJsonFunction(Runnable toTest) {
+        testJsonFunction(toTest, JSONFunctions.JSON1_MIN_VERSION);
+    }
+
+    private void testJsonFunction(Runnable toTest, VersionCode minVersionCode) {
         if (isJson1ExtensionEnabled()) {
-            testForMinVersionCode(JSONFunctions.JSON1_MIN_VERSION, toTest);
+            testForMinVersionCode(minVersionCode, toTest);
         }
     }
 
@@ -296,7 +301,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
     }
 
     public void testJsonGroupArray() {
-        testForMinVersionCode(JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION, new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Thing thing = new Thing();
@@ -318,11 +323,11 @@ public class JSONFunctionTest extends DatabaseTestCase {
                     fail("JSONException: " + e.getMessage());
                 }
             }
-        });
+        }, JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION);
     }
 
     public void testJsonGroupObject() {
-        testForMinVersionCode(JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION, new Runnable() {
+        testJsonFunction(new Runnable() {
             @Override
             public void run() {
                 Thing thing = new Thing();
@@ -343,6 +348,6 @@ public class JSONFunctionTest extends DatabaseTestCase {
                     fail("JSONException: " + e.getMessage());
                 }
             }
-        });
+        }, JSONFunctions.JSON1_GROUP_FUNCTIONS_VERSION);
     }
 }
