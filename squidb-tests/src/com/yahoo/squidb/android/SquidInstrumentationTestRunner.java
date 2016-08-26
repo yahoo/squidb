@@ -11,6 +11,7 @@ import android.test.InstrumentationTestRunner;
 
 import com.yahoo.squidb.android.SquidTestRunner.SquidbBinding;
 import com.yahoo.squidb.data.JSONPropertyTest;
+import com.yahoo.squidb.utility.Logger;
 
 public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
@@ -32,6 +33,7 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
     @Override
     public void onCreate(Bundle arguments) {
         String binding = DEFAULT_BINDING;
+        Logger.setLogger(new AndroidLogger());
         if (arguments != null) {
             binding = arguments.getString(KEY_SQUIDB_BINDING, binding);
         }
