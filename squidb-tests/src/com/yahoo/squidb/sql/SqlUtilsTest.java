@@ -67,6 +67,18 @@ public class SqlUtilsTest extends DatabaseTestCase {
         assertEquals("'ABC' || CAST(ZEROBLOB(1) AS TEXT)", SqlUtils.toSanitizedString("ABC\0"));
     }
 
+    public void testBlobLiterals() {
+        assertEquals("X''", SqlUtils.toSanitizedString(new byte[0]));
+        assertEquals("X'94'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x94}));
+        assertEquals("X'5daa'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x5d, (byte) 0xaa}));
+
+        assertEquals("X'08312f'", SqlUtils.toSanitizedString(
+                new byte[]{(byte) 0x08, (byte) 0x31, (byte) 0x2f}));
+
+        assertEquals("X'7be6cd4b'", SqlUtils.toSanitizedString(
+                new byte[]{(byte) 0x7b, (byte) 0xe6, (byte) 0xcd, (byte) 0x4b}));
+    }
+
     public void testDatabaseWriteWithNullCharactersWorks() {
         testBadString("Sam\0B", 5);
         testBadString("Sam\0\0B", 6);

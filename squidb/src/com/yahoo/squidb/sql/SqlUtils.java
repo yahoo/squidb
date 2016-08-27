@@ -67,9 +67,32 @@ public class SqlUtils {
             return Long.toString(((Number) value).longValue());
         } else if (value instanceof Boolean) {
             return ((Boolean) value) ? "1" : "0";
+        } else if (value instanceof byte[]) {
+            return byteArrayToBlobLiteral((byte[]) value);
         } else {
             return sanitizeStringAsLiteral(String.valueOf(value));
         }
+    }
+
+    private static final char[] hexChars =
+            {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    static String byteArrayToBlobLiteral(byte[] blob) {
+        if (blob.length == 0) {
+            return "X''"; // Empty blob
+        }
+        StringBuilder result = new StringBuilder("X'");
+        char[] resultChars = new char[blob.length * 2];
+        for (int i = 0; i < blob.length; i++) {
+            byte b = blob[i];
+            int byteAsInt = b & 0xff;
+            int upperBytes = byteAsInt >>> 4;
+            int lowerByes = byteAsInt & 0x0f;
+            resultChars[i * 2] = hexChars[upperBytes];
+            resultChars[i * 2 + 1] = hexChars[lowerByes];
+        }
+        result.append(new String(resultChars)).append("'");
+        return result.toString();
     }
 
     /**
