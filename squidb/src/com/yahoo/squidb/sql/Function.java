@@ -61,17 +61,27 @@ public abstract class Function<TYPE> extends Field<TYPE> {
     }
 
     /**
-     * Return the expression for the function as it would be compiled for the given SQLite version
+     * @return the expression for the function as it would be compiled for the given SQLite version and default
+     * CompileContext. Deprecated in favor of {@link #getExpression(CompileContext)}
+     * @see #getExpression(CompileContext)
      */
+    @Deprecated
     public String getExpression(VersionCode forSqliteVersion) {
-        SqlBuilder builder = new SqlBuilder(forSqliteVersion, false);
+        return getExpression(new CompileContext(forSqliteVersion));
+    }
+
+    /**
+     * @return the expression for the function as it would be compiled with the given CompileContext
+     */
+    public String getExpression(CompileContext forCompileContext) {
+        SqlBuilder builder = new SqlBuilder(forCompileContext, false);
         appendQualifiedExpression(builder, false);
         return builder.getSqlString();
     }
 
     @Override
     protected String expressionForComparison() {
-        return getExpression(VersionCode.LATEST);
+        return getExpression(new CompileContext(VersionCode.LATEST));
     }
 
     /**

@@ -16,14 +16,20 @@ public final class SqlBuilder {
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
     public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+    public final CompileContext compileContext;
+
+    @Deprecated
+    /**
+     * Users should extract this value from {@link #compileContext}.getVersionCode() instead
+     */
     public final VersionCode sqliteVersion;
     final List<Object> args;
-    final ArgumentResolver argumentResolver = new DefaultArgumentResolver(); // TODO: Make this settable by user
 
     private boolean needsValidation = false;
 
-    SqlBuilder(VersionCode sqliteVersion, boolean withBoundArguments) {
-        this.sqliteVersion = sqliteVersion;
+    SqlBuilder(CompileContext compileContext, boolean withBoundArguments) {
+        this.compileContext = compileContext;
+        this.sqliteVersion = compileContext.getVersionCode();
         this.args = withBoundArguments ? new ArrayList<>() : null;
     }
 
@@ -82,7 +88,7 @@ public final class SqlBuilder {
         } else if (value instanceof Collection<?>) {
             addCollectionArg((Collection<?>) value);
         } else if (args == null) {
-            sql.append(SqlUtils.toSanitizedString(value, argumentResolver));
+            sql.append(SqlUtils.toSanitizedString(value, compileContext.getArgumentResolver()));
         } else {
             if (value != null) {
                 sql.append(SqlStatement.REPLACEABLE_PARAMETER);
@@ -96,7 +102,7 @@ public final class SqlBuilder {
     void addCollectionArg(Collection<?> value) {
         if (value != null) {
             if (args == null) {
-                SqlUtils.addInlineCollectionToSqlString(sql, argumentResolver, value);
+                SqlUtils.addInlineCollectionToSqlString(sql, compileContext.getArgumentResolver(), value);
             } else {
                 sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
                 args.add(value);

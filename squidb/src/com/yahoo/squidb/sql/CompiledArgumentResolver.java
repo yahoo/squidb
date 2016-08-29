@@ -22,7 +22,7 @@ class CompiledArgumentResolver {
 
     private final String compiledSql;
     private final List<Object> sqlArgs;
-    private final ArgumentResolver argumentResolver;
+    private final CompileContext compileContext;
     private final boolean needsValidation;
 
     private List<Collection<?>> collectionArgs;
@@ -36,7 +36,7 @@ class CompiledArgumentResolver {
     public CompiledArgumentResolver(SqlBuilder builder) {
         this.compiledSql = builder.getSqlString();
         this.sqlArgs = builder.getBoundArguments();
-        this.argumentResolver = builder.argumentResolver;
+        this.compileContext = builder.compileContext;
         this.needsValidation = builder.needsValidation();
         if (compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER)) {
             collectionArgs = new ArrayList<>();
@@ -93,7 +93,7 @@ class CompiledArgumentResolver {
                 result.append(compiledSql.substring(lastStringIndex, m.start()));
                 Collection<?> values = collectionArgs.get(index);
                 if (largeArgMode) {
-                    SqlUtils.addInlineCollectionToSqlString(result, argumentResolver, values);
+                    SqlUtils.addInlineCollectionToSqlString(result, compileContext.getArgumentResolver(), values);
                 } else {
                     appendCollectionVariableStringForSize(result, values.size());
                 }
@@ -152,7 +152,7 @@ class CompiledArgumentResolver {
         // TODO: Optimize by caching this result? Or is this a bad place for this to happen, as it doubles the memory used for the args array?
         Object[] result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            result[i] = argumentResolver.resolveArgument(args[i]);
+            result[i] = compileContext.getArgumentResolver().resolveArgument(args[i]);
         }
         return result;
     }

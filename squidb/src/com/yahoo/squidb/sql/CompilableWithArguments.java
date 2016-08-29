@@ -11,16 +11,27 @@ abstract class CompilableWithArguments {
 
     @Override
     public String toString() {
-        return toRawSql(VersionCode.LATEST);
+        return toRawSql(new CompileContext(VersionCode.LATEST));
     }
 
+    @Deprecated
     public final String toRawSql(VersionCode sqliteVersion) {
-        return buildSql(sqliteVersion, false, false).getSqlString();
+        return buildSql(new CompileContext(sqliteVersion), false, false).getSqlString();
     }
 
+    public final String toRawSql(CompileContext compileContext) {
+        return buildSql(compileContext, false, false).getSqlString();
+    }
+
+    @Deprecated
     protected final SqlBuilder buildSql(VersionCode sqliteVersion, boolean withBoundArguments,
             boolean forSqlValidation) {
-        SqlBuilder builder = new SqlBuilder(sqliteVersion, withBoundArguments);
+        return buildSql(new CompileContext(sqliteVersion), withBoundArguments, forSqlValidation);
+    }
+
+    protected final SqlBuilder buildSql(CompileContext compileContext, boolean withBoundArguments,
+            boolean forSqlValidation) {
+        SqlBuilder builder = new SqlBuilder(compileContext, withBoundArguments);
         appendToSqlBuilder(builder, forSqlValidation);
         return builder;
     }

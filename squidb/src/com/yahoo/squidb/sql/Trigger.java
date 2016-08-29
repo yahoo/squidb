@@ -281,9 +281,14 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     }
 
     @Override
+    @Deprecated
     public CompiledStatement compile(VersionCode sqliteVersion) {
+        return compile(new CompileContext(sqliteVersion));
+    }
+
+    public CompiledStatement compile(CompileContext compileContext) {
         // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-        return new CompiledStatement(toRawSql(sqliteVersion), EMPTY_ARGS, false);
+        return new CompiledStatement(toRawSql(compileContext), EMPTY_ARGS, false);
     }
 
     @Override
@@ -350,7 +355,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         builder.sql.append("BEGIN ");
         for (int i = 0; i < statements.size(); i++) {
             // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
-            builder.sql.append(statements.get(i).toRawSql(builder.sqliteVersion)).append("; ");
+            builder.sql.append(statements.get(i).toRawSql(builder.compileContext)).append("; ");
         }
         builder.sql.append("END");
     }
