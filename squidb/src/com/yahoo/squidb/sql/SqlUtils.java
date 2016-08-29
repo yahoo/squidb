@@ -6,8 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SqlUtils {
 
@@ -24,30 +22,10 @@ public class SqlUtils {
                 (a != null && b != null && a.length() == b.length() && a.equals(b));
     }
 
-    public static Object resolveArgReferences(Object arg) {
-        boolean resolved = false;
-        while (!resolved) {
-            if (arg instanceof AtomicReference) {
-                arg = ((AtomicReference<?>) arg).get();
-            } else if (arg instanceof AtomicBoolean) { // Not a subclass of Number so DatabaseUtils won't handle it
-                arg = ((AtomicBoolean) arg).get() ? 1 : 0;
-                resolved = true;
-            } else if (arg instanceof Enum<?>) {
-                arg = ((Enum<?>) arg).name();
-                resolved = true;
-            } else if (arg instanceof ThreadLocal) {
-                arg = ((ThreadLocal<?>) arg).get();
-            } else {
-                resolved = true;
-            }
-        }
-        return arg;
-    }
-
-    static void addInlineCollectionToSqlString(StringBuilder sql, Collection<?> values) {
+    static void addInlineCollectionToSqlString(StringBuilder sql, ArgumentResolver argResolver, Collection<?> values) {
         if (values != null && !values.isEmpty()) {
-            for (Object t : values) {
-                sql.append(toSanitizedString(t));
+            for (Object value : values) {
+                sql.append(toSanitizedString(value, argResolver));
                 sql.append(",");
             }
             sql.deleteCharAt(sql.length() - 1);
@@ -57,8 +35,8 @@ public class SqlUtils {
     /**
      * Convert an arbitrary object to a string. If the object itself is a {@link String}, it will be sanitized.
      */
-    static String toSanitizedString(Object value) {
-        value = resolveArgReferences(value);
+    static String toSanitizedString(Object value, ArgumentResolver argResolver) {
+        value = argResolver.resolveArgument(value);
         if (value == null) {
             return "NULL";
         } else if (value instanceof Double || value instanceof Float) {

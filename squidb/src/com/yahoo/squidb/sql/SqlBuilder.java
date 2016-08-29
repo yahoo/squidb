@@ -18,6 +18,8 @@ public final class SqlBuilder {
     public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
     public final VersionCode sqliteVersion;
     final List<Object> args;
+    final ArgumentResolver argumentResolver = new DefaultArgumentResolver(); // TODO: Make this settable by user
+
     private boolean needsValidation = false;
 
     SqlBuilder(VersionCode sqliteVersion, boolean withBoundArguments) {
@@ -80,7 +82,7 @@ public final class SqlBuilder {
         } else if (value instanceof Collection<?>) {
             addCollectionArg((Collection<?>) value);
         } else if (args == null) {
-            sql.append(SqlUtils.toSanitizedString(value));
+            sql.append(SqlUtils.toSanitizedString(value, argumentResolver));
         } else {
             if (value != null) {
                 sql.append(SqlStatement.REPLACEABLE_PARAMETER);
@@ -94,7 +96,7 @@ public final class SqlBuilder {
     void addCollectionArg(Collection<?> value) {
         if (value != null) {
             if (args == null) {
-                SqlUtils.addInlineCollectionToSqlString(sql, value);
+                SqlUtils.addInlineCollectionToSqlString(sql, argumentResolver, value);
             } else {
                 sql.append(SqlStatement.REPLACEABLE_ARRAY_PARAMETER);
                 args.add(value);

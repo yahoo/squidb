@@ -22,6 +22,7 @@ class CompiledArgumentResolver {
 
     private final String compiledSql;
     private final List<Object> sqlArgs;
+    private final ArgumentResolver argumentResolver;
     private final boolean needsValidation;
 
     private List<Collection<?>> collectionArgs;
@@ -35,6 +36,7 @@ class CompiledArgumentResolver {
     public CompiledArgumentResolver(SqlBuilder builder) {
         this.compiledSql = builder.getSqlString();
         this.sqlArgs = builder.getBoundArguments();
+        this.argumentResolver = builder.argumentResolver;
         this.needsValidation = builder.needsValidation();
         if (compiledSql.contains(SqlStatement.REPLACEABLE_ARRAY_PARAMETER)) {
             collectionArgs = new ArrayList<>();
@@ -91,7 +93,7 @@ class CompiledArgumentResolver {
                 result.append(compiledSql.substring(lastStringIndex, m.start()));
                 Collection<?> values = collectionArgs.get(index);
                 if (largeArgMode) {
-                    SqlUtils.addInlineCollectionToSqlString(result, values);
+                    SqlUtils.addInlineCollectionToSqlString(result, argumentResolver, values);
                 } else {
                     appendCollectionVariableStringForSize(result, values.size());
                 }
