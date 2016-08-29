@@ -54,7 +54,7 @@ public class UpdateTest extends DatabaseTestCase {
             @Override
             public void run() {
                 Update update = Update.table(TestModel.TABLE).where(TestModel.IS_HAPPY.isTrue());
-                update.compile(database.getSqliteVersion());
+                update.compile(database.getCompileContext());
             }
         }, IllegalStateException.class);
     }
@@ -83,7 +83,7 @@ public class UpdateTest extends DatabaseTestCase {
         // update testModels set luckyNumber = 99
         Update update = Update.table(TestModel.TABLE).set(new Property<?>[]{TestModel.LUCKY_NUMBER},
                 new Integer[]{newLuckyNumber});
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 1, newLuckyNumber);
 
@@ -103,7 +103,7 @@ public class UpdateTest extends DatabaseTestCase {
         // update testModels set luckyNumber = 777 where luckyNumber <= 0;
         int luckyNumber = 777;
         Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, luckyNumber).where(criterion);
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 2, luckyNumber, 0);
 
@@ -124,7 +124,7 @@ public class UpdateTest extends DatabaseTestCase {
         // update testModels set luckyNumber = 777 where luckyNumber <= 0;
         TestModel template = new TestModel().setLuckyNumber(777);
         Update update = Update.table(TestModel.TABLE).fromTemplate(template).where(criterion);
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 2, template.getLuckyNumber(), 0);
 
@@ -152,7 +152,7 @@ public class UpdateTest extends DatabaseTestCase {
         // update or ignore testModels set lastName = 'Bosley' where firstName = 'Kevin'
         Update update = Update.table(TestModel.TABLE).onConflict(ConflictAlgorithm.IGNORE).set(TestModel.LAST_NAME,
                 samLastName).where(TestModel.FIRST_NAME.eq(kevinFirstName));
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
@@ -193,7 +193,7 @@ public class UpdateTest extends DatabaseTestCase {
         // update or replace testModels set lastName = 'Bosley' where firstName = 'Kevin'
         Update update = Update.table(TestModel.TABLE).onConflict(ConflictAlgorithm.REPLACE).set(TestModel.LAST_NAME,
                 samLastName).where(TestModel.FIRST_NAME.eq(kevinFirstName));
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 2, samLastName, kevinFirstName);
 
@@ -228,7 +228,7 @@ public class UpdateTest extends DatabaseTestCase {
 
         Field<Integer> luckyPlusPlus = Field.field(TestModel.LUCKY_NUMBER.getExpression() + " + 1");
         Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, luckyPlusPlus);
-        CompiledStatement compiled = update.compile(database.getSqliteVersion());
+        CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 0);
 

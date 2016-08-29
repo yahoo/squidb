@@ -19,11 +19,51 @@ import java.util.Map;
 public class CompileContext {
 
     private final VersionCode versionCode;
-    private ArgumentResolver argumentResolver = new DefaultArgumentResolver();
-    private final Map<String, Object> extras = new HashMap<>();
+    private final ArgumentResolver argumentResolver;
+    private final Map<String, Object> extras;
 
-    public CompileContext(VersionCode versionCode) {
-        this.versionCode = versionCode;
+    public static class Builder {
+
+        private VersionCode versionCode;
+        private ArgumentResolver argumentResolver = new DefaultArgumentResolver();
+        private Map<String, Object> extras = new HashMap<>();
+
+        public Builder(VersionCode versionCode) {
+            if (versionCode == null) {
+                throw new IllegalArgumentException("Can't construct a CompileContext with a null VersionCode");
+            }
+            this.versionCode = versionCode;
+        }
+
+        public CompileContext build() {
+            return new CompileContext(this);
+        }
+
+        public Builder setArgumentResolver(ArgumentResolver argumentResolver) {
+            this.argumentResolver = argumentResolver;
+            return this;
+        }
+
+        public Builder setExtra(String key, Object value) {
+            this.extras.put(key, value);
+            return this;
+        }
+
+        public Builder clearExtra(String key) {
+            this.extras.remove(key);
+            return this;
+        }
+
+    }
+
+    private CompileContext(Builder builder) {
+        this.versionCode = builder.versionCode;
+        this.argumentResolver = builder.argumentResolver;
+        this.extras = new HashMap<>(builder.extras);
+    }
+
+    public static CompileContext defaultContextForVersionCode(VersionCode sqliteVersion) {
+        return new CompileContext.Builder(sqliteVersion).build();
     }
 
     /**
@@ -38,17 +78,6 @@ public class CompileContext {
      */
     public ArgumentResolver getArgumentResolver() {
         return argumentResolver;
-    }
-
-    /**
-     * @param argumentResolver new argument resolver to use. Attempting to pass null is a no-op.
-     * @return this CompileContext, to chain builder-style calls
-     */
-    public CompileContext setArgumentResolver(ArgumentResolver argumentResolver) {
-        if (argumentResolver != null) {
-            this.argumentResolver = argumentResolver;
-        }
-        return this;
     }
 
     /**

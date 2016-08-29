@@ -144,12 +144,12 @@ public class PropertyTest extends DatabaseTestCase {
         expectedSql.append(" FROM ");
         if (tableOrView instanceof SubqueryTable) {
             expectedSql.append("(");
-            String compiledSql = ((SubqueryTable) tableOrView).query.compile(database.getSqliteVersion()).sql;
+            String compiledSql = ((SubqueryTable) tableOrView).query.compile(database.getCompileContext()).sql;
             expectedSql.append(compiledSql).append(") AS testModelAlias");
         } else {
             expectedSql.append(tableOrView.getName()).append(" AS testModelAlias");
         }
-        assertEquals(expectedSql.toString(), query.compile(database.getSqliteVersion()).sql);
+        assertEquals(expectedSql.toString(), query.compile(database.getCompileContext()).sql);
         SquidCursor<?> cursor = database.query(modelClass, query); // Test that this is valid SQL
         try {
             assertEquals(0, cursor.getCount());

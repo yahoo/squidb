@@ -11,12 +11,12 @@ abstract class CompilableWithArguments {
 
     @Override
     public String toString() {
-        return toRawSql(new CompileContext(VersionCode.LATEST));
+        return toRawSql(CompileContext.defaultContextForVersionCode(VersionCode.LATEST));
     }
 
     @Deprecated
     public final String toRawSql(VersionCode sqliteVersion) {
-        return buildSql(new CompileContext(sqliteVersion), false, false).getSqlString();
+        return buildSql(CompileContext.defaultContextForVersionCode(sqliteVersion), false, false).getSqlString();
     }
 
     public final String toRawSql(CompileContext compileContext) {
@@ -26,7 +26,8 @@ abstract class CompilableWithArguments {
     @Deprecated
     protected final SqlBuilder buildSql(VersionCode sqliteVersion, boolean withBoundArguments,
             boolean forSqlValidation) {
-        return buildSql(new CompileContext(sqliteVersion), withBoundArguments, forSqlValidation);
+        return buildSql(CompileContext.defaultContextForVersionCode(sqliteVersion), withBoundArguments,
+                forSqlValidation);
     }
 
     protected final SqlBuilder buildSql(CompileContext compileContext, boolean withBoundArguments,

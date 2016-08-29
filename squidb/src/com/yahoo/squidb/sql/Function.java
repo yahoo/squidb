@@ -67,7 +67,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
      */
     @Deprecated
     public String getExpression(VersionCode forSqliteVersion) {
-        return getExpression(new CompileContext(forSqliteVersion));
+        return getExpression(CompileContext.defaultContextForVersionCode(forSqliteVersion));
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
 
     @Override
     protected String expressionForComparison() {
-        return getExpression(new CompileContext(VersionCode.LATEST));
+        return getExpression(CompileContext.defaultContextForVersionCode(VersionCode.LATEST));
     }
 
     /**

@@ -54,7 +54,7 @@ public abstract class TableStatement extends CompilableWithArguments implements 
     @Override
     @Deprecated
     public final synchronized CompiledStatement compile(VersionCode sqliteVersion) {
-        return compile(new CompileContext(sqliteVersion));
+        return compile(CompileContext.defaultContextForVersionCode(sqliteVersion));
     }
 
     @Override
@@ -71,7 +71,7 @@ public abstract class TableStatement extends CompilableWithArguments implements 
      */
     @Deprecated
     public final String sqlForValidation(VersionCode sqliteVersion) {
-        return sqlForValidation(new CompileContext(sqliteVersion));
+        return sqlForValidation(CompileContext.defaultContextForVersionCode(sqliteVersion));
     }
 
     public final String sqlForValidation(CompileContext compileContext) {

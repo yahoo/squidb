@@ -283,7 +283,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     @Override
     @Deprecated
     public CompiledStatement compile(VersionCode sqliteVersion) {
-        return compile(new CompileContext(sqliteVersion));
+        return compile(CompileContext.defaultContextForVersionCode(sqliteVersion));
     }
 
     public CompiledStatement compile(CompileContext compileContext) {
