@@ -103,11 +103,7 @@ public abstract class DataChangedNotifier<T> {
     // Called by SquidDatabase for each data change
     final boolean onDataChanged(SqlTable<?> table, SquidDatabase database, DBOperation operation,
             AbstractModel modelValues, long rowId) {
-        if (!enabled) {
-            return false;
-        }
-
-        return accumulateNotificationObjects(notifyObjectAccumulator.get(), table, database, operation,
+        return enabled && accumulateNotificationObjects(notifyObjectAccumulator.get(), table, database, operation,
                 modelValues, rowId);
     }
 

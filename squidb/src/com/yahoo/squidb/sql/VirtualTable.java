@@ -72,14 +72,14 @@ public class VirtualTable extends Table {
     }
 
     /**
-     * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users normally should not
+     * Append a CREATE VIRTUAL TABLE statement that would create this table and its columns. Users should not
      * call this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
     @Override
-    public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
+    public void appendCreateTableSql(CompileContext compileContext, StringBuilder sql,
             PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE ");
-        if (sqliteVersion != null && sqliteVersion.isAtLeast(VersionCode.V3_7_11)) {
+        if (compileContext != null && compileContext.getVersionCode().isAtLeast(VersionCode.V3_7_11)) {
             sql.append("IF NOT EXISTS ");
         }
         sql.append(getExpression()).append(" USING ").append(moduleName).append('(');

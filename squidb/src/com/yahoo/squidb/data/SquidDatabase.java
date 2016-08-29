@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.Beta;
+import com.yahoo.squidb.sql.CompileContext;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
@@ -1057,7 +1058,7 @@ public abstract class SquidDatabase {
             Table[] tables = getTables();
             if (tables != null) {
                 for (Table table : tables) {
-                    table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
+                    table.appendCreateTableSql(getDefaultCompileContext(getSqliteVersion()), sql, sqlVisitor);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1066,7 +1067,7 @@ public abstract class SquidDatabase {
             View[] views = getViews();
             if (views != null) {
                 for (View view : views) {
-                    view.createViewSql(getSqliteVersion(), sql);
+                    view.createViewSql(getDefaultCompileContext(getSqliteVersion()), sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1201,7 +1202,7 @@ public abstract class SquidDatabase {
     protected boolean tryCreateTable(Table table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
+        table.appendCreateTableSql(getDefaultCompileContext(getSqliteVersion()), sql, sqlVisitor);
         return tryExecSql(sql.toString());
     }
 
@@ -1225,7 +1226,7 @@ public abstract class SquidDatabase {
      */
     public boolean tryCreateView(View view) {
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        view.createViewSql(getSqliteVersion(), sql);
+        view.createViewSql(getDefaultCompileContext(getSqliteVersion()), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1404,6 +1405,11 @@ public abstract class SquidDatabase {
             }
         }
         return toReturn;
+    }
+
+    // TODO: Document and finalize this API
+    private CompileContext getDefaultCompileContext(VersionCode sqliteVersion) {
+        return new CompileContext(sqliteVersion);
     }
 
     /**

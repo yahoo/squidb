@@ -66,13 +66,12 @@ public abstract class TableStatement extends CompilableWithArguments implements 
         return compiledArgumentResolver.resolveToCompiledStatement();
     }
 
-    @Deprecated
     /**
      * Deprecated, use {@link #sqlForValidation(CompileContext)} instead
      */
+    @Deprecated
     public final String sqlForValidation(VersionCode sqliteVersion) {
-        SqlBuilder builder = buildSql(sqliteVersion, true, true);
-        return new CompiledArgumentResolver(builder).resolveToCompiledStatement().sql;
+        return sqlForValidation(new CompileContext(sqliteVersion));
     }
 
     public final String sqlForValidation(CompileContext compileContext) {

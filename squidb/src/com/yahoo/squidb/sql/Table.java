@@ -8,7 +8,6 @@ package com.yahoo.squidb.sql;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
-import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A standard SQLite table.
@@ -93,10 +92,10 @@ public class Table extends SqlTable<TableModel> {
     }
 
     /**
-     * Append a CREATE TABLE statement that would create this table and its columns. Users normally should not call
+     * Append a CREATE TABLE statement that would create this table and its columns. Users should not call
      * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
-    public void appendCreateTableSql(VersionCode sqliteVersion, StringBuilder sql,
+    public void appendCreateTableSql(CompileContext compileContext, StringBuilder sql,
             PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
         boolean needsComma = false;

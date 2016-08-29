@@ -22,10 +22,10 @@ public class SqlUtils {
                 (a != null && b != null && a.length() == b.length() && a.equals(b));
     }
 
-    @Deprecated
     /**
      * Use an instance of ArgumentResolver instead, perhaps {@link DefaultArgumentResolver}
      */
+    @Deprecated
     public static Object resolveArgReferences(Object arg) {
         return new DefaultArgumentResolver().resolveArgument(arg);
     }
