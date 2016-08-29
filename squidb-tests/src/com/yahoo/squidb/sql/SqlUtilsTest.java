@@ -47,36 +47,42 @@ public class SqlUtilsTest extends DatabaseTestCase {
     }
 
     public void testSanitizeString() {
-        assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's"));
-        assertEquals("CAST(ZEROBLOB(1) AS TEXT)", SqlUtils.toSanitizedString("\0"));
-        assertEquals("CAST(ZEROBLOB(2) AS TEXT)", SqlUtils.toSanitizedString("\0\0"));
-        assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0ABC"));
-        assertEquals("CAST(ZEROBLOB(2) AS TEXT) || 'ABC'", SqlUtils.toSanitizedString("\0\0ABC"));
+        ArgumentResolver defaultArgumentResolver = new DefaultArgumentResolver();
+        assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's", defaultArgumentResolver));
+        assertEquals("CAST(ZEROBLOB(1) AS TEXT)", SqlUtils.toSanitizedString("\0", defaultArgumentResolver));
+        assertEquals("CAST(ZEROBLOB(2) AS TEXT)", SqlUtils.toSanitizedString("\0\0", defaultArgumentResolver));
+        assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'ABC'",
+                SqlUtils.toSanitizedString("\0ABC", defaultArgumentResolver));
+        assertEquals("CAST(ZEROBLOB(2) AS TEXT) || 'ABC'",
+                SqlUtils.toSanitizedString("\0\0ABC", defaultArgumentResolver));
         assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'A' || CAST(ZEROBLOB(1) AS TEXT) || 'B''C'",
-                SqlUtils.toSanitizedString("\0A\0B'C"));
+                SqlUtils.toSanitizedString("\0A\0B'C", defaultArgumentResolver));
         assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'ABC' || CAST(ZEROBLOB(1) AS TEXT)",
-                SqlUtils.toSanitizedString("\0ABC\0"));
+                SqlUtils.toSanitizedString("\0ABC\0", defaultArgumentResolver));
         assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'ABC' || CAST(ZEROBLOB(2) AS TEXT)",
-                SqlUtils.toSanitizedString("\0ABC\0\0"));
+                SqlUtils.toSanitizedString("\0ABC\0\0", defaultArgumentResolver));
         assertEquals("'A' || CAST(ZEROBLOB(1) AS TEXT) || 'BC' || CAST(ZEROBLOB(1) AS TEXT)",
-                SqlUtils.toSanitizedString("A\0BC\0"));
+                SqlUtils.toSanitizedString("A\0BC\0", defaultArgumentResolver));
         assertEquals("'A' || CAST(ZEROBLOB(2) AS TEXT) || 'BC' || CAST(ZEROBLOB(1) AS TEXT)",
-                SqlUtils.toSanitizedString("A\0\0BC\0"));
+                SqlUtils.toSanitizedString("A\0\0BC\0", defaultArgumentResolver));
         assertEquals("'A' || CAST(ZEROBLOB(1) AS TEXT) || 'B' || CAST(ZEROBLOB(1) AS TEXT) || 'C'",
-                SqlUtils.toSanitizedString("A\0B\0C"));
-        assertEquals("'ABC' || CAST(ZEROBLOB(1) AS TEXT)", SqlUtils.toSanitizedString("ABC\0"));
+                SqlUtils.toSanitizedString("A\0B\0C", defaultArgumentResolver));
+        assertEquals("'ABC' || CAST(ZEROBLOB(1) AS TEXT)",
+                SqlUtils.toSanitizedString("ABC\0", defaultArgumentResolver));
     }
 
     public void testBlobLiterals() {
-        assertEquals("X''", SqlUtils.toSanitizedString(new byte[0]));
-        assertEquals("X'94'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x94}));
-        assertEquals("X'5daa'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x5d, (byte) 0xaa}));
+        ArgumentResolver defaultArgumentResolver = new DefaultArgumentResolver();
+        assertEquals("X''", SqlUtils.toSanitizedString(new byte[0], defaultArgumentResolver));
+        assertEquals("X'94'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x94}, defaultArgumentResolver));
+        assertEquals("X'5daa'", SqlUtils.toSanitizedString(new byte[]{(byte) 0x5d, (byte) 0xaa},
+                defaultArgumentResolver));
 
         assertEquals("X'08312f'", SqlUtils.toSanitizedString(
-                new byte[]{(byte) 0x08, (byte) 0x31, (byte) 0x2f}));
+                new byte[]{(byte) 0x08, (byte) 0x31, (byte) 0x2f}, defaultArgumentResolver));
 
         assertEquals("X'7be6cd4b'", SqlUtils.toSanitizedString(
-                new byte[]{(byte) 0x7b, (byte) 0xe6, (byte) 0xcd, (byte) 0x4b}));
+                new byte[]{(byte) 0x7b, (byte) 0xe6, (byte) 0xcd, (byte) 0x4b}, defaultArgumentResolver));
     }
 
     public void testDatabaseWriteWithNullCharactersWorks() {

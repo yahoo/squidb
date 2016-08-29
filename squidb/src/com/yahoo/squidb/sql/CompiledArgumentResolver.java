@@ -145,7 +145,16 @@ class CompiledArgumentResolver {
                 compiledArgs = sqlArgs.toArray(new Object[sqlArgs.size()]);
             }
         }
-        return compiledArgs;
+        return applyArgumentResolver(compiledArgs);
+    }
+
+    private Object[] applyArgumentResolver(Object[] args) {
+        // TODO: Optimize by caching this result? Or is this a bad place for this to happen, as it doubles the memory used for the args array?
+        Object[] result = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            result[i] = argumentResolver.resolveArgument(args[i]);
+        }
+        return result;
     }
 
     private int calculateArgsSizeWithCollectionArgs() {

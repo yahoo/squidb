@@ -12,7 +12,6 @@ import com.yahoo.android.sqlite.SQLiteDatabase;
 import com.yahoo.android.sqlite.SQLiteProgram;
 import com.yahoo.android.sqlite.SQLiteQuery;
 import com.yahoo.squidb.data.ICursor;
-import com.yahoo.squidb.sql.SqlUtils;
 
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
@@ -39,8 +38,7 @@ public class SquidCursorFactory implements SQLiteDatabase.CursorFactory {
             return;
         }
         for (int i = 1; i <= sqlArgs.length; i++) {
-            Object arg = SqlUtils.resolveArgReferences(sqlArgs[i - 1]);
-            DatabaseUtils.bindObjectToProgram(program, i, arg);
+            DatabaseUtils.bindObjectToProgram(program, i, sqlArgs[i - 1]);
         }
     }
 }

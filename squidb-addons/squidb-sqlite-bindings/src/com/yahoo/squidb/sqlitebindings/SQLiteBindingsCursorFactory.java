@@ -7,8 +7,6 @@ package com.yahoo.squidb.sqlitebindings;
 
 import android.database.Cursor;
 
-import com.yahoo.squidb.sql.SqlUtils;
-
 import org.sqlite.database.sqlite.SQLiteCursor;
 import org.sqlite.database.sqlite.SQLiteCursorDriver;
 import org.sqlite.database.sqlite.SQLiteDatabase;
@@ -41,8 +39,7 @@ public class SQLiteBindingsCursorFactory implements CursorFactory {
             return;
         }
         for (int i = 1; i <= sqlArgs.length; i++) {
-            Object arg = SqlUtils.resolveArgReferences(sqlArgs[i - 1]);
-            bindObjectToProgram(program, i, arg);
+            bindObjectToProgram(program, i, sqlArgs[i - 1]);
         }
     }
 
