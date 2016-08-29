@@ -22,6 +22,9 @@ public class DefaultArgumentResolver implements ArgumentResolver {
             } else if (arg instanceof AtomicBoolean) { // Not a subclass of Number so we need to unwrap it
                 arg = ((AtomicBoolean) arg).get() ? 1 : 0;
                 resolved = true;
+            } else if (arg instanceof Enum<?>) {
+                arg = ((Enum<?>) arg).name();
+                resolved = true;
             } else if (arg instanceof ThreadLocal) {
                 arg = ((ThreadLocal<?>) arg).get();
             } else {
