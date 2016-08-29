@@ -50,7 +50,11 @@ public abstract class TableStatement extends CompilableWithArguments implements 
     }
 
     private CompiledArgumentResolver compiledArgumentResolver = null;
+    private CompileContext compileContext = null;
 
+    /**
+     * Deprecated, use {@link #compile(CompileContext)} instead
+     */
     @Override
     @Deprecated
     public final synchronized CompiledStatement compile(VersionCode sqliteVersion) {
@@ -59,8 +63,9 @@ public abstract class TableStatement extends CompilableWithArguments implements 
 
     @Override
     public final synchronized CompiledStatement compile(CompileContext compileContext) {
+        CompileContext contextToUse = this.compileContext != null ? this.compileContext : compileContext;
         if (compiledArgumentResolver == null) {
-            SqlBuilder builder = buildSql(compileContext, true, false);
+            SqlBuilder builder = buildSql(contextToUse, true, false);
             compiledArgumentResolver = new CompiledArgumentResolver(builder);
         }
         return compiledArgumentResolver.resolveToCompiledStatement();
@@ -77,6 +82,15 @@ public abstract class TableStatement extends CompilableWithArguments implements 
     public final String sqlForValidation(CompileContext compileContext) {
         SqlBuilder builder = buildSql(compileContext, true, true);
         return new CompiledArgumentResolver(builder).resolveToCompiledStatement().sql;
+    }
+
+    /**
+     * Sets the {@link CompileContext} to be used when compiling this statement. If set, this value supersedes that
+     * provided by the {@link #compile(CompileContext)} method.
+     */
+    public void setCompileContext(CompileContext compileContext) {
+        this.compileContext = compileContext;
+        invalidateCompileCache();
     }
 
     public abstract SqlTable<?> getTable();
