@@ -174,10 +174,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         if (isDeprecated) {
             return;
         }
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName(getterMethodName())
-                .setModifiers(Modifier.PUBLIC)
-                .setReturnType(getTypeForAccessors());
+        MethodDeclarationParameters params = getterMethodParams();
 
         modelSpec.getPluginBundle().beforeEmitGetter(writer, this, params);
         writer.beginMethodDefinition(params);
@@ -189,6 +186,26 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     @Override
     public String getterMethodName() {
         return "get" + StringUtils.capitalize(camelCasePropertyName);
+    }
+
+    /**
+     * Constructs and returns a MethodDeclarationParameters object that defines the method signature for the property
+     * getter method. Subclasses can override this hook to alter or return different parameters. Some contracts that
+     * should be observed when overriding this hook and creating the MethodDeclarationParameters object:
+     * <ul>
+     * <li>The method name should be the value returned by {@link #getterMethodName()}</li>
+     * <li>The method return type should be the value returned by {@link #getTypeForAccessors()}</li>
+     * </ul>
+     * The best way to keep these contracts when overriding this hook is to first call super.getterMethodParams()
+     * and then modify the object returned from super before returning it.
+     *
+     * @see #writeGetterBody(JavaFileWriter, MethodDeclarationParameters)
+     */
+    protected MethodDeclarationParameters getterMethodParams() {
+        return new MethodDeclarationParameters()
+                .setMethodName(getterMethodName())
+                .setModifiers(Modifier.PUBLIC)
+                .setReturnType(getTypeForAccessors());
     }
 
     /**
@@ -213,14 +230,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         if (isDeprecated) {
             return;
         }
-        String argName = propertyName.equals(camelCasePropertyName) ? "_" + camelCasePropertyName
-                : camelCasePropertyName;
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName(setterMethodName())
-                .setReturnType(modelSpec.getGeneratedClassName())
-                .setModifiers(Modifier.PUBLIC)
-                .setArgumentTypes(getTypeForAccessors())
-                .setArgumentNames(argName);
+        MethodDeclarationParameters params = setterMethodParams();
 
         modelSpec.getPluginBundle().beforeEmitSetter(writer, this, params);
         writer.beginMethodDefinition(params);
@@ -232,6 +242,31 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     @Override
     public String setterMethodName() {
         return "set" + StringUtils.capitalize(camelCasePropertyName);
+    }
+
+    /**
+     * Constructs and returns a MethodDeclarationParameters object that defines the method signature for the property
+     * setter method. Subclasses can override this hook to alter or return different parameters. Some contracts that
+     * should be observed when overriding this hook and creating the MethodDeclarationParameters object:
+     * <ul>
+     * <li>The method name should be the value returned by {@link #setterMethodName()}</li>
+     * <li>The method should typically accept as an argument an object of the type returned by
+     * {@link #getTypeForAccessors()}. This argument would be the value to set</li>
+     * </ul>
+     * The best way to keep these contracts when overriding this hook is to first call super.setterMethodParams()
+     * and then modify the object returned from super before returning it.
+     *
+     * @see #writeSetterBody(JavaFileWriter, MethodDeclarationParameters)
+     */
+    protected MethodDeclarationParameters setterMethodParams() {
+        String argName = propertyName.equals(camelCasePropertyName) ? "_" + camelCasePropertyName
+                : camelCasePropertyName;
+        return new MethodDeclarationParameters()
+                .setMethodName(setterMethodName())
+                .setReturnType(modelSpec.getGeneratedClassName())
+                .setModifiers(Modifier.PUBLIC)
+                .setArgumentTypes(getTypeForAccessors())
+                .setArgumentNames(argName);
     }
 
     /**
