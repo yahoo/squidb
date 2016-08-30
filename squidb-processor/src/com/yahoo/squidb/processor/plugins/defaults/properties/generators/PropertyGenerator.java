@@ -59,6 +59,11 @@ public abstract class PropertyGenerator {
         registerAdditionalImports(imports);
     }
 
+    /**
+     * Overrideable hook to add additional imports required by this property
+     *
+     * @param imports set to add the required imports to
+     */
     protected abstract void registerAdditionalImports(Set<DeclaredTypeName> imports);
 
     /**

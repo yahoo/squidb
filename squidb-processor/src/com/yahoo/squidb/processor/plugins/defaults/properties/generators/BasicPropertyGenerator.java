@@ -89,6 +89,9 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         return propertyName;
     }
 
+    /**
+     * @return the name of the underlying column in SQLite to use for this property
+     */
     public String getColumnName() {
         return columnName;
     }
@@ -110,10 +113,17 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
                 Expressions.callConstructor(getPropertyType(), constructorArgs), TypeConstants.PUBLIC_STATIC_FINAL);
     }
 
+    /**
+     * @return the default value given by any existing {@link ColumnSpec} definition, or {@link ColumnSpec#DEFAULT_NONE}
+     * if none is set
+     */
     protected String getColumnDefault() {
         return extras != null ? extras.defaultValue() : ColumnSpec.DEFAULT_NONE;
     }
 
+    /**
+     * @return the full column definition for this Property as a SQL string
+     */
     protected String getColumnDefinition() {
         StringBuilder toReturn = new StringBuilder();
         String constraints = extras != null ? extras.constraints() : ColumnSpec.DEFAULT_NONE;
@@ -151,6 +161,9 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         return null;
     }
 
+    /**
+     * @return a string version of the column default to be used in the SQLite column definition
+     */
     protected String getColumnDefinitionDefaultValue() {
         String columnDefault = getColumnDefault();
         return ColumnSpec.DEFAULT_NULL.equals(columnDefault) ? "NULL" : columnDefault;
@@ -259,6 +272,9 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         writer.writeStatement(Expressions.callMethodOn(contentValuesName, methodToInvoke, arguments));
     }
 
+    /**
+     * @return a string version of the column default to be used in the model's defaultValues ValuesStorage
+     */
     protected String getContentValuesDefaultValue() {
         return getColumnDefault();
     }
