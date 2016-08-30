@@ -15,22 +15,18 @@ public class DefaultArgumentResolver implements ArgumentResolver {
 
     @Override
     public Object resolveArgument(Object arg) {
-        boolean resolved = false;
-        while (!resolved) {
+        while (true) {
             if (arg instanceof AtomicReference) {
                 arg = ((AtomicReference<?>) arg).get();
             } else if (arg instanceof AtomicBoolean) { // Not a subclass of Number so we need to unwrap it
-                arg = ((AtomicBoolean) arg).get() ? 1 : 0;
-                resolved = true;
+                return ((AtomicBoolean) arg).get() ? 1 : 0;
             } else if (arg instanceof Enum<?>) {
-                arg = ((Enum<?>) arg).name();
-                resolved = true;
+                return ((Enum<?>) arg).name();
             } else if (arg instanceof ThreadLocal) {
                 arg = ((ThreadLocal<?>) arg).get();
             } else {
-                resolved = true;
+                return arg;
             }
         }
-        return arg;
     }
 }
