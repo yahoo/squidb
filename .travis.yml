@@ -44,18 +44,18 @@ matrix:
               - android-19
               - sys-img-armeabi-v7a-android-19
           env: ANDROID_TARGET=android-19
-        - os: linux
-          language: android
-          jdk: oraclejdk8
-          android:
-            components:
-              - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - build-tools-24.0.2
-              - android-24
-              - extra-android-m2repository
-              - sys-img-armeabi-v7a-android-24
-          env: ANDROID_TARGET=android-24
+        #- os: linux
+        #  language: android
+        #  jdk: oraclejdk8
+        #  android:
+        #    components:
+        #      - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+        #      - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+        #      - build-tools-24.0.2
+        #      - android-24
+        #      - extra-android-m2repository
+        #      - sys-img-armeabi-v7a-android-24
+        #  env: ANDROID_TARGET=android-24
         - os: osx
           osx_image: xcode7.3
           language: objective-c
