@@ -149,7 +149,7 @@ class CompiledArgumentResolver {
     }
 
     private Object[] applyArgumentResolver(Object[] args) {
-        // TODO: Optimize by caching this result?
+        // TODO: This is a performance regression since we now have to allocate a second array and iterate twice (once to resolve here, once to bind later)
         Object[] result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
             result[i] = compileContext.getArgumentResolver().resolveArgument(args[i]);
