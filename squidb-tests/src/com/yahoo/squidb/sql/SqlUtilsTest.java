@@ -6,7 +6,10 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SqlUtilsTest extends DatabaseTestCase {
 
@@ -46,9 +49,32 @@ public class SqlUtilsTest extends DatabaseTestCase {
         }, IllegalArgumentException.class);
     }
 
-    public void testSanitizeString() {
+    public void testSanitizeStringEscapesSingleQuotes() {
         ArgumentResolver defaultArgumentResolver = new DefaultArgumentResolver();
         assertEquals("'Sam''s'", SqlUtils.toSanitizedString("Sam's", defaultArgumentResolver));
+    }
+
+    public void testSanitizeStringUsesArgumentResolver() {
+        ArgumentResolver argumentResolver = new DefaultArgumentResolver();
+        assertEquals("'APPLE'", SqlUtils.toSanitizedString(TestEnum.APPLE, argumentResolver));
+        assertEquals("1", SqlUtils.toSanitizedString(new AtomicBoolean(true), argumentResolver));
+
+        argumentResolver = new DefaultArgumentResolver() {
+            @Override
+            protected boolean canResolveCustomType(Object arg) {
+                return arg instanceof Enum<?>;
+            }
+
+            @Override
+            protected Object resolveCustomType(Object arg) {
+                return ((Enum<?>) arg).ordinal();
+            }
+        };
+        assertEquals("0", SqlUtils.toSanitizedString(TestEnum.APPLE, argumentResolver));
+    }
+
+    public void testSanitizeStringHandlesNullCharacters() {
+        ArgumentResolver defaultArgumentResolver = new DefaultArgumentResolver();
         assertEquals("CAST(ZEROBLOB(1) AS TEXT)", SqlUtils.toSanitizedString("\0", defaultArgumentResolver));
         assertEquals("CAST(ZEROBLOB(2) AS TEXT)", SqlUtils.toSanitizedString("\0\0", defaultArgumentResolver));
         assertEquals("CAST(ZEROBLOB(1) AS TEXT) || 'ABC'",

@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DefaultArgumentResolver implements ArgumentResolver {
 
     @Override
-    public Object resolveArgument(Object arg) {
+    public final Object resolveArgument(Object arg) {
         while (true) {
             if (canResolveCustomType(arg)) {
                 arg = resolveCustomType(arg);
