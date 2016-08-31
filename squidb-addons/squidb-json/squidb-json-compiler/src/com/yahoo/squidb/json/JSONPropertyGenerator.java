@@ -12,6 +12,7 @@ import com.yahoo.aptutils.visitors.ImportGatheringTypeNameVisitor;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
 
@@ -57,7 +58,7 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     }
 
     @Override
-    protected void writeGetterBody(JavaFileWriter writer) throws IOException {
+    protected void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
         Expression typeExpression = getTypeExpression(fieldType);
 
         writer.writeStatement(Expressions.staticMethod(JSONTypes.JSON_PROPERTY_SUPPORT, "getValueFromJSON",
@@ -65,11 +66,11 @@ public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
     }
 
     @Override
-    protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
+    protected void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
         Expression typeExpression = getTypeExpression(fieldType);
 
         writer.writeStatement(Expressions.staticMethod(JSONTypes.JSON_PROPERTY_SUPPORT, "setValueAsJSON",
-                "this", propertyName, argName, typeExpression));
+                "this", propertyName, params.getArgumentNames().get(0), typeExpression));
         writer.writeStringStatement("return this");
     }
 

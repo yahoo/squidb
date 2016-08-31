@@ -6,6 +6,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
@@ -48,7 +49,7 @@ public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
     }
 
     @Override
-    protected void writeGetterBody(JavaFileWriter writer) throws IOException {
+    protected void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
         final String value = "value";
         writer.writeFieldDeclaration(CoreTypes.JAVA_STRING, value,
                 Expressions.callMethod("get", propertyName));
@@ -60,7 +61,8 @@ public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
     }
 
     @Override
-    protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
+    protected void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
+        String argName = params.getArgumentNames().get(0);
         final String argAsString = argName + "AsString";
         Expression condition = Expressions.fromString(argName + " == null");
         Expression ifTrue = Expressions.fromString("null");

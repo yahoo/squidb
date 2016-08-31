@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.CoreTypes;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 
@@ -58,13 +59,13 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     }
 
     @Override
-    protected void writeGetterBody(JavaFileWriter writer) throws IOException {
+    protected void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
         writer.writeStringStatement("return super.getRowId()");
     }
 
     @Override
-    protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
-        writer.writeStringStatement("super.setRowId(" + argName + ")");
+    protected void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
+        writer.writeStringStatement("super.setRowId(" + params.getArgumentNames().get(0) + ")");
         writer.writeStringStatement("return this");
     }
 }
