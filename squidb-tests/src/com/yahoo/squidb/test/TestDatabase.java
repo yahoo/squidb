@@ -8,6 +8,8 @@ package com.yahoo.squidb.test;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.sql.CompileContext;
+import com.yahoo.squidb.sql.DefaultArgumentResolver;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -15,6 +17,7 @@ import com.yahoo.squidb.sql.View;
 public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
+    public boolean useCustomArgumentBinder;
 
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
             .index("index_testmodels_luckynumber", TestModel.LUCKY_NUMBER);
@@ -95,6 +98,23 @@ public class TestDatabase extends SquidDatabase {
         if (failure instanceof CustomMigrationException) {
             // suppress
             caughtCustomMigrationException = true;
+        }
+    }
+
+    @Override
+    protected void buildCompileContext(CompileContext.Builder builder) {
+        if (useCustomArgumentBinder) {
+            builder.setArgumentResolver(new DefaultArgumentResolver() {
+                @Override
+                protected boolean canResolveCustomType(Object arg) {
+                    return arg instanceof Enum<?>;
+                }
+
+                @Override
+                protected Object resolveCustomType(Object arg) {
+                    return ((Enum<?>) arg).ordinal();
+                }
+            });
         }
     }
 

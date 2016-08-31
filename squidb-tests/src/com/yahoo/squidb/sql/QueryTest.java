@@ -11,7 +11,6 @@ import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
-import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -514,42 +513,23 @@ public class QueryTest extends DatabaseTestCase {
     }
 
     public void testDatabaseProvidedArgumentResolver() {
-        TestDatabase db = getDatabaseWithCustomCompileContext();
+        database.useCustomArgumentBinder = true;
         Query query = Query.select(TestModel.SOME_ENUM).from(TestModel.TABLE)
                 .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE));
 
-        CompiledStatement compiledStatement = query.compile(db.getCompileContext());
+        CompiledStatement compiledStatement = query.compile(database.getCompileContext());
         verifyCompiledSqlArgs(compiledStatement, 1, 0);
     }
 
     public void testQueryCompileContextSupersedesDatabase() {
-        TestDatabase db = getDatabaseWithCustomCompileContext();
+        database.useCustomArgumentBinder = true;
         Query query = Query.select(TestModel.SOME_ENUM).from(TestModel.TABLE)
                 .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE));
-        query.setCompileContext(new CompileContext.Builder(db.getSqliteVersion())
+        query.setCompileContext(new CompileContext.Builder(database.getSqliteVersion())
                 .setArgumentResolver(new DefaultArgumentResolver()).build());
 
-        CompiledStatement compiledStatement = query.compile(db.getCompileContext());
+        CompiledStatement compiledStatement = query.compile(database.getCompileContext());
         verifyCompiledSqlArgs(compiledStatement, 1, "APPLE");
-    }
-
-    private TestDatabase getDatabaseWithCustomCompileContext() {
-        return new TestDatabase() {
-            @Override
-            protected void buildCompileContext(CompileContext.Builder builder) {
-                builder.setArgumentResolver(new DefaultArgumentResolver() {
-                    @Override
-                    protected boolean canResolveCustomType(Object arg) {
-                        return arg instanceof Enum<?>;
-                    }
-
-                    @Override
-                    protected Object resolveCustomType(Object arg) {
-                        return ((Enum<?>) arg).ordinal();
-                    }
-                });
-            }
-        };
     }
 
     public void testSimpleSubquerySelect() {
