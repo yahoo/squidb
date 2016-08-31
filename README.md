@@ -1,7 +1,9 @@
-[![Build Status](https://travis-ci.org/yahoo/squidb.svg?branch=master)](https://travis-ci.org/yahoo/squidb) [![Download](https://api.bintray.com/packages/yahoo/maven/squidb/images/download.svg) ](https://bintray.com/yahoo/maven/squidb/_latestVersion)
+[![Join the chat at https://gitter.im/yahoo/squidb](https://badges.gitter.im/yahoo/squidb.svg)](https://gitter.im/yahoo/squidb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/yahoo/squidb.svg?branch=master)](https://travis-ci.org/yahoo/squidb) [![Download](https://api.bintray.com/packages/yahoo/maven/squidb/images/download.svg) ](https://bintray.com/yahoo/maven/squidb/_latestVersion)
 
 ## Introducing SquiDB
 SquiDB is a cross-platform SQLite database layer for Android and iOS. It is designed to make it as easy as possible to work with SQLite databases while still enabling the power and flexibility of raw SQL. SquiDB combines typesafe objects that represent table rows with object-oriented SQL statement builders to make it easy to read and write your data without a bunch of messy SQL strings. It also includes built in tools and hooks to help you easily write database migrations as well as implement ContentProviders.
+
+For support or to ask questions, join our chat channel on [gitter.im](https://gitter.im/yahoo/squidb).
 
 ## Getting started
 To add SquiDB as a dependency in your build.gradle file:
