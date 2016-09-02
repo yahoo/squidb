@@ -9,10 +9,12 @@ import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.sql.Property.BooleanProperty;
 import com.yahoo.squidb.sql.Property.DoubleProperty;
+import com.yahoo.squidb.sql.Property.EnumProperty;
 import com.yahoo.squidb.sql.Property.IntegerProperty;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
+import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestSubqueryModel;
 import com.yahoo.squidb.test.TestViewModel;
@@ -175,6 +177,9 @@ public class PropertyTest extends DatabaseTestCase {
 
         BooleanProperty falseLiteral = BooleanProperty.literal(false, "falseLit");
         assertEquals("SELECT 0 AS falseLit", Query.select(falseLiteral).toString());
+
+        EnumProperty enumLiteral = EnumProperty.literal(TestEnum.APPLE, "enumLit");
+        assertEquals("SELECT 'APPLE' AS enumLit", Query.select(enumLiteral).toString());
     }
 
 }
