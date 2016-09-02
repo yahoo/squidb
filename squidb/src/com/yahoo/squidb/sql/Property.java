@@ -745,7 +745,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param selectAs the alias to use. May be null.
          */
         public static <T extends Enum<T>> EnumProperty<T> literal(T literal, String selectAs) {
-            return new EnumProperty<>(null, String.valueOf(literal), selectAs, null);
+            return new EnumProperty<>(null, literal == null ? "null" : SqlUtils.sanitizeStringAsLiteral(literal.name()),
+                    selectAs, null);
         }
 
         @Override

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 3.1.3 *(2016-09-02)*
+----------------------------
+* Fix a bug where enums that override toString() would be incorrectly serialized to the database. It's likely that you would have noticed a problem before now if this happened to you, but if you've been persisting an enum column with an enum that overrides toString(), you may have to run a data migration to fix the issue. Sorry to anyone affected by this!
+
 Version 3.1.2 *(2016-08-24)*
 ----------------------------
 * Fix a bug introduced in version 3.1.1 where automatically generating the deprecated default ID property would cause a compilation error. This issue only affected users who have not yet updated their model specs as described in the 3.1.0 release notes.
