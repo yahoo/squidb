@@ -133,7 +133,7 @@ public class ModelTest extends DatabaseTestCase {
 
     public void testEnumProperties() {
         final TestEnum enumValue = TestEnum.APPLE;
-        final String enumAsString = TestEnum.APPLE.toString();
+        final String enumAsString = enumValue.name();
         TestModel model = new TestModel()
                 .setFirstName("A")
                 .setLastName("Z")
