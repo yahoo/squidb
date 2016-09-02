@@ -64,7 +64,7 @@ public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
         final String argAsString = argName + "AsString";
         Expression condition = Expressions.fromString(argName + " == null");
         Expression ifTrue = Expressions.fromString("null");
-        Expression ifFalse = Expressions.callMethodOn(argName, "toString");
+        Expression ifFalse = Expressions.callMethodOn(argName, "name");
         writer.writeFieldDeclaration(CoreTypes.JAVA_STRING, argAsString,
                 new TernaryExpression(condition, ifTrue, ifFalse));
         writer.writeStatement(Expressions.callMethod("set", propertyName, argAsString));
