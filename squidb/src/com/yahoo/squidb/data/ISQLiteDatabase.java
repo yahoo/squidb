@@ -53,6 +53,8 @@ public interface ISQLiteDatabase {
 
     void ensureSqlCompiles(String sql);
 
+    ISQLitePreparedStatement prepareStatement(String sql);
+
     boolean isOpen();
 
     void close();
