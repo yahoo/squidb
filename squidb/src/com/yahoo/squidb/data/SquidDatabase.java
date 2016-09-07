@@ -270,6 +270,7 @@ public abstract class SquidDatabase {
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
     private final PreparedInsertCache preparedInsertCache = new PreparedInsertCache();
+    private boolean fastInsertEnabled = false;
 
     private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -458,6 +459,15 @@ public abstract class SquidDatabase {
         } finally {
             setDataChangedNotificationsEnabled(areDataChangedNotificationsEnabled);
         }
+    }
+
+    /**
+     * Enables or disables the experimental fast insert feature. When enabled, insert performance, especially in large
+     * transactions, can be improved up to 70%. However, the feature is still experimental and may have undiscovered
+     * bugs
+     */
+    protected void setFastInsertEnabled(boolean enabled) {
+        fastInsertEnabled = enabled;
     }
 
     /**
@@ -1865,14 +1875,18 @@ public abstract class SquidDatabase {
         Table table = getTable(modelClass);
 
         long newRow;
-        acquireNonExclusiveLock();
-        try {
-            ISQLitePreparedStatement preparedStatement =
-                    preparedInsertCache.getPreparedInsert(this, table, conflictAlgorithm);
-            item.bindValuesForInsert(table, preparedStatement);
-            newRow = preparedStatement.executeInsert();
-        } finally {
-            releaseNonExclusiveLock();
+        if (fastInsertEnabled) {
+            acquireNonExclusiveLock();
+            try {
+                ISQLitePreparedStatement preparedStatement =
+                        preparedInsertCache.getPreparedInsert(this, table, conflictAlgorithm);
+                item.bindValuesForInsert(table, preparedStatement);
+                newRow = preparedStatement.executeInsert();
+            } finally {
+                releaseNonExclusiveLock();
+            }
+        } else {
+            newRow = insertRowLegacy(item, table, conflictAlgorithm);
         }
 
         boolean result = newRow > 0;
