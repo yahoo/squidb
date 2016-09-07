@@ -5,7 +5,9 @@
  */
 package com.yahoo.squidb.data;
 
+import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.LongProperty;
+import com.yahoo.squidb.sql.Table;
 
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
@@ -97,5 +99,113 @@ public abstract class TableModel extends AbstractModel {
     @Deprecated
     public LongProperty getIdProperty() {
         return getRowIdProperty();
+    }
+
+    void bindValuesForInsert(Table table, ISQLitePreparedStatement preparedInsert) {
+        LongProperty rowidProperty = getRowIdProperty();
+        Property<?>[] allProperties = table.getProperties();
+
+        ModelAndIndex modelAndIndex = new ModelAndIndex(this);
+        for (Property<?> property : allProperties) {
+            if (property.equals(rowidProperty)) {
+                long rowid = getRowId();
+                if (rowid == TableModel.NO_ID) {
+                    preparedInsert.bindNull(modelAndIndex.index);
+                } else {
+                    preparedInsert.bindLong(modelAndIndex.index, rowid);
+                }
+            } else {
+                property.accept(valueBindingVisitor, preparedInsert, modelAndIndex);
+            }
+            modelAndIndex.index++;
+        }
+    }
+
+    private static final class ModelAndIndex {
+
+        final TableModel model;
+        int index = 1;
+
+        ModelAndIndex(TableModel model) {
+            this.model = model;
+        }
+    }
+
+    private static final ValueBindingPropertyVisitor valueBindingVisitor = new ValueBindingPropertyVisitor();
+
+    private static class ValueBindingPropertyVisitor
+            implements Property.PropertyWritingVisitor<Void, ISQLitePreparedStatement, ModelAndIndex> {
+
+        @Override
+        public Void visitInteger(Property<Integer> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            Integer val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindLong(data.index, val);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitLong(Property<Long> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            Long val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindLong(data.index, val);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitDouble(Property<Double> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            Double val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindDouble(data.index, val);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitString(Property<String> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            String val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindString(data.index, val);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitBoolean(Property<Boolean> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            Boolean val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindLong(data.index, val ? 1 : 0);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitBlob(Property<byte[]> property, ISQLitePreparedStatement preparedStatement,
+                ModelAndIndex data) {
+            byte[] val = data.model.get(property, false);
+            if (val == null) {
+                preparedStatement.bindNull(data.index);
+            } else {
+                preparedStatement.bindBlob(data.index, val);
+            }
+            return null;
+        }
     }
 }
