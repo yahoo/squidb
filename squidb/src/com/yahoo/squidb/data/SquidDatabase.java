@@ -1434,6 +1434,17 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Prepares a low-level SQLite statement, represented as an instance of {@link ISQLitePreparedStatement}. The
+     * statement should either be a non-query or a query that returns only a 1x1 result.
+     *
+     * @param sql the SQL to compile into a prepared statement
+     * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
+     */
+    public ISQLitePreparedStatement prepareStatement(String sql) {
+        return getDatabase().prepareStatement(sql);
+    }
+
+    /**
      * Visitor that builds column definitions for {@link Property}s
      */
     private static class SqlConstructorVisitor implements PropertyVisitor<Void, StringBuilder> {
