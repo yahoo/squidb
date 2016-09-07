@@ -1470,11 +1470,19 @@ public abstract class SquidDatabase {
 
     /**
      * Prepares a low-level SQLite statement, represented as an instance of {@link ISQLitePreparedStatement}. The
-     * statement should either be a non-query or a query that returns only a 1x1 result.
+     * statement should either be a non-query or a query that returns only a 1x1 result. You should call
+     * {@link ISQLitePreparedStatement#close()} when you are finished with the prepared statement.
      * <p>
      * The prepared statement is only safe to use while this database is still open. If you close the database, you
      * should be sure to call {@link ISQLitePreparedStatement#close()} and invalidate any open prepared statements,
      * and re-prepare them if you reopen the database.
+     * <p>
+     * If you are acquiring/using a prepared statement only within the duration of a transaction, no additional locking
+     * is necessary. If the prepared statement should stay alive outside the scope you created it in and you wish to
+     * prevent the database from being closed while the prepared statement is open/in use, you can acquire the
+     * database's non-exclusive lock using {@link #acquireNonExclusiveLock()}, which will prevent the DB from being
+     * closed while the lock is held. You can release such a lock with {@link #releaseNonExclusiveLock()}. Note that
+     * any thread attempting to close the DB will block if such a lock is held, so use them carefully.
      *
      * @param sql the SQL to compile into a prepared statement
      * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
