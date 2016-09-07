@@ -11,7 +11,11 @@ import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
+import com.yahoo.squidb.test.ThingSpec;
 import com.yahoo.squidb.utility.VersionCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InsertTest extends DatabaseTestCase {
 
@@ -324,5 +328,28 @@ public class InsertTest extends DatabaseTestCase {
                 insert.compile(database.getCompileContext());
             }
         }, IllegalStateException.class);
+    }
+
+    public void testLowLevelInsertPerf() {
+        database.clear();
+        ThingSpec.threadLocalPreparedStatement.set(null);
+        List<Thing> thingsToInsert = new ArrayList<>();
+        for (int i = 0; i < 25000; i++) {
+            thingsToInsert.add(new Thing().setFoo("Foo").setBar(1).setBaz(System.currentTimeMillis()).setIsAlive(true));
+        }
+
+        long start = System.currentTimeMillis();
+        database.beginTransaction();
+        try {
+            for (Thing t : thingsToInsert) {
+                database.createNew(t);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        long end = System.currentTimeMillis();
+        System.err.println("Inserting 25000 took " + (end - start) + " when using prepared statement");
+        assertEquals(25000, database.countAll(Thing.class));
     }
 }
