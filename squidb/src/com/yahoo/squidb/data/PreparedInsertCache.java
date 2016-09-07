@@ -9,21 +9,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: This relies on GC to close the prepared statements when the cache is destroyed. Can we close them more safely?
+// This class is not threadsafe. We currently keep a threadlocal instance of it in SquidDatabase that is invalidated
+// when the DB is closed.
 class PreparedInsertCache {
 
-    private final Map<Class<? extends TableModel>, ThreadLocal<ISQLitePreparedStatement>[]>
+    private final Map<Class<? extends TableModel>, ISQLitePreparedStatement[]>
             preparedStatementCache = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
-    synchronized ISQLitePreparedStatement getPreparedInsert(SquidDatabase db, Table table,
+    ISQLitePreparedStatement getPreparedInsert(SquidDatabase db, Table table,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
 
         Class<? extends TableModel> modelClass = table.getModelClass();
-        ThreadLocal<ISQLitePreparedStatement>[] preparedStatements = preparedStatementCache.get(modelClass);
+        ISQLitePreparedStatement[] preparedStatements = preparedStatementCache.get(modelClass);
 
         if (preparedStatements == null) {
-            preparedStatements = (ThreadLocal<ISQLitePreparedStatement>[])
-                    new ThreadLocal[TableStatement.ConflictAlgorithm.values().length];
+            preparedStatements = new ISQLitePreparedStatement[TableStatement.ConflictAlgorithm.values().length];
             preparedStatementCache.put(modelClass, preparedStatements);
         }
 
@@ -31,18 +32,11 @@ class PreparedInsertCache {
             conflictAlgorithm = TableStatement.ConflictAlgorithm.NONE;
         }
 
-        ThreadLocal<ISQLitePreparedStatement> threadLocalStatement = preparedStatements[conflictAlgorithm.ordinal()];
-        if (threadLocalStatement == null) {
-            threadLocalStatement = new ThreadLocal<>();
-            preparedStatements[conflictAlgorithm.ordinal()] = threadLocalStatement;
-        }
-
-        ISQLitePreparedStatement toReturn = threadLocalStatement.get();
+        ISQLitePreparedStatement toReturn = preparedStatements[conflictAlgorithm.ordinal()];
         if (toReturn == null) {
             toReturn = prepareInsert(db, table, conflictAlgorithm);
-            threadLocalStatement.set(toReturn);
+            preparedStatements[conflictAlgorithm.ordinal()] = toReturn;
         }
-
         return toReturn;
     }
 
@@ -57,10 +51,4 @@ class PreparedInsertCache {
 
         return db.prepareStatement(compiled.sql);
     }
-
-    synchronized void invalidateAll() {
-        // TODO: This relies on GC to close the prepared statements. Can we close them more safely?
-        preparedStatementCache.clear();
-    }
-
 }
