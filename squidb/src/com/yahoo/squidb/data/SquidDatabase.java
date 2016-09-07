@@ -1449,6 +1449,10 @@ public abstract class SquidDatabase {
     /**
      * Prepares a low-level SQLite statement, represented as an instance of {@link ISQLitePreparedStatement}. The
      * statement should either be a non-query or a query that returns only a 1x1 result.
+     * <p>
+     * The prepared statement is only safe to use while this database is still open. If you close the database, you
+     * should be sure to call {@link ISQLitePreparedStatement#close()} and invalidate any open prepared statements,
+     * and re-prepare them if you reopen the database.
      *
      * @param sql the SQL to compile into a prepared statement
      * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
