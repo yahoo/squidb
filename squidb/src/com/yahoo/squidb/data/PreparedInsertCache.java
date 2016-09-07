@@ -11,16 +11,19 @@ import java.util.Map;
 
 class PreparedInsertCache {
 
-    private final Map<Class<? extends TableModel>, ISQLitePreparedStatement[]> preparedStatementCache = new HashMap<>();
+    private final Map<Class<? extends TableModel>, ThreadLocal<ISQLitePreparedStatement>[]>
+            preparedStatementCache = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     synchronized ISQLitePreparedStatement getPreparedInsert(SquidDatabase db, Table table,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
 
         Class<? extends TableModel> modelClass = table.getModelClass();
-        ISQLitePreparedStatement[] preparedStatements = preparedStatementCache.get(modelClass);
+        ThreadLocal<ISQLitePreparedStatement>[] preparedStatements = preparedStatementCache.get(modelClass);
 
         if (preparedStatements == null) {
-            preparedStatements = new ISQLitePreparedStatement[TableStatement.ConflictAlgorithm.values().length];
+            preparedStatements = (ThreadLocal<ISQLitePreparedStatement>[])
+                    new ThreadLocal[TableStatement.ConflictAlgorithm.values().length];
             preparedStatementCache.put(modelClass, preparedStatements);
         }
 
@@ -28,10 +31,16 @@ class PreparedInsertCache {
             conflictAlgorithm = TableStatement.ConflictAlgorithm.NONE;
         }
 
-        ISQLitePreparedStatement toReturn = preparedStatements[conflictAlgorithm.ordinal()];
+        ThreadLocal<ISQLitePreparedStatement> threadLocalStatement = preparedStatements[conflictAlgorithm.ordinal()];
+        if (threadLocalStatement == null) {
+            threadLocalStatement = new ThreadLocal<>();
+            preparedStatements[conflictAlgorithm.ordinal()] = threadLocalStatement;
+        }
+
+        ISQLitePreparedStatement toReturn = threadLocalStatement.get();
         if (toReturn == null) {
             toReturn = prepareInsert(db, table, conflictAlgorithm);
-            preparedStatements[conflictAlgorithm.ordinal()] = toReturn;
+            threadLocalStatement.set(toReturn);
         }
 
         return toReturn;
@@ -50,13 +59,7 @@ class PreparedInsertCache {
     }
 
     synchronized void invalidateAll() {
-        for (ISQLitePreparedStatement[] preparedStatements : preparedStatementCache.values()) {
-            for (ISQLitePreparedStatement statement : preparedStatements) {
-                if (statement != null) {
-                    statement.close();
-                }
-            }
-        }
+        // TODO: This relies on GC to close the prepared statements. Can we close them more safely?
         preparedStatementCache.clear();
     }
 
