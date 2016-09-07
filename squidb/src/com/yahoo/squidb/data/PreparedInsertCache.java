@@ -13,14 +13,22 @@ import com.yahoo.squidb.sql.TableStatement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-// TODO: This relies on GC to close the prepared statements when the cache is destroyed. Can we close them more safely?
 // This class is not threadsafe. We currently keep a threadlocal instance of it in SquidDatabase that is invalidated
 // when the DB is closed.
 class PreparedInsertCache {
 
+    // Cache of prepared insert statements keyed by table model class
     private final Map<Class<? extends TableModel>, ISQLitePreparedStatement[]>
             preparedStatementCache = new HashMap<>();
+
+    // Tracks all open prepared statements across the DB so that they can be closed safely when the DB is closed
+    private final Set<ISQLitePreparedStatement> dbStatementTracking;
+
+    PreparedInsertCache(Set<ISQLitePreparedStatement> dbStatementTracking) {
+        this.dbStatementTracking = dbStatementTracking;
+    }
 
     ISQLitePreparedStatement getPreparedInsert(SquidDatabase db, Table table,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
@@ -54,6 +62,8 @@ class PreparedInsertCache {
                 .values(placeholders).onConflict(conflictAlgorithm);
         CompiledStatement compiled = insert.compile(db.getSqliteVersion());
 
-        return db.prepareStatement(compiled.sql);
+        ISQLitePreparedStatement statement = db.prepareStatement(compiled.sql);
+        dbStatementTracking.add(statement);
+        return statement;
     }
 }
