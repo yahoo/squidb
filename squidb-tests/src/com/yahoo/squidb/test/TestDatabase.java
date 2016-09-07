@@ -86,6 +86,7 @@ public class TestDatabase extends SquidDatabase {
     protected void onConfigure(ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         db.enableWriteAheadLogging();
+        setFastInsertEnabled(true);
     }
 
     @Override
