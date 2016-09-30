@@ -55,7 +55,7 @@ public class DeleteTest extends DatabaseTestCase {
 
         // delete from testModels where testModels.luckyNumber <= 0;
         Delete delete = Delete.from(TestModel.TABLE).where(criterion);
-        CompiledStatement compiled = delete.compile(database.getSqliteVersion());
+        CompiledStatement compiled = delete.compile(database.getCompileContext());
         verifyCompiledSqlArgs(compiled, 1, 0);
 
         assertEquals(1, database.delete(delete));
@@ -74,7 +74,7 @@ public class DeleteTest extends DatabaseTestCase {
 
         // delete from testModels
         Delete delete = Delete.from(TestModel.TABLE);
-        CompiledStatement compiled = delete.compile(database.getSqliteVersion());
+        CompiledStatement compiled = delete.compile(database.getCompileContext());
         verifyCompiledSqlArgs(compiled, 0);
 
         assertEquals(numRows, database.delete(delete));

@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
-import com.yahoo.squidb.utility.VersionCode;
 
 /**
  * A SQLite View. Views are read-only tables composed from a pre-defined SELECT statement.
@@ -85,15 +84,16 @@ public class View extends QueryTable {
     }
 
     /**
-     * Append the SQL statement that creates this View to the given {@link StringBuilder}
+     * Append the SQL statement that creates this View to the given {@link StringBuilder}. Users should not call
+     * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build views automatically.
      */
-    public void createViewSql(VersionCode sqliteVersion, StringBuilder sql) {
+    public void createViewSql(CompileContext compileContext, StringBuilder sql) {
         sql.append("CREATE ");
         if (temporary) {
             sql.append("TEMPORARY ");
         }
         sql.append("VIEW IF NOT EXISTS ")
                 .append(getExpression()).append(" AS ")
-                .append(query.toRawSql(sqliteVersion));
+                .append(query.toRawSql(compileContext));
     }
 }

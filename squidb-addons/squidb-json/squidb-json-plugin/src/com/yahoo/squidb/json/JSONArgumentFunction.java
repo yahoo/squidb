@@ -25,9 +25,10 @@ class JSONArgumentFunction<TYPE> extends Function<TYPE> {
 
     @Override
     protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
-        if (!builder.sqliteVersion.isAtLeast(minVersion)) {
+        if (!builder.compileContext.getVersionCode().isAtLeast(minVersion)) {
             throw new UnsupportedOperationException("The function " + functionName + " is not supported on SQLite "
-                    + "version " + builder.sqliteVersion + " - requires version " + minVersion + " or higher");
+                    + "version " + builder.compileContext.getVersionCode() + " - requires version " + minVersion +
+                    " or higher");
         }
         builder.sql.append(functionName).append("(");
         boolean needsSeparator = false;

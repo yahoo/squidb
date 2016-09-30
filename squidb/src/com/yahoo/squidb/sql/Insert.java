@@ -222,7 +222,7 @@ public class Insert extends TableStatement {
     }
 
     private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
-        if (builder.sqliteVersion.isLessThan(VersionCode.V3_7_11) && valuesToInsert.size() > 1) {
+        if (builder.compileContext.getVersionCode().isLessThan(VersionCode.V3_7_11) && valuesToInsert.size() > 1) {
             throw new UnsupportedOperationException("Can't insert with multiple sets of values below "
                     + "SQLite version 3.7.11");
         }

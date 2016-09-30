@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.Beta;
+import com.yahoo.squidb.sql.CompileContext;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
@@ -740,7 +741,7 @@ public abstract class SquidDatabase {
      * @return the String result of the query
      */
     public String simpleQueryForString(Query query) {
-        CompiledStatement compiled = query.compile(getSqliteVersion());
+        CompiledStatement compiled = query.compile(getCompileContext());
         return simpleQueryForString(compiled.sql, compiled.sqlArgs);
     }
 
@@ -754,7 +755,7 @@ public abstract class SquidDatabase {
      * @return the long result of the query
      */
     public long simpleQueryForLong(Query query) {
-        CompiledStatement compiled = query.compile(getSqliteVersion());
+        CompiledStatement compiled = query.compile(getCompileContext());
         return simpleQueryForLong(compiled.sql, compiled.sqlArgs);
     }
 
@@ -764,7 +765,7 @@ public abstract class SquidDatabase {
      * @return the row id of the last row inserted on success, -1 on failure
      */
     private long insertInternal(Insert insert) {
-        CompiledStatement compiled = insert.compile(getSqliteVersion());
+        CompiledStatement compiled = insert.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeInsert(compiled.sql, compiled.sqlArgs);
@@ -779,7 +780,7 @@ public abstract class SquidDatabase {
      * @return the number of rows deleted on success, -1 on failure
      */
     private int deleteInternal(Delete delete) {
-        CompiledStatement compiled = delete.compile(getSqliteVersion());
+        CompiledStatement compiled = delete.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
@@ -794,7 +795,7 @@ public abstract class SquidDatabase {
      * @return the number of rows updated on success, -1 on failure
      */
     private int updateInternal(Update update) {
-        CompiledStatement compiled = update.compile(getSqliteVersion());
+        CompiledStatement compiled = update.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
             return getDatabase().executeUpdateDelete(compiled.sql, compiled.sqlArgs);
@@ -1057,7 +1058,7 @@ public abstract class SquidDatabase {
             Table[] tables = getTables();
             if (tables != null) {
                 for (Table table : tables) {
-                    table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
+                    table.appendCreateTableSql(getCompileContext(), sql, sqlVisitor);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1066,7 +1067,7 @@ public abstract class SquidDatabase {
             View[] views = getViews();
             if (views != null) {
                 for (View view : views) {
-                    view.createViewSql(getSqliteVersion(), sql);
+                    view.createViewSql(getCompileContext(), sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1201,7 +1202,7 @@ public abstract class SquidDatabase {
     protected boolean tryCreateTable(Table table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        table.appendCreateTableSql(getSqliteVersion(), sql, sqlVisitor);
+        table.appendCreateTableSql(getCompileContext(), sql, sqlVisitor);
         return tryExecSql(sql.toString());
     }
 
@@ -1225,7 +1226,7 @@ public abstract class SquidDatabase {
      */
     public boolean tryCreateView(View view) {
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        view.createViewSql(getSqliteVersion(), sql);
+        view.createViewSql(getCompileContext(), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1307,7 +1308,7 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     public boolean tryExecStatement(SqlStatement statement) {
-        CompiledStatement compiled = statement.compile(getSqliteVersion());
+        CompiledStatement compiled = statement.compile(getCompileContext());
         return tryExecSql(compiled.sql, compiled.sqlArgs);
     }
 
@@ -1407,6 +1408,30 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * @return a CompileContext that this SquidDatabase should use when compiling SQL statements like {@link Query},
+     * {@link Insert}, {@link Update}, and {@link Delete}. If necessary, users can customize the returned
+     * CompileContext object by overriding {@link #buildCompileContext(CompileContext.Builder)} to e.g. specify a
+     * different implementation of {@link com.yahoo.squidb.sql.ArgumentResolver} to use.
+     */
+    public final CompileContext getCompileContext() {
+        CompileContext.Builder builder = new CompileContext.Builder(getSqliteVersion());
+        buildCompileContext(builder);
+        return builder.build();
+    }
+
+    /**
+     * Users can override this method to customize the CompileContext object that will be used when compiling SQL
+     * statements, e.g. by setting a custom {@link com.yahoo.squidb.sql.ArgumentResolver} to handle non-primitive
+     * arguments in the SQL. Most users will not need to use this hook.
+     *
+     * @param builder a builder for a {@link CompileContext} object to be returned by {@link #getCompileContext()}
+     * @see {@link #getCompileContext()}
+     */
+    protected void buildCompileContext(CompileContext.Builder builder) {
+        // Subclasses can override to change the basic parameters of the CompileContext
+    }
+
+    /**
      * Visitor that builds column definitions for {@link Property}s
      */
     private static class SqlConstructorVisitor implements PropertyVisitor<Void, StringBuilder> {
@@ -1496,9 +1521,9 @@ public abstract class SquidDatabase {
      */
     public <TYPE extends AbstractModel> SquidCursor<TYPE> query(Class<TYPE> modelClass, Query query) {
         query = inferTableForQuery(modelClass, query);
-        CompiledStatement compiled = query.compile(getSqliteVersion());
+        CompiledStatement compiled = query.compile(getCompileContext());
         if (compiled.needsValidation) {
-            String validateSql = query.sqlForValidation(getSqliteVersion());
+            String validateSql = query.sqlForValidation(getCompileContext());
             ensureSqlCompiles(validateSql); // throws if the statement fails to compile
         }
         ICursor cursor = rawQuery(compiled.sql, compiled.sqlArgs);
@@ -1511,7 +1536,7 @@ public abstract class SquidDatabase {
      */
     public void explainQueryPlan(Class<? extends AbstractModel> modelClass, Query query) {
         query = inferTableForQuery(modelClass, query);
-        CompiledStatement compiled = query.compile(getSqliteVersion());
+        CompiledStatement compiled = query.compile(getCompileContext());
         ICursor cursor = rawQuery("EXPLAIN QUERY PLAN " + compiled.sql, compiled.sqlArgs);
         try {
             Logger.d(Logger.LOG_TAG, "Query plan for: " + compiled.sql);
@@ -1957,7 +1982,7 @@ public abstract class SquidDatabase {
             query.where(criterion);
         }
         query = inferTableForQuery(modelClass, query);
-        CompiledStatement compiled = query.compile(getSqliteVersion());
+        CompiledStatement compiled = query.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
             return (int) getDatabase().simpleQueryForLong(compiled.sql, compiled.sqlArgs);

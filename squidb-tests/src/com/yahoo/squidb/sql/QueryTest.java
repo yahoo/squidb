@@ -11,6 +11,7 @@ import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.TestEnum;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.Thing;
@@ -72,7 +73,7 @@ public class QueryTest extends DatabaseTestCase {
                         .and(TestModel.BIRTHDAY.gt(17))
                         .and(TestModel.LAST_NAME.neq("Smith")));
 
-        CompiledStatement compiledQuery = query.compile(database.getSqliteVersion());
+        CompiledStatement compiledQuery = query.compile(database.getCompileContext());
         verifyCompiledSqlArgs(compiledQuery, 3, "Sam", 17, "Smith");
     }
 
@@ -502,6 +503,22 @@ public class QueryTest extends DatabaseTestCase {
         } finally {
             happyEmployees.close();
         }
+    }
+
+    public void testEnumResolvedUsingName() {
+        Query query = Query.select(TestModel.SOME_ENUM).from(TestModel.TABLE)
+                .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE));
+        CompiledStatement compiledStatement = query.compile(database.getCompileContext());
+        verifyCompiledSqlArgs(compiledStatement, 1, "APPLE");
+    }
+
+    public void testDatabaseProvidedArgumentResolver() {
+        database.useCustomArgumentBinder = true;
+        Query query = Query.select(TestModel.SOME_ENUM).from(TestModel.TABLE)
+                .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE));
+
+        CompiledStatement compiledStatement = query.compile(database.getCompileContext());
+        verifyCompiledSqlArgs(compiledStatement, 1, 0);
     }
 
     public void testSimpleSubquerySelect() {
@@ -1024,9 +1041,9 @@ public class QueryTest extends DatabaseTestCase {
         Query query = Query.select().from(subqueryTable).innerJoin(joinTable, (Criterion[]) null)
                 .union(compoundSubquery);
 
-        final int queryLength = query.compile(database.getSqliteVersion()).sql.length();
+        final int queryLength = query.compile(database.getCompileContext()).sql.length();
 
-        String withValidation = query.sqlForValidation(database.getSqliteVersion());
+        String withValidation = query.sqlForValidation(database.getCompileContext());
         assertEquals(queryLength + 6, withValidation.length());
     }
 
@@ -1088,35 +1105,35 @@ public class QueryTest extends DatabaseTestCase {
     public void testNeedsValidationUpdatedBySubqueryTable() {
         Query subquery = Query.select(Thing.PROPERTIES).from(Thing.TABLE).where(Criterion.literal(123));
         subquery.requestValidation();
-        assertTrue(subquery.compile(database.getSqliteVersion()).sql.contains("WHERE (?)"));
+        assertTrue(subquery.compile(database.getCompileContext()).sql.contains("WHERE (?)"));
 
         Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
         assertFalse(baseTestQuery.needsValidation());
 
         Query testQuery = baseTestQuery.from(subquery.as("t1"));
-        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
-        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+        assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
 
         testQuery = baseTestQuery.innerJoin(subquery.as("t2"), (Criterion[]) null);
-        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
-        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+        assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
 
         testQuery = baseTestQuery.union(subquery);
-        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
-        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+        assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
     }
 
     public void testNeedsValidationUpdatedByQueryFunction() {
         Query subquery = Query.select(Function.max(Thing.ID)).from(Thing.TABLE).where(Criterion.literal(123));
         subquery.requestValidation();
-        assertTrue(subquery.compile(database.getSqliteVersion()).sql.contains("WHERE (?)"));
+        assertTrue(subquery.compile(database.getCompileContext()).sql.contains("WHERE (?)"));
 
         Query baseTestQuery = Query.select().from(Thing.TABLE).where(Thing.FOO.isNotEmpty()).freeze();
         assertFalse(baseTestQuery.needsValidation());
 
         Query testQuery = baseTestQuery.selectMore(subquery.asFunction());
-        assertTrue(testQuery.compile(database.getSqliteVersion()).needsValidation);
-        assertTrue(testQuery.sqlForValidation(database.getSqliteVersion()).contains("WHERE ((?))"));
+        assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
+        assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
     }
 
     public void testLiteralCriterions() {
