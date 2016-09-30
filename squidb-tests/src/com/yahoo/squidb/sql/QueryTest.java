@@ -521,17 +521,6 @@ public class QueryTest extends DatabaseTestCase {
         verifyCompiledSqlArgs(compiledStatement, 1, 0);
     }
 
-    public void testQueryCompileContextSupersedesDatabase() {
-        database.useCustomArgumentBinder = true;
-        Query query = Query.select(TestModel.SOME_ENUM).from(TestModel.TABLE)
-                .where(TestModel.SOME_ENUM.eq(TestEnum.APPLE));
-        query.setCompileContext(new CompileContext.Builder(database.getSqliteVersion())
-                .setArgumentResolver(new DefaultArgumentResolver()).build());
-
-        CompiledStatement compiledStatement = query.compile(database.getCompileContext());
-        verifyCompiledSqlArgs(compiledStatement, 1, "APPLE");
-    }
-
     public void testSimpleSubquerySelect() {
         Query query = Query.fromSubquery(Query.select(Employee.NAME).from(Employee.TABLE), "subquery");
         StringProperty name = query.getTable().qualifyField(Employee.NAME);
