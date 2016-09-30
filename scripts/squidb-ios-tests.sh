@@ -138,7 +138,7 @@ echo "Building test executable for custom built SQLite"
 downloadSQLiteAmalgamation
 f=$SQUIDB_IOS_NATIVE/sqlite/sqlite3.c
 echo "Compiling $f"
-${J2OBJC_HOME}/j2objcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
+gcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
     -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
 LINK_ARGS=("${LINK_ARGS_BASE[@]}")
 buildTestExecutable
