@@ -60,7 +60,7 @@ class PreparedInsertCache {
 
         Insert insert = Insert.into(table).columns(table.getProperties())
                 .values(placeholders).onConflict(conflictAlgorithm);
-        CompiledStatement compiled = insert.compile(db.getSqliteVersion());
+        CompiledStatement compiled = insert.compile(db.getCompileContext());
 
         ISQLitePreparedStatement statement = db.prepareStatement(compiled.sql);
         dbStatementTracking.add(statement);
