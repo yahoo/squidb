@@ -1,7 +1,7 @@
 #!/bin/sh
 runAndroidTestWithBinding () {
     echo "Running tests on platform $ANDROID_TARGET with binding $1"
-    adb shell am instrument -w -e squidb_binding $1 com.yahoo.squidb.test/com.yahoo.squidb.android.SquidInstrumentationTestRunner
+    python3 ./adb-wrapper.py "adb shell am instrument -w -e squidb_binding $1 com.yahoo.squidb.test/com.yahoo.squidb.android.SquidInstrumentationTestRunner"
     testResult=$?
     if [ ! $testResult -eq 0 ]
     then

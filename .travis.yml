@@ -1,65 +1,35 @@
 language: generic
 env:
-    global:
-        - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  global:
+    - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+  matrix:
+    - ANDROID_TARGET=android-15
+    - ANDROID_TARGET=android-16
+    - ANDROID_TARGET=android-19
+
+os: linux
+language: android
+jdk: oraclejdk8
+android:
+  components:
+    - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+    - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+    - build-tools-24.0.3
+    - android-24
+    - extra-android-m2repository
+    - android-15
+    - android-16
+    - android-19
+    - sys-img-armeabi-v7a-android-15
+    - sys-img-armeabi-v7a-android-16
+    - sys-img-armeabi-v7a-android-19
 
 matrix:
-    include:
-        - os: linux
-          language: android
-          jdk: oraclejdk8
-          android:
-            components:
-              - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - build-tools-24.0.3
-              - android-24
-              - extra-android-m2repository
-              - android-15
-              - sys-img-armeabi-v7a-android-15
-          env: ANDROID_TARGET=android-15
-        - os: linux
-          language: android
-          jdk: oraclejdk8
-          android:
-            components:
-              - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - build-tools-24.0.3
-              - android-24
-              - extra-android-m2repository
-              - android-16
-              - sys-img-armeabi-v7a-android-16
-          env: ANDROID_TARGET=android-16
-        - os: linux
-          language: android
-          jdk: oraclejdk8
-          android:
-            components:
-              - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-              - build-tools-24.0.3
-              - android-24
-              - extra-android-m2repository
-              - android-19
-              - sys-img-armeabi-v7a-android-19
-          env: ANDROID_TARGET=android-19
-        #- os: linux
-        #  language: android
-        #  jdk: oraclejdk8
-        #  android:
-        #    components:
-        #      - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-        #      - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-        #      - build-tools-24.0.3
-        #      - android-24
-        #      - extra-android-m2repository
-        #      - sys-img-armeabi-v7a-android-24
-        #  env: ANDROID_TARGET=android-24
-        - os: osx
-          osx_image: xcode7.3
-          language: objective-c
-          env: CI_IOS_TESTS=true J2OBJC_VERSION=1.1 J2OBJC_HOME=/tmp/j2objc-$J2OBJC_VERSION
+  include:
+    - os: osx
+      osx_image: xcode7.3
+      language: objective-c
+      env: CI_IOS_TESTS=true J2OBJC_VERSION=1.1 J2OBJC_HOME=/tmp/j2objc-$J2OBJC_VERSION
 
 before_script:
     - ./scripts/before-test.sh
