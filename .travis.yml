@@ -1,4 +1,4 @@
-language: generic
+sudo: required # For apt-get install python3
 env:
   global:
     - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
