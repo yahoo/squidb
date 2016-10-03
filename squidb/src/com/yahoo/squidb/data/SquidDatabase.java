@@ -479,6 +479,7 @@ public abstract class SquidDatabase {
      * transactions, can be improved up to 70%. However, the feature is still experimental and may have undiscovered
      * bugs
      */
+    @Beta
     protected void setFastInsertEnabled(boolean enabled) {
         fastInsertEnabled = enabled;
     }
