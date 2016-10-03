@@ -257,6 +257,15 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Called when the database is about to be closed. This method is called immediately before the database is closed,
+     * so the ISQLiteDatabase parameter is still valid to use for executing any cleanup SQL that might be necessary.
+     *
+     * @param db the {@link ISQLiteDatabase} that is about to close
+     */
+    protected void onClose(ISQLiteDatabase db) {
+    }
+
+    /**
      * Called when an error occurs. This is primarily for clients to log notable errors, not for taking corrective
      * action on them. The default implementation prints a warning log.
      *
@@ -676,6 +685,7 @@ public abstract class SquidDatabase {
     private void closeAndDeleteInternal(boolean deleteAfterClose) {
         clearPreparedStatementCache();
         if (isOpen()) {
+            onClose(database);
             database.close();
         }
         setDatabase(null);
@@ -1470,19 +1480,28 @@ public abstract class SquidDatabase {
 
     /**
      * Prepares a low-level SQLite statement, represented as an instance of {@link ISQLitePreparedStatement}. The
-     * statement should either be a non-query or a query that returns only a 1x1 result. You should call
-     * {@link ISQLitePreparedStatement#close()} when you are finished with the prepared statement.
+     * statement should either be a non-query (e.g. an INSERT or UPDATE) or a query that returns only a 1x1 result.
+     * You should call {@link ISQLitePreparedStatement#close()} when you are finished with the prepared statement.
      * <p>
-     * The prepared statement is only safe to use while this database is still open. If you close the database, you
-     * should be sure to call {@link ISQLitePreparedStatement#close()} and invalidate any open prepared statements,
-     * and re-prepare them if you reopen the database.
+     * The returned object is only safe to use while this database is still open. The easiest/recommended way to
+     * manage prepared statements is to avoid keeping any cached instances in memory for a long time. For example, this
+     * could be accomplished by only acquiring prepared statements within a transaction, using them to do work within
+     * that transaction only, and then closing the prepared statement when the transaction is about to end.
      * <p>
      * If you are acquiring/using a prepared statement only within the duration of a transaction, no additional locking
-     * is necessary. If the prepared statement should stay alive outside the scope you created it in and you wish to
+     * is necessary. If you do choose to keep a prepared statement alive outside the scope you created it in, you may
+     * require additional locking if any code path in your app may close/re-open the database. If you wish to
      * prevent the database from being closed while the prepared statement is open/in use, you can acquire the
      * database's non-exclusive lock using {@link #acquireNonExclusiveLock()}, which will prevent the DB from being
      * closed while the lock is held. You can release such a lock with {@link #releaseNonExclusiveLock()}. Note that
-     * any thread attempting to close the DB will block if such a lock is held, so use them carefully.
+     * any thread attempting to close the DB will block if such a lock is held, so use them carefully. Failure to
+     * implement such locking in an app that may close the database could lead to race conditions.
+     * <p>
+     * If you keep long-lived references to prepared statements alive and some code path in your app may close/re-open
+     * the database, you should take care to clean up any such references by closing any open statements and nulling
+     * out any references to them so they can't accidentally be used after the database has been closed. Such
+     * bookkeeping can be done by taking advantage of the {@link #onClose(ISQLiteDatabase)} hook, which is called
+     * immediately before the database connection is about to be closed.
      *
      * @param sql the SQL to compile into a prepared statement
      * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
