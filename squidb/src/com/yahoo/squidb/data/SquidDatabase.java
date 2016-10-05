@@ -855,7 +855,27 @@ public abstract class SquidDatabase {
     // --- transaction management
 
     /**
-     * Begin a transaction. This acquires a non-exclusive lock.
+     * Begin a transaction in EXCLUSIVE mode. Other reader and writer threads will not be able to access the database
+     * (i.e. will block) while this transaction is active.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransaction();
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransaction()
@@ -873,10 +893,32 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a non-exclusive transaction. This acquires a non-exclusive lock.
+     * Begin a transaction in IMMEDIATE mode. Other writer threads will not be able to access the database (i.e. will
+     * block) while this transaction is active, but reader threads may be able to read from the database if it is
+     * configured to use write-ahead logging.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionNonExclusive();
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransactionNonExclusive()
+     * @see ISQLiteDatabase#enableWriteAheadLogging()
      */
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
@@ -891,7 +933,27 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a transaction with a listener. This acquires a non-exclusive lock.
+     * Begin a transaction in EXCLUSIVE mode with the given listener. Other reader and writer threads will not be able
+     * to access the database (i.e. will block) while this transaction is active.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionWithListener(listener);
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
@@ -910,11 +972,33 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a non-exclusive transaction with a listener. This acquires a non-exclusive lock.
+     * Begin a transaction in IMMEDIATE mode with the given listener. Other writer threads will not be able to access
+     * the database (i.e. will block) while this transaction is active, but reader threads may be able to read from the
+     * database if it is configured to use write-ahead logging.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionWithListenerNonExclusive(listener);
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransactionWithListenerNonExclusive(SquidTransactionListener)
+     * @see ISQLiteDatabase#enableWriteAheadLogging()
      */
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -939,7 +1023,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * @return true if a transaction is active
+     * @return true if a transaction is active on the current thread
      * @see ISQLiteDatabase#inTransaction()
      */
     public final boolean inTransaction() {
