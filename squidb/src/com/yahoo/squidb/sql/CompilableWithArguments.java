@@ -17,20 +17,8 @@ abstract class CompilableWithArguments {
         return toRawSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING));
     }
 
-    @Deprecated
-    public final String toRawSql(VersionCode sqliteVersion) {
-        return buildSql(CompileContext.defaultContextForVersionCode(sqliteVersion), false, false).getSqlString();
-    }
-
     public final String toRawSql(CompileContext compileContext) {
         return buildSql(compileContext, false, false).getSqlString();
-    }
-
-    @Deprecated
-    protected final SqlBuilder buildSql(VersionCode sqliteVersion, boolean withBoundArguments,
-            boolean forSqlValidation) {
-        return buildSql(CompileContext.defaultContextForVersionCode(sqliteVersion), withBoundArguments,
-                forSqlValidation);
     }
 
     protected final SqlBuilder buildSql(CompileContext compileContext, boolean withBoundArguments,

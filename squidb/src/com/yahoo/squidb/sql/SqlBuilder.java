@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.VersionCode;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,18 +16,12 @@ public final class SqlBuilder {
     public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
     public final CompileContext compileContext;
 
-    @Deprecated
-    /**
-     * Users should extract this value from {@link #compileContext}.getVersionCode() instead
-     */
-    public final VersionCode sqliteVersion;
     final List<Object> args;
 
     private boolean needsValidation = false;
 
     SqlBuilder(CompileContext compileContext, boolean withBoundArguments) {
         this.compileContext = compileContext;
-        this.sqliteVersion = compileContext.getVersionCode();
         this.args = withBoundArguments ? new ArrayList<>() : null;
     }
 

@@ -24,14 +24,6 @@ public class SqlUtils {
         return a.equals(b);
     }
 
-    /**
-     * Use an instance of ArgumentResolver instead, e.g. {@link DefaultArgumentResolver}
-     */
-    @Deprecated
-    public static Object resolveArgReferences(Object arg) {
-        return new DefaultArgumentResolver().resolveArgument(arg);
-    }
-
     static void addInlineCollectionToSqlString(StringBuilder sql, ArgumentResolver argResolver, Collection<?> values) {
         if (values != null && !values.isEmpty()) {
             for (Object value : values) {

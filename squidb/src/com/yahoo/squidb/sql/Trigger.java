@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.utility.SquidUtilities;
-import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -278,12 +277,6 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
     @SuppressWarnings("unchecked")
     public static <T extends Property<?>> T newValueOf(T property) {
         return (T) property.as(NEW, property.getExpression());
-    }
-
-    @Override
-    @Deprecated
-    public CompiledStatement compile(VersionCode sqliteVersion) {
-        return compile(CompileContext.defaultContextForVersionCode(sqliteVersion));
     }
 
     public CompiledStatement compile(CompileContext compileContext) {
