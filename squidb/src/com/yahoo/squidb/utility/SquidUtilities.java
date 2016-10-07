@@ -159,28 +159,22 @@ public class SquidUtilities {
 
     /**
      * Copy database files to the given folder. Useful for debugging.
+     * <p>
+     * This method is deprecated. Users should call {@link SquidDatabase#copyDatabase(File)} directly on their
+     * SquidDatabase instance instead.
      *
      * @param database the SquidDatabase to copy
      * @param toFolder the directory to copy files into
      */
+    @Deprecated
     public static void copyDatabase(SquidDatabase database, String toFolder) {
-        File folderFile = new File(toFolder);
-        if (!(folderFile.mkdirs() || folderFile.isDirectory())) {
-            Logger.e(Logger.LOG_TAG, "Error creating directories for database copy");
-            return;
-        }
-        File dbFile = new File(database.getDatabasePath());
-        try {
-            copyFile(dbFile, new File(folderFile.getAbsolutePath() + File.separator + database.getName()));
-        } catch (Exception e) {
-            Logger.e(Logger.LOG_TAG, "Error copying database " + database.getName(), e);
-        }
+        database.copyDatabase(new File(toFolder));
     }
 
     /**
      * Copy a file from one place to another
      */
-    private static void copyFile(File in, File out) throws Exception {
+    public static void copyFile(File in, File out) throws IOException {
         FileInputStream fis = new FileInputStream(in);
         FileOutputStream fos = new FileOutputStream(out);
         try {
@@ -211,7 +205,6 @@ public class SquidUtilities {
             }
 
             dest.write(buffer, 0, bytes);
-            dest.flush();
         }
     }
 }
