@@ -59,7 +59,7 @@ public class TestDatabase extends SquidDatabase {
 
     @Override
     protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
-        return SQLiteBindingProvider.provideOpenHelper(databaseName, delegate, version);
+        return SQLiteBindingProvider.getInstance().createOpenHelper(databaseName, delegate, version);
     }
 
     @Override

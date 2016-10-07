@@ -16,12 +16,13 @@ public abstract class SQLiteBindingProvider {
         sProvider = provider;
     }
 
-    public static ISQLiteOpenHelper provideOpenHelper(String databaseName,
-            SquidDatabase.OpenHelperDelegate delegate, int version) {
-        return sProvider.createOpenHelper(databaseName, delegate, version);
+    public static SQLiteBindingProvider getInstance() {
+        return sProvider;
     }
 
     public abstract ISQLiteOpenHelper createOpenHelper(String databaseName,
             SquidDatabase.OpenHelperDelegate delegate, int version);
+
+    public abstract String getWriteableTestDir();
 
 }
