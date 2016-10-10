@@ -10,12 +10,19 @@ import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.ios.IOSOpenHelper;
 
 public class IOSSQLiteBindingProvider extends SQLiteBindingProvider {
-    
-    public ISQLiteOpenHelper createOpenHelper(String databaseName, SquidDatabase.OpenHelperDelegate delegate, int version) {
+
+    public ISQLiteOpenHelper createOpenHelper(String databaseName, SquidDatabase.OpenHelperDelegate delegate,
+            int version) {
         return new IOSOpenHelper(getDatabasePath(), databaseName, delegate, version);
     }
-    
-    public static native String getDatabasePath() /*-[
+
+    public native String getWriteableTestDir() /*-[
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString * documentsDirectory = [paths objectAtIndex:0];
+        return [documentsDirectory stringByAppendingPathComponent:@"/TestDatabases"];
+    ]-*/;
+
+    private static native String getDatabasePath() /*-[
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);         
         NSString * documentsDirectory = [paths objectAtIndex:0];
         return [documentsDirectory stringByAppendingPathComponent:@"/Databases"];

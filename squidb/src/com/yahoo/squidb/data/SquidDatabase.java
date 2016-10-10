@@ -28,6 +28,8 @@ import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -1530,22 +1532,6 @@ public abstract class SquidDatabase {
         return new SquidCursor<>(cursor, modelClass, query.getFields());
     }
 
-    /**
-     * Directly analogous to {@link #query(Class, Query)}, but instead of returning a result, this method just logs the
-     * output of EXPLAIN QUERY PLAN for the given query. This is intended for debugging only.
-     */
-    public void explainQueryPlan(Class<? extends AbstractModel> modelClass, Query query) {
-        query = inferTableForQuery(modelClass, query);
-        CompiledStatement compiled = query.compile(getCompileContext());
-        ICursor cursor = rawQuery("EXPLAIN QUERY PLAN " + compiled.sql, compiled.sqlArgs);
-        try {
-            Logger.d(Logger.LOG_TAG, "Query plan for: " + compiled.sql);
-            SquidUtilities.dumpCursor(cursor, -1);
-        } finally {
-            cursor.close();
-        }
-    }
-
     // If the query does not have a from clause, look up the table by model object and add it to the query. May
     // return a new query object if the argument passed was frozen.
     private Query inferTableForQuery(Class<? extends AbstractModel> modelClass, Query query) {
@@ -2129,5 +2115,71 @@ public abstract class SquidDatabase {
             }
             accumulatedNotifiers.clear();
         }
+    }
+
+    // -- debugging utilities
+
+    /**
+     * Directly analogous to {@link #query(Class, Query)}, but instead of returning a result, this method just logs the
+     * output of EXPLAIN QUERY PLAN for the given query. This is method is intended for debugging purposes only.
+     */
+    public void explainQueryPlan(Class<? extends AbstractModel> modelClass, Query query) {
+        query = inferTableForQuery(modelClass, query);
+        CompiledStatement compiled = query.compile(getCompileContext());
+        ICursor cursor = rawQuery("EXPLAIN QUERY PLAN " + compiled.sql, compiled.sqlArgs);
+        try {
+            Logger.d(Logger.LOG_TAG, "Query plan for: " + compiled.sql);
+            SquidUtilities.dumpCursor(cursor, -1);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    /**
+     * Copies the database file and any supporting journal or WAL files needed to open the DB to the given directory.
+     * This method acquires the exclusive lock on the database before copying, which will prevent any other threads
+     * from reading or writing to the database while the copying is in progress. If this method is called from within
+     * a transaction, an exception will be thrown. This method is intended for debugging purposes only.
+     *
+     * @param toDir the directory to copy the database files to
+     * @return true if copying the database files succeeded, false otherwise
+     */
+    public boolean copyDatabase(File toDir) {
+        acquireExclusiveLock();
+        try {
+            return copyDatabaseLocked(toDir);
+        } finally {
+            releaseExclusiveLock();
+        }
+    }
+
+    private boolean copyDatabaseLocked(File toDir) {
+        if (!(toDir.mkdirs() || toDir.isDirectory())) {
+            Logger.e(Logger.LOG_TAG, "Error creating directories for database copy");
+            return false;
+        }
+        File dbFile = new File(getDatabasePath());
+        try {
+            if (copyFileIfExists(dbFile, toDir)) {
+                copyFileIfExists(new File(dbFile.getPath() + "-journal"), toDir);
+                copyFileIfExists(new File(dbFile.getPath() + "-shm"), toDir);
+                copyFileIfExists(new File(dbFile.getPath() + "-wal"), toDir);
+            } else {
+                Logger.e(Logger.LOG_TAG, "Attempted to copy database " + getName() + " but it doesn't exist yet");
+                return false;
+            }
+        } catch (IOException e) {
+            Logger.e(Logger.LOG_TAG, "Error copying database " + getName(), e);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean copyFileIfExists(File in, File toDir) throws IOException {
+        if (in.exists()) {
+            SquidUtilities.copyFile(in, new File(toDir.getAbsolutePath() + File.separator + in.getName()));
+            return true;
+        }
+        return false;
     }
 }

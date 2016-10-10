@@ -13,11 +13,15 @@ import com.yahoo.squidb.sql.TableModelName;
 import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
+import com.yahoo.squidb.test.SQLiteBindingProvider;
 import com.yahoo.squidb.test.TestDatabase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.Thing;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -829,6 +833,62 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
+        }
+    }
+
+    public void testCopyDatabase() {
+        insertBasicTestModel(); // Make sure DB is open and populated
+
+        File destinationDir = new File(SQLiteBindingProvider.getInstance().getWriteableTestDir());
+
+        File dbFile = new File(database.getDatabasePath());
+        File walFile = new File(database.getDatabasePath() + "-wal");
+        assertTrue(dbFile.exists());
+        assertTrue(walFile.exists());
+
+        File destinationDbFile = new File(destinationDir.getPath() + File.separator + database.getName());
+        File destinationWalFile = new File(destinationDir.getPath() + File.separator + database.getName() + "-wal");
+        destinationDbFile.delete();
+        destinationWalFile.delete();
+        assertFalse(destinationDbFile.exists());
+        assertFalse(destinationWalFile.exists());
+
+        assertTrue(database.copyDatabase(destinationDir));
+        assertTrue(destinationDbFile.exists());
+        assertTrue(destinationWalFile.exists());
+
+        assertTrue(filesAreEqual(dbFile, destinationDbFile));
+        assertTrue(filesAreEqual(walFile, destinationWalFile));
+    }
+
+    private boolean filesAreEqual(File f1, File f2) {
+        if (f1.length() != f2.length()) {
+            return false;
+        }
+
+        try {
+            FileInputStream f1in = new FileInputStream(f1);
+            FileInputStream f2in = new FileInputStream(f2);
+
+            int f1Bytes;
+            int f2Bytes;
+            byte[] f1Buffer;
+            byte[] f2Buffer;
+            int BUFFER_SIZE = 1024;
+            f1Buffer = new byte[BUFFER_SIZE];
+            f2Buffer = new byte[BUFFER_SIZE];
+            while ((f1Bytes = f1in.read(f1Buffer)) != -1) {
+                f2Bytes = f2in.read(f2Buffer);
+                if (f1Bytes != f2Bytes) {
+                    return false;
+                }
+                if (!Arrays.equals(f1Buffer, f2Buffer)) {
+                    return false;
+                }
+            }
+            return f2in.read(f2Buffer) == -1;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

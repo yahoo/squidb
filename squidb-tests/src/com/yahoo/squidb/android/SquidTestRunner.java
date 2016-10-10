@@ -29,6 +29,11 @@ public class SquidTestRunner extends AndroidTestRunner {
                     int version) {
                 return selectedBinding.getOpenHelper(ContextProvider.getContext(), databaseName, delegate, version);
             }
+
+            @Override
+            public String getWriteableTestDir() {
+                return ContextProvider.getContext().getFilesDir().getPath();
+            }
         });
     }
 

@@ -63,7 +63,7 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
 
     @Override
     protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
-        return SQLiteBindingProvider.provideOpenHelper(databaseName, delegate, version);
+        return SQLiteBindingProvider.getInstance().createOpenHelper(databaseName, delegate, version);
     }
 
     @Override
