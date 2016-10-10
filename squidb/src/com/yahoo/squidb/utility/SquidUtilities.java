@@ -6,7 +6,6 @@
 package com.yahoo.squidb.utility;
 
 import com.yahoo.squidb.data.ICursor;
-import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -156,20 +155,6 @@ public class SquidUtilities {
     }
 
     // --- serialization
-
-    /**
-     * Copy database files to the given folder. Useful for debugging.
-     * <p>
-     * This method is deprecated. Users should call {@link SquidDatabase#copyDatabase(File)} directly on their
-     * SquidDatabase instance instead.
-     *
-     * @param database the SquidDatabase to copy
-     * @param toFolder the directory to copy files into
-     */
-    @Deprecated
-    public static void copyDatabase(SquidDatabase database, String toFolder) {
-        database.copyDatabase(new File(toFolder));
-    }
 
     /**
      * Copy a file from one place to another
