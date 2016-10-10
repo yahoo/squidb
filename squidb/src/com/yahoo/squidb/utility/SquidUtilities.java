@@ -193,17 +193,7 @@ public class SquidUtilities {
         byte[] buffer;
         int BUFFER_SIZE = 1024;
         buffer = new byte[BUFFER_SIZE];
-        while ((bytes = source.read(buffer)) != -1) {
-            if (bytes == 0) {
-                bytes = source.read();
-                if (bytes < 0) {
-                    break;
-                }
-                dest.write(bytes);
-                dest.flush();
-                continue;
-            }
-
+        while ((bytes = source.read(buffer)) > 0) {
             dest.write(buffer, 0, bytes);
         }
     }
