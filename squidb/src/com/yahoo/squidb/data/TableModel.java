@@ -107,7 +107,7 @@ public abstract class TableModel extends AbstractModel {
 
         ModelAndIndex modelAndIndex = new ModelAndIndex(this);
         for (Property<?> property : allProperties) {
-            if (property.equals(rowidProperty)) {
+            if (property == rowidProperty) {
                 long rowid = getRowId();
                 if (rowid == TableModel.NO_ID) {
                     preparedInsert.bindNull(modelAndIndex.index);
