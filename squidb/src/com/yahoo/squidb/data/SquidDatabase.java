@@ -283,7 +283,7 @@ public abstract class SquidDatabase {
     private Set<ISQLitePreparedStatement> trackedPreparedInserts = Collections.newSetFromMap(
             new ConcurrentHashMap<ISQLitePreparedStatement, Boolean>());
     private ThreadLocal<PreparedInsertCache> preparedInsertCache = newPreparedInsertCache(trackedPreparedInserts);
-    private boolean fastInsertEnabled = false;
+    private boolean preparedInsertCacheEnabled = false;
 
     private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -475,13 +475,17 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Enables or disables the experimental fast insert feature. When enabled, insert performance, especially in large
-     * transactions, can be improved up to 70%. However, the feature is still experimental and may have undiscovered
-     * bugs
+     * Enables or disables the prepared insert cache. Generally speaking, enabling this cache will result in a
+     * performance improvement when inserting rows, especially in large transactions. Under ideal conditions,
+     * performance may be improved up to 70%, and a 25-50% gain is a reasonable expectation for most cases. However,
+     * the gains may not be noticeable on some older devices or in low-memory environments. The feature is experimental
+     * and is disabled by default.
+     *
+     * @param enabled true to enable the prepared insert cache, false to disable it
      */
     @Beta
-    protected void setFastInsertEnabled(boolean enabled) {
-        fastInsertEnabled = enabled;
+    protected void setPreparedInsertCacheEnabled(boolean enabled) {
+        preparedInsertCacheEnabled = enabled;
     }
 
     private ThreadLocal<PreparedInsertCache> newPreparedInsertCache(
@@ -2018,7 +2022,7 @@ public abstract class SquidDatabase {
         Table table = getTable(modelClass);
 
         long newRow;
-        if (fastInsertEnabled) {
+        if (preparedInsertCacheEnabled) {
             acquireNonExclusiveLock();
             try {
                 PreparedInsertCache insertCache = preparedInsertCache.get();
