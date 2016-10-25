@@ -8,6 +8,7 @@ package com.yahoo.squidb.sqlitebindings;
 import com.yahoo.squidb.android.SquidCursorWrapper;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.ISQLitePreparedStatement;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
@@ -275,6 +276,11 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
                 statement.close();
             }
         }
+    }
+
+    @Override
+    public ISQLitePreparedStatement prepareStatement(String sql) {
+        return new SQLiteBindingsStatementAdapter(db.compileStatement(sql));
     }
 
     @Override

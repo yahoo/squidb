@@ -13,6 +13,7 @@ import android.os.Build;
 
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
+import com.yahoo.squidb.data.ISQLitePreparedStatement;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
 /**
@@ -294,6 +295,11 @@ public class SQLiteDatabaseAdapter implements ISQLiteDatabase {
                 c.close();
             }
         }
+    }
+
+    public ISQLitePreparedStatement prepareStatement(String sql) {
+        return new SQLiteStatementAdapter(db.compileStatement(sql));
+
     }
 
     @Override

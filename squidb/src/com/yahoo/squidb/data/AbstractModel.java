@@ -279,6 +279,16 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     /**
+     * Equivalent to <pre>get(property, true)</pre>
+     *
+     * @return the value of the specified property
+     * @throws UnsupportedOperationException if the value is not found in the model
+     */
+    public <TYPE> TYPE get(Property<TYPE> property) {
+        return get(property, true);
+    }
+
+    /**
      * Return the value of the specified {@link Property}. The model prioritizes values as follows:
      * <ol>
      * <li>values explicitly set using {@link #set(Property, Object)} or a generated setter</li>
@@ -286,25 +296,25 @@ public abstract class AbstractModel implements Cloneable {
      * a {@link SquidCursor}</li>
      * <li>the set of default values as specified by {@link #getDefaultValues()}</li>
      * </ol>
-     * If a value is not found in any of those places, an exception is thrown.
+     * If a value is not found in any of those places, the result depends on the value of the throwOnFail parameter.
+     * If true, an exception will be throw, if false, null is returned.
      *
      * @return the value of the specified property
      * @throws UnsupportedOperationException if the value is not found in the model
      */
-    @SuppressWarnings("unchecked")
-    public <TYPE> TYPE get(Property<TYPE> property) {
+    public <TYPE> TYPE get(Property<TYPE> property, boolean throwOnFail) {
         if (setValues != null && setValues.containsKey(property.getName())) {
             return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
             return getFromValues(property, values);
         } else if (getDefaultValues().containsKey(property.getName())) {
             return getFromValues(property, getDefaultValues());
-        } else {
+        } else if (throwOnFail) {
             throw new UnsupportedOperationException(property.getName()
                     + " not found in model. Make sure the value was set explicitly, read from a cursor,"
                     + " or that the model has a default value for this property.");
         }
-
+        return null;
     }
 
     @SuppressWarnings("unchecked")

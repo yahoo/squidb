@@ -6,7 +6,6 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.Field;
-import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.TableModelName;
@@ -33,31 +32,31 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SquidDatabaseTest extends DatabaseTestCase {
 
-    private BadDatabase badDatabase;
+    private TestHookDatabase testHookDatabase;
 
     @Override
     protected void setupDatabase() {
         super.setupDatabase();
-        badDatabase = new BadDatabase();
-        badDatabase.getDatabase(); // init
+        testHookDatabase = new TestHookDatabase();
+        testHookDatabase.getDatabase(); // init
     }
 
     @Override
     protected void tearDownDatabase() {
         super.tearDownDatabase();
-        badDatabase.clear();
+        testHookDatabase.clear();
     }
 
     public void testRawQuery() {
-        badDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
+        testHookDatabase.persist(new TestModel().setFirstName("Sam").setLastName("Bosley").setBirthday(testDate));
         ICursor cursor = null;
         try {
             // Sanity check that there is only one row in the table
-            assertEquals(1, badDatabase.countAll(TestModel.class));
+            assertEquals(1, testHookDatabase.countAll(TestModel.class));
 
             // Test that raw query binds arguments correctly--if the argument
             // is bound as a String, the result will be empty
-            cursor = badDatabase.rawQuery("select * from testModels where abs(_id) = ?", new Object[]{1});
+            cursor = testHookDatabase.rawQuery("select * from testModels where abs(_id) = ?", new Object[]{1});
             assertEquals(1, cursor.getCount());
         } finally {
             if (cursor != null) {
@@ -69,14 +68,14 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     public void testTryAddColumn() {
         StringProperty goodProperty = new StringProperty(
                 new TableModelName(TestModel.class, TestModel.TABLE.getName()), "good_column");
-        badDatabase.tryAddColumn(goodProperty); // don't care about the result, just that it didn't throw
+        testHookDatabase.tryAddColumn(goodProperty); // don't care about the result, just that it didn't throw
 
         final StringProperty badProperty = new StringProperty(
                 new TableModelName(TestViewModel.class, TestViewModel.VIEW.getName()), "bad_column");
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                badDatabase.tryAddColumn(badProperty);
+                testHookDatabase.tryAddColumn(badProperty);
             }
         }, IllegalArgumentException.class);
     }
@@ -99,21 +98,21 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     private void testMigrationFailureCalled(boolean upgrade, boolean shouldThrow,
             boolean shouldRecreateDuringMigration, boolean shouldRecreateOnMigrationFailed) {
-        badDatabase.shouldThrowDuringMigration = shouldThrow;
-        badDatabase.shouldRecreateInMigration = shouldRecreateDuringMigration;
-        badDatabase.shouldRecreateInOnMigrationFailed = shouldRecreateOnMigrationFailed;
+        testHookDatabase.shouldThrowDuringMigration = shouldThrow;
+        testHookDatabase.shouldRecreateInMigration = shouldRecreateDuringMigration;
+        testHookDatabase.shouldRecreateInOnMigrationFailed = shouldRecreateOnMigrationFailed;
 
         // set version manually
-        ISQLiteDatabase db = badDatabase.getDatabase();
+        ISQLiteDatabase db = testHookDatabase.getDatabase();
         final int version = db.getVersion();
         final int previousVersion = upgrade ? version - 1 : version + 1;
         db.setVersion(previousVersion);
         // close and reopen to trigger an upgrade/downgrade
-        badDatabase.onTablesCreatedCalled = false;
-        badDatabase.close();
+        testHookDatabase.onTablesCreatedCalled = false;
+        testHookDatabase.close();
         RuntimeException caughtException = null;
         try {
-            badDatabase.getDatabase();
+            testHookDatabase.getDatabase();
         } catch (RuntimeException e) {
             caughtException = e;
         }
@@ -125,13 +124,13 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             assertNull(caughtException);
         }
 
-        assertTrue(upgrade ? badDatabase.onUpgradeCalled : badDatabase.onDowngradeCalled);
+        assertTrue(upgrade ? testHookDatabase.onUpgradeCalled : testHookDatabase.onDowngradeCalled);
         if (shouldRecreateDuringMigration || shouldRecreateOnMigrationFailed) {
-            assertTrue(badDatabase.onTablesCreatedCalled);
+            assertTrue(testHookDatabase.onTablesCreatedCalled);
         } else {
-            assertTrue(badDatabase.onMigrationFailedCalled);
-            assertEquals(previousVersion, badDatabase.migrationFailedOldVersion);
-            assertEquals(version, badDatabase.migrationFailedNewVersion);
+            assertTrue(testHookDatabase.onMigrationFailedCalled);
+            assertEquals(previousVersion, testHookDatabase.migrationFailedOldVersion);
+            assertEquals(version, testHookDatabase.migrationFailedNewVersion);
         }
     }
 
@@ -154,42 +153,42 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
     private void testRecreateDuringMigrationOrFailureCallback(boolean upgrade, boolean recreateDuringMigration) {
         // insert some data to check for later
-        badDatabase.persist(new Employee().setName("Alice"));
-        badDatabase.persist(new Employee().setName("Bob"));
-        badDatabase.persist(new Employee().setName("Cindy"));
-        assertEquals(3, badDatabase.countAll(Employee.class));
+        testHookDatabase.persist(new Employee().setName("Alice"));
+        testHookDatabase.persist(new Employee().setName("Bob"));
+        testHookDatabase.persist(new Employee().setName("Cindy"));
+        assertEquals(3, testHookDatabase.countAll(Employee.class));
 
         testMigrationFailureCalled(upgrade, recreateDuringMigration, true, recreateDuringMigration);
 
         // verify the db was recreated with the appropriate version and no previous data
-        ISQLiteDatabase db = badDatabase.getDatabase();
-        assertEquals(badDatabase.getVersion(), db.getVersion());
-        assertEquals(0, badDatabase.countAll(Employee.class));
+        ISQLiteDatabase db = testHookDatabase.getDatabase();
+        assertEquals(testHookDatabase.getVersion(), db.getVersion());
+        assertEquals(0, testHookDatabase.countAll(Employee.class));
     }
 
     public void testExceptionDuringOpenCleansUp() {
-        badDatabase.shouldThrowDuringMigration = true;
-        badDatabase.shouldRecreateInMigration = true;
-        badDatabase.shouldRecreateInOnMigrationFailed = false;
-        badDatabase.shouldRethrowInOnMigrationFailed = true;
+        testHookDatabase.shouldThrowDuringMigration = true;
+        testHookDatabase.shouldRecreateInMigration = true;
+        testHookDatabase.shouldRecreateInOnMigrationFailed = false;
+        testHookDatabase.shouldRethrowInOnMigrationFailed = true;
 
         testThrowsException(new Runnable() {
             @Override
             public void run() {
                 // set version manually
-                ISQLiteDatabase db = badDatabase.getDatabase();
+                ISQLiteDatabase db = testHookDatabase.getDatabase();
                 final int version = db.getVersion();
                 final int previousVersion = version - 1;
                 db.setVersion(previousVersion);
                 // close and reopen to trigger an upgrade/downgrade
-                badDatabase.onTablesCreatedCalled = false;
-                badDatabase.close();
-                badDatabase.getDatabase();
+                testHookDatabase.onTablesCreatedCalled = false;
+                testHookDatabase.close();
+                testHookDatabase.getDatabase();
             }
         }, SquidDatabase.MigrationFailedException.class);
 
-        assertFalse(badDatabase.inTransaction());
-        assertFalse(badDatabase.isOpen());
+        assertFalse(testHookDatabase.inTransaction());
+        assertFalse(testHookDatabase.isOpen());
     }
 
     public void testAcquireExclusiveLockFailsWhenInTransaction() {
@@ -197,17 +196,17 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             @Override
             public void run() {
                 IllegalStateException caughtException = null;
-                badDatabase.beginTransaction();
+                testHookDatabase.beginTransaction();
                 try {
-                    badDatabase.acquireExclusiveLock();
+                    testHookDatabase.acquireExclusiveLock();
                 } catch (IllegalStateException e) {
                     // Need to do this in the catch block rather than the finally block, because otherwise tearDown is
                     // called before we have a chance to release the transaction lock
-                    badDatabase.endTransaction();
+                    testHookDatabase.endTransaction();
                     caughtException = e;
                 } finally {
                     if (caughtException == null) { // Sanity cleanup if catch block was never reached
-                        badDatabase.endTransaction();
+                        testHookDatabase.endTransaction();
                     }
                 }
                 if (caughtException != null) {
@@ -241,55 +240,55 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     public void testRetryOpenDatabase() {
-        badDatabase.clear(); // init opens it, we need a new db
+        testHookDatabase.clear(); // init opens it, we need a new db
         final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
-        badDatabase.shouldThrowDuringOpen = true;
-        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+        testHookDatabase.shouldThrowDuringOpen = true;
+        testHookDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
             @Override
             public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
                 openFailedHandlerCalled.set(true);
-                badDatabase.shouldThrowDuringOpen = false;
-                badDatabase.getDatabase();
+                testHookDatabase.shouldThrowDuringOpen = false;
+                testHookDatabase.getDatabase();
             }
         };
-        badDatabase.getDatabase();
-        assertTrue(badDatabase.isOpen());
+        testHookDatabase.getDatabase();
+        assertTrue(testHookDatabase.isOpen());
         assertTrue(openFailedHandlerCalled.get());
-        assertEquals(1, badDatabase.dbOpenFailureCount);
+        assertEquals(1, testHookDatabase.dbOpenFailureCount);
     }
 
     public void testRecreateOnOpenFailed() {
         final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
-        badDatabase.persist(new Employee().setName("Alice"));
-        badDatabase.persist(new Employee().setName("Bob"));
-        badDatabase.persist(new Employee().setName("Cindy"));
-        assertEquals(3, badDatabase.countAll(Employee.class));
+        testHookDatabase.persist(new Employee().setName("Alice"));
+        testHookDatabase.persist(new Employee().setName("Bob"));
+        testHookDatabase.persist(new Employee().setName("Cindy"));
+        assertEquals(3, testHookDatabase.countAll(Employee.class));
 
-        ISQLiteDatabase db = badDatabase.getDatabase();
+        ISQLiteDatabase db = testHookDatabase.getDatabase();
         db.setVersion(db.getVersion() + 1);
-        badDatabase.close();
-        badDatabase.shouldThrowDuringMigration = true;
-        badDatabase.shouldRethrowInOnMigrationFailed = true;
-        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+        testHookDatabase.close();
+        testHookDatabase.shouldThrowDuringMigration = true;
+        testHookDatabase.shouldRethrowInOnMigrationFailed = true;
+        testHookDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
             @Override
             public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
                 openFailedHandlerCalled.set(true);
-                badDatabase.shouldThrowDuringOpen = false;
-                badDatabase.recreate();
+                testHookDatabase.shouldThrowDuringOpen = false;
+                testHookDatabase.recreate();
             }
         };
-        badDatabase.getDatabase();
-        assertTrue(badDatabase.isOpen());
+        testHookDatabase.getDatabase();
+        assertTrue(testHookDatabase.isOpen());
         assertTrue(openFailedHandlerCalled.get());
-        assertEquals(1, badDatabase.dbOpenFailureCount);
-        assertEquals(0, badDatabase.countAll(Employee.class));
+        assertEquals(1, testHookDatabase.dbOpenFailureCount);
+        assertEquals(0, testHookDatabase.countAll(Employee.class));
     }
 
     public void testSuppressingDbOpenFailedThrowsRuntimeException() {
-        badDatabase.clear();
+        testHookDatabase.clear();
         final AtomicBoolean openFailedHandlerCalled = new AtomicBoolean();
-        badDatabase.shouldThrowDuringOpen = true;
-        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+        testHookDatabase.shouldThrowDuringOpen = true;
+        testHookDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
             @Override
             public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
                 openFailedHandlerCalled.set(true);
@@ -298,11 +297,11 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testThrowsException(new Runnable() {
             @Override
             public void run() {
-                badDatabase.getDatabase();
+                testHookDatabase.getDatabase();
             }
         }, RuntimeException.class);
         assertTrue(openFailedHandlerCalled.get());
-        assertFalse(badDatabase.isOpen());
+        assertFalse(testHookDatabase.isOpen());
     }
 
     public void testRecursiveRetryDbOpen() {
@@ -315,33 +314,33 @@ public class SquidDatabaseTest extends DatabaseTestCase {
     }
 
     private void testRecursiveRetryDbOpen(final int maxRetries, final boolean eventualRecovery) {
-        badDatabase.clear();
-        badDatabase.shouldThrowDuringOpen = true;
-        badDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
+        testHookDatabase.clear();
+        testHookDatabase.shouldThrowDuringOpen = true;
+        testHookDatabase.dbOpenFailedHandler = new DbOpenFailedHandler() {
             @Override
             public void dbOpenFailed(RuntimeException failure, int openFailureCount) {
                 if (openFailureCount >= maxRetries) {
-                    badDatabase.shouldThrowDuringOpen = false;
+                    testHookDatabase.shouldThrowDuringOpen = false;
                     if (!eventualRecovery) {
                         throw failure;
                     }
                 }
-                badDatabase.getDatabase();
+                testHookDatabase.getDatabase();
             }
         };
 
         if (eventualRecovery) {
-            badDatabase.getDatabase();
+            testHookDatabase.getDatabase();
         } else {
             testThrowsException(new Runnable() {
                 @Override
                 public void run() {
-                    badDatabase.getDatabase();
+                    testHookDatabase.getDatabase();
                 }
             }, RuntimeException.class);
         }
-        assertEquals(maxRetries, badDatabase.dbOpenFailureCount);
-        assertEquals(eventualRecovery, badDatabase.isOpen());
+        assertEquals(maxRetries, testHookDatabase.dbOpenFailureCount);
+        assertEquals(eventualRecovery, testHookDatabase.isOpen());
     }
 
     public void testDataChangeNotifiersDisabledDuringDbOpen() {
@@ -391,10 +390,32 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         testDb.clear();
     }
 
+    public void testOnCloseHook() {
+        final AtomicReference<ISQLitePreparedStatement> preparedStatementRef = new AtomicReference<>();
+        testHookDatabase.onCloseTester = new DbHookTester() {
+            @Override
+            void onHookImpl(ISQLiteDatabase db) {
+                assertTrue(db.isOpen());
+                ISQLitePreparedStatement statement = preparedStatementRef.get();
+                assertNotNull(statement);
+                statement.close();
+                preparedStatementRef.set(null);
+            }
+        };
+
+        preparedStatementRef.set(testHookDatabase.prepareStatement("SELECT COUNT(*) FROM testModels"));
+        assertNotNull(preparedStatementRef.get());
+        assertEquals(0, preparedStatementRef.get().simpleQueryForLong());
+        testHookDatabase.close();
+        assertTrue(testHookDatabase.onCloseTester.wasCalled);
+        assertNull(preparedStatementRef.get());
+    }
+
     /**
-     * {@link TestDatabase} that intentionally fails in onUpgrade and onDowngrade
+     * A {@link TestDatabase} that intentionally fails in onUpgrade and onDowngrade and provides means of testing
+     * various other SquidDatabase hooks
      */
-    private static class BadDatabase extends TestDatabase {
+    private static class TestHookDatabase extends TestDatabase {
 
         private boolean onMigrationFailedCalled = false;
         private boolean onUpgradeCalled = false;
@@ -411,7 +432,9 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         private boolean shouldRethrowInOnMigrationFailed = false;
         private DbOpenFailedHandler dbOpenFailedHandler = null;
 
-        public BadDatabase() {
+        private DbHookTester onCloseTester = null;
+
+        public TestHookDatabase() {
             super();
         }
 
@@ -478,14 +501,30 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean tryAddColumn(Property<?> property) {
-            return super.tryAddColumn(property);
+        protected void onClose(ISQLiteDatabase db) {
+            if (onCloseTester != null) {
+                onCloseTester.onHook(db);
+            }
         }
     }
 
     private interface DbOpenFailedHandler {
 
         void dbOpenFailed(RuntimeException failure, int openFailureCount);
+    }
+
+    // This class can be used to add customized behavior to the optional SquidDatabase overrideable hook methods
+    // in the TestHookDatabase class.
+    private static abstract class DbHookTester {
+
+        boolean wasCalled = false;
+
+        final void onHook(ISQLiteDatabase db) {
+            wasCalled = true;
+            onHookImpl(db);
+        }
+
+        abstract void onHookImpl(ISQLiteDatabase db);
     }
 
     public void testBasicInsertAndFetch() {

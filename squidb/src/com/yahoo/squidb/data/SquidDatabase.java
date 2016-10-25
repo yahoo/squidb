@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -255,6 +257,15 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Called when the database is about to be closed. This method is called immediately before the database is closed,
+     * so the ISQLiteDatabase parameter is still valid to use for executing any cleanup SQL that might be necessary.
+     *
+     * @param db the {@link ISQLiteDatabase} that is about to close
+     */
+    protected void onClose(ISQLiteDatabase db) {
+    }
+
+    /**
      * Called when an error occurs. This is primarily for clients to log notable errors, not for taking corrective
      * action on them. The default implementation prints a warning log.
      *
@@ -268,6 +279,11 @@ public abstract class SquidDatabase {
     // --- internal implementation
 
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
+
+    private Set<ISQLitePreparedStatement> trackedPreparedInserts = Collections.newSetFromMap(
+            new ConcurrentHashMap<ISQLitePreparedStatement, Boolean>());
+    private ThreadLocal<PreparedInsertCache> preparedInsertCache = newPreparedInsertCache(trackedPreparedInserts);
+    private boolean preparedInsertCacheEnabled = false;
 
     private SquidDatabase attachedTo = null;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -456,6 +472,30 @@ public abstract class SquidDatabase {
         } finally {
             setDataChangedNotificationsEnabled(areDataChangedNotificationsEnabled);
         }
+    }
+
+    /**
+     * Enables or disables the prepared insert cache. Generally speaking, enabling this cache will result in a
+     * performance improvement when inserting rows, especially in large transactions. Under ideal conditions,
+     * performance may be improved up to 70%, and a 25-50% gain is a reasonable expectation for most cases. However,
+     * the gains may not be noticeable on some older devices or in low-memory environments. The feature is experimental
+     * and is disabled by default.
+     *
+     * @param enabled true to enable the prepared insert cache, false to disable it
+     */
+    @Beta
+    protected void setPreparedInsertCacheEnabled(boolean enabled) {
+        preparedInsertCacheEnabled = enabled;
+    }
+
+    private ThreadLocal<PreparedInsertCache> newPreparedInsertCache(
+            final Set<ISQLitePreparedStatement> openStatementTracking) {
+        return new ThreadLocal<PreparedInsertCache>() {
+            @Override
+            protected PreparedInsertCache initialValue() {
+                return new PreparedInsertCache(openStatementTracking);
+            }
+        };
     }
 
     /**
@@ -648,7 +688,9 @@ public abstract class SquidDatabase {
     }
 
     private void closeAndDeleteInternal(boolean deleteAfterClose) {
+        clearPreparedStatementCache();
         if (isOpen()) {
+            onClose(database);
             database.close();
         }
         setDatabase(null);
@@ -656,6 +698,14 @@ public abstract class SquidDatabase {
             getOpenHelper().deleteDatabase();
         }
         helper = null;
+    }
+
+    private void clearPreparedStatementCache() {
+        for (ISQLitePreparedStatement statement : trackedPreparedInserts) {
+            statement.close();
+        }
+        trackedPreparedInserts.clear();
+        preparedInsertCache = newPreparedInsertCache(trackedPreparedInserts);
     }
 
     /**
@@ -809,7 +859,27 @@ public abstract class SquidDatabase {
     // --- transaction management
 
     /**
-     * Begin a transaction. This acquires a non-exclusive lock.
+     * Begin a transaction in EXCLUSIVE mode. Other reader and writer threads will not be able to access the database
+     * (i.e. will block) while this transaction is active.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransaction();
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransaction()
@@ -827,10 +897,32 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a non-exclusive transaction. This acquires a non-exclusive lock.
+     * Begin a transaction in IMMEDIATE mode. Other writer threads will not be able to access the database (i.e. will
+     * block) while this transaction is active, but reader threads may be able to read from the database if it is
+     * configured to use write-ahead logging.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionNonExclusive();
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransactionNonExclusive()
+     * @see ISQLiteDatabase#enableWriteAheadLogging()
      */
     public void beginTransactionNonExclusive() {
         acquireNonExclusiveLock();
@@ -845,7 +937,27 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a transaction with a listener. This acquires a non-exclusive lock.
+     * Begin a transaction in EXCLUSIVE mode with the given listener. Other reader and writer threads will not be able
+     * to access the database (i.e. will block) while this transaction is active.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionWithListener(listener);
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
@@ -864,11 +976,33 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Begin a non-exclusive transaction with a listener. This acquires a non-exclusive lock.
+     * Begin a transaction in IMMEDIATE mode with the given listener. Other writer threads will not be able to access
+     * the database (i.e. will block) while this transaction is active, but reader threads may be able to read from the
+     * database if it is configured to use write-ahead logging.
+     * <p>
+     * As with Android's SQLiteDatabase, transactions can be nested. If any inner transaction is not marked as
+     * successful, the entire outer transaction is considered to have failed and will be rolled back. Otherwise all
+     * changes will be committed.
+     * <p>
+     * This method acquires the SquidDatabase's non-exclusive lock to prevent the database from being closed while
+     * the transaction is active.
+     * <p>
+     * The recommended pattern for beginning and ending transactions is this:
+     *
+     * <pre>
+     *   db.beginTransactionWithListenerNonExclusive(listener);
+     *   try {
+     *     ...
+     *     db.setTransactionSuccessful();
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * </pre>
      *
      * @param listener the transaction listener
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransactionWithListenerNonExclusive(SquidTransactionListener)
+     * @see ISQLiteDatabase#enableWriteAheadLogging()
      */
     public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
         acquireNonExclusiveLock();
@@ -893,7 +1027,7 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * @return true if a transaction is active
+     * @return true if a transaction is active on the current thread
      * @see ISQLiteDatabase#inTransaction()
      */
     public final boolean inTransaction() {
@@ -1434,6 +1568,43 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Prepares a low-level SQLite statement, represented as an instance of {@link ISQLitePreparedStatement}. The
+     * statement should either be a non-query (e.g. an INSERT or UPDATE) or a query that returns only a 1x1 result.
+     * You should call {@link ISQLitePreparedStatement#close()} when you are finished with the prepared statement.
+     * <p>
+     * The returned object is only safe to use while this database is still open. The easiest/recommended way to
+     * manage prepared statements is to avoid keeping any cached instances in memory for a long time. For example, this
+     * could be accomplished by only acquiring prepared statements within a transaction, using them to do work within
+     * that transaction only, and then closing the prepared statement when the transaction is about to end.
+     * <p>
+     * If you are acquiring/using a prepared statement only within the duration of a transaction, no additional locking
+     * is necessary. If you do choose to keep a prepared statement alive outside the scope you created it in, you may
+     * require additional locking if any code path in your app may close/re-open the database. If you wish to
+     * prevent the database from being closed while the prepared statement is open/in use, you can acquire the
+     * database's non-exclusive lock using {@link #acquireNonExclusiveLock()}, which will prevent the DB from being
+     * closed while the lock is held. You can release such a lock with {@link #releaseNonExclusiveLock()}. Note that
+     * any thread attempting to close the DB will block if such a lock is held, so use them carefully. Failure to
+     * implement such locking in an app that may close the database could lead to race conditions.
+     * <p>
+     * If you keep long-lived references to prepared statements alive and some code path in your app may close/re-open
+     * the database, you should take care to clean up any such references by closing any open statements and nulling
+     * out any references to them so they can't accidentally be used after the database has been closed. Such
+     * bookkeeping can be done by taking advantage of the {@link #onClose(ISQLiteDatabase)} hook, which is called
+     * immediately before the database connection is about to be closed.
+     *
+     * @param sql the SQL to compile into a prepared statement
+     * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
+     */
+    public ISQLitePreparedStatement prepareStatement(String sql) {
+        acquireNonExclusiveLock();
+        try {
+            return getDatabase().prepareStatement(sql);
+        } finally {
+            releaseNonExclusiveLock();
+        }
+    }
+
+    /**
      * Visitor that builds column definitions for {@link Property}s
      */
     private static class SqlConstructorVisitor implements PropertyVisitor<Void, StringBuilder> {
@@ -1849,15 +2020,23 @@ public abstract class SquidDatabase {
     protected final boolean insertRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        ValuesStorage mergedValues = item.getMergedValues();
-        if (mergedValues.size() == 0) {
-            return false;
+
+        long newRow;
+        if (preparedInsertCacheEnabled) {
+            acquireNonExclusiveLock();
+            try {
+                PreparedInsertCache insertCache = preparedInsertCache.get();
+                ISQLitePreparedStatement preparedStatement =
+                        insertCache.getPreparedInsert(this, table, conflictAlgorithm);
+                item.bindValuesForInsert(table, preparedStatement);
+                newRow = preparedStatement.executeInsert();
+            } finally {
+                releaseNonExclusiveLock();
+            }
+        } else {
+            newRow = insertRowLegacy(item, table, conflictAlgorithm);
         }
-        Insert insert = Insert.into(table).fromValues(mergedValues);
-        if (conflictAlgorithm != null) {
-            insert.onConflict(conflictAlgorithm);
-        }
-        long newRow = insertInternal(insert);
+
         boolean result = newRow > 0;
         if (result) {
             notifyForTable(DataChangedNotifier.DBOperation.INSERT, item, table, newRow);
@@ -1865,6 +2044,18 @@ public abstract class SquidDatabase {
             item.markSaved();
         }
         return result;
+    }
+
+    private long insertRowLegacy(TableModel item, Table table, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        ValuesStorage mergedValues = item.getMergedValues();
+        if (mergedValues.size() == 0) {
+            return -1;
+        }
+        Insert insert = Insert.into(table).fromValues(mergedValues);
+        if (conflictAlgorithm != null) {
+            insert.onConflict(conflictAlgorithm);
+        }
+        return insertInternal(insert);
     }
 
     /**
