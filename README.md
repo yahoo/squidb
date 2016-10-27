@@ -15,6 +15,8 @@ buildscript {
     }
     dependencies {
         // android-apt plugin; https://bitbucket.org/hvisser/android-apt
+        // If using the android gradle plugin version 2.2.0 or higher, you can use the built-in annotationProcessor
+        // configuration instead, as seen below
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -30,6 +32,9 @@ dependencies {
     compile 'com.yahoo.squidb:squidb-annotations:3.1.3'
     compile 'com.yahoo.squidb:squidb-android:3.1.3' // For Android projects only
     apt 'com.yahoo.squidb:squidb-processor:3.1.3'
+    // If you are using the Android gradle plugin version 2.2.0 or higher, you can use the
+    // built-in annotationProcessor configuration and forego the android-apt plugin:
+    // annotationProcessor 'com.yahoo.squidb:squidb-processor:3.1.3'
 }
 ```
 See [this wiki page](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency) for more detailed instructions on adding SquiDB as a dependency.
