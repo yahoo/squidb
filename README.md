@@ -7,7 +7,7 @@ For support or to ask questions, join our chat channel on [gitter.im](https://gi
 
 ## Getting started
 To add SquiDB as a dependency in your build.gradle file:
-```
+```gradle
 // This example is for a typical Android setup, j2objc/iOS setup may vary
 buildscript {
     repositories {
@@ -15,9 +15,8 @@ buildscript {
     }
     dependencies {
         // android-apt plugin; https://bitbucket.org/hvisser/android-apt
-        // If using the android gradle plugin version 2.2.0 or higher, you can use the built-in annotationProcessor
-        // configuration instead, as seen below
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        // Only needed if using the android gradle plugin version less than 2.2.0
+        // classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
@@ -25,16 +24,16 @@ repositories {
     jcenter()
 }
 
-apply plugin: 'com.neenbedankt.android-apt'
+// Only needed if using the android gradle plugin version less than 2.2.0
+// apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
-    compile 'com.yahoo.squidb:squidb:3.1.3'
-    compile 'com.yahoo.squidb:squidb-annotations:3.1.3'
-    compile 'com.yahoo.squidb:squidb-android:3.1.3' // For Android projects only
-    apt 'com.yahoo.squidb:squidb-processor:3.1.3'
-    // If you are using the Android gradle plugin version 2.2.0 or higher, you can use the
-    // built-in annotationProcessor configuration and forego the android-apt plugin:
-    // annotationProcessor 'com.yahoo.squidb:squidb-processor:3.1.3'
+    compile 'com.yahoo.squidb:squidb:3.2.0'
+    compile 'com.yahoo.squidb:squidb-annotations:3.2.0'
+    compile 'com.yahoo.squidb:squidb-android:3.2.0' // For Android projects only
+    annotationProcessor 'com.yahoo.squidb:squidb-processor:3.2.0'
+    // If using the android-apt plugin, this becomes
+    // apt 'com.yahoo.squidb:squidb-processor:3.2.0'
 }
 ```
 See [this wiki page](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency) for more detailed instructions on adding SquiDB as a dependency.
