@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 3.2.0 *(2016-11-01)*
+----------------------------
+* Add an experimental, under-the-hood change that can lead to performance increases of up to 70% for transactions inserting a large number of rows, and ~25-50% in the average case when inserting rows. The change is disabled by default; to enable it, users can call `setPreparedInsertCacheEnabled(true)` in the `onConfigure` method of their SquidDatabase. See the javadocs of `setPreparedInsertCacheEnabled` for more information.
+* Add a new `prepareStatement` API to SquidDatabase, which allows users to prepare and reuse low-level (non-query) SQLite statements. Reusing these prepared statements can result in a performance improvement when used judiciously.
+* Introduce the [`ArgumentResolver`](https://github.com/yahoo/squidb/blob/master/squidb/src/com/yahoo/squidb/sql/ArgumentResolver.java) API that lets users control how non-primitive values are bound to SQL statements (e.g., a user could override enum value handling to bind the values using `ordinal()` instead of `name()`). Custom `ArgumentResolver` implementations can be used in a SquidDatabase using the extensible `buildCompileContext` method.
+* Move the `copyDatabase()` debugging utility into SquidDatabase. Fix some bugs with its implementation to make it behave nicely with databases in WAL mode and be thread safe.
+* Some minor enhancements to the BasicPropertyGenerator plugin API that make it easier to modify the declarations of a model's getters and setters.
+* Bump the SQLite version in `squidb-sqlite-bindings` to 3.15.0.
+
 Version 3.1.3 *(2016-09-02)*
 ----------------------------
 * Fix a bug where enums that override toString() would be incorrectly serialized to the database. It's likely that you would have noticed a problem before now if this happened to you, but if you've been persisting an enum column with an enum that overrides toString(), you may have to run a data migration to fix the issue. Sorry to anyone affected by this!
