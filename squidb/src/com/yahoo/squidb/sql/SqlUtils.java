@@ -23,7 +23,7 @@ public class SqlUtils {
     }
 
     /**
-     * Use an instance of ArgumentResolver instead, perhaps {@link DefaultArgumentResolver}
+     * Use an instance of ArgumentResolver instead, e.g. {@link DefaultArgumentResolver}
      */
     @Deprecated
     public static Object resolveArgReferences(Object arg) {
