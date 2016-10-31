@@ -149,9 +149,10 @@ class CompiledArgumentResolver {
     }
 
     private Object[] applyArgumentResolver(Object[] args) {
+        ArgumentResolver resolver = compileContext.getArgumentResolver();
         Object[] result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            result[i] = compileContext.getArgumentResolver().resolveArgument(args[i]);
+            result[i] = resolver.resolveArgument(args[i]);
         }
         return result;
     }

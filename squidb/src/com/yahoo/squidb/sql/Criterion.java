@@ -23,8 +23,7 @@ import java.util.List;
  *
  * <pre>
  * Person.AGE.gte(18).and(Person.IS_EMPLOYED.isTrue()) // person.age &gt;= 18 AND person.is_employed &lt;&gt; 0
- * Person.NUM_SIBLINGS.neq(0).or(Person.NUM_PETS.neq(0)) // person.num_siblings &lt;&gt; 0 OR person.num_pets &lt;&gt;
- * 0
+ * Person.NUM_SIBLINGS.neq(0).or(Person.NUM_PETS.neq(0)) // person.num_siblings &lt;&gt; 0 OR person.num_pets &lt;&gt; 0
  *
  * Person.AGE.gte(18).negate() // person.age &lt; 18
  * Person.ID.in(1,2,3).negate() // NOT person._id IN (1,2,3)
@@ -95,8 +94,7 @@ public abstract class Criterion extends CompilableWithArguments {
      *
      * Note: if you use Criterion.fromRawSelection in a SQL statement, you should not call
      * {@link SqlStatement#toRawSql(CompileContext) toRawSql} on that statement and then execute the resulting SQL, as
-     * it
-     * may contain unbound arguments. Instead, execute the statement using e.g.
+     * it may contain unbound arguments. Instead, execute the statement using e.g.
      * {@link com.yahoo.squidb.data.SquidDatabase#query(Class, Query) SquidDatabase.query},
      * {@link com.yahoo.squidb.data.SquidDatabase#update(Update) SquidDatabase.update}, or
      * {@link com.yahoo.squidb.data.SquidDatabase#delete(Delete) SquidDatabase.delete}
