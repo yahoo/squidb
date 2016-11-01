@@ -1561,7 +1561,7 @@ public abstract class SquidDatabase {
      * arguments in the SQL. Most users will not need to use this hook.
      *
      * @param builder a builder for a {@link CompileContext} object to be returned by {@link #getCompileContext()}
-     * @see {@link #getCompileContext()}
+     * @see #getCompileContext()
      */
     protected void buildCompileContext(CompileContext.Builder builder) {
         // Subclasses can override to change the basic parameters of the CompileContext
