@@ -9,9 +9,12 @@ import com.yahoo.squidb.utility.VersionCode;
 
 abstract class CompilableWithArguments {
 
+    // A version code suitable for converting a SQL object to a string for debugging or comparison purposes
+    static final VersionCode VERSION_FOR_TO_STRING = new VersionCode(3, 15, 0, 0);
+
     @Override
     public String toString() {
-        return toRawSql(CompileContext.defaultContextForVersionCode(VersionCode.LATEST));
+        return toRawSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING));
     }
 
     @Deprecated

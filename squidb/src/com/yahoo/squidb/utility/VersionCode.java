@@ -18,6 +18,13 @@ public class VersionCode implements Comparable<VersionCode> {
     public static final VersionCode V3_7_4 = new VersionCode(3, 7, 4, 0); // Default on API 14, default minimum
     public static final VersionCode V3_7_11 = new VersionCode(3, 7, 11, 0); // Support for multi-row insert
     public static final VersionCode V3_8_3 = new VersionCode(3, 8, 3, 0); // Support for common table expressions
+
+    /**
+     * This field is deprecated as it is mostly useful in the context of the squidb-sqlite-bindings project. A
+     * VersionCode constant that explicitly represents the SQLite version in that module has been added to the
+     * SQLiteBindingsVersion class.
+     */
+    @Deprecated
     public static final VersionCode LATEST = new VersionCode(3, 15, 0, 0); // Latest version
 
     private static final String VERSION_REGEX =
