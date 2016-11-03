@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -51,7 +50,6 @@ import javax.tools.Diagnostic.Kind;
  * }
  * </pre>
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class ModelSpecProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = new HashSet<>();
@@ -63,6 +61,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
         supportedAnnotationTypes.add(TableModelSpec.class.getName());
         supportedAnnotationTypes.add(ViewModelSpec.class.getName());
         supportedAnnotationTypes.add(InheritedModelSpec.class.getName());
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override

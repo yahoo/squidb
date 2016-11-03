@@ -11,7 +11,7 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile 'com.yahoo.squidb:apt-utils:1.0.3'
+    compile 'com.yahoo.aptutils:apt-utils:1.0.4'
     compile project(':squidb-annotations')
 }
 

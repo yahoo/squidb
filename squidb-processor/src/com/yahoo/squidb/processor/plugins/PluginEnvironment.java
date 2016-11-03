@@ -218,8 +218,9 @@ public class PluginEnvironment {
                 } else {
                     pluginName = nameAndPriority[0];
                     String priorityString = nameAndPriority[1];
-                    priority = PluginPriority.valueOf(priorityString.toUpperCase());
-                    if (priority == null) {
+                    try {
+                        priority = PluginPriority.valueOf(priorityString.toUpperCase());
+                    } catch (IllegalArgumentException e) {
                         utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unrecognized priority string " +
                                 priorityString + " for plugin " + pluginName + ", defaulting to 'normal'. Should be " +
                                 "one of '" + PluginPriority.HIGH + "', " + "'" + PluginPriority.NORMAL + "', or '" +
@@ -264,9 +265,7 @@ public class PluginEnvironment {
         SupportedOptions supportedOptionsAnnotation = plugin.getAnnotation(SupportedOptions.class);
         if (supportedOptionsAnnotation != null) {
             String[] options = supportedOptionsAnnotation.value();
-            if (options != null) {
-                Collections.addAll(pluginSupportedOptions, options);
-            }
+            Collections.addAll(pluginSupportedOptions, options);
         }
     }
 
