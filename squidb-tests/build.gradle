@@ -18,9 +18,9 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
+        }
+        androidTest {
             java.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
         }
     }
 
@@ -38,6 +38,10 @@ android {
 }
 
 dependencies {
+    androidTestCompile('com.android.support.test:runner:0.5') {
+        exclude group: 'com.android.support'
+    }
+
     compile project(':squidb')
     compile project(':squidb-android')
     compile project(':squidb-annotations')
@@ -48,6 +52,9 @@ dependencies {
     compile project(':squidb-recyclerview')
     annotationProcessor project(':squidb-json-compiler')
     annotationProcessor project(':squidb-processor')
+
+    androidTestAnnotationProcessor project(':squidb-json-compiler')
+    androidTestAnnotationProcessor project(':squidb-processor')
 
     // The following three dependencies are used to test the squidb-json plugin
     compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'

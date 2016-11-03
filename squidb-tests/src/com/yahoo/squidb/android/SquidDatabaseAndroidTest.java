@@ -11,7 +11,7 @@ import com.yahoo.squidb.utility.VersionCode;
 public class SquidDatabaseAndroidTest extends DatabaseTestCase {
 
     public void testVersionForCustomBinding() {
-        if (SquidTestRunner.selectedBinding == SquidTestRunner.SquidbBinding.SQLITE) {
+        if (SquidInstrumentationTestRunner.selectedBinding == SquidInstrumentationTestRunner.SquidbBinding.SQLITE) {
             assertEquals(VersionCode.LATEST, database.getSqliteVersion());
         }
     }

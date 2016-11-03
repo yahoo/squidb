@@ -5,15 +5,18 @@
  */
 package com.yahoo.squidb.android;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.test.AndroidTestRunner;
-import android.test.InstrumentationTestRunner;
+import android.support.test.runner.AndroidJUnitRunner;
 
-import com.yahoo.squidb.android.SquidTestRunner.SquidbBinding;
+import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.JSONPropertyTest;
+import com.yahoo.squidb.data.SquidDatabase;
+import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelper;
+import com.yahoo.squidb.test.SQLiteBindingProvider;
 import com.yahoo.squidb.utility.Logger;
 
-public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
+public class SquidInstrumentationTestRunner extends AndroidJUnitRunner {
 
     /**
      * Command line option specifying which binding to use for the test database. Argument value is case insensitive
@@ -28,7 +31,7 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
 
     private static final String DEFAULT_BINDING = SquidbBinding.ANDROID.name();
 
-    private SquidbBinding binding;
+    public static SquidbBinding selectedBinding;
 
     @Override
     public void onCreate(Bundle arguments) {
@@ -37,14 +40,42 @@ public class SquidInstrumentationTestRunner extends InstrumentationTestRunner {
         if (arguments != null) {
             binding = arguments.getString(KEY_SQUIDB_BINDING, binding);
         }
-        this.binding = SquidbBinding.valueOf(binding.toUpperCase());
+        selectedBinding = SquidbBinding.valueOf(binding.toUpperCase());
+        SQLiteBindingProvider.setSQLiteBindingProvider(new SQLiteBindingProvider() {
+            @Override
+            public ISQLiteOpenHelper createOpenHelper(String databaseName, SquidDatabase.OpenHelperDelegate delegate,
+                    int version) {
+                return selectedBinding.getOpenHelper(getTargetContext(), databaseName, delegate, version);
+            }
+
+            @Override
+            public String getWriteableTestDir() {
+                return getTargetContext().getFilesDir().getPath();
+            }
+        });
         ContextProvider.setContext(getTargetContext());
         JSONPropertyTest.MAPPERS = AndroidJSONMappers.MAPPERS;
         super.onCreate(arguments);
     }
 
-    @Override
-    protected AndroidTestRunner getAndroidTestRunner() {
-        return new SquidTestRunner(binding);
+
+    public enum SquidbBinding {
+        ANDROID {
+            @Override
+            public ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
+                    SquidDatabase.OpenHelperDelegate delegate, int version) {
+                return new AndroidOpenHelper(context, databaseName, delegate, version);
+            }
+        },
+        SQLITE {
+            @Override
+            public ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
+                    SquidDatabase.OpenHelperDelegate delegate, int version) {
+                return new SQLiteBindingsOpenHelper(context, databaseName, delegate, version);
+            }
+        };
+
+        abstract ISQLiteOpenHelper getOpenHelper(Context context, String databaseName,
+                SquidDatabase.OpenHelperDelegate delegate, int version);
     }
 }
