@@ -37,7 +37,7 @@ public class VersionCode implements Comparable<VersionCode> {
     /**
      * This field is deprecated as it is mostly useful in the context of the squidb-sqlite-bindings project. A
      * VersionCode constant that explicitly represents the SQLite version in that module has been added to the
-     * SQLiteBindingsVersion class.
+     * SQLiteBindingsAdapter class.
      */
     @Deprecated
     public static final VersionCode LATEST = new VersionCode(3, 15, 0, 0); // Latest version

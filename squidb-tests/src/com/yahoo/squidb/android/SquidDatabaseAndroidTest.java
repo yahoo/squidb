@@ -5,14 +5,14 @@
  */
 package com.yahoo.squidb.android;
 
-import com.yahoo.squidb.sqlitebindings.SQLiteBindingsVersion;
+import com.yahoo.squidb.sqlitebindings.SQLiteBindingsAdapter;
 import com.yahoo.squidb.test.DatabaseTestCase;
 
 public class SquidDatabaseAndroidTest extends DatabaseTestCase {
 
     public void testVersionForCustomBinding() {
         if (SquidInstrumentationTestRunner.selectedBinding == SquidInstrumentationTestRunner.SquidbBinding.SQLITE) {
-            assertEquals(SQLiteBindingsVersion.VERSION, database.getSqliteVersion());
+            assertEquals(SQLiteBindingsAdapter.SQLITE_VERSION, database.getSqliteVersion());
         }
     }
 }
