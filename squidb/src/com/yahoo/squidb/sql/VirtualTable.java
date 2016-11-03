@@ -16,6 +16,8 @@ import com.yahoo.squidb.utility.VersionCode;
  */
 public class VirtualTable extends Table {
 
+    private static final VersionCode SQLITE_VERSION_IF_NOT_EXISTS = new VersionCode(3, 7, 11, 0);
+
     private final String moduleName;
     private final Field<String> anyColumn;
 
@@ -79,7 +81,7 @@ public class VirtualTable extends Table {
     public void appendCreateTableSql(CompileContext compileContext, StringBuilder sql,
             PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE ");
-        if (compileContext != null && compileContext.getVersionCode().isAtLeast(VersionCode.V3_7_11)) {
+        if (compileContext != null && compileContext.getVersionCode().isAtLeast(SQLITE_VERSION_IF_NOT_EXISTS)) {
             sql.append("IF NOT EXISTS ");
         }
         sql.append(getExpression()).append(" USING ").append(moduleName).append('(');
