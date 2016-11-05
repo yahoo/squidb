@@ -67,14 +67,12 @@ public class CriterionTest extends SquidTestCase {
         assertEquals(expectedInString, TestModel.ID.in(new ArrayList<Long>()).toString());
         assertEquals(expectedInString, TestModel.ID.in((Object[]) emptyArray).toString());
         assertEquals(expectedInString, TestModel.ID.in().toString());
-        assertEquals(expectedInString, TestModel.ID.in().toString());
 
         assertEquals(expectedNotInString, TestModel.ID.notIn((List<Long>) null).toString());
         assertEquals(expectedNotInString, TestModel.ID.notIn((Object[]) null).toString());
         assertEquals(expectedNotInString, TestModel.ID.notIn((Query) null).toString());
         assertEquals(expectedNotInString, TestModel.ID.notIn(new ArrayList<Long>()).toString());
         assertEquals(expectedNotInString, TestModel.ID.notIn((Object[]) emptyArray).toString());
-        assertEquals(expectedNotInString, TestModel.ID.notIn().toString());
         assertEquals(expectedNotInString, TestModel.ID.notIn().toString());
     }
 
