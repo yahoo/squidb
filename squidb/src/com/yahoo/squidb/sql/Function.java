@@ -81,7 +81,7 @@ public abstract class Function<TYPE> extends Field<TYPE> {
 
     @Override
     protected String expressionForComparison() {
-        return getExpression(CompileContext.defaultContextForVersionCode(VersionCode.LATEST));
+        return getExpression(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING));
     }
 
     /**

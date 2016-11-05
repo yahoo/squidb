@@ -19,6 +19,20 @@ import java.util.Map;
  */
 public class Insert extends TableStatement {
 
+    /**
+     * Minimum SQLite version supporting multi-row insert. If you want to check at runtime if multi-row insert is
+     * available, you can check if your SquidDatabase is connected to a version of SQLite greater than or equal to this
+     * version:
+     * <pre>
+     *     if (myDatabase.getSqliteVersion().isAtLeast(Insert.SQLITE_VERSION_MULTI_ROW_INSERT)) {
+     *         // Safe to use multi-row insert in this case
+     *     } else {
+     *         // Not safe to use multi-row insert otherwise
+     *     }
+     * </pre>
+     */
+    public static final VersionCode SQLITE_VERSION_MULTI_ROW_INSERT = new VersionCode(3, 7, 11, 0);
+
     private final SqlTable<?> table;
     private ConflictAlgorithm conflictAlgorithm = ConflictAlgorithm.NONE;
     private final List<String> columns = new ArrayList<>();
@@ -222,7 +236,8 @@ public class Insert extends TableStatement {
     }
 
     private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
-        if (builder.compileContext.getVersionCode().isLessThan(VersionCode.V3_7_11) && valuesToInsert.size() > 1) {
+        if (builder.compileContext.getVersionCode().isLessThan(SQLITE_VERSION_MULTI_ROW_INSERT)
+                && valuesToInsert.size() > 1) {
             throw new UnsupportedOperationException("Can't insert with multiple sets of values below "
                     + "SQLite version 3.7.11");
         }

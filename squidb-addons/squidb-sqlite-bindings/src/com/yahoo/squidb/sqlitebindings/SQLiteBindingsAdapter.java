@@ -10,6 +10,7 @@ import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLitePreparedStatement;
 import com.yahoo.squidb.data.SquidTransactionListener;
+import com.yahoo.squidb.utility.VersionCode;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
@@ -20,6 +21,13 @@ import org.sqlite.database.sqlite.SQLiteTransactionListener;
  * SQLite bindings project (https://www.sqlite.org/android/doc/trunk/www/index.wiki)
  */
 public class SQLiteBindingsAdapter implements ISQLiteDatabase {
+
+    /**
+     * The version of SQLite bundled by default with the squidb-sqlite-bindings module. If any user builds this module
+     * from source with their own version of SQLite, they should update this definition to match the version of SQLite
+     * used.
+     */
+    public static final VersionCode SQLITE_VERSION = new VersionCode(3, 15, 0, 0);
 
     private final SQLiteDatabase db;
 

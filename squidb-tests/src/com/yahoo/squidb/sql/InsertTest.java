@@ -11,7 +11,6 @@ import com.yahoo.squidb.test.Constants;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 import com.yahoo.squidb.test.Thing;
-import com.yahoo.squidb.utility.VersionCode;
 
 public class InsertTest extends DatabaseTestCase {
 
@@ -72,7 +71,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValues() {
-        testForMinVersionCode(VersionCode.V3_7_11, new Runnable() {
+        testForMinVersionCode(Insert.SQLITE_VERSION_MULTI_ROW_INSERT, new Runnable() {
             @Override
             public void run() {
                 final String fname1 = "Alan";
@@ -98,7 +97,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testInsertMultipleValuesPreJellybeanThrowsException() {
-        if (database.getSqliteVersion().isAtLeast(VersionCode.V3_7_11)) {
+        if (database.getSqliteVersion().isAtLeast(Insert.SQLITE_VERSION_MULTI_ROW_INSERT)) {
             // see testInsertMultipleValues
             return;
         }
@@ -261,7 +260,7 @@ public class InsertTest extends DatabaseTestCase {
     }
 
     public void testSetsOfValuesOfUnequalSizeThrowsIllegalStateException() {
-        testForMinVersionCode(VersionCode.V3_7_11, new Runnable() {
+        testForMinVersionCode(Insert.SQLITE_VERSION_MULTI_ROW_INSERT, new Runnable() {
             @Override
             public void run() {
                 testThrowsException(new Runnable() {
