@@ -8,8 +8,10 @@ package com.yahoo.squidb.sql;
 import com.yahoo.squidb.test.SquidTestCase;
 import com.yahoo.squidb.test.TestModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class CriterionTest extends SquidTestCase {
 
@@ -52,6 +54,26 @@ public class CriterionTest extends SquidTestCase {
 
         assertEquals(Criterion.and(c1, Criterion.or(c2, c3)), c1.and(c2.or(c3)));
         assertEquals(Criterion.or(c1, Criterion.and(c2, c3)), c1.or(c2.and(c3)));
+    }
+
+    public void testInCriterionWithEmptySets() {
+        String expectedInString = "(testModels._id IN ())";
+        String expectedNotInString = "(testModels._id NOT IN ())";
+        Object[] emptyArray = new Object[0];
+
+        assertEquals(expectedInString, TestModel.ID.in((List<Long>) null).toString());
+        assertEquals(expectedInString, TestModel.ID.in((Object[]) null).toString());
+        assertEquals(expectedInString, TestModel.ID.in((Query) null).toString());
+        assertEquals(expectedInString, TestModel.ID.in(new ArrayList<Long>()).toString());
+        assertEquals(expectedInString, TestModel.ID.in((Object[]) emptyArray).toString());
+        assertEquals(expectedInString, TestModel.ID.in().toString());
+
+        assertEquals(expectedNotInString, TestModel.ID.notIn((List<Long>) null).toString());
+        assertEquals(expectedNotInString, TestModel.ID.notIn((Object[]) null).toString());
+        assertEquals(expectedNotInString, TestModel.ID.notIn((Query) null).toString());
+        assertEquals(expectedNotInString, TestModel.ID.notIn(new ArrayList<Long>()).toString());
+        assertEquals(expectedNotInString, TestModel.ID.notIn((Object[]) emptyArray).toString());
+        assertEquals(expectedNotInString, TestModel.ID.notIn().toString());
     }
 
     public void testEmptyRawSelectionReturnsNull() {

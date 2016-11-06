@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Fields represent a selectable attribute, e.g. a column, function, or literal value. Most clients will not use this
@@ -219,6 +218,9 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field's value is in the list of values specified
      */
     public Criterion in(Object... values) {
+        if (values == null) {
+            return in((Collection<?>) null);
+        }
         return in(Arrays.asList(values));
     }
 
@@ -234,6 +236,9 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field's value is not in the list of values specified
      */
     public Criterion notIn(Object... values) {
+        if (values == null) {
+            return notIn((Collection<?>) null);
+        }
         return notIn(Arrays.asList(values));
     }
 
@@ -251,7 +256,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      */
     public Criterion in(Query query) {
         if (query == null) {
-            return in(Collections.EMPTY_SET);
+            return in((Collection<?>) null);
         }
         return new BinaryCriterion(this, Operator.in, query);
     }
@@ -262,7 +267,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      */
     public Criterion notIn(Query query) {
         if (query == null) {
-            return notIn(Collections.EMPTY_SET);
+            return notIn((Collection<?>) null);
         }
         return new BinaryCriterion(this, Operator.notIn, query);
     }
