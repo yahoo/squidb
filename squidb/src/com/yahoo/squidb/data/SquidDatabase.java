@@ -1972,6 +1972,84 @@ public abstract class SquidDatabase {
     }
 
     /**
+     * Persist an {@link Upsertable} TableModel to the database using update or insert logic.
+     * <p>
+     * An Upsertable model is one that has either one column or a collection of columns that together represent a
+     * "logical key" that is distinct from the rowid. Such a logical key would generally also have a uniqueness
+     * constraint implemented either using column constraints or a unique index. When called, the upsert method
+     * performs a query to see if any existing rows in the database match the logical key values of the item argument.
+     * If a match is found, the item's setValues are merged with the existing values, and if anything has changed an
+     * update operation is performed to persist the changed values to the database. If no match is found, the item
+     * values are inserted into the database.
+     * <p>
+     * The behavior of upsert() when a rowid is set on the item argument may vary depending on how the model class is
+     * configured. See {@link Upsertable#rowidHasPriority()} for more information.
+     *
+     * @param item the model to save
+     * @return true if the model was successfully upserted, false otherwise
+     * @see Upsertable
+     */
+    public <T extends TableModel & Upsertable> boolean upsert(T item) {
+        return upsertWithOnConflict(item, null);
+    }
+
+    /**
+     * Persist an {@link Upsertable} TableModel to the database using update or insert logic.
+     * <p>
+     * An Upsertable model is one that has either one column or a collection of columns that together represent a
+     * "logical key" that is distinct from the rowid. Such a logical key would generally also have a uniqueness
+     * constraint implemented either using column constraints or a unique index. When called, the upsert method
+     * performs a query to see if any existing rows in the database match the logical key values of the item argument.
+     * If a match is found, the item's setValues are merged with the existing values, and if anything has changed an
+     * update operation is performed to persist the changed values to the database. If no match is found, the item
+     * values are inserted into the database.
+     * <p>
+     * Regardless of whether upsert() performs an update or an insert, any constraint violations will be resolved using
+     * the specified {@link com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm ConflictAlgorithm}.
+     * <p>
+     * The behavior of upsert() when a rowid is set on the item argument may vary depending on how the model class is
+     * configured. See {@link Upsertable#rowidHasPriority()} for more information.
+     *
+     * @param item the model to save
+     * @param conflictAlgorithm the conflict algorithm to use
+     * @return true if the model was successfully upserted, false otherwise
+     * @see Upsertable
+     */
+    public <T extends TableModel & Upsertable> boolean upsertWithOnConflict(T item,
+            TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        if (item.isSaved() && item.rowidHasPriority()) {
+            return updateRow(item, conflictAlgorithm);
+        }
+        boolean result;
+        beginTransactionNonExclusive();
+        try {
+            // Implementations of Upsertable may either throw a runtime exception or return null for this method,
+            // depending on how aggressively they want to raise an error if validating the logical key values failed
+            Criterion upsertCriterion = item.getUpsertKeyLookupCriterion();
+            if (upsertCriterion == null) {
+                return false;
+            }
+            Table t = getTable(item.getClass());
+
+            T existing = (T) fetchByCriterion(item.getClass(), upsertCriterion);
+            if (existing == null) {
+                result = insertRow(item, conflictAlgorithm);
+            } else {
+                existing.setPropertiesFromValuesStorage(item.getSetValues(), t.getProperties());
+                result = updateRow(existing);
+                if (result) {
+                    item.setRowId(existing.getRowId());
+                    item.markSaved();
+                }
+            }
+            setTransactionSuccessful();
+        } finally {
+            endTransaction();
+        }
+        return result;
+    }
+
+    /**
      * Save a model to the database. This method always inserts a new row and sets the ID of the model to the
      * corresponding row ID.
      *
