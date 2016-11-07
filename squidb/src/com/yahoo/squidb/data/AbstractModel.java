@@ -335,8 +335,9 @@ public abstract class AbstractModel implements Cloneable {
 
     /**
      * @param property the {@link Property} to check
-     * @return true if a value for this property has been read from the database or set by the user, and the value
-     * stored is not null
+     * @return true if a value for this property has been read from the database or set by the user, and the "active"
+     * value stored (i.e. the value that would be returned by a call to {@link #get(Property)}) is not null. Does not
+     * take into account column default values.
      */
     public boolean containsNonNullValue(Property<?> property) {
         if (valuesContainsKey(setValues, property)) {
