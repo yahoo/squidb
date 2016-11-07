@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 3.2.1 *(2016-11-07)*
+----------------------------
+* Fix a bug that could cause `containsNonNullValue(Property<?>)` to return an incorrect result under certain conditions.
+* Eliminate several harmless warnings that could be emitted by the code generator when compiling using Java 1.8.
+* Deprecate the SQLite version constants in the `VersionCode` class in favor of use-case specific constants in other classes. Most notably, `VersionCode.LATEST` is superseded by `SQLiteBindingsAdapter.SQLITE_VERSION` for the `squidb-sqlite-bindings` project, and `VersionCode.V3_7_11` is superseded by `Insert.SQLITE_VERSION_MULTI_ROW_INSERT`.
+* Minor enhancements to null argument handling in the `in()/notIn()` criterion creating methods.
+
 Version 3.2.0 *(2016-11-01)*
 ----------------------------
 * Add an experimental, under-the-hood change that can lead to performance increases of up to 70% for transactions inserting a large number of rows, and ~25-50% in the average case when inserting rows. The change is disabled by default; to enable it, users can call `setPreparedInsertCacheEnabled(true)` in the `onConfigure` method of their SquidDatabase. See the javadocs of `setPreparedInsertCacheEnabled` for more information.
