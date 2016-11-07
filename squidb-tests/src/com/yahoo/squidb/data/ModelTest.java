@@ -34,6 +34,23 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.isModified());
     }
 
+    public void testContainsNonNullValueMethod() {
+        TestModel model = new TestModel();
+        model.setFirstName("Test");
+        model.markSaved(); // Move values from set values into database values
+        assertEquals("Test", model.getFirstName());
+        assertFalse(model.fieldIsDirty(TestModel.FIRST_NAME));
+        assertNull(model.getSetValues());
+        assertTrue(model.containsNonNullValue(TestModel.FIRST_NAME));
+
+        model.setFirstName(null);
+        // Assert that despite the presence of a non-null value in the database values, containsNonNullValue
+        // defers to the "active" setValue.
+        assertNotNull(model.getDatabaseValues().get(TestModel.FIRST_NAME.getName()));
+        assertNull(model.getFirstName());
+        assertFalse(model.containsNonNullValue(TestModel.FIRST_NAME));
+    }
+
     public void testAddedModelMethods() {
         TestModel model = new TestModel();
 

@@ -339,8 +339,12 @@ public abstract class AbstractModel implements Cloneable {
      * stored is not null
      */
     public boolean containsNonNullValue(Property<?> property) {
-        return (valuesContainsKey(setValues, property) && setValues.get(property.getName()) != null)
-                || (valuesContainsKey(values, property) && values.get(property.getName()) != null);
+        if (valuesContainsKey(setValues, property)) {
+            return setValues.get(property.getName()) != null;
+        } else if (valuesContainsKey(values, property)) {
+            return values.get(property.getName()) != null;
+        }
+        return false;
     }
 
     /**
