@@ -10,6 +10,7 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
@@ -91,6 +92,11 @@ public class PluginEnvironment {
      * Option for disabling the default support for Enum properties
      */
     public static final String OPTIONS_DISABLE_ENUM_PROPERTIES = "disableEnumProperties";
+
+    /**
+     * Option for disabling the generated dummy classes used for error logging by the code generator
+     */
+    public static final String OPTIONS_DISABLE_ERROR_LOGGING = "disableErrorLogging";
 
     /**
      * Option for generating models that have Android-specific features
@@ -186,6 +192,10 @@ public class PluginEnvironment {
 
         if (!hasSquidbOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
             normalPriorityPlugins.add(EnumPluginBundle.class);
+        }
+
+        if (!hasSquidbOption(OPTIONS_DISABLE_ERROR_LOGGING)) {
+            normalPriorityPlugins.add(ErrorLoggingPlugin.class);
         }
 
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
