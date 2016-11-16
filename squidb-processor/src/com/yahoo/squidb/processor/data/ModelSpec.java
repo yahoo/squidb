@@ -56,7 +56,6 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
-    protected final boolean androidModels;
     private final DeclaredTypeName modelSuperclass;
 
     public interface ModelSpecVisitor<RETURN, PARAMETER> {
@@ -76,7 +75,6 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
-        this.androidModels = pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
