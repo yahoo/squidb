@@ -94,9 +94,12 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_ENUM_PROPERTIES = "disableEnumProperties";
 
     /**
-     * Option for disabling the generated dummy classes used for error logging by the code generator
+     * Option for disabling the generated dummy classes used for error logging by the code generator, and instead
+     * preferring the standard error logging provided by the APT APIs. Using standard error logging may cause the user
+     * to see a large number of "cannot find symbol" errors in addition to the code generation errors logged by SquiDB,
+     * so users should only use this option if they are having trouble with SquiDB's annotation-based error logging.
      */
-    public static final String OPTIONS_DISABLE_ERROR_LOGGING = "disableErrorLogging";
+    public static final String OPTIONS_USE_STANDARD_ERROR_LOGGING = "standardErrorLogging";
 
     /**
      * Option for generating models that have Android-specific features
@@ -194,7 +197,7 @@ public class PluginEnvironment {
             normalPriorityPlugins.add(EnumPluginBundle.class);
         }
 
-        if (!hasSquidbOption(OPTIONS_DISABLE_ERROR_LOGGING)) {
+        if (!hasSquidbOption(OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
             normalPriorityPlugins.add(ErrorLoggingPlugin.class);
         }
 
