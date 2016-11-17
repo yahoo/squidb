@@ -128,14 +128,12 @@ public class ModelMethodPlugin extends Plugin {
         } else {
             List<? extends VariableElement> params = e.getParameters();
             if (params.size() == 0) {
-                utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "@ModelMethod methods must have an abstract model as their first argument", e);
+                modelSpec.logError("@ModelMethod methods must have an abstract model as their first argument", e);
             } else {
                 VariableElement firstParam = params.get(0);
                 TypeMirror paramType = firstParam.asType();
                 if (!checkFirstArgType(paramType, modelClass)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "@ModelMethod methods must have an abstract model as their first argument", e);
+                    modelSpec.logError("@ModelMethod methods must have an abstract model as their first argument", e);
                 } else {
                     modelMethods.add(e);
                 }

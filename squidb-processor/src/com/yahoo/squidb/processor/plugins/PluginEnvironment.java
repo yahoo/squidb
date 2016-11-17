@@ -223,8 +223,8 @@ public class PluginEnvironment {
             if (pluginName.contains(":")) {
                 String[] nameAndPriority = pluginName.split(":");
                 if (nameAndPriority.length != 2) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Error parsing plugin and priority " + pluginName);
+                    utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            "Error parsing plugin and priority " + pluginName + ", plugin will be ignored");
                 } else {
                     pluginName = nameAndPriority[0];
                     String priorityString = nameAndPriority[1];

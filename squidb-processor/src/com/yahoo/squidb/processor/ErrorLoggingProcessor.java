@@ -86,8 +86,7 @@ public class ErrorLoggingProcessor extends AbstractProcessor {
         String errorElementName = AptUtils.isEmpty(errorElementValues) ? null : errorElementValues.get(0);
 
         Element errorElement = findErrorElement(errorClass, errorElementName);
-        utils.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage,
-                errorElement);
+        utils.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, errorElement);
     }
 
     private Element findErrorElement(TypeMirror errorClass, String elementName) {

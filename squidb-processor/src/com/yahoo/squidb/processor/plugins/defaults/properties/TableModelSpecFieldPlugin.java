@@ -34,7 +34,6 @@ import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 
 /**
@@ -98,13 +97,11 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     private boolean handlePrimaryKeyField(VariableElement field, DeclaredTypeName fieldType) {
         if (modelSpec instanceof TableModelSpecWrapper
                 && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
-            utils.getMessager().printMessage(Kind.ERROR,
-                    "Virtual tables cannot declare a custom primary key", field);
+            modelSpec.logError("Virtual tables cannot declare a custom primary key", field);
         } else if (modelSpec.hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY)) {
-            utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                    "Only a single field can be annotated as @PrimaryKey. If you want a multi-column primary "
-                            + "key, specify it using SQL in TableModelSpec#tableConstraint() and set "
-                            + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.", field);
+            modelSpec.logError("Only a single field can be annotated as @PrimaryKey. If you want a multi-column"
+                    + " primary key, specify it using SQL in TableModelSpec#tableConstraint() and set "
+                    + "TableModelSpec#noRowIdAlias() to true in your TableModelSpec annotation.", field);
         } else {
             boolean result = false;
             if (TypeConstants.isIntegerType(fieldType)) {
@@ -138,23 +135,22 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                     VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
             if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
                     DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
-                utils.getMessager().printMessage(Kind.ERROR, "Columns in a table model spec cannot be named rowid, as "
-                        + "they would clash with the SQLite rowid column used for SquiDB bookkeeping");
+                modelSpec.logError("Columns in a table model spec cannot be named rowid, as "
+                        + "they would clash with the SQLite rowid column used for SquiDB bookkeeping", field);
                 return null;
             }
 
             String propertyName = propertyGenerator.getPropertyName();
             if (DEFAULT_ID_PROPERTY_NAME.equalsIgnoreCase(propertyName) && !isIntegerPrimaryKey(field, fieldType)) {
-                utils.getMessager().printMessage(Kind.ERROR, "User-defined non-primary-key columns cannot currently be "
+                modelSpec.logError("User-defined non-primary-key columns cannot currently be "
                         + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
-                        + "future version of SquiDB.");
+                        + "future version of SquiDB.", field);
                 return null;
             }
 
             return propertyGenerator;
         } catch (Exception e) {
-            utils.getMessager().printMessage(Kind.ERROR,
-                    "Exception instantiating PropertyGenerator: " + generatorClass + ", " + e);
+            modelSpec.logError("Exception instantiating PropertyGenerator: " + generatorClass + ", " + e, field);
         }
         return null;
     }
@@ -197,9 +193,9 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
         for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             if (generator instanceof RowidPropertyGenerator) {
                 if (foundRowidPropertyGenerator != null) {
-                    utils.getMessager().printMessage(Kind.ERROR, "Found redundant rowid property generator for property"
+                    modelSpec.logError("Found redundant rowid property generator for property"
                             + generator.getPropertyName() + ". Rowid property generator " +
-                            foundRowidPropertyGenerator.getPropertyName() + " already exists");
+                            foundRowidPropertyGenerator.getPropertyName() + " already exists", generator.getField());
                 } else {
                     foundRowidPropertyGenerator = (RowidPropertyGenerator) generator;
                 }

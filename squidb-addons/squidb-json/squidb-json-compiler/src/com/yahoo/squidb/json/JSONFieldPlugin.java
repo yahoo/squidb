@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 
 /**
  * Plugin which handles fields annotated with @JSONField in a TableModelSpec file. Generates instances of JSONProperty
@@ -62,7 +61,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
         for (TypeName typeArg : typeArgs) {
             if (!recursivelyCheckTypes(field, typeArg, showedError)) {
                 if (!showedError.getAndSet(true)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR, "@JSONField fields with type arguments"
+                    modelSpec.logError( "@JSONField fields with type arguments"
                             + " must not use generic or otherwise non-concrete types", field);
                 }
                 return false;
