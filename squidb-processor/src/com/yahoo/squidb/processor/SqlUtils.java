@@ -1,3 +1,8 @@
+/*
+ * Copyright 2015, Yahoo Inc.
+ * Copyrights licensed under the Apache 2.0 License.
+ * See the accompanying LICENSE file for terms.
+ */
 package com.yahoo.squidb.processor;
 
 import com.yahoo.aptutils.utils.AptUtils;
@@ -5,11 +10,14 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
-public final class SqlKeywords {
+public final class SqlUtils {
+
+    private static final Pattern ALPHANUMERIC = Pattern.compile("[a-zA-Z0-9]+");
 
     /**
      * @return true if word is a SQLite keyword
@@ -43,8 +51,8 @@ public final class SqlKeywords {
         } else if (Character.isDigit(identifier.charAt(0))) {
             modelSpec.logError(type + " name '" + identifier + "' cannot start with a digit", element);
             result = false;
-        } else if (SqlKeywords.isKeyword(identifier)) {
-            if (SqlKeywords.isRestrictedKeyword(identifier)) {
+        } else if (SqlUtils.isKeyword(identifier)) {
+            if (SqlUtils.isRestrictedKeyword(identifier)) {
                 modelSpec.logError(type + " name '" + identifier + "' is a reserved SQLite keyword that cannot be "
                         + "used as a " + type + " name", element);
                 result = false;
@@ -53,6 +61,10 @@ public final class SqlKeywords {
                         + "SQLite keyword. It may be allowed as an identifier but it is recommended you choose a "
                         + "non-keyword name instead", element);
             }
+        } else if (!ALPHANUMERIC.matcher(identifier).matches()) {
+            aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
+                    + "non-alphanumeric characters, which may not be fully supported by SquiDB in some cases. It is "
+                    + "strongly recommended you use only alphanumeric characters in your identifiers", element);
         }
         return result;
     }

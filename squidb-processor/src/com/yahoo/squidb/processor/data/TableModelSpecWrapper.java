@@ -8,7 +8,7 @@ package com.yahoo.squidb.processor.data;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.processor.SqlKeywords;
+import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
@@ -29,7 +29,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
             logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlKeywords.checkIdentifier(tableName, "table", this, getModelSpecElement(), utils);
+            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), utils);
         }
     }
 

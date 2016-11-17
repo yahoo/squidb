@@ -12,7 +12,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.PrimaryKey;
-import com.yahoo.squidb.processor.SqlKeywords;
+import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -150,7 +150,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             }
 
             String columnName = propertyGenerator.getColumnName();
-            if (!SqlKeywords.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
+            if (!SqlUtils.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
                 return null;
             }
 
