@@ -17,7 +17,7 @@ import javax.tools.Diagnostic;
 
 public final class SqlUtils {
 
-    private static final Pattern ALPHANUMERIC = Pattern.compile("[a-zA-Z0-9]+");
+    private static final Pattern ALPHANUMERIC = Pattern.compile("[a-zA-Z0-9_]+");
 
     /**
      * @return true if word is a SQLite keyword
@@ -63,8 +63,9 @@ public final class SqlUtils {
             }
         } else if (!ALPHANUMERIC.matcher(identifier).matches()) {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
-                    + "non-alphanumeric characters, which may not be fully supported by SquiDB in some cases. It is "
-                    + "strongly recommended you use only alphanumeric characters in your identifiers", element);
+                    + "non-alphanumeric characters, which may not be fully supported by SquiDB or SQLite in some "
+                    + "cases. It is strongly recommended you use only alphanumeric characters and '_' in your "
+                    + "identifiers", element);
         }
         return result;
     }
