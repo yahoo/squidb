@@ -150,16 +150,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             }
 
             String columnName = propertyGenerator.getColumnName();
-            if (SqlKeywords.isKeyword(columnName)) {
-                if (SqlKeywords.isRestrictedKeyword(columnName)) {
-                    modelSpec.logError("Column name '" + columnName + "' is a reserved SQLite keyword that cannot be "
-                            + "used as a column name", field);
-                    return null;
-                } else {
-                    utils.getMessager().printMessage(Kind.WARNING, "Column name '" + columnName + "' is a SQLite "
-                            + "keyword. It is allowed as a column name but it is recommended you choose a non-keyword "
-                            + "name instead", field);
-                }
+            if (!SqlKeywords.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
+                return null;
             }
 
             return propertyGenerator;
