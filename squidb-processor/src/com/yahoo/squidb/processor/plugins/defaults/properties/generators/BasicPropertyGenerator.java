@@ -67,8 +67,6 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);
-        } else if (Character.isDigit(columnName.charAt(0))) {
-            modelSpec.logError("Column names cannot begin with a digit", field);
         }
     }
 
