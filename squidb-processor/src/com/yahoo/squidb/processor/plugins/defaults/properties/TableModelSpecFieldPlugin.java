@@ -12,6 +12,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.processor.SqlKeywords;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -146,6 +147,19 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                         + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
                         + "future version of SquiDB.", field);
                 return null;
+            }
+
+            String columnName = propertyGenerator.getColumnName();
+            if (SqlKeywords.isKeyword(columnName)) {
+                if (SqlKeywords.isRestrictedKeyword(columnName)) {
+                    modelSpec.logError("Column name '" + columnName + "' is a reserved SQLite keyword that cannot be "
+                            + "used as a column name", field);
+                    return null;
+                } else {
+                    utils.getMessager().printMessage(Kind.WARNING, "Column name '" + columnName + "' is a SQLite "
+                            + "keyword. It is allowed as a column name but it is recommended you choose a non-keyword "
+                            + "name instead", field);
+                }
             }
 
             return propertyGenerator;
