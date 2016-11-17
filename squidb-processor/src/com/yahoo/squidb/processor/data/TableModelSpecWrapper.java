@@ -8,17 +8,37 @@ package com.yahoo.squidb.processor.data;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.processor.SqlKeywords;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
 
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
+        checkTableName();
+    }
+
+    private void checkTableName() {
+        String tableName = getSpecAnnotation().tableName();
+        if (tableName.toLowerCase().startsWith("sqlite_")) {
+            logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
+                    getModelSpecElement());
+        } else if (SqlKeywords.isKeyword(tableName)) {
+            if (SqlKeywords.isRestrictedKeyword(tableName)) {
+                logError("Table name '" + tableName + "' is a reserved SQLite keyword that cannot be "
+                        + "used as a table name", getModelSpecElement());
+            } else {
+                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Table name '" + tableName + "' is a SQLite "
+                        + "keyword. It is allowed as a table name but it is recommended you choose a non-keyword "
+                        + "name instead", getModelSpecElement());
+            }
+        }
     }
 
     @Override
