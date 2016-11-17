@@ -7,6 +7,10 @@ package com.yahoo.squidb.processor.data;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 
+/**
+ * Tuple class to hold logged error info, to be written by the
+ * {@link com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin}.
+ */
 public final class ErrorInfo {
 
     public final DeclaredTypeName errorClass; // The class on which to log the error

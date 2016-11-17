@@ -23,6 +23,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
+/**
+ * An annotation processor whose sole purpose is to check for {@link ModelGenErrors} annotations and log errors using
+ * their contents. This is a workaround to defer this error logging until after the first round of annotation
+ * processing has completed and avoid "cannot find symbol" errors. See the ModelGenErrors javadoc for more info.
+ */
 public class ErrorLoggingProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = new HashSet<>();

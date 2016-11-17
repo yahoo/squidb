@@ -20,8 +20,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 
+/**
+ * A {@link Plugin} that controls writing any errors logged using {@link ModelSpec#logError(String, Element)} to the
+ * generated file using the {@link com.yahoo.squidb.annotations.ModelGenErrors} annotation, to be subsequently
+ * processed by the {@link com.yahoo.squidb.processor.ErrorLoggingProcessor}. It is enabled by default.
+ * It can be disabled by passing the {@link PluginEnvironment#OPTIONS_DISABLE_ERROR_LOGGING} option in the
+ * squidbOptions key.
+ */
 public class ErrorLoggingPlugin extends Plugin {
 
     private static final String MODEL_GEN_ERRORS_CLASS = "com.yahoo.squidb.annotations.ModelGenErrors";
