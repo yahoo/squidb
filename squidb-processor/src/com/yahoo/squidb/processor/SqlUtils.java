@@ -66,7 +66,7 @@ public final class SqlUtils {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
                     + "non-alphanumeric characters, which may not be fully supported by SquiDB or SQLite in some "
                     + "cases. It is strongly recommended you use only alphanumeric characters and '_' in your "
-                    + "identifiers", element);
+                    + "identifiers. This may be considered an error in future versions of SquiDB.", element);
         }
         return true;
     }
