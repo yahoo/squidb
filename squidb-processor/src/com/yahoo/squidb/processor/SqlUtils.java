@@ -20,7 +20,9 @@ public final class SqlUtils {
     private static final Pattern ALPHANUMERIC = Pattern.compile("[a-zA-Z0-9_]+");
 
     /**
-     * @return true if word is a SQLite keyword
+     * @return true if word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be used as
+     * a table or column name, but it is highly recommended that you not do so. Use
+     * {@link #isRestrictedKeyword(String)} to check if a word definitely cannot be used as an identifier.
      */
     public static boolean isKeyword(String word) {
         return word == null || ALL_KEYWORDS.contains(word.toUpperCase());
