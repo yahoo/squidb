@@ -128,8 +128,6 @@ declare -a sqlite_keywords=(
 "WITHOUT"
 )
 
-rm sqlite-keywords-test.sql
-touch sqlite-keywords-test.sql
 for i in "${sqlite_keywords[@]}"
 do
    echo "create table $i ($i text primary key);" >> sqlite-keywords-test.sql

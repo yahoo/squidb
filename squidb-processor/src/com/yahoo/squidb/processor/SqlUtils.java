@@ -50,8 +50,8 @@ public final class SqlUtils {
         } else if (Character.isDigit(identifier.charAt(0))) {
             modelSpec.logError(type + " name '" + identifier + "' cannot start with a digit", element);
             return false;
-        } else if (SqlUtils.isKeyword(identifier)) {
-            if (SqlUtils.isRestrictedKeyword(identifier)) {
+        } else if (isKeyword(identifier)) {
+            if (isRestrictedKeyword(identifier)) {
                 modelSpec.logError(type + " name '" + identifier + "' is a reserved SQLite keyword that cannot be "
                         + "used as a " + type + " name", element);
                 return false;
