@@ -10,6 +10,7 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
@@ -91,6 +92,14 @@ public class PluginEnvironment {
      * Option for disabling the default support for Enum properties
      */
     public static final String OPTIONS_DISABLE_ENUM_PROPERTIES = "disableEnumProperties";
+
+    /**
+     * Option for disabling the generated dummy classes used for error logging by the code generator, and instead
+     * preferring the standard error logging provided by the APT APIs. Using standard error logging may cause the user
+     * to see a large number of "cannot find symbol" errors in addition to the code generation errors logged by SquiDB,
+     * so users should only use this option if they are having trouble with SquiDB's annotation-based error logging.
+     */
+    public static final String OPTIONS_USE_STANDARD_ERROR_LOGGING = "standardErrorLogging";
 
     /**
      * Option for generating models that have Android-specific features
@@ -188,6 +197,10 @@ public class PluginEnvironment {
             normalPriorityPlugins.add(EnumPluginBundle.class);
         }
 
+        if (!hasSquidbOption(OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
+            normalPriorityPlugins.add(ErrorLoggingPlugin.class);
+        }
+
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
             // This plugin claims any public static final fields not handled by the other plugins and copies them to
             // the generated model. Set to low priority so that by default user plugins can have first pass at
@@ -213,8 +226,8 @@ public class PluginEnvironment {
             if (pluginName.contains(":")) {
                 String[] nameAndPriority = pluginName.split(":");
                 if (nameAndPriority.length != 2) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                            "Error parsing plugin and priority " + pluginName);
+                    utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            "Error parsing plugin and priority " + pluginName + ", plugin will be ignored");
                 } else {
                     pluginName = nameAndPriority[0];
                     String priorityString = nameAndPriority[1];

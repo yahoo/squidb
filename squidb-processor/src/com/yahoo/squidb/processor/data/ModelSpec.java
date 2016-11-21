@@ -56,8 +56,10 @@ public abstract class ModelSpec<T extends Annotation> {
 
     protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
-    protected final boolean androidModels;
+    private final PluginEnvironment pluginEnvironment;
     private final DeclaredTypeName modelSuperclass;
+
+    private final List<ErrorInfo> loggedErrors = new ArrayList<>();
 
     public interface ModelSpecVisitor<RETURN, PARAMETER> {
 
@@ -75,8 +77,8 @@ public abstract class ModelSpec<T extends Annotation> {
         this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
+        this.pluginEnvironment = pluginEnv;
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
-        this.androidModels = pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_GENERATE_ANDROID_MODELS);
 
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
@@ -242,5 +244,41 @@ public abstract class ModelSpec<T extends Annotation> {
     @SuppressWarnings("unchecked")
     public <TYPE> TYPE getMetadata(String metadataKey) {
         return (TYPE) metadataMap.get(metadataKey);
+    }
+
+    /**
+     * Log an error to this model spec.
+     *
+     * This is generally intended for logging things like validation errors. Such errors do not stop the code
+     * generation process (as logging an error using Messager and Kind.ERROR would), but instead generate
+     * temporary code in the model class that will be picked up by a subsequent annotation processor and logged as
+     * errors in a later round of annotation processing. This mechanism is designed to work around the fact that
+     * logging Kind.ERROR messages during early rounds of annotation processing may suppress those errors, because
+     * failing early during annotation processing can lead to a large number of "symbol not found" errors, which in
+     * turn mask other validation errors.
+     * <p>
+     * If {@link PluginEnvironment#OPTIONS_USE_STANDARD_ERROR_LOGGING} is passed as an option to the code generator,
+     * this SquiDB workaround is disabled and this method will log an error using a standard printMessage() call with
+     * Kind.ERROR.
+     *
+     * @param message the error message to be logged
+     * @param element the specific inner element in the model spec that is causing this error (e.g. a field or method),
+     * or null for a general error
+     */
+    public void logError(String message, Element element) {
+        if (pluginEnvironment.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
+            utils.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+        } else {
+            boolean isRootElement = element == null || element.equals(getModelSpecElement());
+            loggedErrors.add(new ErrorInfo(getModelSpecName(),
+                    isRootElement ? "" : element.getSimpleName().toString(), message));
+        }
+    }
+
+    /**
+     * @return the list of errors logged to this model spec
+     */
+    public List<ErrorInfo> getLoggedErrors() {
+        return loggedErrors;
     }
 }

@@ -1,1 +1,2 @@
 com.yahoo.squidb.processor.ModelSpecProcessor
+com.yahoo.squidb.processor.ErrorLoggingProcessor

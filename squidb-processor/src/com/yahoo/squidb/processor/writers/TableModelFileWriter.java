@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic.Kind;
 
 /**
  * Responsible for writing all aspects of the Java file for a generated model class.
@@ -45,9 +44,8 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         arguments.add(null); // database name, null by default
         if (modelSpec.isVirtualTable()) {
             if (AptUtils.isEmpty(modelSpec.getSpecAnnotation().virtualModule())) {
-                utils.getMessager()
-                        .printMessage(Kind.ERROR, "virtualModule should be non-empty for virtual table models",
-                                modelSpec.getModelSpecElement());
+                modelSpec.logError("virtualModule should be non-empty for virtual table models",
+                        modelSpec.getModelSpecElement());
             }
             arguments.add("\"" + modelSpec.getSpecAnnotation().virtualModule() + "\"");
         } else if (!AptUtils.isEmpty(modelSpec.getSpecAnnotation().tableConstraint())) {
