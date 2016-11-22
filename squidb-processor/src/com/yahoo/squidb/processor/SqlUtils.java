@@ -18,11 +18,15 @@ import javax.tools.Diagnostic;
 public final class SqlUtils {
 
     /**
-     * Pattern for validating identifiers, based on SQLite's "simple" tokenizer. Identifier chars include
-     * - Unicode codepoints >= 128: Everything
-     * - Unicode codepoints < 128: Alphanumeric and "_"
+     * Pattern for validating identifiers, based on SQLite's "simple" tokenizer. Identifier chars include:
+     * <ul>
+     * <li>All ASCII alphanumeric characters</li>
+     * <li>The '_' character</li>
+     * <li>Unicode codepoints between &#92;u00A1 and &#92;uFFFF, excluding the &#92;uD800-&#92;uDFFF range, which seem
+     * like they don't always work well in SQLite names</li>
+     * </ul>
      */
-    private static final Pattern IDENTIFIER = Pattern.compile("[\u0080-\uffff\\p{Alnum}_]+");
+    private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\ud7ff\ue000-\uffff\\p{Alnum}_]+");
 
     /**
      * @return true if word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be used as
@@ -43,11 +47,15 @@ public final class SqlUtils {
     }
 
     /**
-     * Checks to see if an identifier (for e.g. a table or column name) is a keyword and if so if it is restricted.
-     * Logs an error to the given model spec if the identifier is restricted and logs a warning if the identifier
-     * is a non-restricted keyword.
+     * Checks identifier (for e.g. a table or column name) against various constraints, including if the identifier
+     * is a keyword or a restricted keyword, if the identifier is null or empty, and if the identifier starts with
+     * or contains any characters that may cause trouble with SQLite/SquiDB.
+     * <p>
+     * If the identifier is known to not work well with SQLite/SquiDB, an error message with the reason will be logged.
+     * If any suspicious characters are noticed but it is uncertain if the identifier will work or not, a warning will
+     * be logged.
      *
-     * @return false if the identifier is a restricted keyword, true otherwise
+     * @return false if the identifier definitely cannot be used with SQLite/SquiDB, true otherwise
      */
     public static boolean checkIdentifier(String identifier, String type, ModelSpec<?> modelSpec, Element element,
             AptUtils aptUtils) {
@@ -72,8 +80,8 @@ public final class SqlUtils {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
                     + "characters that may not be fully supported by SquiDB or SQLite in some cases. It is strongly "
                     + "recommended your identifiers only contain alphanumeric characters, underscores ('_'), and "
-                    + "characters with codepoints \\u0080-\\uffff. This may be considered an error in future versions "
-                    + "of SquiDB.", element);
+                    + "characters with codepoints \\u00A1-\\uD7FF or \\uE000-\\uFFFF. This may be considered an error "
+                    + "in future versions of SquiDB.", element);
         }
         return true;
     }
