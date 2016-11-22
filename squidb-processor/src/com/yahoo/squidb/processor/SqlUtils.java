@@ -22,11 +22,10 @@ public final class SqlUtils {
      * <ul>
      * <li>All ASCII alphanumeric characters</li>
      * <li>The '_' character</li>
-     * <li>Unicode codepoints between &#92;u00A1 and &#92;uFFFF, excluding the &#92;uD800-&#92;uDFFF range, which seem
-     * like they don't always work well in SQLite names</li>
+     * <li>Unicode codepoints between &#92;u00A1 and &#92;uFFFF</li>
      * </ul>
      */
-    private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\ud7ff\ue000-\uffff\\p{Alnum}_]+");
+    private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\uffff\\p{Alnum}_]+");
 
     /**
      * @return true if word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be used as
@@ -80,8 +79,8 @@ public final class SqlUtils {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
                     + "characters that may not be fully supported by SquiDB or SQLite in some cases. It is strongly "
                     + "recommended your identifiers only contain alphanumeric characters, underscores ('_'), and "
-                    + "characters with codepoints \\u00A1-\\uD7FF or \\uE000-\\uFFFF. This may be considered an error "
-                    + "in future versions of SquiDB.", element);
+                    + "characters with codepoints \\u00A1-\\uFFFF. This may be considered an error in future versions "
+                    + "of SquiDB.", element);
         }
         return true;
     }

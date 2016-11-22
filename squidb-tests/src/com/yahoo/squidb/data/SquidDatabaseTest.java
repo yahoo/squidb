@@ -933,6 +933,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
 //    public void testValidIdentifierCharacters() {
 //        database.getDatabase();
+//        // Characters between 0xd800 and 0xdfff don't work as standalone names
 //        testIdentifiersInRange((char) 0x00A1, (char) 0xd7ff);
 //        testIdentifiersInRange((char) 0xe000, (char) 0xffff);
 //        testIdentifiersInRange('a', 'z');
