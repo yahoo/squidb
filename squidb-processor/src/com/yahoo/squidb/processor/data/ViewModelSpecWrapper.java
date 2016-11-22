@@ -29,7 +29,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
     }
 
     private void checkViewName() {
-        String viewName = getSpecAnnotation().viewName();
+        String viewName = getSpecAnnotation().viewName().trim();
         if (viewName.toLowerCase().startsWith("sqlite_")) {
             logError("View names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());

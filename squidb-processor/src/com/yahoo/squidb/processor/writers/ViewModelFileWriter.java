@@ -109,7 +109,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
     private void emitSqlTableDeclaration(boolean view) throws IOException {
         writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
-        String name = "\"" + modelSpec.getSpecAnnotation().viewName() + "\"";
+        String name = "\"" + modelSpec.getSpecAnnotation().viewName().trim() + "\"";
         if (modelSpec.getQueryElement() != null) {
             Expression queryReference = Expressions.staticReference(modelSpec.getModelSpecName(),
                     modelSpec.getQueryElement().getSimpleName().toString())

@@ -40,7 +40,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         List<Object> arguments = new ArrayList<>();
         arguments.add(Expressions.classObject(modelSpec.getGeneratedClassName())); // modelClass
         arguments.add(PROPERTIES_ARRAY_NAME); // properties
-        arguments.add("\"" + modelSpec.getSpecAnnotation().tableName() + "\""); // name
+        arguments.add("\"" + modelSpec.getSpecAnnotation().tableName().trim() + "\""); // name
         arguments.add(null); // database name, null by default
         if (modelSpec.isVirtualTable()) {
             if (AptUtils.isEmpty(modelSpec.getSpecAnnotation().virtualModule())) {

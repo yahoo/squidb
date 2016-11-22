@@ -45,9 +45,9 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         super(modelSpec, null, utils);
         this.extras = null;
 
-        this.camelCasePropertyName = StringUtils.toCamelCase(propertyName);
+        this.camelCasePropertyName = StringUtils.toCamelCase(propertyName).trim();
         this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
-        this.columnName = columnName;
+        this.columnName = columnName == null ? null : columnName.trim();
 
         validateColumnName();
     }
@@ -71,8 +71,8 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
     }
 
     private String getColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !AptUtils.isEmpty(columnDef.name())) {
-            return columnDef.name();
+        if (columnDef != null && !AptUtils.isEmpty(columnDef.name().trim())) {
+            return columnDef.name().trim();
         }
         return camelCasePropertyName;
     }

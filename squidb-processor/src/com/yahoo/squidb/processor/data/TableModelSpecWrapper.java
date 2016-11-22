@@ -24,7 +24,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
     }
 
     private void checkTableName() {
-        String tableName = getSpecAnnotation().tableName();
+        String tableName = getSpecAnnotation().tableName().trim();
         if (tableName.toLowerCase().startsWith("sqlite_")) {
             logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
