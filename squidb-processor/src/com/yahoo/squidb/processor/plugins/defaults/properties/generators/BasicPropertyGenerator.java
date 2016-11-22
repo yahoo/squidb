@@ -64,6 +64,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         validateColumnName();
     }
 
+    // TODO remove when SqlUtils reports an error for identifiers containing '$'
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);

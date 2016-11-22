@@ -17,7 +17,12 @@ import javax.tools.Diagnostic;
 
 public final class SqlUtils {
 
-    private static final Pattern ALPHANUMERIC = Pattern.compile("[a-zA-Z0-9_]+");
+    /**
+     * Pattern for validating identifiers, based on SQLite's "simple" tokenizer. Identifier chars include
+     * - Unicode codepoints >= 128: Everything
+     * - Unicode codepoints < 128: Alphanumeric and "_"
+     */
+    private static final Pattern IDENTIFIER = Pattern.compile("[\u0080-\uffff\\p{Alnum}_]+");
 
     /**
      * @return true if word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be used as
@@ -62,11 +67,12 @@ public final class SqlUtils {
                         + "SQLite keyword. It may be allowed as an identifier but it is recommended you choose a "
                         + "non-keyword name instead", element);
             }
-        } else if (!ALPHANUMERIC.matcher(identifier).matches()) {
+        } else if (!IDENTIFIER.matcher(identifier).matches()) {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
-                    + "non-alphanumeric characters, which may not be fully supported by SquiDB or SQLite in some "
-                    + "cases. It is strongly recommended you use only alphanumeric characters and '_' in your "
-                    + "identifiers. This may be considered an error in future versions of SquiDB.", element);
+                    + "characters that may not be fully supported by SquiDB or SQLite in some cases. It is strongly "
+                    + "recommended your identifiers only contain alphanumeric characters, underscores ('_'), and "
+                    + "characters with codepoints \\u0080-\\uffff. This may be considered an error in future versions "
+                    + "of SquiDB.", element);
         }
         return true;
     }
