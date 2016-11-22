@@ -92,8 +92,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
                 VariableElement field = propertyGenerator.getField();
                 if (field != null) {
                     Alias aliasAnnotation = field.getAnnotation(Alias.class);
-                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
-                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value().trim())) {
+                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value().trim() + "\"");
                     }
                 }
             }
