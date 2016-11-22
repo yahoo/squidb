@@ -54,8 +54,9 @@ public final class SqlUtils {
         if (AptUtils.isEmpty(identifier)) {
             modelSpec.logError(type + " name cannot be null or empty", element);
             return false;
-        } else if (Character.isDigit(identifier.charAt(0))) {
-            modelSpec.logError(type + " name '" + identifier + "' cannot start with a digit", element);
+        } else if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
+                .matches()) {
+            modelSpec.logError(type + " name '" + identifier + "' cannot start with " + identifier.charAt(0), element);
             return false;
         } else if (isKeyword(identifier)) {
             if (isRestrictedKeyword(identifier)) {
