@@ -28,7 +28,7 @@ public final class ErrorInfo {
      */
     public final String message;
 
-    public ErrorInfo(DeclaredTypeName errorClass, String element, String message) {
+    ErrorInfo(DeclaredTypeName errorClass, String element, String message) {
         this.errorClass = errorClass;
         this.element = element;
         this.message = message;
