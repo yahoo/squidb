@@ -66,18 +66,17 @@ public final class SqlUtils {
      */
     public static boolean checkIdentifier(String identifier, String type, ModelSpec<?> modelSpec, Element element,
             AptUtils aptUtils) {
-        if (AptUtils.isEmpty(identifier)) {
-            modelSpec.logError(type + " name cannot be null or empty", element);
-            return false;
-        }
-        String trimmedIdentifier = identifier.trim();
-        if (!trimmedIdentifier.equals(identifier)) {
+        String trimmedIdentifier = identifier == null ? null : identifier.trim();
+        if (trimmedIdentifier != null && !trimmedIdentifier.equals(identifier)) {
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' has "
                     + "excess whitespace that should be trimmed", element);
         }
         identifier = trimmedIdentifier;
-
-        if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
+        
+        if (AptUtils.isEmpty(identifier)) {
+            modelSpec.logError(type + " name cannot be null or empty", element);
+            return false;
+        } else if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
                 .matches()) {
             modelSpec.logError(type + " name '" + identifier + "' cannot start with " + identifier.charAt(0), element);
             return false;
