@@ -94,6 +94,7 @@ public final class SqlUtils {
                         + "non-keyword name instead", element);
             }
         } else if (!IDENTIFIER.matcher(identifier).matches()) {
+            // TODO: If we ever promote this to an error rather than a warning, many of the above cases can be consolidated
             aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
                     + "characters that may not be fully supported by SquiDB or SQLite in some cases. It is strongly "
                     + "recommended your identifiers only contain alphanumeric characters, underscores ('_'), and "
