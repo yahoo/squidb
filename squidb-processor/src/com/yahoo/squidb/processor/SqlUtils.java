@@ -28,9 +28,12 @@ public final class SqlUtils {
     private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\uffff\\p{Alnum}_]+");
 
     /**
-     * @return true if word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be used as
-     * a table or column name, but it is highly recommended that you not do so. Use
+     * Checks if the given word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be
+     * used as a table or column name, but it is highly recommended that you not do so. Use
      * {@link #isRestrictedKeyword(String)} to check if a word definitely cannot be used as an identifier.
+     *
+     * @return true if word is a SQLite keyword
+     * @see #isRestrictedKeyword(String)
      */
     public static boolean isKeyword(String word) {
         return word == null || ALL_KEYWORDS.contains(word.toUpperCase());
@@ -38,8 +41,8 @@ public final class SqlUtils {
 
     /**
      * @return true if word is a restricted SQLite keyword, i.e. cannot be used as a table or column name.
-     * If a word is a SQLite keyword, it *may* be used as a table or column name, but it is highly recommended that
-     * you not do so.
+     *
+     * @see #isKeyword(String) 
      */
     public static boolean isRestrictedKeyword(String word) {
         return word == null || RESTRICTED_KEYWORDS.contains(word.toUpperCase());
