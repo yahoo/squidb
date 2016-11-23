@@ -28,6 +28,11 @@ public final class SqlUtils {
     private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\uffff\\p{Alnum}_]+");
 
     /**
+     * Pattern for finding whitespace characters
+     */
+    private static final Pattern WHITESPACE = Pattern.compile("\\s");
+
+    /**
      * Checks if the given word is a SQLite keyword. If a word is a SQLite keyword, it is possible that it could be
      * used as a table or column name, but it is highly recommended that you not do so. Use
      * {@link #isRestrictedKeyword(String)} to check if a word definitely cannot be used as an identifier.
@@ -42,7 +47,7 @@ public final class SqlUtils {
     /**
      * @return true if word is a restricted SQLite keyword, i.e. cannot be used as a table or column name.
      *
-     * @see #isKeyword(String) 
+     * @see #isKeyword(String)
      */
     public static boolean isRestrictedKeyword(String word) {
         return word == null || RESTRICTED_KEYWORDS.contains(word.toUpperCase());
@@ -64,9 +69,20 @@ public final class SqlUtils {
         if (AptUtils.isEmpty(identifier)) {
             modelSpec.logError(type + " name cannot be null or empty", element);
             return false;
-        } else if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
+        }
+        String trimmedIdentifier = identifier.trim();
+        if (!trimmedIdentifier.equals(identifier)) {
+            aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' has "
+                    + "excess whitespace that should be trimmed", element);
+        }
+        identifier = trimmedIdentifier;
+
+        if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
                 .matches()) {
             modelSpec.logError(type + " name '" + identifier + "' cannot start with " + identifier.charAt(0), element);
+            return false;
+        } else if (WHITESPACE.matcher(identifier).find()) {
+            modelSpec.logError(type + " name '" + identifier + "' contains whitespace characters", element);
             return false;
         } else if (isKeyword(identifier)) {
             if (isRestrictedKeyword(identifier)) {
