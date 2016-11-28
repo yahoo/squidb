@@ -6,7 +6,9 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.yahoo.squidb.annotations.Alias;
 import com.yahoo.squidb.annotations.ViewQuery;
+import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
@@ -53,5 +55,14 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
             modelSpec.logError("View properties must be static final and non-private", field);
         }
         return false;
+    }
+
+    @Override
+    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+        Alias alias = field.getAnnotation(Alias.class);
+        if (alias != null) {
+            SqlUtils.checkIdentifier(alias.value().trim(), "view column name", modelSpec, field, utils);
+        }
+        return super.getPropertyGenerator(field, fieldType);
     }
 }

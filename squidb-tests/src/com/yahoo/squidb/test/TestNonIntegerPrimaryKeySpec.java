@@ -8,7 +8,7 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 public class TestNonIntegerPrimaryKeySpec {
 
     @PrimaryKey
-    @ColumnSpec(constraints = "NOT NULL")
+    @ColumnSpec(name = "keyCol", constraints = "NOT NULL")
     String key;
 
     String value;

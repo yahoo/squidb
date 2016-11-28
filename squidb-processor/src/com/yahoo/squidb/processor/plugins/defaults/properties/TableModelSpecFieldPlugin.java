@@ -12,6 +12,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -145,6 +146,11 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                 modelSpec.logError("User-defined non-primary-key columns cannot currently be "
                         + "named 'ID' for the sake of backwards compatibility. This restriction will be removed in a "
                         + "future version of SquiDB.", field);
+                return null;
+            }
+
+            String columnName = propertyGenerator.getColumnName();
+            if (!SqlUtils.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
                 return null;
             }
 

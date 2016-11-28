@@ -9,6 +9,7 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
+import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
@@ -24,6 +25,17 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
 
     public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, ViewModelSpec.class, pluginEnv, utils);
+        checkViewName();
+    }
+
+    private void checkViewName() {
+        String viewName = getSpecAnnotation().viewName().trim();
+        if (viewName.toLowerCase().startsWith("sqlite_")) {
+            logError("View names cannot start with 'sqlite_'; such names are reserved for internal use",
+                    getModelSpecElement());
+        } else {
+            SqlUtils.checkIdentifier(viewName, "view", this, getModelSpecElement(), utils);
+        }
     }
 
     @Override

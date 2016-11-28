@@ -37,7 +37,7 @@ public class TestSubqueryModelSpec {
     @Alias("blahName")
     public static final StringProperty EMPLOYEE_NAME = Employee.NAME;
 
-    @Alias("luckyNumber")
+    @Alias("   luckyNumber\t")
     public static final IntegerProperty TEST_LUCKY_NUMBER = TestModel.LUCKY_NUMBER;
 
     @Alias("blahEnum")

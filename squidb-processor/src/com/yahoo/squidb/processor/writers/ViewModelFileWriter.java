@@ -92,8 +92,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
                 VariableElement field = propertyGenerator.getField();
                 if (field != null) {
                     Alias aliasAnnotation = field.getAnnotation(Alias.class);
-                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value())) {
-                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value() + "\"");
+                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value().trim())) {
+                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value().trim() + "\"");
                     }
                 }
             }
@@ -109,7 +109,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
     private void emitSqlTableDeclaration(boolean view) throws IOException {
         writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
-        String name = "\"" + modelSpec.getSpecAnnotation().viewName() + "\"";
+        String name = "\"" + modelSpec.getSpecAnnotation().viewName().trim() + "\"";
         if (modelSpec.getQueryElement() != null) {
             Expression queryReference = Expressions.staticReference(modelSpec.getModelSpecName(),
                     modelSpec.getQueryElement().getSimpleName().toString())

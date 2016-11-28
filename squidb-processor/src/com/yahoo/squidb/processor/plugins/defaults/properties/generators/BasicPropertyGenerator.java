@@ -45,9 +45,9 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         super(modelSpec, null, utils);
         this.extras = null;
 
-        this.camelCasePropertyName = StringUtils.toCamelCase(propertyName);
+        this.camelCasePropertyName = StringUtils.toCamelCase(propertyName).trim();
         this.propertyName = StringUtils.toUpperUnderscore(camelCasePropertyName);
-        this.columnName = columnName;
+        this.columnName = columnName == null ? null : columnName.trim();
 
         validateColumnName();
     }
@@ -64,17 +64,16 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
         validateColumnName();
     }
 
+    // TODO remove when SqlUtils reports an error for identifiers containing '$'
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);
-        } else if (Character.isDigit(columnName.charAt(0))) {
-            modelSpec.logError("Column names cannot begin with a digit", field);
         }
     }
 
     private String getColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !AptUtils.isEmpty(columnDef.name())) {
-            return columnDef.name();
+        if (columnDef != null && !AptUtils.isEmpty(columnDef.name().trim())) {
+            return columnDef.name().trim();
         }
         return camelCasePropertyName;
     }

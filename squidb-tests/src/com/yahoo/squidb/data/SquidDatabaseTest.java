@@ -930,4 +930,34 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             throw new RuntimeException(e);
         }
     }
+
+//    public void testValidIdentifierCharacters() {
+//        database.getDatabase();
+//        // Characters between 0xd800 and 0xdfff don't work as standalone names
+//        testIdentifiersInRange((char) 0x00A1, (char) 0xd7ff);
+//        testIdentifiersInRange((char) 0xe000, (char) 0xffff);
+//        testIdentifiersInRange('a', 'z');
+//        testIdentifiersInRange('A', 'Z');
+//        testIdentifiersInRange('_', '_');
+//    }
+//
+//    private void testIdentifiersInRange(char min, char max) {
+//        for (char c = min; c >= min && c <= max; c++) {
+//            String tableName = Character.toString(c);
+//            if (!database.tryExecSql("create table " + tableName + " (" + tableName + " text)")) {
+//                fail("Failed to create table named " + tableName + ", char was " + Integer.toHexString(c));
+//            }
+//            if (!database.tryExecSql("insert into " + tableName + " (" + tableName + ") values ('a')")) {
+//                fail("Failed to insert into table named " + tableName + ", char was " + Integer.toHexString(c));
+//            }
+//            if (database.simpleQueryForLong("select count(*) from " + tableName, null) != 1) {
+//                fail("Thought insert into table named " + tableName + " had worked but count wasn't 1" +
+//                        ", char was " + Integer.toHexString(c));
+//            }
+//            if (!database.tryExecSql("drop table " + tableName)) {
+//                fail("Failed to drop table named " + tableName + ", char was " + Integer.toHexString(c));
+//            }
+//            Logger.d(Logger.LOG_TAG, "Identifier character " + c + " is valid");
+//        }
+//    }
 }
