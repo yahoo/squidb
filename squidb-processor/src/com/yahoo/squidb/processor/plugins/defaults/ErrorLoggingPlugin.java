@@ -26,9 +26,9 @@ import javax.lang.model.element.Modifier;
 /**
  * A {@link Plugin} that controls writing any errors logged using {@link ModelSpec#logError(String, Element)} to the
  * generated file using the {@link com.yahoo.squidb.annotations.ModelGenErrors} annotation, to be subsequently
- * processed by the {@link com.yahoo.squidb.processor.ErrorLoggingProcessor}. It is enabled by default.
- * It can be disabled by passing the {@link PluginEnvironment#OPTIONS_DISABLE_ERROR_LOGGING} option in the
- * squidbOptions key.
+ * processed by the {@link com.yahoo.squidb.processor.ErrorLoggingProcessor}. It is enabled by default but can be
+ * disabled by passing {@link PluginEnvironment#OPTIONS_USE_STANDARD_ERROR_LOGGING 'standardErrorLogging'} as one
+ * of the values for the 'squidbOptions' key.
  */
 public class ErrorLoggingPlugin extends Plugin {
 

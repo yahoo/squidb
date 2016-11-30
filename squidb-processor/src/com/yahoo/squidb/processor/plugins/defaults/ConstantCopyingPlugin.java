@@ -32,8 +32,9 @@ import javax.tools.Diagnostic;
 
 /**
  * A plugin that controls the copying of otherwise unhandled public static final fields in model specs as constants in
- * the generated model. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING} flag set.
+ * the generated model. It is enabled by default but can be disabled by passing
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING 'disableConstantCopying'} as one
+ * of the values for the 'squidbOptions' key.
  */
 public class ConstantCopyingPlugin extends Plugin {
 

@@ -23,8 +23,9 @@ import javax.lang.model.element.TypeElement;
 /**
  * A {@link Plugin} that controls declaring that model classes implement interfaces. This plugin looks for and parses
  * the value of any {@link Implements} annotations on the given model spec to determine which interfaces to add. It is
- * enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING} flag set.
+ * enabled by default but can be disabled by passing
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING 'disableImplements'} as one of the
+ * values for the 'squidbOptions' key.
  */
 public class ImplementsPlugin extends Plugin {
 

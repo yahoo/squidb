@@ -26,8 +26,9 @@ import javax.lang.model.element.Modifier;
 
 /**
  * A {@link Plugin} that controls generating constructors in model classes. This plugin generates four distinct
- * constructors in each model class. It is enabled by default. It can be disabled by passing a bitmask with the
- * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS} flag set.
+ * constructors in each model class. It is enabled by default but can be disabled by passing
+ * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS 'disableDefaultConstructors'} as one
+ * of the values for the 'squidbOptions' key.
  */
 public class ConstructorPlugin extends Plugin {
 

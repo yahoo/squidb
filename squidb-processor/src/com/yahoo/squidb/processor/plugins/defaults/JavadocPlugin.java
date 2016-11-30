@@ -20,7 +20,9 @@ import javax.lang.model.element.Element;
  * A plugin that controls copying javadocs from fields in the model spec to the corresponding properties in the
  * generated class. Other plugins can use the
  * {@link #writeJavadocFromElement(PluginEnvironment, JavaFileWriter, Element)} method to copy javadocs from other
- * elements in the model spec (e.g. model methods, constants, etc.)
+ * elements in the model spec (e.g. model methods, constants, etc.). This plugin is enabled by default but can be
+ * disabled by passing {@link PluginEnvironment#OPTIONS_DISABLE_JAVADOC_COPYING 'disableJavadoc'} as one of the
+ * values for the 'squidbOptions' key.
  */
 public class JavadocPlugin extends Plugin {
 
