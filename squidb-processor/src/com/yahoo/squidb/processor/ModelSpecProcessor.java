@@ -85,9 +85,7 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-
         utils = new AptUtils(env);
-
         pluginEnv = new PluginEnvironment(utils, env.getOptions());
     }
 
