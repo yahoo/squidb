@@ -3,8 +3,8 @@ env:
   global:
     - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
   matrix:
-    - ANDROID_TARGET=android-15
-    - ANDROID_TARGET=android-16
+    #- ANDROID_TARGET=android-15
+    #- ANDROID_TARGET=android-16
     - ANDROID_TARGET=android-19
 
 os: linux
@@ -17,11 +17,11 @@ android:
     - build-tools-24.0.3
     - android-24
     - extra-android-m2repository
-    - android-15
-    - android-16
+    #- android-15
+    #- android-16
     - android-19
-    - sys-img-armeabi-v7a-android-15
-    - sys-img-armeabi-v7a-android-16
+    #- sys-img-armeabi-v7a-android-15
+    #- sys-img-armeabi-v7a-android-16
     - sys-img-armeabi-v7a-android-19
 
 matrix:
