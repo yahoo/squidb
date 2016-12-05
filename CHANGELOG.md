@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-Version 3.2.2 *(2016-12-01)*
+Version 3.2.2 *(2016-12-05)*
 ----------------------------
 * Introduce a new error logging mechanism in the code generator that allows SquiDB to log errors without generating a bunch of "cannot find symbol \[ModelClass\]" errors
 * Implement validation in the code generator to guard against illegal column or table names, e.g. those that use SQLite keywords or contain invalid characters.
