@@ -9,12 +9,13 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 
-public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec> {
+public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec, InheritedModelPropertyGenerator> {
 
     private DeclaredTypeName superclass;
 

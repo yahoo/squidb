@@ -3,7 +3,7 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.defaults.properties;
+package com.yahoo.squidb.processor.plugins.defaults.enums;
 
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
@@ -16,8 +16,10 @@ import java.util.Arrays;
  */
 public class EnumPluginBundle extends PluginBundle {
 
-    public EnumPluginBundle(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv, Arrays.asList(new EnumFieldPlugin(modelSpec, pluginEnv),
-                new EnumFieldReferencePlugin(modelSpec, pluginEnv)));
+    public EnumPluginBundle(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv, Arrays.asList(
+                new EnumFieldPlugin(modelSpec, pluginEnv),
+                new EnumViewPropertyPlugin(modelSpec, pluginEnv),
+                new EnumInheritedPropertyPlugin(modelSpec, pluginEnv)));
     }
 }

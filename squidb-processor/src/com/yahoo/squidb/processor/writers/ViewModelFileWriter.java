@@ -12,17 +12,15 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.expressions.Expression;
 import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-import com.yahoo.squidb.annotations.Alias;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import java.io.IOException;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 
 public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
@@ -49,7 +47,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     protected void emitModelSpecificFields() throws IOException {
         emitUnaliasedPropertyArray();
         emitAliasedPropertyArray();
-        emitQueryAndTableDeclaration();
+        emitViewOrSubqueryDeclaration();
     }
 
     private void emitUnaliasedPropertyArray() throws IOException {
@@ -84,30 +82,22 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         writer.writeNewline();
     }
 
-    private boolean emitPropertyReferenceArrayBody(boolean alias) throws IOException {
-        for (PropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
-            Expression reference = Expressions.staticReference(modelSpec.getModelSpecName(),
-                    propertyGenerator.getPropertyName());
-            if (alias) {
-                VariableElement field = propertyGenerator.getField();
-                if (field != null) {
-                    Alias aliasAnnotation = field.getAnnotation(Alias.class);
-                    if (aliasAnnotation != null && !AptUtils.isEmpty(aliasAnnotation.value().trim())) {
-                        reference = reference.callMethod("as", "\"" + aliasAnnotation.value().trim() + "\"");
-                    }
+    private boolean emitPropertyReferenceArrayBody(boolean writeAlias) throws IOException {
+        for (ViewModelPropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
+            propertyGenerator.emitViewPropertyReference(writer);
+            if (writeAlias) {
+                String alias = propertyGenerator.getAlias();
+                if (!AptUtils.isEmpty(alias)) {
+                    writer.appendString(".as(\"" + alias + "\")");
                 }
             }
-            writer.writeExpression(reference);
             writer.appendString(",\n");
         }
         return !AptUtils.isEmpty(modelSpec.getPropertyGenerators());
     }
 
-    private void emitQueryAndTableDeclaration() throws IOException {
-        emitSqlTableDeclaration(!modelSpec.getSpecAnnotation().isSubquery());
-    }
-
-    private void emitSqlTableDeclaration(boolean view) throws IOException {
+    private void emitViewOrSubqueryDeclaration() throws IOException {
+        boolean view = !modelSpec.getSpecAnnotation().isSubquery();
         writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
         String name = "\"" + modelSpec.getSpecAnnotation().viewName().trim() + "\"";
         if (modelSpec.getQueryElement() != null) {
@@ -148,7 +138,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         }
     }
 
-    private void emitSinglePropertyDeclaration(PropertyGenerator generator, int index) throws IOException {
+    private void emitSinglePropertyDeclaration(ViewModelPropertyGenerator generator, int index) throws IOException {
         modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
         DeclaredTypeName type = generator.getPropertyType();
         String fieldToQualify = ALIASED_PROPERTY_ARRAY_NAME + "[" + index + "]";

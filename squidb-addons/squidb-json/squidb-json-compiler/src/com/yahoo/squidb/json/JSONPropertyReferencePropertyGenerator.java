@@ -10,42 +10,35 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyReferencePropertyGenerator;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
 
-public class JSONPropertyGenerator extends BasicStringPropertyGenerator {
+/**
+ * Extension of {@link PropertyReferencePropertyGenerator} that handles JSON property references
+ */
+public class JSONPropertyReferencePropertyGenerator extends PropertyReferencePropertyGenerator {
 
-    private final DeclaredTypeName fieldType;
     private final JSONPropertyGeneratorDelegate delegate;
 
-    public JSONPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, DeclaredTypeName fieldType,
-            AptUtils utils) {
-        super(modelSpec, field, utils);
-        this.fieldType = fieldType;
+    public JSONPropertyReferencePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field,
+            DeclaredTypeName propertyType, AptUtils utils) {
+        super(modelSpec, field, propertyType, utils);
         this.delegate = new JSONPropertyGeneratorDelegate(getPropertyName(), getTypeForAccessors());
+    }
+
+    @Override
+    protected DeclaredTypeName initAccessorsType() {
+        return (DeclaredTypeName) propertyType.getTypeArgs().get(0);
     }
 
     @Override
     public void registerRequiredImports(Set<DeclaredTypeName> imports) {
         super.registerRequiredImports(imports);
         delegate.registerRequiredImports(imports);
-    }
-
-    @Override
-    public DeclaredTypeName getPropertyType() {
-        DeclaredTypeName jsonProperty = JSONTypes.JSON_PROPERTY.clone();
-        jsonProperty.setTypeArgs(Collections.singletonList(fieldType));
-        return jsonProperty;
-    }
-
-    @Override
-    public DeclaredTypeName getTypeForAccessors() {
-        return fieldType;
     }
 
     @Override

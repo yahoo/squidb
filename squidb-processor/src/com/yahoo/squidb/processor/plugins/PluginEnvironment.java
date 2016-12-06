@@ -14,7 +14,7 @@ import com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
-import com.yahoo.squidb.processor.plugins.defaults.properties.EnumPluginBundle;
+import com.yahoo.squidb.processor.plugins.defaults.enums.EnumPluginBundle;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
@@ -373,7 +373,7 @@ public class PluginEnvironment {
      * @param modelSpec the model spec the Plugins will be instantiated for
      * @return a new {@link PluginBundle} containing Plugins initialized to handle the given model spec
      */
-    public PluginBundle getPluginBundleForModelSpec(ModelSpec<?> modelSpec) {
+    public PluginBundle getPluginBundleForModelSpec(ModelSpec<?, ?> modelSpec) {
         List<Plugin> plugins = new ArrayList<>();
         accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
         accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
@@ -382,7 +382,7 @@ public class PluginEnvironment {
     }
 
     private void accumulatePlugins(List<Plugin> accumulator, List<Class<? extends Plugin>> pluginList,
-            ModelSpec<?> modelSpec) {
+            ModelSpec<?, ?> modelSpec) {
         for (Class<? extends Plugin> plugin : pluginList) {
             try {
                 accumulator.add(plugin.getConstructor(ModelSpec.class, PluginEnvironment.class)

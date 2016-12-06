@@ -18,24 +18,26 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 
 /**
- * An implementation of {@link PropertyGenerator} for handling String fields
+ * An implementation of
+ * {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator}
+ * for handling String fields
  */
-public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
+public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
         return Collections.singletonList(CoreTypes.JAVA_STRING);
     }
 
-    public BasicStringPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+    public BasicStringPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
         super(modelSpec, columnName, utils);
     }
 
-    public BasicStringPropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+    public BasicStringPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
             String propertyName, AptUtils utils) {
         super(modelSpec, columnName, propertyName, utils);
     }
 
-    public BasicStringPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+    public BasicStringPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
 
@@ -50,8 +52,8 @@ public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected String getColumnDefinitionDefaultValue() {
-        String defaultValue = super.getColumnDefinitionDefaultValue();
+    protected String columnSpecDefaultValueToSql() {
+        String defaultValue = super.columnSpecDefaultValueToSql();
         if (!ColumnSpec.DEFAULT_NONE.equals(defaultValue) && !"NULL".equals(defaultValue)) {
             return "'" + defaultValue + "'";
         }
@@ -59,8 +61,8 @@ public class BasicStringPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected String getContentValuesDefaultValue() {
-        return "\"" + super.getContentValuesDefaultValue() + "\"";
+    protected String getDefaultValueForContentValues() {
+        return "\"" + super.getDefaultValueForContentValues() + "\"";
     }
 
 }

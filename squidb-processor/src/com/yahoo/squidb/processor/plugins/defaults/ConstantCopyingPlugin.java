@@ -41,7 +41,7 @@ public class ConstantCopyingPlugin extends Plugin {
     private final List<VariableElement> constantElements = new ArrayList<>();
     private final Map<String, List<VariableElement>> innerClassConstants = new HashMap<>();
 
-    public ConstantCopyingPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ConstantCopyingPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 

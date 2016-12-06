@@ -12,13 +12,14 @@ import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec> {
+public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelPropertyGenerator> {
 
     public static final String METADATA_KEY_QUERY_ELEMENT = "queryElement";
     public static final String METADATA_KEY_VIEW_QUERY = "viewQuery";

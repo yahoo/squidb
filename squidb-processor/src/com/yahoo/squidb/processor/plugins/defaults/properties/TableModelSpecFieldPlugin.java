@@ -22,10 +22,11 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicBo
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicDoublePropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicIntegerPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLongPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicStringPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicTableModelPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.RowidPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 
 import java.io.IOException;
@@ -35,26 +36,26 @@ import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic.Kind;
 
 /**
  * This plugin controls generating property declarations, getters, and setters for fields in a table model. It can
- * create instances of {@link PropertyGenerator} for each of the basic supported column types (String, int, long, etc.)
+ * create instances of {@link TableModelPropertyGenerator} for each of the basic supported column types
+ * (String, int, long, etc.)
  * <p>
  * Users who want to tweak the default field handling for table models can subclass this plugin and override the
  * protected methods for determining PropertyGenerator subclasses ({@link #getStringPropertyGenerator()},
  * {@link #getLongPropertyGenerator()}, etc.). Such a user plugin should be registered with "high" priority so it takes
  * precedence over the default version of this plugin.
  */
-public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
+public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, TableModelPropertyGenerator> {
 
     public static final String DEFAULT_ROWID_PROPERTY_NAME = "ROWID";
     private static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
     private static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
-    private Map<DeclaredTypeName, Class<? extends BasicPropertyGenerator>> generatorMap = new HashMap<>();
+    private Map<DeclaredTypeName, Class<? extends BasicTableModelPropertyGenerator>> generatorMap = new HashMap<>();
 
-    public TableModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public TableModelSpecFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         registerBasicPropertyGenerators();
     }
@@ -69,15 +70,15 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     private void registerHandledTypes(List<DeclaredTypeName> handledTypes,
-            Class<? extends BasicPropertyGenerator> generatorClass) {
+            Class<? extends BasicTableModelPropertyGenerator> generatorClass) {
         for (DeclaredTypeName type : handledTypes) {
             generatorMap.put(type, generatorClass);
         }
     }
 
     @Override
-    public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof TableModelSpecWrapper;
+    protected Class<TableModelSpecWrapper> getHandledModelSpecClass() {
+        return TableModelSpecWrapper.class;
     }
 
     @Override
@@ -122,8 +123,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        Class<? extends BasicPropertyGenerator> generatorClass;
+    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+        Class<? extends BasicTableModelPropertyGenerator> generatorClass;
         if (isIntegerPrimaryKey(field, fieldType)) {
             // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
             generatorClass = getRowidPropertyGenerator();
@@ -131,7 +132,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
             generatorClass = generatorMap.get(fieldType);
         }
         try {
-            BasicPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
+            BasicTableModelPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
                     VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
             if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
                     DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
@@ -167,7 +168,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin {
                     DEFAULT_ROWID_PROPERTY_NAME, utils);
             modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, rowidPropertyGenerator);
         }
-        modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
+        ((TableModelSpecWrapper) modelSpec).getPropertyGenerators().add(0, rowidPropertyGenerator);
 
         // Sanity check to make sure there is exactly 1 RowidPropertyGenerator
         RowidPropertyGenerator foundRowidPropertyGenerator = null;

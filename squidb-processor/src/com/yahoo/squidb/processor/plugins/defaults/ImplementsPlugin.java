@@ -31,7 +31,7 @@ public class ImplementsPlugin extends Plugin {
 
     private final List<DeclaredTypeName> interfaces = new ArrayList<>();
 
-    public ImplementsPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ImplementsPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         parseInterfaces();
     }

@@ -64,7 +64,7 @@ public final class SqlUtils {
      *
      * @return false if the identifier definitely cannot be used with SQLite/SquiDB, true otherwise
      */
-    public static boolean checkIdentifier(String identifier, String type, ModelSpec<?> modelSpec, Element element,
+    public static boolean checkIdentifier(String identifier, String type, ModelSpec<?, ?> modelSpec, Element element,
             AptUtils aptUtils) {
         String trimmedIdentifier = identifier == null ? null : identifier.trim();
         if (trimmedIdentifier != null && !trimmedIdentifier.equals(identifier)) {

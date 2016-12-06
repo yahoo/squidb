@@ -11,12 +11,13 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
 import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 
-public class TableModelSpecWrapper extends ModelSpec<TableModelSpec> {
+public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelPropertyGenerator> {
 
     public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);

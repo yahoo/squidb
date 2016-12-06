@@ -14,7 +14,7 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.BaseFieldPlugin;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,15 +25,15 @@ import javax.lang.model.element.VariableElement;
  * Plugin which handles fields annotated with @JSONField in a TableModelSpec file. Generates instances of JSONProperty
  * which helps support serializing objects to JSON strings.
  */
-public class JSONFieldPlugin extends BaseFieldPlugin {
+public class JSONFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, TableModelPropertyGenerator> {
 
-    public JSONFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public JSONFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
     @Override
-    public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof TableModelSpecWrapper;
+    protected Class<TableModelSpecWrapper> getHandledModelSpecClass() {
+        return TableModelSpecWrapper.class;
     }
 
     @Override
@@ -41,8 +41,8 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
         if (field.getAnnotation(JSONColumn.class) == null) {
             return false;
         }
-        if (field.getModifiers().containsAll(TypeConstants.PUBLIC_STATIC_FINAL)) {
-            // Might be a constant, ignore
+        if (TypeConstants.isVisibleConstant(field)) {
+            // Looks like a constant, ignore
             return false;
         }
 
@@ -71,7 +71,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin {
     }
 
     @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
     }
 }

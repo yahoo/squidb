@@ -12,7 +12,7 @@ import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -43,15 +43,15 @@ import javax.tools.Diagnostic;
  * Plugins can also store arbitrary metadata in a model spec using {@link #putMetadata(String, Object)} and
  * {@link #getMetadata(String)}
  */
-public abstract class ModelSpec<T extends Annotation> {
+public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerator> {
 
     protected final T modelSpecAnnotation;
     protected final DeclaredTypeName generatedClassName;
     protected final DeclaredTypeName modelSpecName;
     protected final TypeElement modelSpecElement;
 
-    private final List<PropertyGenerator> propertyGenerators = new ArrayList<>();
-    private final List<PropertyGenerator> deprecatedPropertyGenerators = new ArrayList<>();
+    private final List<P> propertyGenerators = new ArrayList<>();
+    private final List<P> deprecatedPropertyGenerators = new ArrayList<>();
     private final Map<String, Object> metadataMap = new HashMap<>();
 
     protected final AptUtils utils;
@@ -185,28 +185,28 @@ public abstract class ModelSpec<T extends Annotation> {
     /**
      * @return a list of {@link PropertyGenerator}s for the fields in the generated model
      */
-    public List<PropertyGenerator> getPropertyGenerators() {
+    public List<P> getPropertyGenerators() {
         return propertyGenerators;
     }
 
     /**
      * Add a {@link PropertyGenerator} to the model spec
      */
-    public void addPropertyGenerator(PropertyGenerator propertyGenerator) {
+    public void addPropertyGenerator(P propertyGenerator) {
         propertyGenerators.add(propertyGenerator);
     }
 
     /**
      * @return a list of {@link PropertyGenerator}s for deprecated fields in the generated model
      */
-    public List<PropertyGenerator> getDeprecatedPropertyGenerators() {
+    public List<P> getDeprecatedPropertyGenerators() {
         return deprecatedPropertyGenerators;
     }
 
     /**
      * Add a deprecated {@link PropertyGenerator} to the model spec
      */
-    public void addDeprecatedPropertyGenerator(PropertyGenerator propertyGenerator) {
+    public void addDeprecatedPropertyGenerator(P propertyGenerator) {
         deprecatedPropertyGenerators.add(propertyGenerator);
     }
 

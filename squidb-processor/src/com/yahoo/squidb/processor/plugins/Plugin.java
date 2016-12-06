@@ -10,7 +10,7 @@ import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.Set;
@@ -39,7 +39,7 @@ import javax.lang.model.element.VariableElement;
  */
 public class Plugin {
 
-    protected final ModelSpec<?> modelSpec;
+    protected final ModelSpec<?, ?> modelSpec;
     protected final PluginEnvironment pluginEnv;
     protected final AptUtils utils;
 
@@ -52,7 +52,7 @@ public class Plugin {
      * methods like {@link PluginEnvironment#getUtils()} for annotation processing helpers or
      * {@link PluginEnvironment#getEnvOptions()} to read environment options
      */
-    public Plugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public Plugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         this.modelSpec = modelSpec;
         this.pluginEnv = pluginEnv;
         this.utils = pluginEnv.getUtils();
