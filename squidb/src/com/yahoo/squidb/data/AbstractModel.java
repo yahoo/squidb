@@ -79,7 +79,10 @@ public abstract class AbstractModel implements Cloneable {
 
     // --- abstract methods
 
-    /** Get the default values for this object */
+    /**
+     * @return the default values for this object. These values may be shared between model instances and should not
+     * be modified
+     */
     public abstract ValuesStorage getDefaultValues();
 
     // --- data store variables and management
@@ -93,17 +96,17 @@ public abstract class AbstractModel implements Cloneable {
     /** Transitory Metadata (not saved in database) */
     protected HashMap<String, Object> transitoryData = null;
 
-    /** Get the database-read values for this object */
+    /** @return the database-read values for this object */
     public ValuesStorage getDatabaseValues() {
         return values;
     }
 
-    /** Get the user-set values for this object */
+    /** @return the user-set values for this object */
     public ValuesStorage getSetValues() {
         return setValues;
     }
 
-    /** Get a list of all field/value pairs merged across data sources */
+    /** @return a mapping of all field/value pairs merged across data sources */
     public ValuesStorage getMergedValues() {
         ValuesStorage mergedValues = newValuesStorage();
 
