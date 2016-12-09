@@ -59,6 +59,13 @@ import java.util.Set;
  * model.readPropertiesFromCursor(cursor);
  * </pre>
  *
+ * <p>
+ * <h3>Cloning a model</h3>
+ * All models can be {@link #clone() cloned}, which will create a new model instance containing the same values and set
+ * values. Transitory values will be copied to a new transitory storage for the new model but will not be a deep copy
+ * of the values themselves. If you require a deep copy of stored transitory values, you should implement custom
+ * cloning logic.
+ *
  * @see com.yahoo.squidb.data.TableModel
  * @see com.yahoo.squidb.data.ViewModel
  */
@@ -184,6 +191,10 @@ public abstract class AbstractModel implements Cloneable {
         if (values != null) {
             clone.values = newValuesStorage();
             clone.values.putAll(values);
+        }
+
+        if (transitoryData != null) {
+            clone.transitoryData = new HashMap<>(transitoryData);
         }
         return clone;
     }
@@ -489,6 +500,17 @@ public abstract class AbstractModel implements Cloneable {
             return null;
         }
         return transitoryData.remove(key);
+    }
+
+    /**
+     * Clears all transitory key/value pairs
+     *
+     * @see #clearTransitory(String)
+     */
+    public void clearAllTransitory() {
+        if (transitoryData != null) {
+            transitoryData.clear();
+        }
     }
 
     /**

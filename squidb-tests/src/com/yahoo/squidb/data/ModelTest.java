@@ -62,13 +62,28 @@ public class ModelTest extends DatabaseTestCase {
     }
 
     public void testClone() {
+        // Init model with set values, regular values, and transitory values
         TestModel model = new TestModel();
         model.setFirstName("Sam");
+        model.markSaved();
+        model.setLastName("B");
+        model.putTransitory("a", "A");
         TestModel clone = model.clone();
+        clone.putTransitory("b", "B");
 
         assertTrue(model != clone);
+        assertTrue(model.getSetValues() != clone.getSetValues());
+        assertTrue(model.getDatabaseValues() != clone.getDefaultValues());
+
         assertEquals(clone, model);
+        assertEquals(model.getSetValues(), clone.getSetValues());
+        assertEquals(model.getDatabaseValues(), clone.getDatabaseValues());
+
         assertEquals("Sam", clone.getFirstName());
+        assertEquals("B", clone.getLastName());
+        assertEquals("A", clone.getTransitory("a"));
+        assertEquals("B", clone.getTransitory("b"));
+        assertFalse(model.hasTransitory("b"));
     }
 
     public void testCrudMethods() {
