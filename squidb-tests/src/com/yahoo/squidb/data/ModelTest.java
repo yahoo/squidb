@@ -161,6 +161,12 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.hasTransitory(key1));
         assertTrue(model.checkAndClearTransitory(key2));
         assertFalse(model.hasTransitory(key2));
+
+        model.putTransitory(key1, "A");
+        model.putTransitory(key2, "B");
+        model.clearAllTransitory();
+        assertFalse(model.hasTransitory(key1));
+        assertFalse(model.hasTransitory(key2));
     }
 
     public void testEnumProperties() {

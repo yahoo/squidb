@@ -508,9 +508,7 @@ public abstract class AbstractModel implements Cloneable {
      * @see #clearTransitory(String)
      */
     public void clearAllTransitory() {
-        if (transitoryData != null) {
-            transitoryData.clear();
-        }
+        transitoryData = null;
     }
 
     /**
