@@ -84,6 +84,14 @@ public class ModelTest extends DatabaseTestCase {
         assertEquals("A", clone.getTransitory("a"));
         assertEquals("B", clone.getTransitory("b"));
         assertFalse(model.hasTransitory("b"));
+
+        // Test cloning an empty model
+        TestModel empty = new TestModel();
+        TestModel emptyClone = empty.clone();
+
+        assertNull(emptyClone.getSetValues());
+        assertNull(emptyClone.getDatabaseValues());
+        assertNull(emptyClone.getAllTransitoryKeys());
     }
 
     public void testCrudMethods() {
