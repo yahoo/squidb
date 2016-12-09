@@ -534,7 +534,7 @@ public abstract class AbstractModel implements Cloneable {
      * @return true if a transitory object is set for the given key, false otherwise
      */
     public boolean hasTransitory(String key) {
-        return getTransitory(key) != null;
+        return transitoryData != null && transitoryData.containsKey(key);
     }
 
     /**
@@ -544,7 +544,11 @@ public abstract class AbstractModel implements Cloneable {
      * @return true if a transitory object is set for the given flag, false otherwise
      */
     public boolean checkAndClearTransitory(String key) {
-        return clearTransitory(key) != null;
+        if (hasTransitory(key)) {
+            clearTransitory(key);
+            return true;
+        }
+        return false;
     }
 
     /**
