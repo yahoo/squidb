@@ -62,13 +62,36 @@ public class ModelTest extends DatabaseTestCase {
     }
 
     public void testClone() {
+        // Init model with set values, regular values, and transitory values
         TestModel model = new TestModel();
         model.setFirstName("Sam");
+        model.markSaved();
+        model.setLastName("B");
+        model.putTransitory("a", "A");
         TestModel clone = model.clone();
+        clone.putTransitory("b", "B");
 
         assertTrue(model != clone);
+        assertTrue(model.getSetValues() != clone.getSetValues());
+        assertTrue(model.getDatabaseValues() != clone.getDefaultValues());
+
         assertEquals(clone, model);
+        assertEquals(model.getSetValues(), clone.getSetValues());
+        assertEquals(model.getDatabaseValues(), clone.getDatabaseValues());
+
         assertEquals("Sam", clone.getFirstName());
+        assertEquals("B", clone.getLastName());
+        assertEquals("A", clone.getTransitory("a"));
+        assertEquals("B", clone.getTransitory("b"));
+        assertFalse(model.hasTransitory("b"));
+
+        // Test cloning an empty model
+        TestModel empty = new TestModel();
+        TestModel emptyClone = empty.clone();
+
+        assertNull(emptyClone.getSetValues());
+        assertNull(emptyClone.getDatabaseValues());
+        assertNull(emptyClone.getAllTransitoryKeys());
     }
 
     public void testCrudMethods() {
@@ -146,6 +169,23 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.hasTransitory(key1));
         assertTrue(model.checkAndClearTransitory(key2));
         assertFalse(model.hasTransitory(key2));
+
+        model.putTransitory(key1, "A");
+        model.putTransitory(key2, "B");
+        model.clearAllTransitory();
+        assertFalse(model.hasTransitory(key1));
+        assertFalse(model.hasTransitory(key2));
+
+        // Test null transitory keys and values
+        model.putTransitory(key1, null);
+        assertTrue(model.hasTransitory(key1));
+        assertTrue(model.checkAndClearTransitory(key1));
+        assertFalse(model.hasTransitory(key1));
+
+        model.putTransitory(null, "A");
+        assertTrue(model.hasTransitory(null));
+        assertTrue(model.checkAndClearTransitory(null));
+        assertFalse(model.hasTransitory(null));
     }
 
     public void testEnumProperties() {

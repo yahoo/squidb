@@ -59,6 +59,13 @@ import java.util.Set;
  * model.readPropertiesFromCursor(cursor);
  * </pre>
  *
+ * <p>
+ * <h3>Cloning a model</h3>
+ * All models can be {@link #clone() cloned}, which will create a new model instance containing the same values and set
+ * values. Transitory values will be copied to a new transitory storage for the new model but will not be a deep copy
+ * of the values themselves. If you require a deep copy of stored transitory values, you should implement custom
+ * cloning logic.
+ *
  * @see com.yahoo.squidb.data.TableModel
  * @see com.yahoo.squidb.data.ViewModel
  */
@@ -72,7 +79,10 @@ public abstract class AbstractModel implements Cloneable {
 
     // --- abstract methods
 
-    /** Get the default values for this object */
+    /**
+     * @return the default values for this object. These values may be shared between model instances and should not
+     * be modified
+     */
     public abstract ValuesStorage getDefaultValues();
 
     // --- data store variables and management
@@ -86,17 +96,17 @@ public abstract class AbstractModel implements Cloneable {
     /** Transitory Metadata (not saved in database) */
     protected HashMap<String, Object> transitoryData = null;
 
-    /** Get the database-read values for this object */
+    /** @return the database-read values for this object */
     public ValuesStorage getDatabaseValues() {
         return values;
     }
 
-    /** Get the user-set values for this object */
+    /** @return the user-set values for this object */
     public ValuesStorage getSetValues() {
         return setValues;
     }
 
-    /** Get a list of all field/value pairs merged across data sources */
+    /** @return a mapping of all field/value pairs merged across data sources */
     public ValuesStorage getMergedValues() {
         ValuesStorage mergedValues = newValuesStorage();
 
@@ -184,6 +194,10 @@ public abstract class AbstractModel implements Cloneable {
         if (values != null) {
             clone.values = newValuesStorage();
             clone.values.putAll(values);
+        }
+
+        if (transitoryData != null) {
+            clone.transitoryData = new HashMap<>(transitoryData);
         }
         return clone;
     }
@@ -492,6 +506,15 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     /**
+     * Clears all transitory key/value pairs
+     *
+     * @see #clearTransitory(String)
+     */
+    public void clearAllTransitory() {
+        transitoryData = null;
+    }
+
+    /**
      * @return all transitory keys set on this model
      * @see #putTransitory(String, Object)
      */
@@ -511,7 +534,7 @@ public abstract class AbstractModel implements Cloneable {
      * @return true if a transitory object is set for the given key, false otherwise
      */
     public boolean hasTransitory(String key) {
-        return getTransitory(key) != null;
+        return transitoryData != null && transitoryData.containsKey(key);
     }
 
     /**
@@ -521,7 +544,11 @@ public abstract class AbstractModel implements Cloneable {
      * @return true if a transitory object is set for the given flag, false otherwise
      */
     public boolean checkAndClearTransitory(String key) {
-        return clearTransitory(key) != null;
+        if (hasTransitory(key)) {
+            clearTransitory(key);
+            return true;
+        }
+        return false;
     }
 
     /**
