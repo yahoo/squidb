@@ -261,6 +261,11 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model.clear();
                 // Empty list is default; if cache not cleared comparison will fail
                 assertEquals(Collections.emptyList(), model.getSomeList());
+
+                // Test that we can catch cache invalidation even when transitory values are not cleared
+                model.setSomeList(list);
+                model.clearValue(TestModel.SOME_LIST);
+                assertEquals(Collections.emptyList(), model.getSomeList());
             }
         });
     }

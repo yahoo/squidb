@@ -18,8 +18,10 @@ public class SqlUtils {
     }
 
     public static boolean equals(String a, String b) {
-        return a == b ||
-                (a != null && b != null && a.length() == b.length() && a.equals(b));
+        if (a == null) {
+            return b == null;
+        }
+        return a.equals(b);
     }
 
     /**
