@@ -30,26 +30,27 @@ public class JSONPropertySupport {
      */
     @SuppressWarnings("unchecked")
     public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
-        if (!model.hasTransitory(property.getName())) {
+        String transitoryKey = transitoryKeyForProperty(property);
+        if (!model.hasTransitory(transitoryKey)) {
             T data = null;
-            String value = model.get(property); // Will throw if model doesn't have property
-            if (value != null) {
+            String json = model.get(property); // Will throw if model doesn't have property
+            if (json != null) {
                 try {
                     if (MAPPER == null) {
                         throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
                                 + "JSONMapper instance using setJSONMapper()");
                     }
-                    data = MAPPER.fromJSON(value, javaType);
+                    data = MAPPER.fromJSON(json, javaType);
                 } catch (Exception e) {
-                    Logger.w(TAG, "Error deserializing JSON string: " + value, e);
+                    Logger.w(TAG, "Error deserializing JSON string: " + json, e);
                     model.clearValue(property);
                 }
             }
-            model.putTransitory(property.getName(), data);
+            model.putTransitory(transitoryKey, data);
             return data;
         }
 
-        return (T) model.getTransitory(property.getName());
+        return (T) model.getTransitory(transitoryKey);
     }
 
     /**
@@ -71,12 +72,16 @@ public class JSONPropertySupport {
                 }
             }
             model.set(property, json);
-            model.putTransitory(property.getName(), data);
+            model.putTransitory(transitoryKeyForProperty(property), data);
             return true;
         } catch (Exception e) {
             Logger.w(TAG, "Error serializing object to JSON string: " + data, e);
             return false;
         }
+    }
+
+    private static String transitoryKeyForProperty(JSONProperty<?> property) {
+        return property.getName();
     }
 
 }
