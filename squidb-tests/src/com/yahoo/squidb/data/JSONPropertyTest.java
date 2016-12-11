@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -246,6 +247,56 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
                 Map<String, Map<String, List<Integer>>> readMap = viewModel.getCrazyMap();
                 assertEquals(crazyMap, readMap);
+            }
+        });
+    }
+
+    public void testTransitoryCacheClearedWhenModelCleared() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                TestModel model = new TestModel();
+                List<String> list = Arrays.asList("A", "B", "C");
+                model.setSomeList(list);
+                model.clear();
+                // Empty list is default; if cache not cleared comparison will fail
+                assertEquals(Collections.emptyList(), model.getSomeList());
+            }
+        });
+    }
+
+    public void testTransitoryCacheClearedWhenModelRepopulated() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                TestModel model = new TestModel();
+                List<String> list = Arrays.asList("A", "B", "C");
+                model.setSomeList(list);
+
+                ValuesStorage newStorage = new MapValuesStorage();
+                newStorage.put(TestModel.SOME_LIST.getName(), "[\"D\", \"E\", \"F\"]");
+                model.readPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
+                assertEquals(Arrays.asList("D", "E", "F"), model.getSomeList());
+
+                newStorage.put(TestModel.SOME_LIST.getName(), "[\"H\", \"I\", \"J\"]");
+                model.setPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
+                assertEquals(Arrays.asList("H", "I", "J"), model.getSomeList());
+            }
+        });
+    }
+
+    public void testGetterThrowsIfJSONPropertyNotPresent() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                final TestModel model = new TestModel();
+                testThrowsException(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.getSomeMap(); // This property has no default
+                    }
+                }, UnsupportedOperationException.class);
+                assertEquals(Collections.emptyList(), model.getSomeList()); // This property has a default
             }
         });
     }
