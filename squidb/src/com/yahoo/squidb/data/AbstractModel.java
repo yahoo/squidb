@@ -136,11 +136,12 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     /**
-     * Clear all data on this model
+     * Clear all data on this model, including transitory values
      */
     public void clear() {
         values = null;
         setValues = null;
+        transitoryData = null;
     }
 
     /**
