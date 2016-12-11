@@ -32,8 +32,8 @@ public class JSONPropertySupport {
     public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
         if (!model.hasTransitory(property.getName())) {
             T data = null;
-            if (model.containsNonNullValue(property)) {
-                String value = model.get(property);
+            String value = model.get(property); // Will throw if model doesn't have property
+            if (value != null) {
                 try {
                     if (MAPPER == null) {
                         throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
