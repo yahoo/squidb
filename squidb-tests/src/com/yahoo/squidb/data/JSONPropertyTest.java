@@ -157,8 +157,9 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                List<String> readNumbers = model.getSomeList();
-                assertEquals(numbers, readNumbers);
+                assertEquals(numbers, model.getSomeList());
+                // Second call reads from cache; assert that works too
+                assertEquals(numbers, model.getSomeList());
             }
         });
     }
@@ -178,8 +179,9 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                Map<String, Integer> readNumbers = model.getSomeMap();
-                assertEquals(numbers, readNumbers);
+                assertEquals(numbers, model.getSomeMap());
+                // Second call reads from cache; assert that works too
+                assertEquals(numbers, model.getSomeMap());
             }
         });
     }
@@ -196,8 +198,9 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                Map<String, Map<String, List<Integer>>> readMap = model.getComplicatedMap();
-                assertEquals(crazyMap, readMap);
+                assertEquals(crazyMap, model.getComplicatedMap());
+                // Second call reads from cache; assert that works too
+                assertEquals(crazyMap, model.getComplicatedMap());
             }
         });
     }
@@ -245,8 +248,9 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 assertEquals(pojo.pojoDouble, readPojo.pojoDouble);
                 assertEquals(pojo.pojoList, readPojo.pojoList);
 
-                Map<String, Map<String, List<Integer>>> readMap = viewModel.getCrazyMap();
-                assertEquals(crazyMap, readMap);
+                assertEquals(crazyMap, viewModel.getCrazyMap());
+                // Second call reads from cache; assert that works too
+                assertEquals(crazyMap, viewModel.getCrazyMap());
             }
         });
     }
@@ -266,6 +270,8 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model.setSomeList(list);
                 model.clearValue(TestModel.SOME_LIST);
                 assertEquals(Collections.emptyList(), model.getSomeList());
+                // Second call reads from cache; assert that works too
+                assertEquals(Collections.emptyList(), model.getSomeList());
             }
         });
     }
@@ -282,9 +288,13 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 newStorage.put(TestModel.SOME_LIST.getName(), "[\"D\", \"E\", \"F\"]");
                 model.readPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
                 assertEquals(Arrays.asList("D", "E", "F"), model.getSomeList());
+                // Second call reads from cache; assert that works too
+                assertEquals(Arrays.asList("D", "E", "F"), model.getSomeList());
 
                 newStorage.put(TestModel.SOME_LIST.getName(), "[\"H\", \"I\", \"J\"]");
                 model.setPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
+                assertEquals(Arrays.asList("H", "I", "J"), model.getSomeList());
+                // Second call reads from cache; assert that works too
                 assertEquals(Arrays.asList("H", "I", "J"), model.getSomeList());
             }
         });
@@ -301,6 +311,8 @@ public class JSONPropertyTest extends DatabaseTestCase {
                         model.getSomeMap(); // This property has no default
                     }
                 }, UnsupportedOperationException.class);
+                assertEquals(Collections.emptyList(), model.getSomeList()); // This property has a default
+                // Second call reads from cache; assert that works too
                 assertEquals(Collections.emptyList(), model.getSomeList()); // This property has a default
             }
         });

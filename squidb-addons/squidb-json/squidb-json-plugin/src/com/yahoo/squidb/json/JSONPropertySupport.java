@@ -39,7 +39,6 @@ public class JSONPropertySupport {
     /**
      * Deserialize a JSON string property into the specified Java type
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
         String transitoryKey = transitoryKeyForProperty(property);
         checkCacheIntegrity(model, property, transitoryKey);
@@ -64,7 +63,8 @@ public class JSONPropertySupport {
             return data;
         }
 
-        return (T) model.getTransitory(transitoryKey);
+        JSONObjectHolder<T> holder = getJSONTransitory(model, transitoryKey);
+        return holder.parsedObject;
     }
 
     /**
@@ -109,7 +109,7 @@ public class JSONPropertySupport {
         if (!model.hasTransitory(transitoryKey)) {
             return;
         }
-        JSONObjectHolder<?> holder = (JSONObjectHolder<?>) model.getTransitory(transitoryKey);
+        JSONObjectHolder<?> holder = getJSONTransitory(model, transitoryKey);
         if (model.containsValue(property) || model.getDefaultValues().containsKey(property.getName())) {
             String jsonValue = model.get(property);
             if (SqlUtils.equals(holder.jsonString, jsonValue)) {
@@ -117,6 +117,11 @@ public class JSONPropertySupport {
             }
         }
         model.clearTransitory(transitoryKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> JSONObjectHolder<T> getJSONTransitory(AbstractModel model, String transitoryKey) {
+        return (JSONObjectHolder<T>) model.getTransitory(transitoryKey);
     }
 
 }
