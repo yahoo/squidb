@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 3.2.3 *(2016-12-13)*
+* Fix a bug in model `clone()` which would cause the cloned instance to be sharing a transitory values map with the original model object
+* Fix some bugs in the `squidb-json` addon that could cause JSON property getters to return incorrect values under certain conditions
+* Fix transitory values to be able to handle null values and keys correctly
+
 Version 3.2.2 *(2016-12-05)*
 ----------------------------
 * Introduce a new error logging mechanism in the code generator that allows SquiDB to log errors without generating a bunch of "cannot find symbol \[ModelClass\]" errors
