@@ -5,10 +5,11 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -17,12 +18,6 @@ import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
@@ -33,25 +28,25 @@ import javax.lang.model.element.Modifier;
  */
 public class AndroidModelPlugin extends Plugin {
 
-    private static final ModelSpec.ModelSpecVisitor<DeclaredTypeName, Void> superclassVisitor
-            = new ModelSpec.ModelSpecVisitor<DeclaredTypeName, Void>() {
+    private static final ModelSpec.ModelSpecVisitor<TypeName, Void> superclassVisitor
+            = new ModelSpec.ModelSpecVisitor<TypeName, Void>() {
         @Override
-        public DeclaredTypeName visitTableModel(TableModelSpecWrapper modelSpec, Void data) {
+        public TypeName visitTableModel(TableModelSpecWrapper modelSpec, Void data) {
             return TypeConstants.ANDROID_TABLE_MODEL;
         }
 
         @Override
-        public DeclaredTypeName visitViewModel(ViewModelSpecWrapper modelSpec, Void data) {
+        public TypeName visitViewModel(ViewModelSpecWrapper modelSpec, Void data) {
             return TypeConstants.ANDROID_VIEW_MODEL;
         }
 
         @Override
-        public DeclaredTypeName visitInheritedModel(InheritedModelSpecWrapper modelSpec, Void data) {
+        public TypeName visitInheritedModel(InheritedModelSpecWrapper modelSpec, Void data) {
             return null;
         }
     };
 
-    private final DeclaredTypeName modelSuperclass;
+    private final TypeName modelSuperclass;
     private final boolean generateConstructors;
 
     public AndroidModelPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
@@ -61,62 +56,43 @@ public class AndroidModelPlugin extends Plugin {
     }
 
     @Override
-    public DeclaredTypeName getModelSuperclass() {
+    public TypeName getModelSuperclass() {
         return modelSuperclass;
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        imports.add(TypeConstants.MODEL_CREATOR);
-        if (generateConstructors) {
-            imports.add(TypeConstants.CONTENT_VALUES);
-        }
-        if (modelSuperclass != null) {
-            imports.add(modelSuperclass);
-        }
-    }
-
-    @Override
-    public void emitConstructors(JavaFileWriter writer) throws IOException {
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
         if (generateConstructors) {
             String valuesName = "contentValues";
-            DeclaredTypeName valuesType = TypeConstants.CONTENT_VALUES;
+            TypeName valuesType = TypeConstants.CONTENT_VALUES;
 
-            MethodDeclarationParameters params = new MethodDeclarationParameters()
-                    .setModifiers(Modifier.PUBLIC)
-                    .setConstructorName(modelSpec.getGeneratedClassName());
+            MethodSpec.Builder params = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(valuesType, valuesName)
+                    .addStatement("this($L, $L)", valuesName, ModelFileWriter.PROPERTIES_ARRAY_NAME);
+            builder.addMethod(params.build());
 
-            params.setArgumentTypes(Collections.singletonList(valuesType))
-                    .setArgumentNames(valuesName);
-            writer.beginConstructorDeclaration(params)
-                    .writeStatement(Expressions.callMethod("this", valuesName,
-                            ModelFileWriter.PROPERTIES_ARRAY_NAME))
-                    .finishMethodDefinition();
-
-            String methodName = "readPropertiesFromContentValues";
-            params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
-                    .setArgumentNames(valuesName, "withProperties");
-            writer.beginConstructorDeclaration(params)
-                    .writeStringStatement("this()")
-                    .writeStringStatement(methodName + "(" + valuesName + ", withProperties)")
-                    .finishMethodDefinition();
+            params = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(valuesType, valuesName)
+                    .addParameter(TypeConstants.PROPERTY_ARRAY, "withProperties")
+                    .varargs()
+                    .addStatement("this()")
+                    .addStatement("readPropertiesFromContentValues($L, withProperties)", valuesName);
+            builder.addMethod(params.build());
         }
     }
 
     @Override
-    public void afterEmitMethods(JavaFileWriter writer) throws IOException {
-        // emit creator for parcelable
-        writer.writeComment("--- parcelable helpers");
-        List<DeclaredTypeName> genericList = Collections.singletonList(modelSpec.getGeneratedClassName());
-        DeclaredTypeName creatorType = TypeConstants.CREATOR.clone();
-        DeclaredTypeName modelCreatorType = TypeConstants.MODEL_CREATOR.clone();
-        creatorType.setTypeArgs(genericList);
-        modelCreatorType.setTypeArgs(genericList);
+    public void afterDeclareSchema(TypeSpec.Builder builder) {
+        // declare creator for parcelable
+        TypeName creatorType = ParameterizedTypeName.get(TypeConstants.CREATOR, modelSpec.getGeneratedClassName());
+        TypeName modelCreatorType = ParameterizedTypeName.get(TypeConstants.MODEL_CREATOR,
+                modelSpec.getGeneratedClassName());
 
-        writer.writeFieldDeclaration(creatorType,
-                "CREATOR", Expressions.callConstructor(modelCreatorType,
-                        Expressions.classObject(modelSpec.getGeneratedClassName())),
-                TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
+        FieldSpec.Builder creator = FieldSpec.builder(creatorType, "CREATOR",
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T($T.class)", modelCreatorType, modelSpec.getGeneratedClassName());
+        builder.addField(creator.build());
     }
 }

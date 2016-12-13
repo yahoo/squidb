@@ -5,21 +5,20 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.TypeSpec;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
-
-import java.io.IOException;
 
 import javax.lang.model.element.Element;
 
 /**
  * A plugin that controls copying javadocs from fields in the model spec to the corresponding properties in the
  * generated class. Other plugins can use the
- * {@link #writeJavadocFromElement(PluginEnvironment, JavaFileWriter, Element)} method to copy javadocs from other
+ * {@link #getJavadocFromElement(PluginEnvironment, Element)} method to copy javadocs from other
  * elements in the model spec (e.g. model methods, constants, etc.). This plugin is enabled by default but can be
  * disabled by passing {@link PluginEnvironment#OPTIONS_DISABLE_JAVADOC_COPYING 'disableJavadoc'} as one of the
  * values for the 'squidbOptions' key.
@@ -31,33 +30,42 @@ public class JavadocPlugin extends Plugin {
     }
 
     @Override
-    public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
-        String generatedJavadoc = " This class was generated from the model spec at "
-                + "{@link " + modelSpec.getModelSpecName() + "}";
+    public void beforeBeginClassDeclaration(TypeSpec.Builder builder) {
+        String generatedJavadoc = "This class was generated from the model spec at "
+                + "{@link " + modelSpec.getModelSpecName() + "}\n";
 
-        String elementJavadoc = utils.getElements().getDocComment(modelSpec.getModelSpecElement());
-        if (!AptUtils.isEmpty(elementJavadoc)) {
-            generatedJavadoc = (generatedJavadoc + "\n <br/>\n" + elementJavadoc);
+        String elementJavadoc = getJavadocFromElement(pluginEnv, modelSpec.getModelSpecElement());
+        if (!StringUtils.isEmpty(elementJavadoc)) {
+            generatedJavadoc = (generatedJavadoc + "<br/>\n" + elementJavadoc);
         }
-        writer.writeJavadoc(generatedJavadoc);
-        writer.writeComment("Generated code -- do not modify!");
+        builder.addJavadoc(generatedJavadoc);
     }
 
     @Override
-    public void beforeEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
-            throws IOException {
+    public void willDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            FieldSpec.Builder propertyDeclaration) {
         if (propertyGenerator.getField() != null) {
-            writeJavadocFromElement(pluginEnv, writer, propertyGenerator.getField());
+            String javadoc = getJavadocFromElement(pluginEnv, propertyGenerator.getField());
+            if (!StringUtils.isEmpty(javadoc)) {
+                propertyDeclaration.addJavadoc(javadoc);
+            }
         }
     }
 
     /**
-     * Helper method that other plugins can use to copy javadocs from an Element
+     * Helper method that retrieves Javadocs from an element if Javadoc copying is enabled in the PluginEnvironment
      */
-    public static void writeJavadocFromElement(PluginEnvironment pluginEnv, JavaFileWriter writer, Element element)
-            throws IOException {
+    public static String getJavadocFromElement(PluginEnvironment pluginEnv, Element element) {
         if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_JAVADOC_COPYING)) {
-            writer.writeJavadoc(pluginEnv.getUtils().getElements().getDocComment(element));
+            String javadoc = pluginEnv.getProcessingEnvironment().getElementUtils().getDocComment(element);
+            if (javadoc != null) {
+                String toReturn = javadoc.trim().replaceAll("\n\\s+", "\n");
+                if (!toReturn.endsWith("\n")) {
+                    toReturn = toReturn + "\n";
+                }
+                return toReturn;
+            }
         }
+        return null;
     }
 }

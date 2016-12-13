@@ -5,16 +5,20 @@
  */
 package com.yahoo.squidb.processor;
 
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
+/**
+ * Utility class containing methods for checking if an string is a SQLite keyword and/or is safe to use in a
+ * table or column definition.
+ */
 public final class SqlUtils {
 
     /**
@@ -65,15 +69,15 @@ public final class SqlUtils {
      * @return false if the identifier definitely cannot be used with SQLite/SquiDB, true otherwise
      */
     public static boolean checkIdentifier(String identifier, String type, ModelSpec<?, ?> modelSpec, Element element,
-            AptUtils aptUtils) {
+            Messager messager) {
         String trimmedIdentifier = identifier == null ? null : identifier.trim();
         if (trimmedIdentifier != null && !trimmedIdentifier.equals(identifier)) {
-            aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' has "
+            messager.printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' has "
                     + "excess whitespace that should be trimmed", element);
         }
         identifier = trimmedIdentifier;
         
-        if (AptUtils.isEmpty(identifier)) {
+        if (StringUtils.isEmpty(identifier)) {
             modelSpec.logError(type + " name cannot be null or empty", element);
             return false;
         } else if (Character.isDigit(identifier.charAt(0)) || !IDENTIFIER.matcher(identifier.substring(0, 1))
@@ -89,13 +93,13 @@ public final class SqlUtils {
                         + "used as a " + type + " name", element);
                 return false;
             } else {
-                aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' is a "
+                messager.printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' is a "
                         + "SQLite keyword. It may be allowed as an identifier but it is recommended you choose a "
                         + "non-keyword name instead", element);
             }
         } else if (!IDENTIFIER.matcher(identifier).matches()) {
             // TODO: If we ever promote this to an error rather than a warning, many of the above cases can be consolidated
-            aptUtils.getMessager().printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
+            messager.printMessage(Diagnostic.Kind.WARNING, type + " name '" + identifier + "' contains "
                     + "characters that may not be fully supported by SquiDB or SQLite in some cases. It is strongly "
                     + "recommended your identifiers only contain alphanumeric characters, underscores ('_'), and "
                     + "characters with codepoints \\u00A1-\\uFFFF. This may be considered an error in future versions "

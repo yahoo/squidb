@@ -5,22 +5,20 @@
  */
 package com.yahoo.squidb.processor.data;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.processor.SqlUtils;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
-
-import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelPropertyGenerator> {
 
-    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
-        super(modelSpecElement, TableModelSpec.class, pluginEnv, utils);
+    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+        super(modelSpecElement, TableModelSpec.class, pluginEnv);
         checkTableName();
     }
 
@@ -30,7 +28,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
             logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), utils);
+            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), pluginEnvironment.getMessager());
         }
     }
 
@@ -43,7 +41,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
      * @return true if the table model is for a virtual table, false otherwise
      */
     public boolean isVirtualTable() {
-        return !AptUtils.isEmpty(modelSpecAnnotation.virtualModule());
+        return !StringUtils.isEmpty(modelSpecAnnotation.virtualModule());
     }
 
     @Override
@@ -52,22 +50,14 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
     }
 
     @Override
-    protected DeclaredTypeName getDefaultModelSuperclass() {
+    protected TypeName getDefaultModelSuperclass() {
         return TypeConstants.TABLE_MODEL;
-    }
-
-    @Override
-    protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
-        imports.add(TypeConstants.LONG_PROPERTY);
-        imports.add(TypeConstants.TABLE_MODEL);
-        imports.add(TypeConstants.TABLE_MODEL_NAME);
-        imports.add(getTableType());
     }
 
     /**
      * @return the name of the table class (e.g. Table or VirtualTable)
      */
-    public DeclaredTypeName getTableType() {
+    public TypeName getTableType() {
         return isVirtualTable() ? TypeConstants.VIRTUAL_TABLE : TypeConstants.TABLE;
     }
 }

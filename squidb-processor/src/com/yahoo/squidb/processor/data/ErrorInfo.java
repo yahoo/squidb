@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.data;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.ClassName;
 
 /**
  * Tuple class to hold logged error info, to be written by the
@@ -16,7 +16,7 @@ public final class ErrorInfo {
     /**
      * The class on which to log the error
      */
-    public final DeclaredTypeName errorClass;
+    public final ClassName errorClass;
 
     /**
      * The specific element on which to log the error (or null/empty to log on the class)
@@ -28,7 +28,7 @@ public final class ErrorInfo {
      */
     public final String message;
 
-    ErrorInfo(DeclaredTypeName errorClass, String element, String message) {
+    ErrorInfo(ClassName errorClass, String element, String message) {
         this.errorClass = errorClass;
         this.element = element;
         this.message = message;

@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.processor.data;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.TypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
@@ -16,12 +15,13 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfa
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
@@ -46,18 +46,17 @@ import javax.tools.Diagnostic;
 public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerator> {
 
     protected final T modelSpecAnnotation;
-    protected final DeclaredTypeName generatedClassName;
-    protected final DeclaredTypeName modelSpecName;
+    protected final ClassName generatedClassName;
+    protected final ClassName modelSpecName;
     protected final TypeElement modelSpecElement;
 
     private final List<P> propertyGenerators = new ArrayList<>();
     private final List<P> deprecatedPropertyGenerators = new ArrayList<>();
     private final Map<String, Object> metadataMap = new HashMap<>();
 
-    protected final AptUtils utils;
     protected final PluginBundle pluginBundle;
-    private final PluginEnvironment pluginEnvironment;
-    private final DeclaredTypeName modelSuperclass;
+    protected final PluginEnvironment pluginEnvironment;
+    private final TypeName modelSuperclass;
 
     private final List<ErrorInfo> loggedErrors = new ArrayList<>();
 
@@ -71,12 +70,11 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     }
 
     public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
-            PluginEnvironment pluginEnv, AptUtils utils) {
-        this.utils = utils;
+            PluginEnvironment pluginEnv) {
         this.modelSpecElement = modelSpecElement;
-        this.modelSpecName = new DeclaredTypeName(modelSpecElement.getQualifiedName().toString());
+        this.modelSpecName = ClassName.get(modelSpecElement);
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
-        this.generatedClassName = new DeclaredTypeName(modelSpecName.getPackageName(), getGeneratedClassNameString());
+        this.generatedClassName = ClassName.get(modelSpecName.packageName(), getGeneratedClassNameString());
         this.pluginEnvironment = pluginEnv;
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
 
@@ -88,16 +86,17 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     private void processVariableElements() {
         for (Element e : modelSpecElement.getEnclosedElements()) {
             if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
-                TypeName typeName = utils.getTypeNameFromTypeMirror(e.asType());
-                if (!(typeName instanceof DeclaredTypeName)) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                TypeName typeName = TypeName.get(e.asType());
+                if (TypeConstants.isGenericType(typeName)) {
+                    pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
                             "Element type " + typeName + " is not a concrete type, will be ignored", e);
-                } else if (!pluginBundle.processVariableElement((VariableElement) e, (DeclaredTypeName) typeName)) {
+                } else if (!pluginBundle.processVariableElement((VariableElement) e, typeName)) {
                     // Deprecated things are generally ignored by plugins, so don't warn about them
                     // private static final fields are generally internal model spec constants, so don't warn about them
                     if (e.getAnnotation(Deprecated.class) == null &&
-                            !e.getModifiers().containsAll(TypeConstants.PRIVATE_STATIC_FINAL)) {
-                        utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            !e.getModifiers().containsAll(
+                                    Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))) {
+                        pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
                                 "No plugin found to handle field", e);
                     }
                 }
@@ -105,8 +104,8 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         }
     }
 
-    private DeclaredTypeName initializeModelSuperclass() {
-        DeclaredTypeName pluginSuperclass = pluginBundle.getModelSuperclass();
+    private TypeName initializeModelSuperclass() {
+        TypeName pluginSuperclass = pluginBundle.getModelSuperclass();
         if (pluginSuperclass != null) {
             return pluginSuperclass;
         }
@@ -120,32 +119,14 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     /**
      * @return the name of the default superclass for the generated model. This may be overridden by a plugin
      */
-    protected abstract DeclaredTypeName getDefaultModelSuperclass();
+    protected abstract TypeName getDefaultModelSuperclass();
 
     /**
      * @return the name of the superclass for the generated model
      */
-    public final DeclaredTypeName getModelSuperclass() {
+    public final TypeName getModelSuperclass() {
         return modelSuperclass;
     }
-
-    /**
-     * Adds imports required by this model spec to the given accumulator set
-     *
-     * @param imports accumulator set
-     */
-    public final void addRequiredImports(Set<DeclaredTypeName> imports) {
-        imports.add(TypeConstants.PROPERTY); // For PROPERTIES array
-        imports.add(TypeConstants.VALUES_STORAGE);
-        imports.add(getModelSuperclass());
-        for (PropertyGenerator generator : propertyGenerators) {
-            generator.registerRequiredImports(imports);
-        }
-        addModelSpecificImports(imports);
-        pluginBundle.addRequiredImports(imports);
-    }
-
-    protected abstract void addModelSpecificImports(Set<DeclaredTypeName> imports);
 
     /**
      * @return a {@link PluginBundle} for this model spec
@@ -157,14 +138,14 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     /**
      * @return the name of the model spec class
      */
-    public DeclaredTypeName getModelSpecName() {
+    public ClassName getModelSpecName() {
         return modelSpecName;
     }
 
     /**
      * @return the name of the generated model class
      */
-    public DeclaredTypeName getGeneratedClassName() {
+    public ClassName getGeneratedClassName() {
         return generatedClassName;
     }
 
@@ -267,7 +248,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
      */
     public void logError(String message, Element element) {
         if (pluginEnvironment.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
-            utils.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+            pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
         } else {
             boolean isRootElement = element == null || element.equals(getModelSpecElement());
             loggedErrors.add(new ErrorInfo(getModelSpecName(),

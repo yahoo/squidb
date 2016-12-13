@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -32,12 +32,12 @@ public abstract class BaseFieldPlugin<T extends ModelSpec<?, P>, P extends Prope
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, TypeName fieldType) {
         return tryCreatePropertyGenerator(field, fieldType);
     }
 
     @SuppressWarnings("unchecked")
-    private boolean tryCreatePropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    private boolean tryCreatePropertyGenerator(VariableElement field, TypeName fieldType) {
         if (hasPropertyGeneratorForField(field, fieldType)) {
             P generator = getPropertyGenerator(field, fieldType);
             if (generator != null) {
@@ -52,7 +52,7 @@ public abstract class BaseFieldPlugin<T extends ModelSpec<?, P>, P extends Prope
         return false;
     }
 
-    protected abstract boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType);
+    protected abstract boolean hasPropertyGeneratorForField(VariableElement field, TypeName fieldType);
 
-    protected abstract P getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType);
+    protected abstract P getPropertyGenerator(VariableElement field, TypeName fieldType);
 }

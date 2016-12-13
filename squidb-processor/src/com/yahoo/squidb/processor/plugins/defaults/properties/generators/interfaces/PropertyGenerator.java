@@ -5,11 +5,8 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-
-import java.io.IOException;
-import java.util.Set;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.VariableElement;
 
@@ -25,14 +22,9 @@ public interface PropertyGenerator {
     VariableElement getField();
 
     /**
-     * @param imports an accumulator set of type names to import
-     */
-    void registerRequiredImports(Set<DeclaredTypeName> imports);
-
-    /**
      * @return the type name of the Property to generate (e.g. StringProperty, LongProperty, etc.)
      */
-    DeclaredTypeName getPropertyType();
+    TypeName getPropertyType();
 
     /**
      * @return the name of the generated property
@@ -42,7 +34,7 @@ public interface PropertyGenerator {
     /**
      * @return the type used when setting or returning the value stored by this property
      */
-    DeclaredTypeName getTypeForAccessors();
+    TypeName getTypeForAccessors();
 
     /**
      * @return the name of the generated getter method
@@ -50,11 +42,11 @@ public interface PropertyGenerator {
     String getterMethodName();
 
     /**
-     * Called to write the convenience getter the property itself
+     * Declares the getter method for this property in the given TypeSpec.Builder
      *
-     * @param writer a {@link JavaFileWriter} for writing to
+     * @param builder the {@link TypeSpec.Builder} for the model class being built
      */
-    void emitGetter(JavaFileWriter writer) throws IOException;
+    void declareGetter(TypeSpec.Builder builder);
 
     /**
      * @return the name of the generated getter method
@@ -62,11 +54,11 @@ public interface PropertyGenerator {
     String setterMethodName();
 
     /**
-     * Called to write the convenience setter the property itself
+     * Declares the setter method for this property in the given TypeSpec.Builder
      *
-     * @param writer a {@link JavaFileWriter} for writing to
+     * @param builder the {@link TypeSpec.Builder} for the model class being built
      */
-    void emitSetter(JavaFileWriter writer) throws IOException;
+    void declareSetter(TypeSpec.Builder builder);
 
     /**
      * @return true if the property should be marked deprecated

@@ -5,7 +5,6 @@
  */
 package com.yahoo.squidb.processor;
 
-import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
@@ -54,8 +53,8 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = new HashSet<>();
 
-    private AptUtils utils;
     private PluginEnvironment pluginEnv;
+    private ProcessingEnvironment processingEnvironment;
 
     public ModelSpecProcessor() {
         supportedAnnotationTypes.add(TableModelSpec.class.getName());
@@ -85,8 +84,8 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-        utils = new AptUtils(env);
-        pluginEnv = new PluginEnvironment(utils, env.getOptions());
+        processingEnvironment = env;
+        pluginEnv = new PluginEnvironment(env);
     }
 
     @Override
@@ -99,15 +98,16 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                         try {
                             getFileWriter(typeElement).writeJava();
                         } catch (IOException e) {
-                            utils.getMessager().printMessage(Kind.ERROR, "Unable to write model file", element);
+                            processingEnvironment.getMessager().printMessage(Kind.ERROR,
+                                    "Unable to write model file", element);
                         }
                     } else {
-                        utils.getMessager()
+                        processingEnvironment.getMessager()
                                 .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                     }
                 }
             } else {
-                utils.getMessager().printMessage(Kind.WARNING,
+                processingEnvironment.getMessager().printMessage(Kind.WARNING,
                         "Skipping unsupported annotation received by processor: " + annotationType);
             }
         }
@@ -117,11 +117,11 @@ public final class ModelSpecProcessor extends AbstractProcessor {
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
         if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, pluginEnv, utils);
+            return new TableModelFileWriter(typeElement, pluginEnv);
         } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, pluginEnv, utils);
+            return new ViewModelFileWriter(typeElement, pluginEnv);
         } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, pluginEnv, utils);
+            return new InheritedModelFileWriter(typeElement, pluginEnv);
         } else {
             throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
         }

@@ -5,10 +5,10 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,30 +22,30 @@ import javax.lang.model.element.VariableElement;
  */
 public class BasicBlobPropertyGenerator extends BasicTableModelPropertyGenerator {
 
-    public static List<DeclaredTypeName> handledColumnTypes() {
+    public static List<TypeName> handledColumnTypes() {
         return Collections.singletonList(TypeConstants.BYTE_ARRAY);
     }
 
-    public BasicBlobPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
-        super(modelSpec, columnName, utils);
+    public BasicBlobPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, PluginEnvironment pluginEnv) {
+        super(modelSpec, columnName, pluginEnv);
     }
 
     public BasicBlobPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
-            String propertyName, AptUtils utils) {
-        super(modelSpec, columnName, propertyName, utils);
+            String propertyName, PluginEnvironment pluginEnv) {
+        super(modelSpec, columnName, propertyName, pluginEnv);
     }
 
-    public BasicBlobPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
-        super(modelSpec, field, utils);
+    public BasicBlobPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, PluginEnvironment pluginEnv) {
+        super(modelSpec, field, pluginEnv);
     }
 
     @Override
-    public DeclaredTypeName getTypeForAccessors() {
+    public TypeName getTypeForAccessors() {
         return TypeConstants.BYTE_ARRAY;
     }
 
     @Override
-    public DeclaredTypeName getPropertyType() {
+    public TypeName getPropertyType() {
         return TypeConstants.BLOB_PROPERTY;
     }
 

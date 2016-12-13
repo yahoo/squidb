@@ -5,15 +5,8 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-
-import java.io.IOException;
-import java.util.Set;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Helper class containing logic that is common to enum properties in all model types
@@ -21,62 +14,22 @@ import java.util.Set;
 class EnumPropertyGeneratorDelegate {
 
     private final String propertyName;
-    private final DeclaredTypeName enumType;
+    private final TypeName enumType;
 
-    EnumPropertyGeneratorDelegate(String propertyName, DeclaredTypeName enumType) {
+    EnumPropertyGeneratorDelegate(String propertyName, TypeName enumType) {
         this.propertyName = propertyName;
         this.enumType = enumType;
     }
 
-    void registerRequiredImports(Set<DeclaredTypeName> imports) {
-        imports.add(enumType);
+    void writeGetterBody(CodeBlock.Builder body) {
+        body.addStatement("$T value = get($L)", String.class, propertyName);
+        body.addStatement("return value == null ? null : $T.valueOf(value)", enumType);
     }
 
-    void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        final String value = "value";
-        writer.writeFieldDeclaration(CoreTypes.JAVA_STRING, value,
-                Expressions.callMethod("get", propertyName));
-        Expression condition = Expressions.fromString(value + " == null");
-        Expression ifTrue = Expressions.fromString("null");
-        Expression ifFalse = Expressions.staticMethod(enumType, "valueOf", value);
-        TernaryExpression ternary = new TernaryExpression(condition, ifTrue, ifFalse);
-        writer.writeStatement(ternary.returnExpr());
+    void writeSetterBody(CodeBlock.Builder body, String argName) {
+        String argAsString = argName + "AsString";
+        body.addStatement("$T $L = ($L == null ? null : $L.name())", String.class, argAsString, argName, argName);
+        body.addStatement("set($L, $L)", propertyName, argAsString);
+        body.addStatement("return this");
     }
-
-    void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        String argName = params.getArgumentNames().get(0);
-        final String argAsString = argName + "AsString";
-        Expression condition = Expressions.fromString(argName + " == null");
-        Expression ifTrue = Expressions.fromString("null");
-        Expression ifFalse = Expressions.callMethodOn(argName, "name");
-        writer.writeFieldDeclaration(CoreTypes.JAVA_STRING, argAsString,
-                new TernaryExpression(condition, ifTrue, ifFalse));
-        writer.writeStatement(Expressions.callMethod("set", propertyName, argAsString));
-        writer.writeStringStatement("return this");
-    }
-
-    private static class TernaryExpression extends Expression {
-
-        private Expression condition;
-        private Expression ifTrue;
-        private Expression ifFalse;
-
-        TernaryExpression(Expression condition, Expression ifTrue, Expression ifFalse) {
-            this.condition = condition;
-            this.ifTrue = ifTrue;
-            this.ifFalse = ifFalse;
-        }
-
-        @Override
-        public boolean writeExpression(JavaFileWriter writer) throws IOException {
-            writer.appendExpression(condition)
-                    .appendString(" ? ")
-                    .appendExpression(ifTrue)
-                    .appendString(" : ")
-                    .appendExpression(ifFalse);
-
-            return true;
-        }
-    }
-
 }

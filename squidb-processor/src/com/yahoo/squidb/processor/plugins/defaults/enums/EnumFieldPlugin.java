@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.enums;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -33,19 +33,20 @@ public class EnumFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, Tabl
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+    protected boolean hasPropertyGeneratorForField(VariableElement field, TypeName fieldType) {
         if (TypeConstants.isConstant(field)) {
             // Looks like a constant, ignore
             return false;
         }
 
-        TypeElement typeElement = (TypeElement) utils.getTypes().asElement(field.asType());
+        TypeElement typeElement = (TypeElement) pluginEnv.getProcessingEnvironment()
+                .getTypeUtils().asElement(field.asType());
         return typeElement != null && typeElement.getKind() == ElementKind.ENUM;
     }
 
     @Override
-    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        return new EnumPropertyGenerator(modelSpec, field, utils, fieldType);
+    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, TypeName fieldType) {
+        return new EnumPropertyGenerator(modelSpec, field, pluginEnv, fieldType);
     }
 }
 

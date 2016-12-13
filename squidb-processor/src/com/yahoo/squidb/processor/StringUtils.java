@@ -16,6 +16,10 @@ public final class StringUtils {
     private StringUtils() {
     }
 
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
     public static String toCamelCase(String s) {
         String[] parts = s.split("_");
         if (parts.length > 1) {
@@ -24,6 +28,19 @@ public final class StringUtils {
             s = s.toLowerCase();
         }
         return s;
+    }
+
+    public static String join(Iterable<String> iter, String separator) {
+        StringBuilder result = new StringBuilder();
+        boolean needsSeparator = false;
+        for (String item : iter) {
+            if (needsSeparator) {
+                result.append(separator);
+            }
+            result.append(item);
+            needsSeparator = true;
+        }
+        return result.toString();
     }
 
     private static boolean isAllUppercase(String s) {

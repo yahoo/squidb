@@ -5,20 +5,18 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import com.yahoo.squidb.annotations.ModelMethod;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,10 +25,12 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 
 /**
@@ -50,46 +50,63 @@ public class ModelMethodPlugin extends Plugin {
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        utils.accumulateImportsFromElements(imports, modelMethods);
-        utils.accumulateImportsFromElements(imports, staticModelMethods);
-    }
-
-    @Override
-    public void emitMethods(JavaFileWriter writer) throws IOException {
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
         for (ExecutableElement e : modelMethods) {
-            emitModelMethod(writer, e, Modifier.PUBLIC);
+            declareModelMethod(builder, e, false, Modifier.PUBLIC);
         }
         for (ExecutableElement e : staticModelMethods) {
-            emitModelMethod(writer, e, Modifier.PUBLIC, Modifier.STATIC);
+            declareModelMethod(builder, e, true, Modifier.PUBLIC, Modifier.STATIC);
         }
     }
 
-    private void emitModelMethod(JavaFileWriter writer, ExecutableElement e, Modifier... modifiers)
-            throws IOException {
-        MethodDeclarationParameters params = utils.methodDeclarationParamsFromExecutableElement(e, modifiers);
-
+    private void declareModelMethod(TypeSpec.Builder builder, ExecutableElement e, boolean isStatic,
+            Modifier... modifiers) {
+        String originalMethodName = e.getSimpleName().toString();
         ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        List<Object> arguments = new ArrayList<>();
-        if (methodAnnotation != null) {
-            String name = methodAnnotation.name();
-            if (!AptUtils.isEmpty(name)) {
-                params.setMethodName(name);
+        String modelMethodName = methodAnnotation != null ? methodAnnotation.name() : null;
+        String generatedMethodName = StringUtils.isEmpty(modelMethodName) ? originalMethodName : modelMethodName;
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(generatedMethodName);
+        methodBuilder.addModifiers(modifiers);
+
+        for (TypeParameterElement typeParameterElement : e.getTypeParameters()) {
+            TypeVariable var = (TypeVariable) typeParameterElement.asType();
+            methodBuilder.addTypeVariable(TypeVariableName.get(var));
+        }
+
+        List<String> delegateArguments = new ArrayList<>();
+        if (!isStatic) {
+            delegateArguments.add("this");
+        }
+        TypeName returnType = TypeName.get(e.getReturnType());
+        methodBuilder.returns(returnType);
+        int paramNumber = 0;
+        for (VariableElement parameter : e.getParameters()) {
+            ParameterSpec parameterSpec = ParameterSpec.get(parameter);
+            if (paramNumber != 0 || isStatic) {
+                methodBuilder.addParameter(parameterSpec);
+                delegateArguments.add(parameterSpec.name);
             }
-            params.getArgumentTypes().remove(0);
-            params.getArgumentNames().remove(0);
-            arguments.add(0, "this");
+            paramNumber++;
         }
-        arguments.addAll(params.getArgumentNames());
-        Expression methodCall = Expressions.staticMethod(modelSpec.getModelSpecName(),
-                e.getSimpleName().toString(), arguments);
-        if (!CoreTypes.VOID.equals(params.getReturnType())) {
-            methodCall = methodCall.returnExpr();
+        methodBuilder.varargs(e.isVarArgs());
+
+        for (TypeMirror thrownType : e.getThrownTypes()) {
+            methodBuilder.addException(TypeName.get(thrownType));
         }
-        JavadocPlugin.writeJavadocFromElement(pluginEnv, writer, e);
-        writer.beginMethodDefinition(params)
-                .writeStatement(methodCall)
-                .finishMethodDefinition();
+
+        String methodCall = "$T.$L(" + StringUtils.join(delegateArguments, ", ") + ")";
+        if (!TypeName.VOID.equals(returnType)) {
+            methodCall = "return " + methodCall;
+        }
+
+        String javadoc = JavadocPlugin.getJavadocFromElement(pluginEnv, e);
+        if (!StringUtils.isEmpty(javadoc)) {
+            methodBuilder.addJavadoc(javadoc);
+        }
+
+        methodBuilder.addStatement(methodCall, modelSpec.getModelSpecName(), originalMethodName);
+        builder.addMethod(methodBuilder.build());
     }
 
     private void parseModelMethods() {
@@ -103,14 +120,14 @@ public class ModelMethodPlugin extends Plugin {
     }
 
     private void checkExecutableElement(ExecutableElement e, List<ExecutableElement> modelMethods,
-            List<ExecutableElement> staticModelMethods, DeclaredTypeName modelClass) {
+            List<ExecutableElement> staticModelMethods, TypeName modelClass) {
         Set<Modifier> modifiers = e.getModifiers();
         if (e.getKind() == ElementKind.CONSTRUCTOR) {
             // Don't copy constructors
             return;
         }
         if (!modifiers.contains(Modifier.STATIC)) {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
                     "Model spec objects should never be instantiated, so non-static methods are meaningless. " +
                             "Did you mean to make this a static method?", e);
             return;
@@ -122,7 +139,7 @@ public class ModelMethodPlugin extends Plugin {
             if (modifiers.contains(Modifier.PUBLIC)) {
                 staticModelMethods.add(e);
             } else if (!modifiers.contains(Modifier.PRIVATE)) {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
                         "This method will not be added to the model definition. " +
                                 "Did you mean to annotate this method with @ModelMethod?", e);
             }
@@ -142,7 +159,7 @@ public class ModelMethodPlugin extends Plugin {
         }
     }
 
-    private boolean checkFirstArgType(TypeMirror type, DeclaredTypeName generatedClassName) {
+    private boolean checkFirstArgType(TypeMirror type, TypeName generatedClassName) {
         if (type instanceof ErrorType) {
             return true;
         }
@@ -150,7 +167,7 @@ public class ModelMethodPlugin extends Plugin {
             return false;
         }
 
-        DeclaredTypeName typeName = (DeclaredTypeName) utils.getTypeNameFromTypeMirror(type);
+        TypeName typeName = TypeName.get(type);
 
         return typeName.equals(generatedClassName) || typeName.equals(TypeConstants.ABSTRACT_MODEL);
     }

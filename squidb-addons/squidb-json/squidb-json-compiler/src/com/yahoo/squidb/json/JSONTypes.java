@@ -5,13 +5,11 @@
  */
 package com.yahoo.squidb.json;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.ClassName;
 
 public class JSONTypes {
     private static final String JSON_PACKAGE = "com.yahoo.squidb.json";
-    public static final DeclaredTypeName PARAMETERIZED_TYPE_BUILDER = new DeclaredTypeName(JSON_PACKAGE,
-            "ParameterizedTypeBuilder");
-    public static final DeclaredTypeName JSON_PROPERTY_SUPPORT = new DeclaredTypeName(JSON_PACKAGE,
-            "JSONPropertySupport");
-    public static final DeclaredTypeName JSON_PROPERTY = new DeclaredTypeName(JSON_PACKAGE, "JSONProperty");
+    public static final ClassName PARAMETERIZED_TYPE_BUILDER = ClassName.get(JSON_PACKAGE, "ParameterizedTypeBuilder");
+    public static final ClassName JSON_PROPERTY_SUPPORT = ClassName.get(JSON_PACKAGE, "JSONPropertySupport");
+    public static final ClassName JSON_PROPERTY = ClassName.get(JSON_PACKAGE, "JSONProperty");
 }

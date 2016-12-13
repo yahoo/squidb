@@ -5,12 +5,10 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
@@ -29,7 +27,6 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfa
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 import com.yahoo.squidb.processor.writers.TableModelFileWriter;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +50,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     private static final String METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR = "rowidAliasPropertyGenerator";
     private static final String METADATA_KEY_HAS_PRIMARY_KEY = "hasPrimaryKey";
 
-    private Map<DeclaredTypeName, Class<? extends BasicTableModelPropertyGenerator>> generatorMap = new HashMap<>();
+    private Map<TypeName, Class<? extends BasicTableModelPropertyGenerator>> generatorMap = new HashMap<>();
 
     public TableModelSpecFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
@@ -69,9 +66,9 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
         registerHandledTypes(BasicBlobPropertyGenerator.handledColumnTypes(), getBlobPropertyGenerator());
     }
 
-    private void registerHandledTypes(List<DeclaredTypeName> handledTypes,
+    private void registerHandledTypes(List<TypeName> handledTypes,
             Class<? extends BasicTableModelPropertyGenerator> generatorClass) {
-        for (DeclaredTypeName type : handledTypes) {
+        for (TypeName type : handledTypes) {
             generatorMap.put(type, generatorClass);
         }
     }
@@ -82,12 +79,12 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+    protected boolean hasPropertyGeneratorForField(VariableElement field, TypeName fieldType) {
         return !TypeConstants.isConstant(field) && generatorMap.containsKey(fieldType);
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, TypeName fieldType) {
         if (field.getAnnotation(PrimaryKey.class) != null) {
             return handlePrimaryKeyField(field, fieldType);
         } else {
@@ -95,7 +92,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
         }
     }
 
-    private boolean handlePrimaryKeyField(VariableElement field, DeclaredTypeName fieldType) {
+    private boolean handlePrimaryKeyField(VariableElement field, TypeName fieldType) {
         if (modelSpec instanceof TableModelSpecWrapper
                 && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
             modelSpec.logError("Virtual tables cannot declare a custom primary key", field);
@@ -123,7 +120,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     @Override
-    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, TypeName fieldType) {
         Class<? extends BasicTableModelPropertyGenerator> generatorClass;
         if (isIntegerPrimaryKey(field, fieldType)) {
             // Force INTEGER PRIMARY KEY properties to be LongProperty, even if declared as e.g. int
@@ -133,7 +130,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
         }
         try {
             BasicTableModelPropertyGenerator propertyGenerator = generatorClass.getConstructor(ModelSpec.class,
-                    VariableElement.class, AptUtils.class).newInstance(modelSpec, field, utils);
+                    VariableElement.class, PluginEnvironment.class).newInstance(modelSpec, field, pluginEnv);
             if (DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getColumnName()) ||
                     DEFAULT_ROWID_PROPERTY_NAME.equalsIgnoreCase(propertyGenerator.getPropertyName())) {
                 modelSpec.logError("Columns in a table model spec cannot be named rowid, as "
@@ -142,7 +139,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
             }
 
             String columnName = propertyGenerator.getColumnName();
-            if (!SqlUtils.checkIdentifier(columnName, "column", modelSpec, field, utils)) {
+            if (!SqlUtils.checkIdentifier(columnName, "column", modelSpec, field, pluginEnv.getMessager())) {
                 return null;
             }
 
@@ -153,7 +150,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
         return null;
     }
 
-    private boolean isIntegerPrimaryKey(VariableElement field, DeclaredTypeName fieldType) {
+    private boolean isIntegerPrimaryKey(VariableElement field, TypeName fieldType) {
         return field.getAnnotation(PrimaryKey.class) != null &&
                 TypeConstants.isIntegerType(fieldType);
     }
@@ -165,7 +162,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
             rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
         } else {
             rowidPropertyGenerator = new RowidPropertyGenerator(modelSpec, "rowid",
-                    DEFAULT_ROWID_PROPERTY_NAME, utils);
+                    DEFAULT_ROWID_PROPERTY_NAME, pluginEnv);
             modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, rowidPropertyGenerator);
         }
         ((TableModelSpecWrapper) modelSpec).getPropertyGenerators().add(0, rowidPropertyGenerator);
@@ -186,76 +183,68 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     @Override
-    public void afterEmitPropertyDeclaration(JavaFileWriter writer, PropertyGenerator propertyGenerator)
-            throws IOException {
-        if (propertyGenerator instanceof RowidPropertyGenerator) {
-            writeRowidSupportMethods(writer, propertyGenerator.getPropertyName());
+    public void afterDeclareSchema(TypeSpec.Builder builder) {
+        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+            if (generator instanceof RowidPropertyGenerator) {
+                writeRowidSupportMethods(builder, generator.getPropertyName());
+            }
         }
     }
 
-    private void writeRowidSupportMethods(JavaFileWriter writer, String propertyName)
-            throws IOException {
+    private void writeRowidSupportMethods(TypeSpec.Builder builder, String propertyName) {
         // Write TABLE.setRowIdProperty call
-        writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethodOn(TableModelFileWriter.TABLE_NAME,
-                "setRowIdProperty", propertyName));
-        writer.finishInitializerBlock(true, true);
-        writer.writeNewline();
+        CodeBlock block = CodeBlock.of("$L.setRowIdProperty($L);\n", TableModelFileWriter.TABLE_NAME, propertyName);
+        builder.addStaticBlock(block);
 
         // Write getRowIdProperty() method
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setReturnType(TypeConstants.LONG_PROPERTY)
-                .setMethodName("getRowIdProperty");
-        writer.beginMethodDefinition(params);
-        writer.writeStringStatement("return " + propertyName);
-        writer.finishMethodDefinition();
+        MethodSpec.Builder params = MethodSpec.methodBuilder("getRowIdProperty")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeConstants.LONG_PROPERTY)
+                .addStatement("return $L", propertyName)
+                .addAnnotation(Override.class);
+        builder.addMethod(params.build());
     }
 
     @Override
-    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters getterParams) throws IOException {
-        addAccessorDocumentationForRowids(writer, propertyGenerator, true);
+    public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            MethodSpec.Builder getterParams) {
+        addAccessorDocumentationForRowids(getterParams, propertyGenerator, true);
     }
 
     @Override
-    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters setterParams) throws IOException {
-        addAccessorDocumentationForRowids(writer, propertyGenerator, false);
+    public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            MethodSpec.Builder setterParams) {
+        addAccessorDocumentationForRowids(setterParams, propertyGenerator, false);
     }
 
-    private void addAccessorDocumentationForRowids(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            boolean getter) throws IOException {
+    private void addAccessorDocumentationForRowids(MethodSpec.Builder params, PropertyGenerator propertyGenerator,
+            boolean getter) {
         if (propertyGenerator instanceof RowidPropertyGenerator) {
             if (DEFAULT_ROWID_PROPERTY_NAME.equals(propertyGenerator.getPropertyName())) {
-                writer.writeAnnotation(CoreTypes.OVERRIDE);
+                params.addAnnotation(Override.class);
             } else {
-                writer.writeJavadoc(" This " + (getter ? "getter" : "setter") + " is an alias for " +
-                        (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY");
+                params.addJavadoc("This " + (getter ? "getter" : "setter") + " is an alias for " +
+                        (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY\n");
             }
         }
     }
 
     @Override
-    public void emitMethods(JavaFileWriter writer) throws IOException {
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
         // If rowid property generator hasn't already done it, need to generate
         // overridden setRowId with appropriate return type
         if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             RowidPropertyGenerator rowidPropertyGenerator = modelSpec
                     .getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
             if (rowidPropertyGenerator != null && !"setRowId".equals(rowidPropertyGenerator.setterMethodName())) {
-                MethodDeclarationParameters params = new MethodDeclarationParameters()
-                        .setModifiers(Modifier.PUBLIC)
-                        .setMethodName("setRowId")
-                        .setArgumentTypes(CoreTypes.PRIMITIVE_LONG)
-                        .setArgumentNames("rowid")
-                        .setReturnType(modelSpec.getGeneratedClassName());
-                writer.writeAnnotation(CoreTypes.OVERRIDE)
-                        .beginMethodDefinition(params)
-                        .writeStringStatement("super.setRowId(rowid)")
-                        .writeStringStatement("return this")
-                        .finishMethodDefinition();
+                MethodSpec.Builder params = MethodSpec.methodBuilder("setRowId")
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(TypeName.LONG, "rowid")
+                        .returns(modelSpec.getGeneratedClassName())
+                        .addAnnotation(Override.class)
+                        .addStatement("super.setRowId(rowid)")
+                        .addStatement("return this");
+                builder.addMethod(params.build());
             }
         }
     }
