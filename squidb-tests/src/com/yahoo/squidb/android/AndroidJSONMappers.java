@@ -19,10 +19,10 @@ import java.lang.reflect.Type;
 
 public class AndroidJSONMappers {
 
-    public static final JSONMapper[] MAPPERS = {
-            new JSONPropertyTest.OrgJsonMapper(),
-            new GsonMapper(),
-            new JacksonMapper()
+    public static final JSONPropertyTest.MapperAndCounter[] MAPPERS = {
+            new JSONPropertyTest.MapperAndCounter(new JSONPropertyTest.OrgJsonMapper()),
+            new JSONPropertyTest.MapperAndCounter(new GsonMapper()),
+            new JSONPropertyTest.MapperAndCounter(new JacksonMapper())
     };
 
     private static class JacksonMapper implements JSONMapper {

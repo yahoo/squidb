@@ -6,6 +6,7 @@
 package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.utility.Logger;
 
 import java.lang.reflect.Type;
@@ -25,31 +26,45 @@ public class JSONPropertySupport {
         MAPPER = jsonMapper;
     }
 
+    private static class JSONObjectHolder<T> {
+        final T parsedObject;
+        final String jsonString;
+
+        JSONObjectHolder(T parsedObject, String jsonString) {
+            this.parsedObject = parsedObject;
+            this.jsonString = jsonString;
+        }
+    }
+
     /**
      * Deserialize a JSON string property into the specified Java type
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
-        if (!model.hasTransitory(property.getName())) {
+        String transitoryKey = transitoryKeyForProperty(property);
+        checkCacheIntegrity(model, property, transitoryKey);
+
+        if (!model.hasTransitory(transitoryKey)) {
             T data = null;
-            if (model.containsNonNullValue(property)) {
-                String value = model.get(property);
+            String json = model.get(property); // Will throw if model doesn't have property
+            if (json != null) {
                 try {
                     if (MAPPER == null) {
                         throw new NullPointerException("JSONPropertySupport needs to be initialized with a "
                                 + "JSONMapper instance using setJSONMapper()");
                     }
-                    data = MAPPER.fromJSON(value, javaType);
+                    data = MAPPER.fromJSON(json, javaType);
                 } catch (Exception e) {
-                    Logger.w(TAG, "Error deserializing JSON string: " + value, e);
+                    // TODO: Should this throw or at least not cache null?
+                    Logger.w(TAG, "Error deserializing JSON string: " + json, e);
                     model.clearValue(property);
                 }
             }
-            model.putTransitory(property.getName(), data);
+            putJSONTransitory(model, transitoryKey, data, json);
             return data;
         }
 
-        return (T) model.getTransitory(property.getName());
+        JSONObjectHolder<T> holder = getJSONTransitory(model, transitoryKey);
+        return holder.parsedObject;
     }
 
     /**
@@ -71,12 +86,42 @@ public class JSONPropertySupport {
                 }
             }
             model.set(property, json);
-            model.putTransitory(property.getName(), data);
+            putJSONTransitory(model, transitoryKeyForProperty(property), data, json);
             return true;
         } catch (Exception e) {
             Logger.w(TAG, "Error serializing object to JSON string: " + data, e);
+            // TODO: Should this throw?
             return false;
         }
+    }
+
+    private static String transitoryKeyForProperty(JSONProperty<?> property) {
+        return "json__" + property.getName();
+    }
+
+    private static <T> void putJSONTransitory(AbstractModel model, String transitoryKey, T data, String jsonString) {
+        model.putTransitory(transitoryKey, new JSONObjectHolder<>(data, jsonString));
+    }
+
+    // We need to be able to check that our cached value is still correct, because some methods like
+    // model.clear(property) aren't able to clear associated transitory values
+    private static void checkCacheIntegrity(AbstractModel model, JSONProperty<?> property, String transitoryKey) {
+        if (!model.hasTransitory(transitoryKey)) {
+            return;
+        }
+        JSONObjectHolder<?> holder = getJSONTransitory(model, transitoryKey);
+        if (model.containsValue(property) || model.getDefaultValues().containsKey(property.getName())) {
+            String jsonValue = model.get(property);
+            if (SqlUtils.equals(holder.jsonString, jsonValue)) {
+                return;
+            }
+        }
+        model.clearTransitory(transitoryKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> JSONObjectHolder<T> getJSONTransitory(AbstractModel model, String transitoryKey) {
+        return (JSONObjectHolder<T>) model.getTransitory(transitoryKey);
     }
 
 }

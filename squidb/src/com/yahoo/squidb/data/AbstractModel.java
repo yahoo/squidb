@@ -37,7 +37,10 @@ import java.util.Set;
  * data that will not be saved to the database if you persist the model. Transitory values are not considered when
  * calling get(Property) or using generated getters; use {@link #getTransitory(String) getTransitory} to read these
  * values. Alternatively, use {@link #hasTransitory(String) checkTransitory} to merely check the presence of a
- * transitory value.
+ * transitory value. Transitory values are often short-lived, and may be used for things like caching a parsed
+ * representation of simpler values (e.g. in the case of JSONProperty in the squidb-json addon). As such, transitory
+ * values will be cleared when repopulating a model instance using methods like
+ * {@link #readPropertiesFromCursor(SquidCursor)} or {@link #readPropertiesFromValuesStorage(ValuesStorage, Property[])}
  * <p>
  * <h3>Interacting with Models</h3>
  * Models are usually created by fetching from a database or reading from a {@link SquidCursor} after querying a
@@ -136,11 +139,12 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     /**
-     * Clear all data on this model
+     * Clear all data on this model, including transitory values
      */
     public void clear() {
         values = null;
         setValues = null;
+        transitoryData = null;
     }
 
     /**

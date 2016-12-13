@@ -7,6 +7,7 @@ package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.json.JSONMapper;
 import com.yahoo.squidb.json.JSONPropertySupport;
+import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Employee;
@@ -22,6 +23,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +31,32 @@ import java.util.Map;
 
 public class JSONPropertyTest extends DatabaseTestCase {
 
-    public static JSONMapper[] MAPPERS = {
-            new OrgJsonMapper()
+    public static class MapperAndCounter implements JSONMapper {
+        final JSONMapper mapper;
+        int toJSONCount = 0;
+        int fromJSONCount = 0;
+
+        public MapperAndCounter(JSONMapper mapper) {
+            this.mapper = mapper;
+        }
+
+        @Override
+        public String toJSON(Object toSerialize, Type javaType) throws Exception {
+            toJSONCount++;
+            return mapper.toJSON(toSerialize, javaType);
+        }
+
+        @Override
+        public <T> T fromJSON(String jsonString, Type javaType) throws Exception {
+            fromJSONCount++;
+            return mapper.fromJSON(jsonString, javaType);
+        }
+    }
+
+    private static MapperAndCounter currentMapper;
+
+    public static MapperAndCounter[] MAPPERS = {
+            new MapperAndCounter(new OrgJsonMapper())
     };
 
     @SuppressWarnings("unchecked")
@@ -138,11 +164,18 @@ public class JSONPropertyTest extends DatabaseTestCase {
     }
 
     protected void testWithAllMappers(Runnable toTest) {
-        for (JSONMapper mapper : MAPPERS) {
+        for (MapperAndCounter mapper : MAPPERS) {
+            mapper.fromJSONCount = 0;
+            mapper.toJSONCount = 0;
+            currentMapper = mapper;
             database.clear();
             JSONPropertySupport.setJSONMapper(mapper);
             toTest.run();
         }
+    }
+
+    private String transitoryKeyForProperty(Property<?> property) {
+        return "json__" + property.getName();
     }
 
     public void testListProperty() {
@@ -156,8 +189,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                List<String> readNumbers = model.getSomeList();
-                assertEquals(numbers, readNumbers);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(numbers, model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(numbers, model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
             }
         });
     }
@@ -177,8 +216,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                Map<String, Integer> readNumbers = model.getSomeMap();
-                assertEquals(numbers, readNumbers);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_MAP)));
+                assertEquals(numbers, model.getSomeMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_MAP)));
+                assertEquals(numbers, model.getSomeMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
             }
         });
     }
@@ -195,8 +240,14 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-                Map<String, Map<String, List<Integer>>> readMap = model.getComplicatedMap();
-                assertEquals(crazyMap, readMap);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.COMPLICATED_MAP)));
+                assertEquals(crazyMap, model.getComplicatedMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.COMPLICATED_MAP)));
+                assertEquals(crazyMap, model.getComplicatedMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
             }
         });
     }
@@ -244,8 +295,91 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 assertEquals(pojo.pojoDouble, readPojo.pojoDouble);
                 assertEquals(pojo.pojoList, readPojo.pojoList);
 
-                Map<String, Map<String, List<Integer>>> readMap = viewModel.getCrazyMap();
-                assertEquals(crazyMap, readMap);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertFalse(viewModel.hasTransitory(transitoryKeyForProperty(TestViewModel.CRAZY_MAP)));
+                assertEquals(crazyMap, viewModel.getCrazyMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(viewModel.hasTransitory(transitoryKeyForProperty(TestViewModel.CRAZY_MAP)));
+                assertEquals(crazyMap, viewModel.getCrazyMap());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+            }
+        });
+    }
+
+    public void testTransitoryCacheClearedWhenModelCleared() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                TestModel model = new TestModel();
+                List<String> list = Arrays.asList("A", "B", "C");
+                model.setSomeList(list);
+                model.clear();
+                // Empty list is default; if cache not cleared comparison will fail
+                assertEquals(Collections.emptyList(), model.getSomeList());
+
+                // Test that we can catch cache invalidation even when transitory values are not cleared
+                model.setSomeList(list);
+                model.clearValue(TestModel.SOME_LIST);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertEquals(Collections.emptyList(), model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(Collections.emptyList(), model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+            }
+        });
+    }
+
+    public void testTransitoryCacheClearedWhenModelRepopulated() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                TestModel model = new TestModel();
+                List<String> list = Arrays.asList("A", "B", "C");
+                model.setSomeList(list);
+
+                ValuesStorage newStorage = new MapValuesStorage();
+                newStorage.put(TestModel.SOME_LIST.getName(), "[\"D\", \"E\", \"F\"]");
+                model.readPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
+                assertEquals(Arrays.asList("D", "E", "F"), model.getSomeList());
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(Arrays.asList("D", "E", "F"), model.getSomeList());
+
+                newStorage.put(TestModel.SOME_LIST.getName(), "[\"H\", \"I\", \"J\"]");
+                model.setPropertiesFromValuesStorage(newStorage, TestModel.SOME_LIST);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertEquals(Arrays.asList("H", "I", "J"), model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(Arrays.asList("H", "I", "J"), model.getSomeList());
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+            }
+        });
+    }
+
+    public void testGetterThrowsIfJSONPropertyNotPresent() {
+        testWithAllMappers(new Runnable() {
+            @Override
+            public void run() {
+                final TestModel model = new TestModel();
+                testThrowsException(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.getSomeMap(); // This property has no default
+                    }
+                }, UnsupportedOperationException.class);
+                int currentFromJSONCount = currentMapper.fromJSONCount;
+                assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(Collections.emptyList(), model.getSomeList()); // This property has a default
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
+                // Second call reads from cache; assert that works too
+                assertTrue(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
+                assertEquals(Collections.emptyList(), model.getSomeList()); // This property has a default
+                assertEquals(currentFromJSONCount + 1, currentMapper.fromJSONCount);
             }
         });
     }

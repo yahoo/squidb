@@ -176,6 +176,12 @@ public class ModelTest extends DatabaseTestCase {
         assertFalse(model.hasTransitory(key1));
         assertFalse(model.hasTransitory(key2));
 
+        model.putTransitory(key1, "A");
+        model.putTransitory(key2, "B");
+        model.clear();
+        assertFalse(model.hasTransitory(key1));
+        assertFalse(model.hasTransitory(key2));
+
         // Test null transitory keys and values
         model.putTransitory(key1, null);
         assertTrue(model.hasTransitory(key1));
