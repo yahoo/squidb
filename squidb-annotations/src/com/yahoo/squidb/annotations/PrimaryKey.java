@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
  * Integer-type columns (long, int, etc.) that are annotated with the PrimaryKey annotation are considered
  * "INTEGER PRIMARY KEY" columns. In SQLite, an INTEGER PRIMARY KEY column is an alias for the built-in SQLite rowid
  * column. If present, SquiDB will use such a column for model bookkeeping. If no column is annotated with @PrimaryKey,
- * or if a a non-integer column is annotated with @PrimaryKey, SquiDB will generate an explicit reference to the
+ * or if a non-integer column is annotated with @PrimaryKey, SquiDB will generate an explicit reference to the
  * built-in rowid column to use for bookkeeping.
  */
 @Target(ElementType.FIELD)

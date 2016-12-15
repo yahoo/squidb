@@ -17,6 +17,7 @@ import com.yahoo.squidb.annotations.UpsertKey;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
@@ -38,7 +39,7 @@ import javax.lang.model.element.VariableElement;
  * can be disabled by passing the {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_UPSERT} option in the squidbOptions
  * key.
  */
-public class UpsertPlugin extends Plugin {
+public class UpsertPlugin extends AbstractPlugin {
 
     private static final ClassName UPSERTABLE = ClassName.get(TypeConstants.SQUIDB_DATA_PACKAGE, "Upsertable");
     private static final ClassName CRITERION = ClassName.get(TypeConstants.SQUIDB_SQL_PACKAGE, "Criterion");
@@ -50,19 +51,21 @@ public class UpsertPlugin extends Plugin {
     private static final Pattern NOT_NULL = Pattern.compile("NOT\\s+NULL", Pattern.CASE_INSENSITIVE);
 
     private List<TableModelPropertyGenerator> upsertColumns = new ArrayList<>();
-
-    public UpsertPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
+    private TableModelSpecWrapper tableModelSpec;
 
     @Override
-    public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof TableModelSpecWrapper;
+    public boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        super.init(modelSpec, pluginEnv);
+        if (!(modelSpec instanceof TableModelSpecWrapper)) {
+            return false;
+        }
+        this.tableModelSpec = (TableModelSpecWrapper) modelSpec;
+        return true;
     }
 
     @Override
     public void afterProcessVariableElements() {
-        for (TableModelPropertyGenerator generator : ((TableModelSpecWrapper) modelSpec).getPropertyGenerators()) {
+        for (TableModelPropertyGenerator generator : tableModelSpec.getPropertyGenerators()) {
             VariableElement field = generator.getField();
             if (field != null && field.getAnnotation(UpsertKey.class) != null) {
                 upsertColumns.add(generator);
@@ -149,7 +152,6 @@ public class UpsertPlugin extends Plugin {
     }
 
     private String getUpsertIndexName() {
-        TableModelSpecWrapper tableModelSpec = (TableModelSpecWrapper) modelSpec;
         String tableName = tableModelSpec.getSpecAnnotation().tableName();
         return "idx_" + tableName + "_upsertColumns";
     }

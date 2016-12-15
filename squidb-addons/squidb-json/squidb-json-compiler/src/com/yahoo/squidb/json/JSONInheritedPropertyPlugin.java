@@ -7,8 +7,6 @@ package com.yahoo.squidb.json;
 
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
-import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
@@ -18,10 +16,6 @@ import javax.lang.model.element.VariableElement;
  */
 public class JSONInheritedPropertyPlugin
         extends JSONPropertyReferencePlugin<InheritedModelSpecWrapper, InheritedModelPropertyGenerator> {
-
-    public JSONInheritedPropertyPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<InheritedModelSpecWrapper> getHandledModelSpecClass() {

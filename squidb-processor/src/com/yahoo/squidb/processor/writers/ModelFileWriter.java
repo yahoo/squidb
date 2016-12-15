@@ -54,12 +54,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
         if (this.builder == null) {
             this.builder = TypeSpec.classBuilder(modelSpec.getGeneratedClassName())
                     .addOriginatingElement(modelSpec.getModelSpecElement())
-                    .superclass(modelSpec.getModelSuperclass())
-                    .addSuperinterfaces(accumulateInterfacesFromPlugins())
                     .addModifiers(Modifier.PUBLIC);
-            if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
-                builder.addAnnotation(Deprecated.class);
-            }
         } else {
             throw new IllegalStateException("JavaFileWriter already initialized");
         }
@@ -69,11 +64,12 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
         PluginBundle plugins = modelSpec.getPluginBundle();
 
         plugins.beforeBeginClassDeclaration(builder);
+        declareSuperclassAndInterfaces();
 
         plugins.beforeDeclareSchema(builder);
         declarePropertiesArray();
         declareModelSpecificFields();
-        declarePropertyDeclarations();
+        declarePropertyFields();
         declareDefaultValues();
         declareModelSpecificHelpers();
         plugins.afterDeclareSchema(builder);
@@ -90,38 +86,42 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
         return Arrays.asList(interfaces.toArray(new TypeName[interfaces.size()]));
     }
 
+    private void declareSuperclassAndInterfaces() {
+        builder.superclass(modelSpec.getModelSuperclass())
+                .addSuperinterfaces(accumulateInterfacesFromPlugins());
+        if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
+            builder.addAnnotation(Deprecated.class);
+        }
+    }
+
     protected void declarePropertiesArray() {
         FieldSpec propertiesArray = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T[$L]", TypeConstants.PROPERTY, getPropertiesArrayLength()).build();
+                .initializer("new $T[$L]", TypeConstants.PROPERTY, modelSpec.getPropertyGenerators().size()).build();
         builder.addField(propertiesArray);
-    }
-
-    protected int getPropertiesArrayLength() {
-        return modelSpec.getPropertyGenerators().size();
     }
 
     protected void declareModelSpecificFields() {
         // Subclasses can override
     }
 
-    private void declarePropertyDeclarations() {
+    private void declarePropertyFields() {
         declareAllProperties();
         declarePropertyArrayInitialization();
     }
 
     protected abstract void declareAllProperties();
 
-    protected void declarePropertyArrayInitialization() {
+    private void declarePropertyArrayInitialization() {
         CodeBlock.Builder propertiesInitializationBlock = CodeBlock.builder();
-        writePropertiesInitializationBlock(propertiesInitializationBlock);
+        buildPropertiesInitializationBlock(propertiesInitializationBlock);
         CodeBlock block = propertiesInitializationBlock.build();
         if (!block.isEmpty()) {
             builder.addStaticBlock(block);
         }
     }
 
-    protected abstract void writePropertiesInitializationBlock(CodeBlock.Builder block);
+    protected abstract void buildPropertiesInitializationBlock(CodeBlock.Builder block);
 
     protected void declareDefaultValues() {
         FieldSpec.Builder defaultValuesField = FieldSpec.builder(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
@@ -148,7 +148,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
     protected abstract void buildDefaultValuesInitializationBlock(CodeBlock.Builder block);
 
-    protected void declareGettersAndSetters() {
+    private void declareGettersAndSetters() {
         if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
                 generator.declareGetter(builder);

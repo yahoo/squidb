@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -34,7 +33,6 @@ import javax.tools.Diagnostic;
 public class ErrorLoggingProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = new HashSet<>();
-    private ProcessingEnvironment processingEnv;
 
     public ErrorLoggingProcessor() {
         supportedAnnotationTypes.add(ModelGenErrors.class.getName());
@@ -48,12 +46,6 @@ public class ErrorLoggingProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         return supportedAnnotationTypes;
-    }
-
-    @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        this.processingEnv = processingEnv;
     }
 
     @Override

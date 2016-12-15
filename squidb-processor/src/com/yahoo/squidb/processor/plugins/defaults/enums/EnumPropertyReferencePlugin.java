@@ -9,7 +9,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.PropertyReferencePlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
@@ -23,10 +22,6 @@ import javax.tools.Diagnostic.Kind;
  */
 public abstract class EnumPropertyReferencePlugin<T extends ModelSpec<?, P>, P extends PropertyGenerator>
         extends PropertyReferencePlugin<T, P> {
-
-    public EnumPropertyReferencePlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected boolean isSupportedPropertyType(TypeName fieldType) {

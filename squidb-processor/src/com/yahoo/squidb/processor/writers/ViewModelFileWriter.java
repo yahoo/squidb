@@ -147,7 +147,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     }
 
     @Override
-    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+    protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             TypeName type = modelSpec.getPropertyGenerators().get(i).getPropertyType();
             CodeBlock initializer;

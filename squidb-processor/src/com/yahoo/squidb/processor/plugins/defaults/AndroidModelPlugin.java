@@ -15,6 +15,7 @@ import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
@@ -26,7 +27,7 @@ import javax.lang.model.element.Modifier;
  * can be enabled by passing {@link PluginEnvironment#OPTIONS_GENERATE_ANDROID_MODELS 'androidModels'} as one
  * of the values for the 'squidbOptions' key.
  */
-public class AndroidModelPlugin extends Plugin {
+public class AndroidModelPlugin extends AbstractPlugin {
 
     private static final ModelSpec.ModelSpecVisitor<TypeName, Void> superclassVisitor
             = new ModelSpec.ModelSpecVisitor<TypeName, Void>() {
@@ -46,13 +47,12 @@ public class AndroidModelPlugin extends Plugin {
         }
     };
 
-    private final TypeName modelSuperclass;
-    private final boolean generateConstructors;
+    private TypeName modelSuperclass;
 
-    public AndroidModelPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
+    @Override
+    public boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         modelSuperclass = modelSpec.accept(superclassVisitor, null);
-        generateConstructors = !pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
+        return super.init(modelSpec, pluginEnv);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class AndroidModelPlugin extends Plugin {
 
     @Override
     public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
-        if (generateConstructors) {
+        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             String valuesName = "contentValues";
             TypeName valuesType = TypeConstants.CONTENT_VALUES;
 

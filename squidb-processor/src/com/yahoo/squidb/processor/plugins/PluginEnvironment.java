@@ -20,6 +20,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpec
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -182,40 +183,40 @@ public class PluginEnvironment {
 
     private void initializeDefaultPlugins() {
         // Can't disable these, but they can be overridden by user plugins with high priority
-        normalPriorityPlugins.add(TableModelSpecFieldPlugin.class);
-        normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
-        normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
+        addPlugin(TableModelSpecFieldPlugin.class, PluginPriority.NORMAL);
+        addPlugin(ViewModelSpecFieldPlugin.class, PluginPriority.NORMAL);
+        addPlugin(InheritedModelSpecFieldPlugin.class, PluginPriority.NORMAL);
 
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
-            normalPriorityPlugins.add(ConstructorPlugin.class);
+            addPlugin(ConstructorPlugin.class, PluginPriority.NORMAL);
         }
         if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
-            normalPriorityPlugins.add(AndroidModelPlugin.class);
+            addPlugin(AndroidModelPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
-            normalPriorityPlugins.add(ImplementsPlugin.class);
+            addPlugin(ImplementsPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
-            normalPriorityPlugins.add(ModelMethodPlugin.class);
+            addPlugin(ModelMethodPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_UPSERT)) {
-            normalPriorityPlugins.add(UpsertPlugin.class);
+            addPlugin(UpsertPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
-            normalPriorityPlugins.add(JavadocPlugin.class);
+            addPlugin(JavadocPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
-            normalPriorityPlugins.add(EnumPluginBundle.class);
+            addPlugin(EnumPluginBundle.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
-            normalPriorityPlugins.add(ErrorLoggingPlugin.class);
+            addPlugin(ErrorLoggingPlugin.class, PluginPriority.NORMAL);
         }
 
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING)) {
-            // This plugin claims any public static final fields not handled by the other plugins and copies them to
+            // This plugin claims any visible static final fields not handled by the other plugins and copies them to
             // the generated model. Set to low priority so that by default user plugins can have first pass at
             // handing such fields.
-            lowPriorityPlugins.add(ConstantCopyingPlugin.class);
+            addPlugin(ConstantCopyingPlugin.class, PluginPriority.LOW);
         }
     }
 
@@ -256,8 +257,8 @@ public class PluginEnvironment {
             if (Plugin.class.isAssignableFrom(pluginClass)) {
                 addPlugin((Class<? extends Plugin>) pluginClass, priority);
             } else {
-                env.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                        "Plugin " + pluginName + " is not a subclass of Plugin");
+                env.getMessager().printMessage(Diagnostic.Kind.WARNING, "Plugin " + pluginName +
+                        " does not implement the com.yahoo.squidb.processor.plugins.Plugin interface");
             }
         } catch (Exception e) {
             env.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unable to instantiate plugin " + pluginName +
@@ -390,23 +391,41 @@ public class PluginEnvironment {
      * @return a new {@link PluginBundle} containing Plugins initialized to handle the given model spec
      */
     public PluginBundle getPluginBundleForModelSpec(ModelSpec<?, ?> modelSpec) {
-        List<Plugin> plugins = new ArrayList<>();
-        accumulatePlugins(plugins, highPriorityPlugins, modelSpec);
-        accumulatePlugins(plugins, normalPriorityPlugins, modelSpec);
-        accumulatePlugins(plugins, lowPriorityPlugins, modelSpec);
-        return new PluginBundle(modelSpec, this, plugins);
+        List<Class<? extends Plugin>> plugins = new ArrayList<>();
+        plugins.addAll(highPriorityPlugins);
+        plugins.addAll(normalPriorityPlugins);
+        plugins.addAll(lowPriorityPlugins);
+        PluginBundle bundle = new PluginBundle(plugins);
+        bundle.init(modelSpec, this);
+        return bundle;
     }
 
-    private void accumulatePlugins(List<Plugin> accumulator, List<Class<? extends Plugin>> pluginList,
-            ModelSpec<?, ?> modelSpec) {
-        for (Class<? extends Plugin> plugin : pluginList) {
-            try {
-                accumulator.add(plugin.getConstructor(ModelSpec.class, PluginEnvironment.class)
-                        .newInstance(modelSpec, this));
-            } catch (Exception e) {
-                env.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                        "Unable to instantiate plugin " + plugin + ", reason: " + e);
-            }
+    /**
+     * Instantiates an instance of the given plugin class and calls {@link Plugin#init(ModelSpec, PluginEnvironment)}
+     * on it. Returns the initialized instance if init() returns true, or returns null if init() returns false or
+     * if there was an exception instantiating the plugin (e.g. if there was no no-arg constructor found).
+     */
+    static Plugin createAndInitializePlugin(Class<? extends Plugin> pluginClass, ModelSpec<?, ?> modelSpec,
+            PluginEnvironment pluginEnv) {
+        Constructor<? extends Plugin> pluginConstructor;
+        try {
+            pluginConstructor = pluginClass.getConstructor();
+        } catch (Exception e) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "Could not find no-arg constructor for plugin class " + pluginClass +
+                            ", plugin will not be used. Exception: " + e);
+            return null;
         }
+        try {
+            Plugin instance = pluginConstructor.newInstance();
+            if (instance.init(modelSpec, pluginEnv)) {
+                return instance;
+            }
+        } catch (Exception e) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "Exception occurred instantiating plugin class " + pluginClass +
+                            ", plugin will not be used. Exception: " + e);
+        }
+        return null;
     }
 }

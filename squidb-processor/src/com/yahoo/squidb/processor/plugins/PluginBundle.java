@@ -12,24 +12,76 @@ import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
 
 /**
- * This class wraps a list of {@link Plugin}s that have been instantiated for a single
- * {@link com.yahoo.squidb.processor.data.ModelSpec}. It provides a convenient way of iterating over all the plugins
+ * This class wraps a list of {@link Plugin}s. It provides a convenient way of iterating over all the plugins
  * present during code generation and calling them during the generation of a model class for a particular model
  * spec.
  */
-public class PluginBundle extends Plugin {
+public class PluginBundle implements Plugin {
 
-    private final List<? extends Plugin> plugins;
+    private final List<Class<? extends Plugin>> pluginClasses = new ArrayList<>();
+    private final List<Plugin> plugins = new ArrayList<>();
 
-    public PluginBundle(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv, List<? extends Plugin> plugins) {
-        super(modelSpec, pluginEnv);
-        this.plugins = plugins;
+    private boolean isInitialized = false;
+
+    public PluginBundle() {
+        // No-arg constructor to satisfy Plugin contract
+    }
+
+    public PluginBundle(List<Class<? extends Plugin>> pluginClasses) {
+        this();
+        addPluginClasses(pluginClasses);
+    }
+
+    /**
+     * @return true if this PluginBundle has been initialized, false otherwise
+     */
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    /**
+     * Add plugin classes to be instantiated when this plugin is initialized. Plugin classes cannot be added to the
+     * bundle after it is initialized; an IllegalStateException will be thrown if this plugin bundle was already
+     * initialized.
+     *
+     * @see #isInitialized()
+     */
+    public void addPluginClasses(List<Class<? extends Plugin>> pluginClasses) {
+        if (isInitialized) {
+            throw new IllegalStateException("Cannot call addPluginClasses() on a PluginBundle that is "
+                    + "already initialized");
+        }
+        if (pluginClasses != null) {
+            this.pluginClasses.addAll(pluginClasses);
+        }
+    }
+
+    @Override
+    public final boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        if (isInitialized) {
+            throw new IllegalStateException("Cannot call init() on a PluginBundle more than once");
+        }
+        for (Class<? extends Plugin> pluginClass : pluginClasses) {
+            Plugin instance = PluginEnvironment.createAndInitializePlugin(pluginClass, modelSpec, pluginEnv);
+            if (instance != null) {
+                this.plugins.add(instance);
+            }
+        }
+        isInitialized = true;
+        return true;
+    }
+
+    private void checkInitialized() {
+        if (!isInitialized) {
+            throw new IllegalStateException("PluginBundle was not initialized");
+        }
     }
 
     /**
@@ -42,8 +94,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public boolean processVariableElement(VariableElement field, TypeName fieldType) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec() && plugin.processVariableElement(field, fieldType)) {
+            if (plugin.processVariableElement(field, fieldType)) {
                 return true;
             }
         }
@@ -55,10 +108,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void afterProcessVariableElements() {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.afterProcessVariableElements();
-            }
+            plugin.afterProcessVariableElements();
         }
     }
 
@@ -70,6 +122,7 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public TypeName getModelSuperclass() {
+        checkInitialized();
         for (Plugin plugin : plugins) {
             TypeName modelSuperclass = plugin.getModelSuperclass();
             if (modelSuperclass != null) {
@@ -84,10 +137,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void addInterfacesToImplement(Set<TypeName> interfaces) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.addInterfacesToImplement(interfaces);
-            }
+            plugin.addInterfacesToImplement(interfaces);
         }
     }
 
@@ -96,10 +148,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void beforeBeginClassDeclaration(TypeSpec.Builder builder) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeBeginClassDeclaration(builder);
-            }
+            plugin.beforeBeginClassDeclaration(builder);
         }
     }
 
@@ -108,10 +159,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void beforeDeclareSchema(TypeSpec.Builder builder) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeDeclareSchema(builder);
-            }
+            plugin.beforeDeclareSchema(builder);
         }
     }
 
@@ -122,10 +172,9 @@ public class PluginBundle extends Plugin {
     @Override
     public void willDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec.Builder propertyDeclaration) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.willDeclareProperty(builder, propertyGenerator, propertyDeclaration);
-            }
+            plugin.willDeclareProperty(builder, propertyGenerator, propertyDeclaration);
         }
     }
 
@@ -136,10 +185,9 @@ public class PluginBundle extends Plugin {
     @Override
     public void didDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             FieldSpec propertyDeclaration) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.didDeclareProperty(builder, propertyGenerator, propertyDeclaration);
-            }
+            plugin.didDeclareProperty(builder, propertyGenerator, propertyDeclaration);
         }
     }
 
@@ -148,10 +196,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void afterDeclareSchema(TypeSpec.Builder builder) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.afterDeclareSchema(builder);
-            }
+            plugin.afterDeclareSchema(builder);
         }
     }
 
@@ -160,10 +207,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.declareMethodsOrConstructors(builder);
-            }
+            plugin.declareMethodsOrConstructors(builder);
         }
     }
 
@@ -174,10 +220,9 @@ public class PluginBundle extends Plugin {
     @Override
     public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.willDeclareGetter(builder, propertyGenerator, getterParams);
-            }
+            plugin.willDeclareGetter(builder, propertyGenerator, getterParams);
         }
     }
 
@@ -188,10 +233,9 @@ public class PluginBundle extends Plugin {
     @Override
     public void didDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec getterParams) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.didDeclareGetter(builder, propertyGenerator, getterParams);
-            }
+            plugin.didDeclareGetter(builder, propertyGenerator, getterParams);
         }
     }
 
@@ -202,10 +246,9 @@ public class PluginBundle extends Plugin {
     @Override
     public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.willDeclareSetter(builder, propertyGenerator, getterParams);
-            }
+            plugin.willDeclareSetter(builder, propertyGenerator, getterParams);
         }
     }
 
@@ -215,10 +258,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void didDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator, MethodSpec getterParams) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.didDeclareSetter(builder, propertyGenerator, getterParams);
-            }
+            plugin.didDeclareSetter(builder, propertyGenerator, getterParams);
         }
     }
 
@@ -227,10 +269,9 @@ public class PluginBundle extends Plugin {
      */
     @Override
     public void declareAdditionalJava(TypeSpec.Builder builder) {
+        checkInitialized();
         for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.declareAdditionalJava(builder);
-            }
+            plugin.declareAdditionalJava(builder);
         }
     }
 }

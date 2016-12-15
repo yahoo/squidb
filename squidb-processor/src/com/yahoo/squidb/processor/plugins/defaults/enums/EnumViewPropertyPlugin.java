@@ -6,9 +6,7 @@
 package com.yahoo.squidb.processor.plugins.defaults.enums;
 
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.EnumPropertyReferencePropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
@@ -19,10 +17,6 @@ import javax.lang.model.element.VariableElement;
  */
 public class EnumViewPropertyPlugin
         extends EnumPropertyReferencePlugin<ViewModelSpecWrapper, ViewModelPropertyGenerator> {
-
-    public EnumViewPropertyPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<ViewModelSpecWrapper> getHandledModelSpecClass() {

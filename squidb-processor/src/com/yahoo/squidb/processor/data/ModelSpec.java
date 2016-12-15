@@ -55,7 +55,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     private final Map<String, Object> metadataMap = new HashMap<>();
 
     protected final PluginBundle pluginBundle;
-    protected final PluginEnvironment pluginEnvironment;
+    protected final PluginEnvironment pluginEnv;
     private final TypeName modelSuperclass;
 
     private final List<ErrorInfo> loggedErrors = new ArrayList<>();
@@ -75,7 +75,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         this.modelSpecName = ClassName.get(modelSpecElement);
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = ClassName.get(modelSpecName.packageName(), getGeneratedClassNameString());
-        this.pluginEnvironment = pluginEnv;
+        this.pluginEnv = pluginEnv;
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
 
         processVariableElements();
@@ -88,7 +88,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
             if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
                 TypeName typeName = TypeName.get(e.asType());
                 if (TypeConstants.isGenericType(typeName)) {
-                    pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
                             "Element type " + typeName + " is not a concrete type, will be ignored", e);
                 } else if (!pluginBundle.processVariableElement((VariableElement) e, typeName)) {
                     // Deprecated things are generally ignored by plugins, so don't warn about them
@@ -96,7 +96,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
                     if (e.getAnnotation(Deprecated.class) == null &&
                             !e.getModifiers().containsAll(
                                     Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))) {
-                        pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                        pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
                                 "No plugin found to handle field", e);
                     }
                 }
@@ -247,8 +247,8 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
      * or null for a general error
      */
     public void logError(String message, Element element) {
-        if (pluginEnvironment.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
-            pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
         } else {
             boolean isRootElement = element == null || element.equals(getModelSpecElement());
             loggedErrors.add(new ErrorInfo(getModelSpecName(),

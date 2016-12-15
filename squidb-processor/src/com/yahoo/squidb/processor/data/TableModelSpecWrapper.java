@@ -28,7 +28,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
             logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), pluginEnvironment.getMessager());
+            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), pluginEnv.getMessager());
         }
     }
 

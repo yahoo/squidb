@@ -40,13 +40,8 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     @Override
-    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+    protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         // Not needed
-    }
-
-    @Override
-    protected void declarePropertyArrayInitialization() {
-        // The superclass declares this
     }
 
     @Override

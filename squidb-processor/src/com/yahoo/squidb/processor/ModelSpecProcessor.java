@@ -54,7 +54,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private Set<String> supportedAnnotationTypes = new HashSet<>();
 
     private PluginEnvironment pluginEnv;
-    private ProcessingEnvironment processingEnvironment;
 
     public ModelSpecProcessor() {
         supportedAnnotationTypes.add(TableModelSpec.class.getName());
@@ -84,7 +83,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-        processingEnvironment = env;
         pluginEnv = new PluginEnvironment(env);
     }
 
@@ -98,16 +96,16 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                         try {
                             getFileWriter(typeElement).writeJava();
                         } catch (IOException e) {
-                            processingEnvironment.getMessager().printMessage(Kind.ERROR,
+                            processingEnv.getMessager().printMessage(Kind.ERROR,
                                     "Unable to write model file", element);
                         }
                     } else {
-                        processingEnvironment.getMessager()
+                        processingEnv.getMessager()
                                 .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                     }
                 }
             } else {
-                processingEnvironment.getMessager().printMessage(Kind.WARNING,
+                processingEnv.getMessager().printMessage(Kind.WARNING,
                         "Skipping unsupported annotation received by processor: " + annotationType);
             }
         }

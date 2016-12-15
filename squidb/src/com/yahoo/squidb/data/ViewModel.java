@@ -34,7 +34,7 @@ public abstract class ViewModel extends AbstractModel {
     /**
      * Extracts the properties in this ViewModel that originated from the specified model class and reads them into the
      * destination model object
-     * <br>
+     * <p>
      * Note: if the backing query for your ViewModel joins on the same table multiple times with different aliases,
      * you should instead use {@link #mapToModel(AbstractModel, SqlTable)} and pass the aliased table object as the
      * second argument

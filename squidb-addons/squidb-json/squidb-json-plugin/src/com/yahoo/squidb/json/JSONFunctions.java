@@ -13,7 +13,7 @@ import com.yahoo.squidb.utility.VersionCode;
  * Declarations of SQLite functions found in <a href="http://sqlite.org/json1.html">the json1 extension</a>. Note that
  * these functions will only work if you are connecting to a version of SQLite >= 3.9.0 with the json1 extension
  * enabled.
- * <br/>
+ * <p>
  * From the SQLite json1 documentation:
  * <br/>
  * For functions that accept JSON as their first argument, that argument can be a JSON object, array, number, string,
@@ -21,11 +21,11 @@ import com.yahoo.squidb.utility.VersionCode;
  * values can be understood as JSON objects, arrays, or strings. If an SQLite text value that is not a well-formed JSON
  * object, array, or string is passed into json1 function, that function will usually throw an error. (An exception is
  * the json_valid(X) function which returns 1 if X is well-formed JSON and 0 if it is not.)
- * <br/>
+ * <p>
  * For functions that accept PATH arguments, that PATH must be well-formed or else the function will throw an error.
  * A well-formed PATH is a text value that begins with exactly one '$' character followed by zero or more instances of
  * ".objectlabel" or "[arrayindex]".
- * <br/>
+ * <p>
  * For functions that accept "value" arguments (e.g. {@link #jsonInsert},{@link #jsonReplace}, or {@link #jsonSet}),
  * those arguments is usually understood to be a literal strings that are quoted and becomes JSON string values in the
  * result. Even if the input value strings look like well-formed JSON, they are still interpreted as literal strings in

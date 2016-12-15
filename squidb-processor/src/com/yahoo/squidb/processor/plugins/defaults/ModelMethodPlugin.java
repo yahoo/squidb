@@ -14,6 +14,7 @@ import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
@@ -39,14 +40,26 @@ import javax.tools.Diagnostic;
  * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING 'disableModelMethod'} as one of the
  * values for the 'squidbOptions' key.
  */
-public class ModelMethodPlugin extends Plugin {
+public class ModelMethodPlugin extends AbstractPlugin {
 
     private final List<ExecutableElement> modelMethods = new ArrayList<>();
     private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
 
-    public ModelMethodPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
+    @Override
+    public boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        super.init(modelSpec, pluginEnv);
         parseModelMethods();
+        return true;
+    }
+
+    private void parseModelMethods() {
+        List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
+        for (Element e : enclosedElements) {
+            if (e instanceof ExecutableElement) {
+                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
+                        modelSpec.getGeneratedClassName());
+            }
+        }
     }
 
     @Override
@@ -107,16 +120,6 @@ public class ModelMethodPlugin extends Plugin {
 
         methodBuilder.addStatement(methodCall, modelSpec.getModelSpecName(), originalMethodName);
         builder.addMethod(methodBuilder.build());
-    }
-
-    private void parseModelMethods() {
-        List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e instanceof ExecutableElement) {
-                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
-                        modelSpec.getGeneratedClassName());
-            }
-        }
     }
 
     private void checkExecutableElement(ExecutableElement e, List<ExecutableElement> modelMethods,

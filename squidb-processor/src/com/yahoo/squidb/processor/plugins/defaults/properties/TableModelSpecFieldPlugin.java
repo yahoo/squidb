@@ -52,8 +52,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
 
     private Map<TypeName, Class<? extends BasicTableModelPropertyGenerator>> generatorMap = new HashMap<>();
 
-    public TableModelSpecFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
+    public TableModelSpecFieldPlugin() {
+        super();
         registerBasicPropertyGenerators();
     }
 
@@ -93,8 +93,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     private boolean handlePrimaryKeyField(VariableElement field, TypeName fieldType) {
-        if (modelSpec instanceof TableModelSpecWrapper
-                && ((TableModelSpecWrapper) modelSpec).isVirtualTable()) {
+        if (modelSpec.isVirtualTable()) {
             modelSpec.logError("Virtual tables cannot declare a custom primary key", field);
         } else if (modelSpec.hasMetadata(METADATA_KEY_HAS_PRIMARY_KEY)) {
             modelSpec.logError("Only a single field can be annotated as @PrimaryKey. If you want a multi-column"
@@ -165,7 +164,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
                     DEFAULT_ROWID_PROPERTY_NAME, pluginEnv);
             modelSpec.putMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR, rowidPropertyGenerator);
         }
-        ((TableModelSpecWrapper) modelSpec).getPropertyGenerators().add(0, rowidPropertyGenerator);
+        modelSpec.getPropertyGenerators().add(0, rowidPropertyGenerator);
 
         // Sanity check to make sure there is exactly 1 RowidPropertyGenerator
         RowidPropertyGenerator foundRowidPropertyGenerator = null;

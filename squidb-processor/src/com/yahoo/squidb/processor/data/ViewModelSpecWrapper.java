@@ -32,7 +32,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
             logError("View names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlUtils.checkIdentifier(viewName, "view", this, getModelSpecElement(), pluginEnvironment.getMessager());
+            SqlUtils.checkIdentifier(viewName, "view", this, getModelSpecElement(), pluginEnv.getMessager());
         }
     }
 

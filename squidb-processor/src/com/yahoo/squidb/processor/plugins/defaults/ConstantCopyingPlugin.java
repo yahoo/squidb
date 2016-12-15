@@ -13,8 +13,7 @@ import com.yahoo.squidb.annotations.Constants;
 import com.yahoo.squidb.annotations.Ignore;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.Plugin;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.ArrayList;
@@ -35,14 +34,10 @@ import javax.tools.Diagnostic;
  * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING 'disableConstantCopying'} as one
  * of the values for the 'squidbOptions' key.
  */
-public class ConstantCopyingPlugin extends Plugin {
+public class ConstantCopyingPlugin extends AbstractPlugin {
 
     private final List<VariableElement> constantElements = new ArrayList<>();
     private final Map<String, List<VariableElement>> innerClassConstants = new HashMap<>();
-
-    public ConstantCopyingPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     public boolean processVariableElement(VariableElement field, TypeName fieldType) {

@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.enums;
 
-import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Arrays;
 
@@ -16,10 +15,10 @@ import java.util.Arrays;
  */
 public class EnumPluginBundle extends PluginBundle {
 
-    public EnumPluginBundle(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv, Arrays.asList(
-                new EnumFieldPlugin(modelSpec, pluginEnv),
-                new EnumViewPropertyPlugin(modelSpec, pluginEnv),
-                new EnumInheritedPropertyPlugin(modelSpec, pluginEnv)));
+    public EnumPluginBundle() {
+        super(Arrays.asList(
+                (Class<? extends Plugin>) EnumFieldPlugin.class,
+                EnumViewPropertyPlugin.class,
+                EnumInheritedPropertyPlugin.class));
     }
 }

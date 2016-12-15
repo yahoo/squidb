@@ -69,7 +69,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     }
 
     @Override
-    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+    protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             block.addStatement("$L[$L] = $L", PROPERTIES_ARRAY_NAME, i,
                     modelSpec.getPropertyGenerators().get(i).getPropertyName());
