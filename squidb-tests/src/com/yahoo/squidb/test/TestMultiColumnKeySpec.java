@@ -4,7 +4,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "TestMultiColumnKey", tableName = "multiColumnKey",
-        tableConstraint = "PRIMARY KEY(keyCol1, keyCol2, keyCol3)", noRowIdAlias = true)
+        tableConstraint = "PRIMARY KEY(keyCol1, keyCol2, keyCol3)")
 public class TestMultiColumnKeySpec {
 
     @ColumnSpec(constraints = "NOT NULL")

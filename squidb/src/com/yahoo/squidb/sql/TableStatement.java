@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.VersionCode;
-
 /**
  * A statement that operates on a {@link SqlTable}
  */
@@ -51,15 +49,6 @@ public abstract class TableStatement extends CompilableWithArguments implements 
 
     private CompiledArgumentResolver compiledArgumentResolver = null;
 
-    /**
-     * Deprecated, use {@link #compile(CompileContext)} instead
-     */
-    @Override
-    @Deprecated
-    public final synchronized CompiledStatement compile(VersionCode sqliteVersion) {
-        return compile(CompileContext.defaultContextForVersionCode(sqliteVersion));
-    }
-
     @Override
     public final synchronized CompiledStatement compile(CompileContext compileContext) {
         if (compiledArgumentResolver == null) {
@@ -67,14 +56,6 @@ public abstract class TableStatement extends CompilableWithArguments implements 
             compiledArgumentResolver = new CompiledArgumentResolver(builder);
         }
         return compiledArgumentResolver.resolveToCompiledStatement();
-    }
-
-    /**
-     * Deprecated, use {@link #sqlForValidation(CompileContext)} instead
-     */
-    @Deprecated
-    public final String sqlForValidation(VersionCode sqliteVersion) {
-        return sqlForValidation(CompileContext.defaultContextForVersionCode(sqliteVersion));
     }
 
     public final String sqlForValidation(CompileContext compileContext) {

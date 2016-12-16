@@ -211,16 +211,6 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
      * Subclasses can override this hook to generate a custom method body for the property getter
      */
     protected void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        writeGetterBody(writer);
-    }
-
-    /**
-     * Subclasses can override this hook to generate a custom method body for the property getter. This version of the
-     * hook is deprecated, users should use {@link #writeGetterBody(JavaFileWriter, MethodDeclarationParameters)}
-     * instead.
-     */
-    @Deprecated
-    protected void writeGetterBody(JavaFileWriter writer) throws IOException {
         writer.writeStatement(Expressions.callMethod("get", propertyName).returnExpr());
     }
 
@@ -272,17 +262,7 @@ public abstract class BasicPropertyGenerator extends PropertyGenerator {
      * Subclasses can override this hook to generate a custom method body for the property setter
      */
     protected void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        writeSetterBody(writer, params.getArgumentNames().get(0));
-    }
-
-    /**
-     * Subclasses can override this hook to generate a custom method body for the property setter. This version of the
-     * hook is deprecated, users should use {@link #writeGetterBody(JavaFileWriter, MethodDeclarationParameters)}
-     * instead.
-     */
-    @Deprecated
-    protected void writeSetterBody(JavaFileWriter writer, String argName) throws IOException {
-        writer.writeStatement(Expressions.callMethod("set", propertyName, argName));
+        writer.writeStatement(Expressions.callMethod("set", propertyName, params.getArgumentNames().get(0)));
         writer.writeStringStatement("return this");
     }
 
