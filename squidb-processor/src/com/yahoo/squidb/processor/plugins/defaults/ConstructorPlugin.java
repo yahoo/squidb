@@ -56,6 +56,14 @@ public class ConstructorPlugin extends AbstractPlugin {
                 .addStatement("readPropertiesFromMap(values, withProperties)");
         builder.addMethod(params.build());
 
+        params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeConstants.MAP_VALUES, "values")
+                .addParameter(TypeConstants.PROPERTY_LIST, "withProperties")
+                .addStatement("this()")
+                .addStatement("readPropertiesFromMap(values, withProperties)");
+        builder.addMethod(params.build());
+
 
         params = MethodSpec.methodBuilder("clone")
                 .addModifiers(Modifier.PUBLIC)

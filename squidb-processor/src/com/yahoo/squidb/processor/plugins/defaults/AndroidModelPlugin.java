@@ -80,6 +80,14 @@ public class AndroidModelPlugin extends AbstractPlugin {
                     .addStatement("this()")
                     .addStatement("readPropertiesFromContentValues($L, withProperties)", valuesName);
             builder.addMethod(params.build());
+
+            params = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(valuesType, valuesName)
+                    .addParameter(TypeConstants.PROPERTY_LIST, "withProperties")
+                    .addStatement("this()")
+                    .addStatement("readPropertiesFromContentValues($L, withProperties)", valuesName);
+            builder.addMethod(params.build());
         }
     }
 
