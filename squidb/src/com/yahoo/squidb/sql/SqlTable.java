@@ -7,7 +7,9 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,12 +18,12 @@ import java.util.List;
 public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTable<T>> {
 
     protected final Class<? extends T> modelClass;
-    protected final Property<?>[] properties;
+    protected final List<Property<?>> properties;
 
     /**
      * @param expression the string-literal representation of this SqlTable
      */
-    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression) {
+    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression) {
         super(expression);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -31,7 +33,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param expression the string-literal representation of this SqlTable
      * @param qualifier the string-literal representation of a qualifying object, e.g. a database name
      */
-    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression, String qualifier) {
+    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression, String qualifier) {
         super(expression, qualifier);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -47,7 +49,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     /**
      * @return the properties array corresponding to this table
      */
-    public Property<?>[] getProperties() {
+    public List<Property<?>> getProperties() {
         return properties;
     }
 
@@ -58,7 +60,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public Field<?>[] qualifyFields(Field<?>... fields) {
+    public List<? extends Field<?>> qualifyFields(Field<?>... fields) {
         if (fields == null) {
             return null;
         }
@@ -73,7 +75,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public Field<?>[] qualifyFields(List<Field<?>> fields) {
+    public List<? extends Field<?>> qualifyFields(List<Field<?>> fields) {
         if (fields == null) {
             return null;
         }
@@ -84,7 +86,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
             i++;
         }
 
-        return result;
+        return Arrays.asList(result);
     }
 
     /**
@@ -106,25 +108,25 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     /**
      * @return the fields associated to this data source
      */
-    protected Field<?>[] allFields() {
+    protected List<? extends Field<?>> allFields() {
         if (properties == null) {
-            return new Field<?>[0];
+            return Collections.emptyList();
         }
         return properties;
     }
 
     @Override
     public SqlTable<T> as(String newAlias) {
-        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
-        SqlTable<T> result = asNewAliasWithPropertiesArray(newAlias, newProperties);
+        List<Property<?>> newProperties = properties == null ? null : new ArrayList<Property<?>>(properties.size());
+        SqlTable<T> result = asNewAliasWithProperties(newAlias, Collections.unmodifiableList(newProperties));
         if (newProperties != null) {
-            for (int i = 0; i < newProperties.length; i++) {
-                newProperties[i] = result.qualifyField(properties[i]);
+            for (Property<?> p : properties) {
+                newProperties.add(result.qualifyField(p));
             }
         }
         return result;
     }
 
-    protected abstract SqlTable<T> asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties);
+    protected abstract SqlTable<T> asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties);
 
 }

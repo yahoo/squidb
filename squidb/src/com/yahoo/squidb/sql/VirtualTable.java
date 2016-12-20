@@ -9,6 +9,8 @@ import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.utility.VersionCode;
 
+import java.util.List;
+
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
  * table but does not actually store information in the database file. Virtual tables are implemented using a module
@@ -21,12 +23,12 @@ public class VirtualTable extends Table {
     private final String moduleName;
     private final Field<String> anyColumn;
 
-    public VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+    public VirtualTable(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name,
             String databaseName, String module) {
         this(modelClass, properties, name, databaseName, module, null);
     }
 
-    private VirtualTable(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+    private VirtualTable(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name,
             String databaseName, String module, String alias) {
         super(modelClass, properties, name, databaseName);
         this.moduleName = module;
@@ -55,7 +57,7 @@ public class VirtualTable extends Table {
     }
 
     @Override
-    protected VirtualTable asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+    protected VirtualTable asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
         return new VirtualTable(modelClass, newProperties, getExpression(), qualifier, moduleName, newAlias);
     }
 

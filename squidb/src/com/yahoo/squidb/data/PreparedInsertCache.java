@@ -55,7 +55,7 @@ class PreparedInsertCache {
 
     private ISQLitePreparedStatement prepareInsert(SquidDatabase db, Table table,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
-        Object[] placeholders = new Object[table.getProperties().length];
+        Object[] placeholders = new Object[table.getProperties().size()];
         Arrays.fill(placeholders, new Object());
 
         Insert insert = Insert.into(table).columns(table.getProperties())

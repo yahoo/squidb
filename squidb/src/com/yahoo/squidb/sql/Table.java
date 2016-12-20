@@ -9,6 +9,8 @@ import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 
+import java.util.List;
+
 /**
  * A standard SQLite table.
  */
@@ -17,21 +19,21 @@ public class Table extends SqlTable<TableModel> {
     private final String tableConstraint;
     protected LongProperty rowidProperty;
 
-    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name) {
+    public Table(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name) {
         this(modelClass, properties, name, null);
     }
 
-    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name,
+    public Table(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name,
             String databaseName) {
         this(modelClass, properties, name, databaseName, null, null);
     }
 
-    public Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
+    public Table(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name, String databaseName,
             String tableConstraint) {
         this(modelClass, properties, name, databaseName, tableConstraint, null);
     }
 
-    private Table(Class<? extends TableModel> modelClass, Property<?>[] properties, String name, String databaseName,
+    private Table(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name, String databaseName,
             String tableConstraint, String alias) {
         super(modelClass, properties, name, databaseName);
         this.tableConstraint = tableConstraint;
@@ -52,7 +54,7 @@ public class Table extends SqlTable<TableModel> {
     }
 
     @Override
-    protected Table asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+    protected Table asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
         return new Table(modelClass, newProperties, getExpression(), qualifier, tableConstraint, newAlias);
     }
 

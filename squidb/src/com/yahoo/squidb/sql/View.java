@@ -7,6 +7,8 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
 
+import java.util.List;
+
 /**
  * A SQLite View. Views are read-only tables composed from a pre-defined SELECT statement.
  */
@@ -14,7 +16,7 @@ public class View extends QueryTable {
 
     private boolean temporary;
 
-    private View(Class<? extends ViewModel> modelClass, Property<?>[] properties, String expression,
+    private View(Class<? extends ViewModel> modelClass, List<Property<?>> properties, String expression,
             String databaseName, String alias, Query query, boolean temporary) {
         super(modelClass, properties, expression, databaseName, query);
         this.alias = alias;
@@ -41,7 +43,7 @@ public class View extends QueryTable {
      * @return a new View instance
      */
     public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            Property<?>[] properties) {
+            List<Property<?>> properties) {
         return new View(modelClass, properties, name, null, null, query, false);
     }
 
@@ -65,7 +67,7 @@ public class View extends QueryTable {
      * @return a new View instance
      */
     public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            Property<?>[] properties) {
+            List<Property<?>> properties) {
         return new View(modelClass, properties, name, null, null, query, true);
     }
 
@@ -79,7 +81,7 @@ public class View extends QueryTable {
     }
 
     @Override
-    protected View asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+    protected View asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
         return new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
     }
 

@@ -7,12 +7,14 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
 
+import java.util.List;
+
 /**
  * A table represented by a subquery
  */
 public class SubqueryTable extends QueryTable {
 
-    private SubqueryTable(Class<? extends ViewModel> modelClass, Property<?>[] properties, String name, Query query) {
+    private SubqueryTable(Class<? extends ViewModel> modelClass, List<Property<?>> properties, String name, Query query) {
         super(modelClass, properties, name, null, query);
     }
 
@@ -37,7 +39,7 @@ public class SubqueryTable extends QueryTable {
      * @return a new SubqueryTable
      */
     public static SubqueryTable fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            Property<?>[] properties) {
+            List<Property<?>> properties) {
         return new SubqueryTable(modelClass, properties, name, query);
     }
 
@@ -47,7 +49,7 @@ public class SubqueryTable extends QueryTable {
     }
 
     @Override
-    protected SubqueryTable asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties) {
+    protected SubqueryTable asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
         return new SubqueryTable(modelClass, newProperties, newAlias, query);
     }
 

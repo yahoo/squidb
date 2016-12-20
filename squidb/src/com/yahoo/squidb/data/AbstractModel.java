@@ -10,7 +10,9 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -220,6 +222,14 @@ public abstract class AbstractModel implements Cloneable {
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
     public void readPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
+        readPropertiesFromValuesStorage(values, Arrays.asList(properties));
+    }
+
+    /**
+     * Copies values from the given {@link ValuesStorage} into the model. The values will be added to the model as read
+     * values (i.e. will not be considered set values or mark the model as dirty).
+     */
+    public void readPropertiesFromValuesStorage(ValuesStorage values, List<Property<?>> properties) {
         prepareToReadProperties();
 
         if (values != null) {
@@ -236,6 +246,14 @@ public abstract class AbstractModel implements Cloneable {
      * considered set values or mark the model as dirty).
      */
     public void readPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        readPropertiesFromMap(values, Arrays.asList(properties));
+    }
+
+    /**
+     * Copies values from the given Map. The values will be added to the model as read values (i.e. will not be
+     * considered set values or mark the model as dirty).
+     */
+    public void readPropertiesFromMap(Map<String, Object> values, List<Property<?>> properties) {
         if (values == null) {
             return;
         }
@@ -247,6 +265,14 @@ public abstract class AbstractModel implements Cloneable {
      * i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromMap(Map<String, Object> values, Property<?>... properties) {
+        setPropertiesFromMap(values, Arrays.asList(properties));
+    }
+
+    /**
+     * Analogous to {@link #readPropertiesFromMap(Map, Property[])} but adds the values to the model as set values,
+     * i.e. marks the model as dirty with these values.
+     */
+    public void setPropertiesFromMap(Map<String, Object> values, List<Property<?>> properties) {
         if (values == null) {
             return;
         }
@@ -268,6 +294,10 @@ public abstract class AbstractModel implements Cloneable {
      * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
      */
     public void readPropertiesFromCursor(SquidCursor<?> cursor, Property<?>... properties) {
+        readPropertiesFromCursor(cursor, Arrays.asList(properties));
+    }
+
+    public void readPropertiesFromCursor(SquidCursor<?> cursor, List<Property<?>> properties) {
         prepareToReadProperties();
 
         for (Property<?> field : properties) {
@@ -433,6 +463,10 @@ public abstract class AbstractModel implements Cloneable {
      * model as set values, i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
+        setPropertiesFromValuesStorage(values, Arrays.asList(properties));
+    }
+
+    public void setPropertiesFromValuesStorage(ValuesStorage values, List<Property<?>> properties) {
         if (values != null) {
             if (setValues == null) {
                 setValues = newValuesStorage();

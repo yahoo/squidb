@@ -646,7 +646,7 @@ public final class Query extends TableStatement {
      * @param modelClass the model class representing the subquery
      * @return a {@link SubqueryTable} from this Query
      */
-    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, Property<?>[] properties) {
+    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, List<Property<?>> properties) {
         return SubqueryTable.fromQuery(this, alias, modelClass, properties);
     }
 
@@ -727,10 +727,10 @@ public final class Query extends TableStatement {
             if (!isEmpty(fields)) {
                 selectAllCache.addAll(fields);
             } else {
-                SquidUtilities.addAll(selectAllCache, table.allFields());
+                selectAllCache.addAll(table.allFields());
                 if (joins != null) {
                     for (Join join : joins) {
-                        SquidUtilities.addAll(selectAllCache, join.joinTable.allFields());
+                        selectAllCache.addAll(join.joinTable.allFields());
                     }
                 }
             }

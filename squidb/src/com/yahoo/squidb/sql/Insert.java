@@ -79,6 +79,21 @@ public class Insert extends TableStatement {
         return this;
     }
 
+    /**
+     * Specify columns to insert into
+     *
+     * @param columns the columns to insert into
+     * @return this Insert object, to allow chaining method calls
+     */
+    public Insert columns(List<Property<?>> columns) {
+        for (Property<?> column : columns) {
+            this.columns.add(column.getExpression());
+        }
+        defaultValues = false;
+        invalidateCompileCache();
+        return this;
+    }
+
     public Insert columns(String... columnNames) {
         SquidUtilities.addAll(this.columns, columnNames);
         defaultValues = false;
