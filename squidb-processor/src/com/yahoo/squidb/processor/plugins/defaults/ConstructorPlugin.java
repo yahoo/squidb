@@ -32,7 +32,7 @@ import javax.lang.model.element.Modifier;
  */
 public class ConstructorPlugin extends Plugin {
 
-    public ConstructorPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ConstructorPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 

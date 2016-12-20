@@ -37,7 +37,7 @@ public class ErrorLoggingPlugin extends Plugin {
     private static final DeclaredTypeName MODEL_GEN_ERROR_INNER =
             new DeclaredTypeName(MODEL_GEN_ERRORS_CLASS, "ModelGenError");
 
-    public ErrorLoggingPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ErrorLoggingPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 

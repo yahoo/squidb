@@ -10,7 +10,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,16 +63,16 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     @Override
     protected void emitAllProperties() throws IOException {
-        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+        for (TableModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
-            generator.emitPropertyDeclaration(writer);
+            generator.emitTablePropertyDeclaration(writer, TABLE_MODEL_NAME);
             modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
             writer.writeNewline();
         }
 
-        for (PropertyGenerator deprecatedProperty : modelSpec.getDeprecatedPropertyGenerators()) {
+        for (TableModelPropertyGenerator deprecatedProperty : modelSpec.getDeprecatedPropertyGenerators()) {
             modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, deprecatedProperty);
-            deprecatedProperty.emitPropertyDeclaration(writer);
+            deprecatedProperty.emitTablePropertyDeclaration(writer, TABLE_MODEL_NAME);
             modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, deprecatedProperty);
             writer.writeNewline();
         }
@@ -80,7 +80,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     @Override
     protected void emitDefaultValuesInitializationBlock() throws IOException {
-        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+        for (TableModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             generator.emitPutDefault(writer, DEFAULT_VALUES_NAME);
         }
     }

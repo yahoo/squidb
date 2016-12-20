@@ -44,7 +44,7 @@ public class ModelMethodPlugin extends Plugin {
     private final List<ExecutableElement> modelMethods = new ArrayList<>();
     private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
 
-    public ModelMethodPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ModelMethodPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
         parseModelMethods();
     }

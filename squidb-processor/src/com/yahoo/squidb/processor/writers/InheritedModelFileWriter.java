@@ -10,7 +10,7 @@ import com.yahoo.aptutils.writer.expressions.Expressions;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 
 import java.io.IOException;
 
@@ -24,18 +24,11 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
 
     @Override
     protected void emitAllProperties() throws IOException {
-        for (PropertyGenerator e : modelSpec.getPropertyGenerators()) {
-            emitSinglePropertyDeclaration(e);
+        for (InheritedModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
+            modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
+            generator.emitInheritedPropertyDeclaration(writer);
+            modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
         }
-    }
-
-    private void emitSinglePropertyDeclaration(PropertyGenerator generator) throws IOException {
-        modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
-        writer.writeFieldDeclaration(generator.getPropertyType(), generator.getPropertyName(),
-                Expressions.staticReference(modelSpec.getModelSpecName(), generator.getPropertyName()),
-                TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
-        modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
     }
 
     @Override

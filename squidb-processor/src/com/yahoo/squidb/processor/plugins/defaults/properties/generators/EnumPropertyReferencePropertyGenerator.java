@@ -9,46 +9,35 @@ import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.utils.AptUtils;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.element.VariableElement;
 
 /**
- * Property generator for Enum fields in a model spec.
+ * Extension of {@link PropertyReferencePropertyGenerator} that handles enum property references
  */
-public class EnumPropertyGenerator extends BasicStringPropertyGenerator {
+public class EnumPropertyReferencePropertyGenerator extends PropertyReferencePropertyGenerator {
 
-    private final DeclaredTypeName enumType;
     private final EnumPropertyGeneratorDelegate delegate;
 
-    public EnumPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils,
-            DeclaredTypeName enumType) {
-        super(modelSpec, field, utils);
-        this.enumType = enumType;
+    public EnumPropertyReferencePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field,
+            DeclaredTypeName propertyType, AptUtils utils) {
+        super(modelSpec, field, propertyType, utils);
         this.delegate = new EnumPropertyGeneratorDelegate(getPropertyName(), getTypeForAccessors());
+    }
+
+    @Override
+    protected DeclaredTypeName initAccessorsType() {
+        return (DeclaredTypeName) propertyType.getTypeArgs().get(0);
     }
 
     @Override
     public void registerRequiredImports(Set<DeclaredTypeName> imports) {
         super.registerRequiredImports(imports);
         delegate.registerRequiredImports(imports);
-    }
-
-    @Override
-    public DeclaredTypeName getPropertyType() {
-        DeclaredTypeName enumProperty = TypeConstants.ENUM_PROPERTY.clone();
-        enumProperty.setTypeArgs(Collections.singletonList(enumType));
-        return enumProperty;
-    }
-
-    @Override
-    public DeclaredTypeName getTypeForAccessors() {
-        return enumType;
     }
 
     @Override

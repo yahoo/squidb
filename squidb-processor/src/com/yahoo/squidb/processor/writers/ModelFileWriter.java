@@ -17,7 +17,7 @@ import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
-public abstract class ModelFileWriter<T extends ModelSpec<?>> {
+public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
     protected final AptUtils utils;
     protected final PluginEnvironment pluginEnv;

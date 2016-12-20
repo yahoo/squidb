@@ -17,25 +17,27 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 
 /**
- * An implementation of {@link PropertyGenerator} for handling int fields
+ * An implementation of
+ * {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator}
+ * for handling int fields
  */
-public class BasicIntegerPropertyGenerator extends BasicPropertyGenerator {
+public class BasicIntegerPropertyGenerator extends BasicTableModelPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
         return Arrays.asList(CoreTypes.JAVA_BYTE, CoreTypes.JAVA_SHORT, CoreTypes.JAVA_INTEGER,
                 CoreTypes.PRIMITIVE_BYTE, CoreTypes.PRIMITIVE_SHORT, CoreTypes.PRIMITIVE_INT);
     }
 
-    public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+    public BasicIntegerPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
         super(modelSpec, columnName, utils);
     }
 
-    public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+    public BasicIntegerPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
             String propertyName, AptUtils utils) {
         super(modelSpec, columnName, propertyName, utils);
     }
 
-    public BasicIntegerPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+    public BasicIntegerPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
 

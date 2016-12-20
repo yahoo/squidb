@@ -8,7 +8,7 @@ package com.yahoo.squidb.processor.plugins;
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 import com.yahoo.squidb.processor.data.ModelSpec;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class PluginBundle extends Plugin {
 
     private final List<? extends Plugin> plugins;
 
-    public PluginBundle(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv, List<? extends Plugin> plugins) {
+    public PluginBundle(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv, List<? extends Plugin> plugins) {
         super(modelSpec, pluginEnv);
         this.plugins = plugins;
     }

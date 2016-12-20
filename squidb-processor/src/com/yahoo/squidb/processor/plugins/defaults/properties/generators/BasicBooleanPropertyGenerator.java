@@ -18,24 +18,26 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 
 /**
- * An implementation of {@link PropertyGenerator} for handling boolean fields
+ * An implementation of
+ * {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator}
+ * for handling boolean fields
  */
-public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
+public class BasicBooleanPropertyGenerator extends BasicTableModelPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
         return Arrays.asList(CoreTypes.JAVA_BOOLEAN, CoreTypes.PRIMITIVE_BOOLEAN);
     }
 
-    public BasicBooleanPropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+    public BasicBooleanPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
         super(modelSpec, columnName, utils);
     }
 
-    public BasicBooleanPropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+    public BasicBooleanPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
             String propertyName, AptUtils utils) {
         super(modelSpec, columnName, propertyName, utils);
     }
 
-    public BasicBooleanPropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+    public BasicBooleanPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
 
@@ -50,8 +52,8 @@ public class BasicBooleanPropertyGenerator extends BasicPropertyGenerator {
     }
 
     @Override
-    protected String getColumnDefinitionDefaultValue() {
-        String defaultValue = super.getColumnDefinitionDefaultValue();
+    protected String columnSpecDefaultValueToSql() {
+        String defaultValue = super.columnSpecDefaultValueToSql();
         if ("true".equalsIgnoreCase(defaultValue)) {
             return "1";
         } else if ("false".equalsIgnoreCase(defaultValue)) {

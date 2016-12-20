@@ -16,8 +16,10 @@ import java.util.Arrays;
  */
 public class JSONPlugin extends PluginBundle {
 
-    public JSONPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv, Arrays.asList(new JSONFieldPlugin(modelSpec, pluginEnv),
-                new JSONFieldReferencePlugin(modelSpec, pluginEnv)));
+    public JSONPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv, Arrays.asList(
+                new JSONFieldPlugin(modelSpec, pluginEnv),
+                new JSONViewPropertyPlugin(modelSpec, pluginEnv),
+                new JSONInheritedPropertyPlugin(modelSpec, pluginEnv)));
     }
 }

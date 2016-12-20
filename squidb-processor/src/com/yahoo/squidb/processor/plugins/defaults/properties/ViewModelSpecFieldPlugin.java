@@ -13,24 +13,26 @@ import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyReferencePropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
 
 /**
  * This plugin controls generating property declarations, getters, and setters for fields in a view model. It can
- * create instances of {@link PropertyGenerator} for references to other Property subclasses (StringProperty,
+ * create instances of {@link ViewModelPropertyGenerator} for references to other Property subclasses (StringProperty,
  * LongProperty, etc.)
  */
-public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
+public class ViewModelSpecFieldPlugin
+        extends PropertyReferencePlugin<ViewModelSpecWrapper, ViewModelPropertyGenerator> {
 
-    public ViewModelSpecFieldPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public ViewModelSpecFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
     @Override
-    public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof ViewModelSpecWrapper;
+    protected Class<ViewModelSpecWrapper> getHandledModelSpecClass() {
+        return ViewModelSpecWrapper.class;
     }
 
     @Override
@@ -58,11 +60,11 @@ public class ViewModelSpecFieldPlugin extends FieldReferencePlugin {
     }
 
     @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected ViewModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         Alias alias = field.getAnnotation(Alias.class);
         if (alias != null) {
             SqlUtils.checkIdentifier(alias.value().trim(), "view column name", modelSpec, field, utils);
         }
-        return super.getPropertyGenerator(field, fieldType);
+        return new PropertyReferencePropertyGenerator(modelSpec, field, fieldType, utils);
     }
 }

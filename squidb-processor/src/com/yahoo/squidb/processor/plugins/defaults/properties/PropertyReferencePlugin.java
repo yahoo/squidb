@@ -10,15 +10,18 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.ViewPropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
-public abstract class FieldReferencePlugin extends BaseFieldPlugin {
+/**
+ * Abstract class for plugins that handle fields that are constant references to Property objects in other models
+ */
+public abstract class PropertyReferencePlugin<T extends ModelSpec<?, P>, P extends PropertyGenerator>
+        extends BaseFieldPlugin<T, P> {
 
-    public FieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public PropertyReferencePlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
@@ -26,7 +29,11 @@ public abstract class FieldReferencePlugin extends BaseFieldPlugin {
     protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
         return field.getAnnotation(Deprecated.class) == null
                 && TypeConstants.isVisibleConstant(field)
-                && TypeConstants.isBasicPropertyType(fieldType);
+                && isSupportedPropertyType(fieldType);
+    }
+
+    protected boolean isSupportedPropertyType(DeclaredTypeName fieldType) {
+        return TypeConstants.isBasicPropertyType(fieldType);
     }
 
     @Override
@@ -40,10 +47,4 @@ public abstract class FieldReferencePlugin extends BaseFieldPlugin {
         }
         return super.processVariableElement(field, fieldType);
     }
-
-    @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        return new ViewPropertyGenerator(modelSpec, field, fieldType, utils);
-    }
-
 }

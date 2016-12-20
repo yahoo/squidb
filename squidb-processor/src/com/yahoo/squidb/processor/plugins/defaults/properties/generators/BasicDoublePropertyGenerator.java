@@ -17,25 +17,27 @@ import java.util.List;
 import javax.lang.model.element.VariableElement;
 
 /**
- * An implementation of {@link PropertyGenerator} for handling double fields
+ * An implementation of
+ * {@link com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator}
+ * for handling double fields
  */
-public class BasicDoublePropertyGenerator extends BasicPropertyGenerator {
+public class BasicDoublePropertyGenerator extends BasicTableModelPropertyGenerator {
 
     public static List<DeclaredTypeName> handledColumnTypes() {
         return Arrays.asList(CoreTypes.JAVA_FLOAT, CoreTypes.PRIMITIVE_FLOAT,
                 CoreTypes.JAVA_DOUBLE, CoreTypes.PRIMITIVE_DOUBLE);
     }
 
-    public BasicDoublePropertyGenerator(ModelSpec<?> modelSpec, String columnName, AptUtils utils) {
+    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
         super(modelSpec, columnName, utils);
     }
 
-    public BasicDoublePropertyGenerator(ModelSpec<?> modelSpec, String columnName,
+    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
             String propertyName, AptUtils utils) {
         super(modelSpec, columnName, propertyName, utils);
     }
 
-    public BasicDoublePropertyGenerator(ModelSpec<?> modelSpec, VariableElement field, AptUtils utils) {
+    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
         super(modelSpec, field, utils);
     }
 

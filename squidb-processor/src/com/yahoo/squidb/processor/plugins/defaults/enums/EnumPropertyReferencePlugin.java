@@ -3,17 +3,15 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.processor.plugins.defaults.properties;
+package com.yahoo.squidb.processor.plugins.defaults.enums;
 
 import com.yahoo.aptutils.model.DeclaredTypeName;
 import com.yahoo.aptutils.model.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.EnumPropertyGenerator;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.PropertyReferencePlugin;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.util.List;
 
@@ -23,34 +21,31 @@ import javax.tools.Diagnostic.Kind;
 /**
  * Plugin which handles EnumProperty references in a ViewModelSpec or an InheritedModelSpec file.
  */
-public class EnumFieldReferencePlugin extends FieldReferencePlugin {
+public abstract class EnumPropertyReferencePlugin<T extends ModelSpec<?, P>, P extends PropertyGenerator>
+        extends PropertyReferencePlugin<T, P> {
 
-    public EnumFieldReferencePlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public EnumPropertyReferencePlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
     @Override
-    public boolean hasChangesForModelSpec() {
-        return modelSpec instanceof ViewModelSpecWrapper || modelSpec instanceof InheritedModelSpecWrapper;
+    protected boolean isSupportedPropertyType(DeclaredTypeName fieldType) {
+        return TypeConstants.ENUM_PROPERTY.equals(fieldType);
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
-        return TypeConstants.isVisibleConstant(field)
-                && TypeConstants.ENUM_PROPERTY.equals(fieldType);
-    }
-
-    @Override
-    protected PropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected P getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
         // We know it's an EnumProperty, so extract the type arg
         List<? extends TypeName> typeArgs = fieldType.getTypeArgs();
         if (typeArgs != null && typeArgs.size() == 1 && typeArgs.get(0) instanceof DeclaredTypeName) {
-            return new EnumPropertyGenerator(modelSpec, field, utils, (DeclaredTypeName) typeArgs.get(0));
+            return getTypedEnumPropertyGenerator(field, fieldType);
         }
         utils.getMessager().printMessage(Kind.WARNING,
                 "EnumProperty must use a declared type argument; it cannot be raw or use a generic type argument",
                 field);
         return null;
     }
+
+    protected abstract P getTypedEnumPropertyGenerator(VariableElement field, DeclaredTypeName propertyType);
 }
 

@@ -10,7 +10,7 @@ import com.yahoo.aptutils.writer.JavaFileWriter;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyGenerator;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import javax.lang.model.element.Element;
  */
 public class JavadocPlugin extends Plugin {
 
-    public JavadocPlugin(ModelSpec<?> modelSpec, PluginEnvironment pluginEnv) {
+    public JavadocPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
