@@ -2015,6 +2015,7 @@ public abstract class SquidDatabase {
      * @return true if the model was successfully upserted, false otherwise
      * @see Upsertable
      */
+    @SuppressWarnings("unchecked")
     public <T extends TableModel & Upsertable> boolean upsertWithOnConflict(T item,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
         if (item.isSaved() && item.rowidHasPriority()) {
@@ -2031,7 +2032,8 @@ public abstract class SquidDatabase {
             }
             Table t = getTable(item.getClass());
 
-            T existing = (T) fetchByCriterion(item.getClass(), upsertCriterion);
+            Class<T> modelClass = (Class<T>) item.getClass();
+            T existing = fetchByCriterion(modelClass, upsertCriterion);
             if (existing == null) {
                 result = insertRow(item, conflictAlgorithm);
             } else {

@@ -111,7 +111,9 @@ for f in squidb-ios/native/**/*.m $INTERMEDIATE/*.m ${SQUIDB_IOS_TESTS_SRC}/**/*
 do
     echo "Compiling $f"
     # output .o file to bin folder
-    ${J2OBJC_HOME}/j2objcc -fobjc-arc -I$INTERMEDIATE -I$SQUIDB_IOS_NATIVE -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
+    # TODO: no-deprecated-declarations is because SQLite native code uses sqlite3_trace and sqlite3_profile, which were
+    # recently deprecated. Might be able to remove them later
+    ${J2OBJC_HOME}/j2objcc -Wno-deprecated-declarations -fobjc-arc -I$INTERMEDIATE -I$SQUIDB_IOS_NATIVE -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
     j2objccResult=$?
     if [ ! $j2objccResult -eq 0 ]
     then
@@ -136,7 +138,7 @@ echo "Building test executable for custom built SQLite"
 downloadSQLiteAmalgamation
 f=$SQUIDB_IOS_NATIVE/sqlite/sqlite3.c
 echo "Compiling $f"
-gcc -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
+gcc -Wno-deprecated-declarations -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_JSON1 -DSQLITE_TEMP_STORE=3 -DHAVE_STRCHRNUL=0 \
     -I$SQUIDB_IOS_NATIVE/sqlite -o "$BIN/${$(basename $f)%.*}.o" -c $f
 LINK_ARGS=("${LINK_ARGS_BASE[@]}")
 buildTestExecutable
