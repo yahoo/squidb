@@ -57,7 +57,7 @@ public class ContentProviderQueryBuilder {
      * @param properties the properties to initialize the projection map with
      * @param dataSource the data source to select from
      */
-    public ContentProviderQueryBuilder(Property<?>[] properties, SqlTable<?> dataSource) {
+    public ContentProviderQueryBuilder(List<Property<?>> properties, SqlTable<?> dataSource) {
         ProjectionMap projectionMap = new ProjectionMap();
         projectionMap.putAll(properties);
         setProjectionMap(projectionMap);

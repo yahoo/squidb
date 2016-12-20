@@ -31,6 +31,7 @@ import com.yahoo.squidb.utility.VersionCode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -1737,6 +1738,18 @@ public abstract class SquidDatabase {
      * @return an instance of the model with the given ID, or null if no record was found
      */
     public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, Property<?>... properties) {
+        return fetch(modelClass, id, Arrays.asList(properties));
+    }
+
+    /**
+     * Fetch the specified model object with the given row ID
+     *
+     * @param modelClass the model class to fetch
+     * @param id the row ID of the item
+     * @param properties the {@link Property properties} to read
+     * @return an instance of the model with the given ID, or null if no record was found
+     */
+    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, List<Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchItemById(modelClass, id, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -1752,6 +1765,20 @@ public abstract class SquidDatabase {
      */
     public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
             Property<?>... properties) {
+        return fetchByCriterion(modelClass, criterion, Arrays.asList(properties));
+    }
+
+    /**
+     * Fetch the first model matching the given {@link Criterion}. This is useful if you expect uniqueness of models
+     * with respect to the given criterion.
+     *
+     * @param modelClass the model class to fetch
+     * @param properties the {@link Property properties} to read
+     * @param criterion the criterion to match
+     * @return an instance of the model matching the given criterion, or null if no record was found
+     */
+    public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
+            List<Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, criterion, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -2204,12 +2231,22 @@ public abstract class SquidDatabase {
 
     protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
             Property<?>... properties) {
+        return fetchItemById(modelClass, id, Arrays.asList(properties));
+    }
+
+    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
+            List<Property<?>> properties) {
         Table table = getTable(modelClass);
         return fetchFirstItem(modelClass, table.getRowIdProperty().eq(id), properties);
     }
 
     protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
             Criterion criterion, Property<?>... properties) {
+        return fetchFirstItem(modelClass, criterion, Arrays.asList(properties));
+    }
+
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
+            Criterion criterion, List<Property<?>> properties) {
         return fetchFirstItem(modelClass, Query.select(properties).where(criterion));
     }
 
