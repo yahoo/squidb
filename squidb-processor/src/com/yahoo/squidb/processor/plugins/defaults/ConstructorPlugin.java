@@ -44,7 +44,7 @@ public class ConstructorPlugin extends AbstractPlugin {
         params = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TypeConstants.MAP_VALUES, "values")
-                .addStatement("this(values, $L)", ModelFileWriter.PROPERTIES_ARRAY_NAME);
+                .addStatement("this(values, $L)", ModelFileWriter.PROPERTIES_LIST_NAME);
         builder.addMethod(params.build());
 
         params = MethodSpec.constructorBuilder()

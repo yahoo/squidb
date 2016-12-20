@@ -18,7 +18,9 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +35,8 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
     protected TypeSpec.Builder builder;
 
-    public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
+    protected static final String PROPERTIES_INTERNAL_ARRAY = "PROPERTIES_INTERNAL";
+    public static final String PROPERTIES_LIST_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
 
     public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv) {
@@ -95,10 +98,16 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
     }
 
     protected void declarePropertiesArray() {
-        FieldSpec propertiesArray = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
+        FieldSpec internalPropertiesList = FieldSpec.builder(TypeConstants.PROPERTY_LIST, PROPERTIES_INTERNAL_ARRAY,
+                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer(CodeBlock.of("new $T<>($L)", ArrayList.class, modelSpec.getPropertyGenerators().size()))
+                .build();
+        builder.addField(internalPropertiesList);
+        FieldSpec propertiesList = FieldSpec.builder(TypeConstants.PROPERTY_LIST, PROPERTIES_LIST_NAME,
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T[$L]", TypeConstants.PROPERTY, modelSpec.getPropertyGenerators().size()).build();
-        builder.addField(propertiesArray);
+                .initializer(CodeBlock.of("$T.unmodifiableList($L)", Collections.class, PROPERTIES_INTERNAL_ARRAY))
+                .build();
+        builder.addField(propertiesList);
     }
 
     protected void declareModelSpecificFields() {

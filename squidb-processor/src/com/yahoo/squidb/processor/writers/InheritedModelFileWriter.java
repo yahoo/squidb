@@ -33,9 +33,9 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
 
     @Override
     protected void declarePropertiesArray() {
-        builder.addField(FieldSpec.builder(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
+        builder.addField(FieldSpec.builder(TypeConstants.PROPERTY_LIST, PROPERTIES_LIST_NAME,
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$T.$L", modelSpec.getModelSuperclass(), PROPERTIES_ARRAY_NAME).build());
+                .initializer("$T.$L", modelSpec.getModelSuperclass(), PROPERTIES_LIST_NAME).build());
     }
 
     @Override

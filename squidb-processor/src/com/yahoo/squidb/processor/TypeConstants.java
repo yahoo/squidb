@@ -16,6 +16,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLo
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -79,6 +80,7 @@ public class TypeConstants {
     public static final ClassName ENUM_PROPERTY = ClassName.get(SQUIDB_SQL_PACKAGE, "Property", "EnumProperty");
 
     public static final TypeName PROPERTY_ARRAY = ArrayTypeName.of(PROPERTY);
+    public static final TypeName PROPERTY_LIST = ParameterizedTypeName.get(ClassName.get(List.class), PROPERTY);
 
     public static final ClassName OBJECTIVE_C_NAME = ClassName.get("com.google.j2objc.annotations", "ObjectiveCName");
 

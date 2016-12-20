@@ -76,10 +76,10 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
             String name = modelSpec.getSpecAnnotation().viewName().trim();
             if (view) {
                 viewInitializer.addStatement("$L = $T.fromQuery($L, $S, $T.class, $L)", fieldName, TypeConstants.VIEW,
-                        QUERY_NAME, name, modelSpec.getGeneratedClassName(), PROPERTIES_ARRAY_NAME);
+                        QUERY_NAME, name, modelSpec.getGeneratedClassName(), PROPERTIES_LIST_NAME);
             } else {
                 viewInitializer.addStatement("$L = $L.as($S, $T.class, $L)", fieldName, QUERY_NAME, name,
-                        modelSpec.getGeneratedClassName(), PROPERTIES_ARRAY_NAME);
+                        modelSpec.getGeneratedClassName(), PROPERTIES_LIST_NAME);
             }
         }
         builder.addStaticBlock(viewInitializer.build());
@@ -142,12 +142,13 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         builder.addMethod(params.build());
 
         builder.addStaticBlock(CodeBlock.of("tableMappingInfo = generateTableMappingVisitors($L, $L, $L);\n",
-                PROPERTIES_ARRAY_NAME, ALIASED_PROPERTY_ARRAY_NAME, BASE_PROPERTY_ARRAY_NAME));
+                PROPERTIES_LIST_NAME, ALIASED_PROPERTY_ARRAY_NAME, BASE_PROPERTY_ARRAY_NAME));
     }
 
     @Override
     protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
+            String name = modelSpec.getPropertyGenerators().get(i).getPropertyName();
             TypeName type = modelSpec.getPropertyGenerators().get(i).getPropertyType();
             CodeBlock initializer;
             if (modelSpec.getQueryElement() != null) {
@@ -157,8 +158,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
             } else {
                 initializer = CodeBlock.of("($T) $L[$L]", type, ALIASED_PROPERTY_ARRAY_NAME, i);
             }
-            block.addStatement("$L[$L] = $L = $L", PROPERTIES_ARRAY_NAME, i,
-                    modelSpec.getPropertyGenerators().get(i).getPropertyName(), initializer);
+            block.addStatement("$L = $L", name, initializer);
+            block.addStatement("$L.add($L)", PROPERTIES_INTERNAL_ARRAY, name);
         }
     }
 
