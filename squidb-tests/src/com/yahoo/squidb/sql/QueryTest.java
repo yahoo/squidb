@@ -1008,7 +1008,7 @@ public class QueryTest extends DatabaseTestCase {
             assertTrue(fields.contains(p));
         }
 
-        assertEquals(TestViewModel.PROPERTIES.length + Thing.PROPERTIES.length, fields.size());
+        assertEquals(TestViewModel.PROPERTIES.size() + Thing.PROPERTIES.size(), fields.size());
     }
 
     public void testReadAllFieldsIntoModel() {

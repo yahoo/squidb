@@ -235,7 +235,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
         ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder(TestSubqueryModel.PROPERTIES,
                 TestSubqueryModel.SUBQUERY);
         Query query = builder.build(null, null, null, null);
-        assertEquals(Arrays.asList(TestSubqueryModel.PROPERTIES), query.getFields());
+        assertEquals(TestSubqueryModel.PROPERTIES, query.getFields());
         assertEquals(TestSubqueryModel.SUBQUERY, query.getTable());
     }
 

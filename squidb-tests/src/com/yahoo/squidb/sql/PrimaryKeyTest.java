@@ -11,10 +11,10 @@ public class PrimaryKeyTest extends DatabaseTestCase {
         assertNotNull(TestNonIntegerPrimaryKey.ROWID); // Really just asserting at compile time that this exists
 
         assertEquals(TestMultiColumnKey.TABLE.getRowIdProperty(), TestMultiColumnKey.ROWID);
-        assertEquals(TestMultiColumnKey.PROPERTIES[0], TestMultiColumnKey.ROWID);
+        assertEquals(TestMultiColumnKey.PROPERTIES.get(0), TestMultiColumnKey.ROWID);
 
         assertEquals(TestNonIntegerPrimaryKey.TABLE.getRowIdProperty(), TestNonIntegerPrimaryKey.ROWID);
-        assertEquals(TestNonIntegerPrimaryKey.PROPERTIES[0], TestNonIntegerPrimaryKey.ROWID);
+        assertEquals(TestNonIntegerPrimaryKey.PROPERTIES.get(0), TestNonIntegerPrimaryKey.ROWID);
     }
 
     public void testNonIntegerPrimaryKey() {

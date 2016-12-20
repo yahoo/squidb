@@ -21,6 +21,8 @@ import com.yahoo.squidb.test.TestViewModel;
 import com.yahoo.squidb.test.TestVirtualModel;
 import com.yahoo.squidb.test.Thing;
 
+import java.util.List;
+
 public class PropertyTest extends DatabaseTestCase {
 
     public void testPropertyAliasing() {
@@ -122,22 +124,22 @@ public class PropertyTest extends DatabaseTestCase {
             assertEquals(expectedTableModelName, testModelAliasId.tableModelName);
         }
 
-        Property<?>[] originalProperties = tableOrView.getProperties();
-        Property<?>[] aliasedProperties = testModelAlias.getProperties();
-        assertEquals(originalProperties.length, aliasedProperties.length);
-        for (int i = 0; i < aliasedProperties.length; i++) {
-            String expectedExpression = "testModelAlias." + originalProperties[i].getName();
-            assertEquals(expectedExpression, aliasedProperties[i].getQualifiedExpression());
-            assertEquals(expectedTableModelName, aliasedProperties[i].tableModelName);
+        List<Property<?>> originalProperties = tableOrView.getProperties();
+        List<Property<?>> aliasedProperties = testModelAlias.getProperties();
+        assertEquals(originalProperties.size(), aliasedProperties.size());
+        for (int i = 0; i < aliasedProperties.size(); i++) {
+            String expectedExpression = "testModelAlias." + originalProperties.get(i).getName();
+            assertEquals(expectedExpression, aliasedProperties.get(i).getQualifiedExpression());
+            assertEquals(expectedTableModelName, aliasedProperties.get(i).tableModelName);
         }
 
         Query query = Query.select().from(testModelAlias);
         StringBuilder expectedSql = new StringBuilder("SELECT ");
-        for (int i = 0; i < originalProperties.length; i++) {
-            String expectedExpression = "testModelAlias." + originalProperties[i].getName() +
-                    " AS " + originalProperties[i].getName();
+        for (int i = 0; i < originalProperties.size(); i++) {
+            String expectedExpression = "testModelAlias." + originalProperties.get(i).getName() +
+                    " AS " + originalProperties.get(i).getName();
             expectedSql.append(expectedExpression);
-            if (i < originalProperties.length - 1) {
+            if (i < originalProperties.size() - 1) {
                 expectedSql.append(", ");
             }
         }
