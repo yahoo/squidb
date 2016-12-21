@@ -199,7 +199,7 @@ public class UpsertPlugin extends Plugin {
         }
 
         MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName("rowidHasPriority")
+                .setMethodName("rowidSupersedesLogicalKey")
                 .setReturnType(CoreTypes.PRIMITIVE_BOOLEAN)
                 .setModifiers(Modifier.PUBLIC);
 
@@ -211,7 +211,7 @@ public class UpsertPlugin extends Plugin {
 
     private void emitGetUpsertKeyLookupCriterion(JavaFileWriter writer) throws IOException {
         MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName("getUpsertKeyLookupCriterion")
+                .setMethodName("getLogicalKeyLookupCriterion")
                 .setReturnType(CRITERION)
                 .setModifiers(Modifier.PUBLIC);
 
@@ -226,7 +226,7 @@ public class UpsertPlugin extends Plugin {
     private void emitGetUpsertKeyLookupCriterionBody(JavaFileWriter writer) throws IOException {
         final boolean failureThrowsException;
         UpsertConfig upsertConfig = modelSpec.getModelSpecElement().getAnnotation(UpsertConfig.class);
-        failureThrowsException = upsertConfig == null || upsertConfig.lookupCriterionFailLoudly();
+        failureThrowsException = upsertConfig == null || upsertConfig.missingLookupValueThrows();
 
         writer.writeString("for (int i = 0; i < " + upsertColumns.size() + "; i++) {").writeNewline();
         writer.moveToScope(JavaFileWriter.Scope.METHOD_DEFINITION);
@@ -266,9 +266,9 @@ public class UpsertPlugin extends Plugin {
             return new Expression() {
                 @Override
                 public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                    writer.appendString("throw new IllegalArgumentException(\"Value for upsert logical key column \""
-                            + " + " + columnRef + ".getName() + \" was missing when trying to upsert item of class \""
-                            + " + getClass())");
+                    writer.appendString("throw new IllegalStateException(\"Value for upsert logical key column \""
+                            + " + " + columnRef + ".getName() + \" was missing when trying to build upsert criterion "
+                            + "for class \" + getClass())");
                     return true;
                 }
             };

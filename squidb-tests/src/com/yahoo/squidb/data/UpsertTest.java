@@ -44,7 +44,7 @@ public class UpsertTest extends DatabaseTestCase {
                 item.setValue1("value1").setValue2("value2");
                 database.upsert(item);
             }
-        }, IllegalArgumentException.class);
+        }, IllegalStateException.class);
     }
 
     public void testSingleColumnUpsertWithRowidBypassesUpsert() {
@@ -105,7 +105,7 @@ public class UpsertTest extends DatabaseTestCase {
                 item.setKey1("key1").setValue1("value1").setValue2("value2");
                 database.upsert(item);
             }
-        }, IllegalArgumentException.class);
+        }, IllegalStateException.class);
 
         testThrowsException(new Runnable() {
             @Override
@@ -114,7 +114,7 @@ public class UpsertTest extends DatabaseTestCase {
                 item.setKey2("key2").setValue1("value1").setValue2("value2");
                 database.upsert(item);
             }
-        }, IllegalArgumentException.class);
+        }, IllegalStateException.class);
     }
 
     public void testMultiColumnUpsertWithRowidBypassesUpsert() {

@@ -1983,7 +1983,7 @@ public abstract class SquidDatabase {
      * values are inserted into the database.
      * <p>
      * The behavior of upsert() when a rowid is set on the item argument may vary depending on how the model class is
-     * configured. See {@link Upsertable#rowidHasPriority()} for more information.
+     * configured. See {@link Upsertable#rowidSupersedesLogicalKey()} for more information.
      *
      * @param item the model to save
      * @return true if the model was successfully upserted, false otherwise
@@ -2008,7 +2008,7 @@ public abstract class SquidDatabase {
      * the specified {@link com.yahoo.squidb.sql.TableStatement.ConflictAlgorithm ConflictAlgorithm}.
      * <p>
      * The behavior of upsert() when a rowid is set on the item argument may vary depending on how the model class is
-     * configured. See {@link Upsertable#rowidHasPriority()} for more information.
+     * configured. See {@link Upsertable#rowidSupersedesLogicalKey()} for more information.
      *
      * @param item the model to save
      * @param conflictAlgorithm the conflict algorithm to use
@@ -2018,7 +2018,7 @@ public abstract class SquidDatabase {
     @SuppressWarnings("unchecked")
     public <T extends TableModel & Upsertable> boolean upsertWithOnConflict(T item,
             TableStatement.ConflictAlgorithm conflictAlgorithm) {
-        if (item.isSaved() && item.rowidHasPriority()) {
+        if (item.isSaved() && item.rowidSupersedesLogicalKey()) {
             return updateRow(item, conflictAlgorithm);
         }
         boolean result;
@@ -2026,7 +2026,7 @@ public abstract class SquidDatabase {
         try {
             // Implementations of Upsertable may either throw a runtime exception or return null for this method,
             // depending on how aggressively they want to raise an error if validating the logical key values failed
-            Criterion upsertCriterion = item.getUpsertKeyLookupCriterion();
+            Criterion upsertCriterion = item.getLogicalKeyLookupCriterion();
             if (upsertCriterion == null) {
                 return false;
             }

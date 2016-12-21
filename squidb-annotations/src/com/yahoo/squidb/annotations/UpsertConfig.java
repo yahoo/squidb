@@ -25,9 +25,9 @@ public @interface UpsertConfig {
     /**
      * Configures the behavior of the Upsertable.getUpsertKeyLookupCriterion() implementation for the generated model.
      * If the model instance passed to upsert is not populated with the values necessary to construct a matching
-     * criterion, a value of true for this field will fail loudly with a runtime exception. A value of false will
+     * criterion, a value of true for this field will throw a runtime exception. A value of false will
      * make upsert fail quietly by simply returning false to indicate the upsert failed. Default is true.
      */
-    boolean lookupCriterionFailLoudly() default true;
+    boolean missingLookupValueThrows() default true;
 
 }

@@ -27,7 +27,7 @@ public interface Upsertable {
      * @return true if the Upsertable model should use the rowid if one is set when calling upsert(), false if upsert
      * should always insert/update data (including the rowid) using the logical upsert key rather than the rowid.
      */
-    boolean rowidHasPriority();
+    boolean rowidSupersedesLogicalKey();
 
     /**
      * Construct a criterion on which to look up a (possibly) existing row using the logical upsert key columns. If
@@ -37,6 +37,6 @@ public interface Upsertable {
      *
      * @return a criterion for looking up a (possibly) existing row using the logical upsert key columns
      */
-    Criterion getUpsertKeyLookupCriterion();
+    Criterion getLogicalKeyLookupCriterion();
 
 }
