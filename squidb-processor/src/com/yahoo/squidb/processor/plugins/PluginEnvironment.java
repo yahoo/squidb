@@ -15,6 +15,7 @@ import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.enums.EnumPluginBundle;
+import com.yahoo.squidb.processor.plugins.defaults.UpsertPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
@@ -102,6 +103,11 @@ public class PluginEnvironment {
     public static final String OPTIONS_USE_STANDARD_ERROR_LOGGING = "standardErrorLogging";
 
     /**
+     * Option for disabling the default support for Upsertable models
+     */
+    public static final String OPTIONS_DISABLE_DEFAULT_UPSERT = "disableUpsert";
+
+    /**
      * Option for generating models that have Android-specific features
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
@@ -116,6 +122,7 @@ public class PluginEnvironment {
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTANT_COPYING);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_VALUES);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_UPSERT);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_JAVADOC_COPYING);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_ENUM_PROPERTIES);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_GENERATE_ANDROID_MODELS);
@@ -184,6 +191,9 @@ public class PluginEnvironment {
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING)) {
             normalPriorityPlugins.add(ModelMethodPlugin.class);
+        }
+        if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_UPSERT)) {
+            normalPriorityPlugins.add(UpsertPlugin.class);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
             normalPriorityPlugins.add(JavadocPlugin.class);

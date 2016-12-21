@@ -41,13 +41,19 @@ public class TestDatabase extends SquidDatabase {
                 BasicData.TABLE,
                 TestVirtualModel.TABLE,
                 TestMultiColumnKey.TABLE,
-                TestNonIntegerPrimaryKey.TABLE
+                TestNonIntegerPrimaryKey.TABLE,
+                TestSingleColumnUpsertable.TABLE,
+                TestMultiColumnUpsertable.TABLE,
         };
     }
 
     @Override
     protected Index[] getIndexes() {
-        return new Index[]{INDEX_TESTMODELS_LUCKYNUMBER};
+        return new Index[]{
+                INDEX_TESTMODELS_LUCKYNUMBER,
+                TestSingleColumnUpsertable.UPSERT_INDEX,
+                TestMultiColumnUpsertable.UPSERT_INDEX
+        };
     }
 
     @Override
