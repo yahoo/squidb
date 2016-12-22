@@ -50,9 +50,7 @@ public class TestDatabase extends SquidDatabase {
     @Override
     protected Index[] getIndexes() {
         return new Index[]{
-                INDEX_TESTMODELS_LUCKYNUMBER,
-                TestSingleColumnUpsertable.UPSERT_INDEX,
-                TestMultiColumnUpsertable.UPSERT_INDEX
+                INDEX_TESTMODELS_LUCKYNUMBER
         };
     }
 

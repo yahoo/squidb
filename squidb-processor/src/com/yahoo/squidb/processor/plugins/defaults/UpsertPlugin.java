@@ -14,6 +14,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.annotations.UpsertConfig;
 import com.yahoo.squidb.annotations.UpsertKey;
+import com.yahoo.squidb.processor.SqlUtils;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
@@ -24,14 +26,15 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfa
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic;
 
 /**
  * A {@link Plugin} that processes the {@link UpsertKey} annotation and generates code to make any table model specs
@@ -44,11 +47,29 @@ public class UpsertPlugin extends AbstractPlugin {
     private static final ClassName UPSERTABLE = ClassName.get(TypeConstants.SQUIDB_DATA_PACKAGE, "Upsertable");
     private static final ClassName CRITERION = ClassName.get(TypeConstants.SQUIDB_SQL_PACKAGE, "Criterion");
     private static final TypeName CRITERION_ARRAY = ArrayTypeName.of(CRITERION);
-    private static final ClassName INDEX = ClassName.get(TypeConstants.SQUIDB_SQL_PACKAGE, "Index");
 
     private static final String LOGICAL_KEY_COL_ARRAY_NAME = "logicalKeyColumns";
 
-    private static final Pattern NOT_NULL = Pattern.compile("NOT\\s+NULL", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NOT_NULL = Pattern.compile("(^|\\s+)NOT\\s+NULL($|\\s+)", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern UNIQUE_SINGLE_COLUMN =
+            Pattern.compile("(^|\\s+)UNIQUE($|\\s+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PRIMARY_KEY_SINGLE_COLUMN =
+            Pattern.compile("(^|\\s+)PRIMARY\\s+KEY($|\\s+)", Pattern.CASE_INSENSITIVE);
+
+    private static final String INDEXED_COLUMN_REGEX =
+            "(" + SqlUtils.IDENTIFIER_REGEX + ")(\\s+COLLATE\\s+\\p{Alpha}+)?(\\s+(ASC|DESC))?";
+    private static final String INDEXED_COLUMN_LIST_REGEX =
+            "(" + INDEXED_COLUMN_REGEX + "\\s*,\\s*)*" + INDEXED_COLUMN_REGEX;
+
+    private static final Pattern SINGLE_INDEXED_COLUMN =
+            Pattern.compile(INDEXED_COLUMN_REGEX, Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNIQUE_MULTI_COLUMN =
+            Pattern.compile("UNIQUE\\s*\\(\\s*(" + INDEXED_COLUMN_LIST_REGEX + ")\\s*\\)",
+                    Pattern.CASE_INSENSITIVE);
+    private static final Pattern PRIMARY_KEY_MULTI_COLUMN =
+            Pattern.compile("PRIMARY\\s+KEY\\s*\\(\\s*(" + INDEXED_COLUMN_LIST_REGEX + ")\\s*\\)",
+                    Pattern.CASE_INSENSITIVE);
 
     private List<TableModelPropertyGenerator> upsertColumns = new ArrayList<>();
     private TableModelSpecWrapper tableModelSpec;
@@ -77,39 +98,8 @@ public class UpsertPlugin extends AbstractPlugin {
     }
 
     private void validateUpsertKeyColumns() {
-        Collections.sort(upsertColumns, new Comparator<PropertyGenerator>() {
-            @Override
-            public int compare(PropertyGenerator o1, PropertyGenerator o2) {
-                int key1Order = o1.getField().getAnnotation(UpsertKey.class).order();
-                int key2Order = o2.getField().getAnnotation(UpsertKey.class).order();
-
-                if (key1Order < key2Order) {
-                    return -1;
-                } else if (key1Order > key2Order) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
-        checkUpsertColumnOrder();
         checkUpsertColumnsForNotNullConstraints();
-    }
-
-    // Make sure that the order values were reasonable, i.e. monotonically increasing
-    private void checkUpsertColumnOrder() {
-        int lastOrderValue = upsertColumns.get(0).getField().getAnnotation(UpsertKey.class).order();
-        for (int i = 1; i < upsertColumns.size(); i++) {
-            VariableElement nextField = upsertColumns.get(i).getField();
-            int nextOrderValue = nextField.getAnnotation(UpsertKey.class).order();
-            if (nextOrderValue <= lastOrderValue) {
-                modelSpec.logError("UpsertKey logical column order was not increasing, shared an order value with "
-                        + "field " + upsertColumns.get(i - 1).getField().getSimpleName(),
-                        upsertColumns.get(i).getField());
-                break;
-            }
-            lastOrderValue = nextOrderValue;
-        }
+        checkForUniquenessConstraints();
     }
 
     private void checkUpsertColumnsForNotNullConstraints() {
@@ -120,6 +110,63 @@ public class UpsertPlugin extends AbstractPlugin {
                         + "is specified using the @ColumnSpec annotation", generator.getField());
             }
         }
+    }
+
+    private void checkForUniquenessConstraints() {
+        if (upsertColumns.size() == 1) {
+            TableModelPropertyGenerator column = upsertColumns.get(0);
+            String columnConstraints = column.getConstraintString();
+            if (!StringUtils.isEmpty(columnConstraints) &&
+                    (UNIQUE_SINGLE_COLUMN.matcher(columnConstraints).find() || PRIMARY_KEY_SINGLE_COLUMN.matcher(columnConstraints).find())) {
+                // Found the required uniqueness constraint in column definition, no additional checks necessary
+                return;
+            }
+        }
+        Set<String> columnNames = new HashSet<>();
+        for (TableModelPropertyGenerator propertyGenerator : upsertColumns) {
+            columnNames.add(propertyGenerator.getColumnName());
+        }
+
+        String tableConstraints = tableModelSpec.getTableConstraintString();
+        if (!checkForUniquenessConstraints(columnNames, tableConstraints, UNIQUE_MULTI_COLUMN) &&
+                !checkForUniquenessConstraints(columnNames, tableConstraints, PRIMARY_KEY_MULTI_COLUMN)) {
+            modelSpec.logError("No uniqueness constraint found containing all upsert key columns", null);
+        }
+    }
+
+    private boolean checkForUniquenessConstraints(Set<String> columnNames, String tableConstraints, Pattern regex) {
+        Matcher matcher = regex.matcher(tableConstraints);
+        while (matcher.find()) {
+            Set<String> namesInExpressions = extractNamesFromExpressions(matcher.group(1));
+            if (columnNames.equals(namesInExpressions)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Set<String> extractNamesFromExpressions(String indexedColumnList) {
+        String[] columnExpressions = indexedColumnList.split(",");
+        Set<String> result = new HashSet<>();
+        for (String expr : columnExpressions) {
+            expr = expr.trim();
+            if (StringUtils.isEmpty(expr)) {
+                continue;
+            }
+
+            Matcher matcher = SINGLE_INDEXED_COLUMN.matcher(expr);
+            if (matcher.find()) {
+                String columnName = matcher.group(1);
+                result.add(columnName);
+            } else {
+                // This should never happen, but if it does, we should at least log a warning
+                pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unable to extract column name from "
+                        + "indexed column " + expr + " in indexed column list " + indexedColumnList,
+                        modelSpec.getModelSpecElement());
+                return null;
+            }
+        }
+        return result;
     }
 
     @Override
@@ -143,17 +190,7 @@ public class UpsertPlugin extends AbstractPlugin {
             initializer.endControlFlow();
             upsertColumnsField.initializer(initializer.build());
             builder.addField(upsertColumnsField.build());
-
-            FieldSpec.Builder upsertIndexField = FieldSpec.builder(INDEX, "UPSERT_INDEX",
-                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("TABLE.uniqueIndex($S, $L)", getUpsertIndexName(), LOGICAL_KEY_COL_ARRAY_NAME);
-            builder.addField(upsertIndexField.build());
         }
-    }
-
-    private String getUpsertIndexName() {
-        String tableName = tableModelSpec.getSpecAnnotation().tableName();
-        return "idx_" + tableName + "_upsertColumns";
     }
 
     private void declareRowidHasPriorityMethod(TypeSpec.Builder builder) {

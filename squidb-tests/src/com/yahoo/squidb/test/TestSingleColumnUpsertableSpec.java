@@ -13,7 +13,7 @@ import com.yahoo.squidb.annotations.UpsertKey;
 public class TestSingleColumnUpsertableSpec {
 
     @UpsertKey
-    @ColumnSpec(constraints = "NOT NULL")
+    @ColumnSpec(constraints = "UNIQUE NOT NULL")
     String guid;
 
     String value1;

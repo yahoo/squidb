@@ -9,14 +9,15 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.UpsertKey;
 
-@TableModelSpec(className = "TestMultiColumnUpsertable", tableName = "testMultiColumnUpsert")
+@TableModelSpec(className = "TestMultiColumnUpsertable", tableName = "testMultiColumnUpsert",
+    tableConstraint = "UNIQUE(key1, key2)")
 public class TestMultiColumnUpsertableSpec {
 
-    @UpsertKey(order = 1)
+    @UpsertKey
     @ColumnSpec(constraints = "NOT NULL")
     String key1;
 
-    @UpsertKey(order = 2)
+    @UpsertKey
     @ColumnSpec(constraints = "NOT NULL")
     String key2;
 
