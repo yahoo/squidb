@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.VersionCode;
-
 /**
  * A {@link Field} defined as a SQLite function.
  * <p>

@@ -60,7 +60,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public List<? extends Field<?>> qualifyFields(Field<?>... fields) {
+    public <F extends Field<?>> List<F> qualifyFields(F... fields) {
         if (fields == null) {
             return null;
         }
@@ -75,18 +75,16 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public List<? extends Field<?>> qualifyFields(List<Field<?>> fields) {
+    public <F extends Field<?>> List<F> qualifyFields(List<F> fields) {
         if (fields == null) {
             return null;
         }
-        Field<?>[] result = new Field<?>[fields.size()];
-        int i = 0;
-        for (Field<?> field : fields) {
-            result[i] = qualifyField(field);
-            i++;
+        List<F> result = new ArrayList<>(fields.size());
+        for (F field : fields) {
+            result.add(qualifyField(field));
         }
 
-        return Arrays.asList(result);
+        return result;
     }
 
     /**

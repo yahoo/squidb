@@ -96,10 +96,10 @@ public abstract class ViewModel extends AbstractModel {
     protected static class TableModelMappingVisitor<T extends AbstractModel> implements
             PropertyWritingVisitor<Void, T, ViewModel> {
 
-        private final Property<?>[] relevantProperties;
+        private final List<Property<?>> relevantProperties;
         private final Map<Property<?>, Property<?>> aliasedPropertyMap;
 
-        public TableModelMappingVisitor(Property<?>[] relevantProperties,
+        public TableModelMappingVisitor(List<Property<?>> relevantProperties,
                 Map<Property<?>, Property<?>> aliasedPropertyMap) {
             this.relevantProperties = relevantProperties;
             this.aliasedPropertyMap = aliasedPropertyMap;
@@ -303,8 +303,7 @@ public abstract class ViewModel extends AbstractModel {
     private static <T extends AbstractModel> void constructVisitor(Class<T> cls, String tableName,
             TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
         if (cls != null) {
-            TableModelMappingVisitor<T> visitor =
-                    new TableModelMappingVisitor<>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
+            TableModelMappingVisitor<T> visitor = new TableModelMappingVisitor<>(properties, aliasMap);
             visitors.put(cls, tableName, visitor);
         }
     }

@@ -52,24 +52,23 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
     }
 
     public void testEmptyProjectionWithMapUsesDefault() {
-        final Field<?>[] expectedProjection = new Field<?>[]{
+        List<Field<?>> expectedProjection = Arrays.asList((Field<?>)
                 TestModel.ID,
                 TestModel.FIRST_NAME.as(COL_GIVEN_NAME),
                 TestModel.LAST_NAME.as(COL_SURNAME),
                 TestModel.LUCKY_NUMBER,
-                TestModel.IS_HAPPY
-        };
+                TestModel.IS_HAPPY);
 
         ContentProviderQueryBuilder builder = getBuilder();
         Query query = builder.setDataSource(TestModel.TABLE).build(null, null, null, null);
-        assertEquals(Arrays.asList(expectedProjection), query.getFields());
+        assertEquals(expectedProjection, query.getFields());
     }
 
     public void testNonEmptyProjectionWithoutMapCreatesFields() {
-        final Field<?>[] expectedProjection = new Field<?>[]{Field.field("foo"), Field.field("bar")};
+        List<Field<?>> expectedProjection = Arrays.asList((Field<?>) Field.field("foo"), Field.field("bar"));
         ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder();
         Query query = builder.setDataSource(TestModel.TABLE).build(new String[]{"foo", "bar"}, null, null, null);
-        assertEquals(Arrays.asList(expectedProjection), query.getFields());
+        assertEquals(expectedProjection, query.getFields());
     }
 
     public void testInvalidProjectionIgnored() {

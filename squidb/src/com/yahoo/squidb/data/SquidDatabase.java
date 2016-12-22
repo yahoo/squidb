@@ -1400,7 +1400,20 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     protected boolean tryCreateIndex(String indexName, Table table, boolean unique, Property<?>... properties) {
-        if (properties == null || properties.length == 0) {
+        return tryCreateIndex(indexName, table, unique, Arrays.asList(properties));
+    }
+
+    /**
+     * Create a new {@link Index} in the database
+     *
+     * @param indexName name for the Index
+     * @param table the table to create the index on
+     * @param unique true if the index is a unique index on the specified columns
+     * @param properties the columns to create the index on
+     * @return true if the statement executed without error, false otherwise
+     */
+    protected boolean tryCreateIndex(String indexName, Table table, boolean unique, List<Property<?>> properties) {
+        if (properties == null || properties.size() == 0) {
             onError(String.format("Cannot create index %s: no properties specified", indexName), null);
             return false;
         }

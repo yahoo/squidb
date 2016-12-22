@@ -5,6 +5,11 @@
  */
 package com.yahoo.squidb.sql;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A SQLite Index
  */
@@ -13,13 +18,17 @@ public class Index {
     private final String name;
     private final Table table;
     private final boolean unique;
-    private final Property<?>[] properties;
+    private final List<Property<?>> properties;
 
     public Index(String name, Table table, boolean unique, Property<?>... properties) {
+        this(name, table, unique, Arrays.asList(properties));
+    }
+
+    public Index (String name, Table table, boolean unique, List<Property<?>> properties) {
         this.name = name;
         this.table = table;
         this.unique = unique;
-        this.properties = properties;
+        this.properties = Collections.unmodifiableList(new ArrayList<>(properties));
     }
 
     /**
@@ -46,7 +55,7 @@ public class Index {
     /**
      * @return the {@link Property properties} representing columns indexed by this Index
      */
-    public Property<?>[] getProperties() {
+    public List<Property<?>> getProperties() {
         return properties;
     }
 
