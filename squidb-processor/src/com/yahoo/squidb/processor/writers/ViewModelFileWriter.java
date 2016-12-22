@@ -172,7 +172,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
                 initializer = CodeBlock.of("($T) $L.qualifyField($L.get($L))", type, callOn,
                         ALIASED_PROPERTY_LIST_NAME, i);
             } else {
-                initializer = CodeBlock.of("($T) $L.get($L)", type, ALIASED_PROPERTY_INTERNAL_LIST_NAME, i);
+                initializer = CodeBlock.of("($T) $L.get($L)", type, ALIASED_PROPERTY_LIST_NAME, i);
             }
             block.addStatement("$L = $L", name, initializer);
             block.addStatement("$L.add($L)", PROPERTIES_INTERNAL_ARRAY, name);
