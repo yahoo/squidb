@@ -60,7 +60,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public <F extends Field<?>> List<F> qualifyFields(F... fields) {
+    public List<Field<?>> qualifyFields(Field<?>... fields) {
         if (fields == null) {
             return null;
         }
@@ -75,12 +75,12 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public <F extends Field<?>> List<F> qualifyFields(List<F> fields) {
+    public List<Field<?>> qualifyFields(List<? extends Field<?>> fields) {
         if (fields == null) {
             return null;
         }
-        List<F> result = new ArrayList<>(fields.size());
-        for (F field : fields) {
+        List<Field<?>> result = new ArrayList<>(fields.size());
+        for (Field<?> field : fields) {
             result.add(qualifyField(field));
         }
 
@@ -94,13 +94,25 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param field the field to clone
      * @return a clone of the given field with this object as its qualifier
      */
-    @SuppressWarnings("unchecked")
-    public <F extends Field<?>> F qualifyField(F field) {
+    public Field<?> qualifyField(Field<?> field) {
         if (field instanceof Property<?>) {
-            return (F) ((Property<?>) field).asSelectionFromTable(this, null);
+            return ((Property<?>) field).asSelectionFromTable(this, null);
         } else {
-            return (F) Field.field(field.getName(), getName());
+            return Field.field(field.getName(), getName());
         }
+    }
+
+    /**
+     * Clone the given {@link Property} with this object's name as its qualifier. This is useful for selecting
+     * from views, subqueries, or aliased tables. This method is distinct from the more general
+     * {@link #qualifyField(Field)} because it is guaranteed to return the same property type that it is called with.
+     *
+     * @param field the property to clone
+     * @return a clone of the given property with this object as its qualifier
+     */
+    @SuppressWarnings("unchecked")
+    public <P extends Property<?>> P qualifyField(P field) {
+        return (P) field.asSelectionFromTable(this, null);
     }
 
     /**
