@@ -81,8 +81,7 @@ public class UpdateTest extends DatabaseTestCase {
         assertEquals(0, shouldBeZero);
 
         // update testModels set luckyNumber = 99
-        Update update = Update.table(TestModel.TABLE).set(new Property<?>[]{TestModel.LUCKY_NUMBER},
-                new Integer[]{newLuckyNumber});
+        Update update = Update.table(TestModel.TABLE).set(TestModel.LUCKY_NUMBER, newLuckyNumber);
         CompiledStatement compiled = update.compile(database.getCompileContext());
 
         verifyCompiledSqlArgs(compiled, 1, newLuckyNumber);
