@@ -15,7 +15,6 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
@@ -25,8 +24,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     private static final String VIEW_NAME = "VIEW";
     private static final String SUBQUERY_NAME = "SUBQUERY";
 
-    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
-        super(new ViewModelSpecWrapper(element, pluginEnv), pluginEnv);
+    public ViewModelFileWriter(ViewModelSpecWrapper modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

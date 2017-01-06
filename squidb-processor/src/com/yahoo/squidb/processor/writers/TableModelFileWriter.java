@@ -14,15 +14,14 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper> {
 
     public static final String TABLE_NAME = "TABLE";
     public static final String TABLE_MODEL_NAME = "TABLE_MODEL_NAME";
 
-    public TableModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
-        super(new TableModelSpecWrapper(element, pluginEnv), pluginEnv);
+    public TableModelFileWriter(TableModelSpecWrapper modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

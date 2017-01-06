@@ -56,7 +56,9 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
 
     protected final PluginBundle pluginBundle;
     protected final PluginEnvironment pluginEnv;
-    private final TypeName modelSuperclass;
+    private TypeName modelSuperclass;
+
+    private boolean isInitialized = false;
 
     private final List<ErrorInfo> loggedErrors = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         RETURN visitInheritedModel(InheritedModelSpecWrapper modelSpec, PARAMETER data);
     }
 
-    public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
+    ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginEnvironment pluginEnv) {
         this.modelSpecElement = modelSpecElement;
         this.modelSpecName = ClassName.get(modelSpecElement);
@@ -77,10 +79,24 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         this.generatedClassName = ClassName.get(modelSpecName.packageName(), getGeneratedClassNameString());
         this.pluginEnv = pluginEnv;
         this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
+    }
 
+    void initialize() {
+        if (isInitialized) {
+            throw new IllegalStateException("ModelSpec " + modelSpecElement + " has already been initialized");
+        }
+        modelSuperclass = initializeModelSuperclass();
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
-        modelSuperclass = initializeModelSuperclass();
+        isInitialized = true;
+    }
+
+    private TypeName initializeModelSuperclass() {
+        TypeName pluginSuperclass = pluginBundle.getModelSuperclass();
+        if (pluginSuperclass != null) {
+            return pluginSuperclass;
+        }
+        return getDefaultModelSuperclass();
     }
 
     private void processVariableElements() {
@@ -104,17 +120,17 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         }
     }
 
-    private TypeName initializeModelSuperclass() {
-        TypeName pluginSuperclass = pluginBundle.getModelSuperclass();
-        if (pluginSuperclass != null) {
-            return pluginSuperclass;
-        }
-        return getDefaultModelSuperclass();
-    }
-
     public abstract <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data);
 
     protected abstract String getGeneratedClassNameString();
+
+    /**
+     * @return true if this model spec has been initialized. If false, the fields in the model spec may not yet be
+     * fully processed and the generated model superclass may not yet be determined.
+     */
+    public boolean isInitialized() {
+        return isInitialized;
+    }
 
     /**
      * @return the name of the default superclass for the generated model. This may be overridden by a plugin

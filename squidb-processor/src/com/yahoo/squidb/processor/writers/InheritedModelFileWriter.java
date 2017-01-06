@@ -13,12 +13,11 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpecWrapper> {
 
-    public InheritedModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
-        super(new InheritedModelSpecWrapper(element, pluginEnv), pluginEnv);
+    public InheritedModelFileWriter(InheritedModelSpecWrapper modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override

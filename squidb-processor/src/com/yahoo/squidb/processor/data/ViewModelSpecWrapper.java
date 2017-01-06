@@ -21,8 +21,13 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
     public static final String METADATA_KEY_QUERY_ELEMENT = "queryElement";
     public static final String METADATA_KEY_VIEW_QUERY = "viewQuery";
 
-    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+    ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
         super(modelSpecElement, ViewModelSpec.class, pluginEnv);
+    }
+
+    @Override
+    void initialize() {
+        super.initialize();
         checkViewName();
     }
 

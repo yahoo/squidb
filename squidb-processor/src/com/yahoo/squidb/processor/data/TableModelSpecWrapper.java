@@ -17,8 +17,13 @@ import javax.lang.model.element.TypeElement;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelPropertyGenerator> {
 
-    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+    TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv);
+    }
+
+    @Override
+    void initialize() {
+        super.initialize();
         checkTableName();
     }
 
