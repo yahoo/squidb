@@ -24,10 +24,10 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     protected void declareAllProperties() {
         for (InheritedModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             FieldSpec.Builder propertyBuilder = generator.buildInheritedPropertyDeclaration();
-            modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+            modelSpec.getPluginBundle().beforeDeclareProperty(builder, generator, propertyBuilder);
             FieldSpec property = propertyBuilder.build();
             builder.addField(property);
-            modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+            modelSpec.getPluginBundle().afterDeclareProperty(builder, generator, property);
         }
     }
 

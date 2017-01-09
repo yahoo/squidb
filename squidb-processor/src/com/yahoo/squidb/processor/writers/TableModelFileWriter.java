@@ -52,18 +52,18 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     protected void declareAllProperties() {
         for (TableModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             FieldSpec.Builder propertyBuilder = generator.buildTablePropertyDeclaration(TABLE_MODEL_NAME);
-            modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+            modelSpec.getPluginBundle().beforeDeclareProperty(builder, generator, propertyBuilder);
             FieldSpec property = propertyBuilder.build();
             builder.addField(property);
-            modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+            modelSpec.getPluginBundle().afterDeclareProperty(builder, generator, property);
         }
 
         for (TableModelPropertyGenerator deprecatedGenerator : modelSpec.getDeprecatedPropertyGenerators()) {
             FieldSpec.Builder propertyBuilder = deprecatedGenerator.buildTablePropertyDeclaration(TABLE_MODEL_NAME);
-            modelSpec.getPluginBundle().willDeclareProperty(builder, deprecatedGenerator, propertyBuilder);
+            modelSpec.getPluginBundle().beforeDeclareProperty(builder, deprecatedGenerator, propertyBuilder);
             FieldSpec property = propertyBuilder.build();
             builder.addField(property);
-            modelSpec.getPluginBundle().didDeclareProperty(builder, deprecatedGenerator, property);
+            modelSpec.getPluginBundle().afterDeclareProperty(builder, deprecatedGenerator, property);
         }
     }
 

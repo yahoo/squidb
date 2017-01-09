@@ -41,16 +41,16 @@ import javax.lang.model.element.VariableElement;
  * and {@link #afterDeclareSchema(TypeSpec.Builder)}. Static fields added in these hooks will appear before or after
  * the schema's static fields (depending on which hook is used). Static code blocks added in these hooks will
  * similarly appear before or after the schema initialization static blocks. Plugins can also use the
- * {@link #willDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)} and
- * {@link #didDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} hooks to be notified immediately
+ * {@link #beforeDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)} and
+ * {@link #afterDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} hooks to be notified immediately
  * before and after property declarations are added to the TypeSpec.Builder.</li>
  * <li>Constructor declaration. Plugins can add constructors using
  * {@link #declareMethodsOrConstructors(TypeSpec.Builder)} hook.</li>
  * <li>Accessors for the model properties. Plugins can use the
- * {@link #willDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)},
- * {@link #didDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)},
- * {@link #willDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}, and
- * {@link #didDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} hooks to be notified immediately before
+ * {@link #beforeDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)},
+ * {@link #afterDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)},
+ * {@link #beforeDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}, and
+ * {@link #afterDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} hooks to be notified immediately before
  * and after accessors for a given Property are added to the TypeSpec.Builder.</li>
  * <li>Other methods. Plugins can add additional methods to the model using
  * {@link #declareMethodsOrConstructors(TypeSpec.Builder)}.</li>
@@ -126,25 +126,25 @@ public interface Plugin {
     void beforeBeginClassDeclaration(TypeSpec.Builder builder);
 
     /**
-     * Called before adding the static declaration for the given property. This hook would most often be useful
-     * to do things like add annotations to the property to be generated
+     * Called immediately before adding the static declaration for the given property. This hook would most often be
+     * useful to do things like add annotations to the property to be generated.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator contain metadata about the property to be written (name, type, etc.)
      * @param propertyDeclaration the {@link com.squareup.javapoet.FieldSpec.Builder} for the property to be generated.
      * This builder can be mutated to add annotations or javadocs
      */
-    void willDeclareProperty(TypeSpec.Builder builder,
+    void beforeDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec.Builder propertyDeclaration);
 
     /**
-     * Called after adding the static declaration for the given property
+     * Called immediately after adding the static declaration for the given property.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator contain metadata about the property to be written (name, type, etc.)
      * @param propertyDeclaration the {@link com.squareup.javapoet.FieldSpec} for the property that was generated.
      */
-    void didDeclareProperty(TypeSpec.Builder builder,
+    void afterDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec propertyDeclaration);
 
     /**
@@ -164,45 +164,45 @@ public interface Plugin {
     void afterDeclareSchema(TypeSpec.Builder builder);
 
     /**
-     * Called before adding a getter method for a property. Most often this hook would be useful for annotating the
-     * generated method or altering the params in some way.
+     * Called immediately before adding a getter method for a property. Most often this hook would be useful for
+     * annotating the generated method or altering the params in some way.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be added
      * @param getterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams);
 
     /**
-     * Called after adding a getter method for a property.
+     * Called immediately after adding a getter method for a property.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator the {@link PropertyGenerator} causing this getter to be added
      * @param getterParams contains metadata about the method that was generated (name, return type, etc.)
      */
-    void didDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    void afterDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec getterParams);
 
     /**
-     * Called before adding a setter method for a property. Most often this hook would be useful for annotating the
-     * generated method or altering the params in some way.
+     * Called immediately before adding a setter method for a property. Most often this hook would be useful for
+     * annotating the generated method or altering the params in some way.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be adding
      * @param setterParams contains metadata about the method to be generated (name, return type, etc.)
      */
-    void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder setterParams);
 
     /**
-     * Called after adding a setter method for a property.
+     * Called immediately after adding a setter method for a property.
      *
      * @param builder the {@link TypeSpec.Builder} for the model class being built
      * @param propertyGenerator the {@link PropertyGenerator} causing this setter to be adding
      * @param setterParams contains metadata about the method that was generated (name, return type, etc.)
      */
-    void didDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    void afterDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec setterParams);
 
     /**

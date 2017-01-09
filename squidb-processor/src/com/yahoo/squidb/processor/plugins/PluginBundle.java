@@ -166,28 +166,28 @@ public class PluginBundle implements Plugin {
     }
 
     /**
-     * Calls {@link Plugin#willDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)} on
+     * Calls {@link Plugin#beforeDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)} on
      * all the bundled plugins
      */
     @Override
-    public void willDeclareProperty(TypeSpec.Builder builder,
+    public void beforeDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec.Builder propertyDeclaration) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.willDeclareProperty(builder, propertyGenerator, propertyDeclaration);
+            plugin.beforeDeclareProperty(builder, propertyGenerator, propertyDeclaration);
         }
     }
 
     /**
-     * Calls {@link Plugin#didDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} on
+     * Calls {@link Plugin#afterDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} on
      * all the bundled plugins
      */
     @Override
-    public void didDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void afterDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             FieldSpec propertyDeclaration) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.didDeclareProperty(builder, propertyGenerator, propertyDeclaration);
+            plugin.afterDeclareProperty(builder, propertyGenerator, propertyDeclaration);
         }
     }
 
@@ -214,53 +214,53 @@ public class PluginBundle implements Plugin {
     }
 
     /**
-     * Calls {@link Plugin#willDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
+     * Calls {@link Plugin#beforeDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
      * on all the bundled plugins
      */
     @Override
-    public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.willDeclareGetter(builder, propertyGenerator, getterParams);
+            plugin.beforeDeclareGetter(builder, propertyGenerator, getterParams);
         }
     }
 
     /**
-     * Calls {@link Plugin#didDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
+     * Calls {@link Plugin#afterDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
      * on all the bundled plugins
      */
     @Override
-    public void didDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void afterDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec getterParams) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.didDeclareGetter(builder, propertyGenerator, getterParams);
+            plugin.afterDeclareGetter(builder, propertyGenerator, getterParams);
         }
     }
 
     /**
-     * Calls {@link Plugin#willDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
+     * Calls {@link Plugin#beforeDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
      * on all the bundled plugins
      */
     @Override
-    public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.willDeclareSetter(builder, propertyGenerator, getterParams);
+            plugin.beforeDeclareSetter(builder, propertyGenerator, getterParams);
         }
     }
 
     /**
-     * Calls {@link Plugin#didDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
+     * Calls {@link Plugin#afterDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
      * on all the bundled plugins
      */
     @Override
-    public void didDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator, MethodSpec getterParams) {
+    public void afterDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator, MethodSpec getterParams) {
         checkInitialized();
         for (Plugin plugin : plugins) {
-            plugin.didDeclareSetter(builder, propertyGenerator, getterParams);
+            plugin.afterDeclareSetter(builder, propertyGenerator, getterParams);
         }
     }
 

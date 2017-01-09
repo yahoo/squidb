@@ -37,7 +37,7 @@ public class JavadocPlugin extends AbstractPlugin {
     }
 
     @Override
-    public void willDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             FieldSpec.Builder propertyDeclaration) {
         if (propertyGenerator.getField() != null) {
             String javadoc = getJavadocFromElement(pluginEnv, propertyGenerator.getField());

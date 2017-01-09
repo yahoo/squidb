@@ -106,24 +106,24 @@ public abstract class AbstractPlugin implements Plugin {
     }
 
     /**
-     * Stub of {@link Plugin#willDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)}
+     * Stub of {@link Plugin#beforeDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)}
      * for subclasses to override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void willDeclareProperty(TypeSpec.Builder builder,
+    public void beforeDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec.Builder propertyDeclaration) {
     }
 
     /**
-     * Stub of {@link Plugin#didDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} for subclasses to
+     * Stub of {@link Plugin#afterDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} for subclasses to
      * override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void didDeclareProperty(TypeSpec.Builder builder,
+    public void afterDeclareProperty(TypeSpec.Builder builder,
             PropertyGenerator propertyGenerator, FieldSpec propertyDeclaration) {
     }
 
@@ -146,46 +146,46 @@ public abstract class AbstractPlugin implements Plugin {
     }
 
     /**
-     * Stub of {@link Plugin#willDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)} for subclasses
+     * Stub of {@link Plugin#beforeDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)} for subclasses
      * to override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
     }
 
     /**
-     * Stub of {@link Plugin#didDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} for subclasses
+     * Stub of {@link Plugin#afterDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} for subclasses
      * to override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void didDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void afterDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec getterParams) {
     }
 
     /**
-     * Stub of {@link Plugin#willDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)} for subclasses
+     * Stub of {@link Plugin#beforeDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)} for subclasses
      * to override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder setterParams) {
     }
 
     /**
-     * Stub of {@link Plugin#didDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} for subclasses to
+     * Stub of {@link Plugin#afterDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)} for subclasses to
      * override
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void didDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void afterDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec setterParams) {
     }
 

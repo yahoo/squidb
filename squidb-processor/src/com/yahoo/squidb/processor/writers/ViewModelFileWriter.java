@@ -123,10 +123,10 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
         FieldSpec.Builder propertyBuilder = FieldSpec.builder(type, generator.getPropertyName(),
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
-        modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+        modelSpec.getPluginBundle().beforeDeclareProperty(builder, generator, propertyBuilder);
         FieldSpec property = propertyBuilder.build();
         builder.addField(property);
-        modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+        modelSpec.getPluginBundle().afterDeclareProperty(builder, generator, property);
     }
 
     private void declareTableModelMapper() {

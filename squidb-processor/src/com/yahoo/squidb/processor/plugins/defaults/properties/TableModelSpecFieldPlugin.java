@@ -205,13 +205,13 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     @Override
-    public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
         addAccessorDocumentationForRowids(getterParams, propertyGenerator, true);
     }
 
     @Override
-    public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder setterParams) {
         addAccessorDocumentationForRowids(setterParams, propertyGenerator, false);
     }
