@@ -5,23 +5,21 @@
  */
 package com.yahoo.squidb.processor.data;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
-
-import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 
 public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec, InheritedModelPropertyGenerator> {
 
-    private DeclaredTypeName superclass;
+    private TypeName superclass;
 
-    public InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
-        super(modelSpecElement, InheritedModelSpec.class, pluginEnv, utils);
-        this.superclass = new DeclaredTypeName(getSpecAnnotation().inheritsFrom());
+    public InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+        super(modelSpecElement, InheritedModelSpec.class, pluginEnv);
+        this.superclass = ClassName.bestGuess(getSpecAnnotation().inheritsFrom());
     }
 
     @Override
@@ -35,15 +33,10 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec, Inh
     }
 
     @Override
-    protected DeclaredTypeName getDefaultModelSuperclass() {
+    protected TypeName getDefaultModelSuperclass() {
         if (superclass == null) {
-            return new DeclaredTypeName(getSpecAnnotation().inheritsFrom());
+            this.superclass = ClassName.bestGuess(getSpecAnnotation().inheritsFrom());
         }
         return superclass;
-    }
-
-    @Override
-    protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
-        imports.add(superclass);
     }
 }

@@ -5,14 +5,12 @@
  */
 package com.yahoo.squidb.processor.writers;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.JavaFileWriter.Type;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
@@ -21,7 +19,6 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfa
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,181 +27,137 @@ import javax.lang.model.element.Modifier;
 
 public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
-    protected final AptUtils utils;
     protected final PluginEnvironment pluginEnv;
 
     protected final T modelSpec;
 
-    protected JavaFileWriter writer;
+    protected TypeSpec.Builder builder;
 
     public static final String PROPERTIES_ARRAY_NAME = "PROPERTIES";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
 
-    private static final MethodDeclarationParameters GET_DEFAULT_VALUES_PARAMS;
-
-    static {
-        GET_DEFAULT_VALUES_PARAMS = new MethodDeclarationParameters()
-                .setMethodName("getDefaultValues")
-                .setModifiers(Modifier.PUBLIC)
-                .setReturnType(TypeConstants.VALUES_STORAGE);
-    }
-
-    public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv, AptUtils utils) {
+    public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv) {
         this.modelSpec = modelSpec;
         this.pluginEnv = pluginEnv;
-        this.utils = utils;
     }
 
     public final void writeJava() throws IOException {
-        initFileWriter();
-        writeJavaFile();
-        writer.close();
+        initTypeSpecBuilder();
+        buildJavaFile();
+        JavaFile.builder(modelSpec.getModelSpecName().packageName(), builder.build())
+                .addFileComment("Generated code -- do not modify!")
+                .indent("\t").build()
+                .writeTo(pluginEnv.getProcessingEnvironment().getFiler());
     }
 
-    private void initFileWriter() throws IOException {
-        if (this.writer == null) {
-            this.writer = utils.newJavaFileWriter(modelSpec.getGeneratedClassName(), modelSpec.getModelSpecElement());
+    private void initTypeSpecBuilder() {
+        if (this.builder == null) {
+            this.builder = TypeSpec.classBuilder(modelSpec.getGeneratedClassName())
+                    .addOriginatingElement(modelSpec.getModelSpecElement())
+                    .superclass(modelSpec.getModelSuperclass())
+                    .addSuperinterfaces(accumulateInterfacesFromPlugins())
+                    .addModifiers(Modifier.PUBLIC);
+            if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
+                builder.addAnnotation(Deprecated.class);
+            }
         } else {
             throw new IllegalStateException("JavaFileWriter already initialized");
         }
     }
 
-    private void writeJavaFile() throws IOException {
+    private void buildJavaFile() {
         PluginBundle plugins = modelSpec.getPluginBundle();
 
-        emitPackage();
-        emitImports();
-        plugins.beforeEmitClassDeclaration(writer);
-        beginClassDeclaration();
+        plugins.beforeBeginClassDeclaration(builder);
 
-        plugins.beforeEmitSchema(writer);
-        emitPropertiesArray();
-        emitModelSpecificFields();
-        emitPropertyDeclarations();
-        emitDefaultValues();
-        plugins.afterEmitSchema(writer);
+        plugins.beforeDeclareSchema(builder);
+        declarePropertiesArray();
+        declareModelSpecificFields();
+        declarePropertyDeclarations();
+        declareDefaultValues();
+        declareModelSpecificHelpers();
+        plugins.afterDeclareSchema(builder);
 
-        plugins.emitConstructors(writer);
+        declareGettersAndSetters();
+        plugins.declareMethodsOrConstructors(builder);
 
-        plugins.beforeEmitMethods(writer);
-        emitGettersAndSetters();
-        plugins.emitMethods(writer);
-        plugins.afterEmitMethods(writer);
-
-        emitModelSpecificHelpers();
-        plugins.emitAdditionalJava(writer);
-
-        writer.finishTypeDefinition();
+        plugins.declareAdditionalJava(builder);
     }
 
-    private void emitPackage() throws IOException {
-        writer.writePackage(modelSpec.getGeneratedClassName().getPackageName());
-    }
-
-    private void emitImports() throws IOException {
-        Set<DeclaredTypeName> imports = new HashSet<>();
-        modelSpec.addRequiredImports(imports);
-        writer.writeImports(imports);
-        writer.registerOtherKnownNames(TypeConstants.CREATOR,
-                TypeConstants.TABLE_MAPPING_VISITORS, modelSpec.getModelSpecName());
-    }
-
-    private void beginClassDeclaration() throws IOException {
-        if (modelSpec.getModelSpecElement().getAnnotation(Deprecated.class) != null) {
-            writer.writeAnnotation(CoreTypes.DEPRECATED);
-        }
-        TypeDeclarationParameters params = new TypeDeclarationParameters()
-                .setName(modelSpec.getGeneratedClassName())
-                .setSuperclass(modelSpec.getModelSuperclass())
-                .setInterfaces(accumulateInterfacesFromPlugins())
-                .setKind(Type.CLASS)
-                .setModifiers(Modifier.PUBLIC);
-        writer.beginTypeDefinition(params);
-    }
-
-    private List<DeclaredTypeName> accumulateInterfacesFromPlugins() {
-        Set<DeclaredTypeName> interfaces = new LinkedHashSet<>();
+    private List<TypeName> accumulateInterfacesFromPlugins() {
+        Set<TypeName> interfaces = new LinkedHashSet<>();
         modelSpec.getPluginBundle().addInterfacesToImplement(interfaces);
-        return Arrays.asList(interfaces.toArray(new DeclaredTypeName[interfaces.size()]));
+        return Arrays.asList(interfaces.toArray(new TypeName[interfaces.size()]));
     }
 
-    protected void emitPropertiesArray() throws IOException {
-        writer.writeComment("--- allocate properties array");
-        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
-                Expressions.arrayAllocation(TypeConstants.PROPERTY, 1, getPropertiesArrayLength()),
-                TypeConstants.PUBLIC_STATIC_FINAL);
-        writer.writeNewline();
+    protected void declarePropertiesArray() {
+        FieldSpec propertiesArray = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY, PROPERTIES_ARRAY_NAME,
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T[$L]", TypeConstants.PROPERTY, getPropertiesArrayLength()).build();
+        builder.addField(propertiesArray);
     }
 
     protected int getPropertiesArrayLength() {
         return modelSpec.getPropertyGenerators().size();
     }
 
-    protected void emitModelSpecificFields() throws IOException {
+    protected void declareModelSpecificFields() {
         // Subclasses can override
     }
 
-    private void emitPropertyDeclarations() throws IOException {
-        writer.writeComment("--- property declarations");
-        emitAllProperties();
-        emitPropertyArrayInitialization();
-        writer.writeNewline();
+    private void declarePropertyDeclarations() {
+        declareAllProperties();
+        declarePropertyArrayInitialization();
     }
 
-    protected abstract void emitAllProperties() throws IOException;
+    protected abstract void declareAllProperties();
 
-    protected void emitPropertyArrayInitialization() throws IOException {
-        writer.beginInitializerBlock(true, true);
-        writePropertiesInitializationBlock();
-        writer.finishInitializerBlock(false, true);
-    }
-
-    protected void writePropertiesInitializationBlock() throws IOException {
-        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
-            writer.writeStatement(Expressions
-                    .assign(Expressions.arrayReference(PROPERTIES_ARRAY_NAME, i),
-                            Expressions.fromString(modelSpec.getPropertyGenerators().get(i).getPropertyName())));
+    protected void declarePropertyArrayInitialization() {
+        CodeBlock.Builder propertiesInitializationBlock = CodeBlock.builder();
+        writePropertiesInitializationBlock(propertiesInitializationBlock);
+        CodeBlock block = propertiesInitializationBlock.build();
+        if (!block.isEmpty()) {
+            builder.addStaticBlock(block);
         }
     }
 
-    protected void emitDefaultValues() throws IOException {
-        writer.writeComment("--- default values");
-        writer.writeFieldDeclaration(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
-                Expressions.callMethodOn(
-                        Expressions.callConstructor(modelSpec.getGeneratedClassName()), "newValuesStorage"),
-                Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL);
+    protected abstract void writePropertiesInitializationBlock(CodeBlock.Builder block);
 
-        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {
-            writer.writeComment("--- property defaults disabled by plugin flag");
-        } else {
-            writer.beginInitializerBlock(true, true)
-                    .writeComment("--- put property defaults");
+    protected void declareDefaultValues() {
+        FieldSpec.Builder defaultValuesField = FieldSpec.builder(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
+                Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T().newValuesStorage()", modelSpec.getGeneratedClassName());
+        builder.addField(defaultValuesField.build());
 
-            emitDefaultValuesInitializationBlock();
-
-            writer.finishInitializerBlock(false, true).writeNewline();
+        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {
+            CodeBlock.Builder defaultValuesInitializationBlock = CodeBlock.builder();
+            buildDefaultValuesInitializationBlock(defaultValuesInitializationBlock);
+            CodeBlock block = defaultValuesInitializationBlock.build();
+            if (!block.isEmpty()) {
+                builder.addStaticBlock(block);
+            }
         }
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(GET_DEFAULT_VALUES_PARAMS)
-                .writeStringStatement("return " + DEFAULT_VALUES_NAME)
-                .finishMethodDefinition();
+
+        MethodSpec.Builder getDefaultValues = MethodSpec.methodBuilder("getDefaultValues")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeConstants.VALUES_STORAGE)
+                .addStatement("return $L", DEFAULT_VALUES_NAME);
+        builder.addMethod(getDefaultValues.build());
     }
 
-    protected abstract void emitDefaultValuesInitializationBlock() throws IOException;
+    protected abstract void buildDefaultValuesInitializationBlock(CodeBlock.Builder block);
 
-    protected void emitGettersAndSetters() throws IOException {
-        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
-            writer.writeComment("--- getters and setters disabled by plugin flag");
-        } else {
-            writer.writeComment("--- getters and setters");
+    protected void declareGettersAndSetters() {
+        if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_GETTERS_AND_SETTERS)) {
             for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-                generator.emitGetter(writer);
-                generator.emitSetter(writer);
+                generator.declareGetter(builder);
+                generator.declareSetter(builder);
             }
         }
     }
 
-    protected void emitModelSpecificHelpers() throws IOException {
+    protected void declareModelSpecificHelpers() {
         // Subclasses can override
     }
 }

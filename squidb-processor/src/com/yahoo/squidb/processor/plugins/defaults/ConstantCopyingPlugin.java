@@ -5,24 +5,23 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.TypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.annotations.Constants;
 import com.yahoo.squidb.annotations.Ignore;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -46,12 +45,18 @@ public class ConstantCopyingPlugin extends Plugin {
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, TypeName fieldType) {
         return processVariableElement(field, constantElements);
     }
 
     private boolean processVariableElement(VariableElement field, List<VariableElement> constantList) {
         if (field.getAnnotation(Deprecated.class) != null) {
+            return false;
+        }
+        TypeName typeName = TypeName.get(field.asType());
+        if (TypeConstants.isGenericType(typeName)) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "Element type " + typeName + " is not a concrete type, will be ignored", field);
             return false;
         }
         if (TypeConstants.isVisibleConstant(field)) {
@@ -68,7 +73,7 @@ public class ConstantCopyingPlugin extends Plugin {
         for (Element element : elements) {
             if (element instanceof TypeElement && element.getAnnotation(Constants.class) != null) {
                 if (!element.getModifiers().containsAll(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC))) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "@Constants annotated class is not " +
+                    pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@Constants annotated class is not " +
                             "public static, will be ignored", element);
                     continue;
                 }
@@ -79,13 +84,7 @@ public class ConstantCopyingPlugin extends Plugin {
 
                 for (Element e : constantClass.getEnclosedElements()) {
                     if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
-                        TypeName typeName = utils.getTypeNameFromTypeMirror(e.asType());
-                        if (!(typeName instanceof DeclaredTypeName)) {
-                            utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                                    "Element type " + typeName + " is not a concrete type, will be ignored", e);
-                        } else {
-                            processVariableElement((VariableElement) e, constantList);
-                        }
+                        processVariableElement((VariableElement) e, constantList);
                     }
                 }
             }
@@ -93,37 +92,40 @@ public class ConstantCopyingPlugin extends Plugin {
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        utils.accumulateImportsFromElements(imports, constantElements);
-        for (List<VariableElement> innerClassConstant : innerClassConstants.values()) {
-            utils.accumulateImportsFromElements(imports, innerClassConstant);
-        }
-    }
-
-    @Override
-    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
-        writer.writeComment("--- constants");
+    public void afterDeclareSchema(TypeSpec.Builder builder) {
+        CodeBlock.Builder initializerBlock = CodeBlock.builder();
         for (VariableElement constant : constantElements) {
-            writeConstantField(writer, modelSpec.getModelSpecName(), constant);
+            writeConstantField(builder, initializerBlock, null, constant);
         }
         for (Map.Entry<String, List<VariableElement>> innerClassConstant : innerClassConstants.entrySet()) {
             String classNameString = innerClassConstant.getKey();
-            DeclaredTypeName constClassName = new DeclaredTypeName(null,
-                    modelSpec.getModelSpecName().getSimpleName() + "." + classNameString);
-            for (VariableElement element : innerClassConstant.getValue()) {
-                writeConstantField(writer, constClassName, element);
+            for (VariableElement constant : innerClassConstant.getValue()) {
+                writeConstantField(builder, initializerBlock, classNameString, constant);
             }
         }
-        writer.writeNewline();
+        CodeBlock initializer = initializerBlock.build();
+        if (!initializer.isEmpty()) {
+            builder.addStaticBlock(initializer);
+        }
     }
 
-    private void writeConstantField(JavaFileWriter writer, DeclaredTypeName containingClassName,
-            VariableElement constant) throws IOException {
-        JavadocPlugin.writeJavadocFromElement(pluginEnv, writer, constant);
-        writer.writeFieldDeclaration(
-                utils.getTypeNameFromTypeMirror(constant.asType()),
-                constant.getSimpleName().toString(),
-                Expressions.staticReference(containingClassName, constant.getSimpleName().toString()),
-                TypeConstants.PUBLIC_STATIC_FINAL);
+    private void writeConstantField(TypeSpec.Builder builder, CodeBlock.Builder initializerBlock,
+            String containingClassName, VariableElement constant) {
+        String constantName = constant.getSimpleName().toString();
+        FieldSpec.Builder constantField = FieldSpec.builder(TypeName.get(constant.asType()),
+                constantName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+
+        if (StringUtils.isEmpty(containingClassName)) {
+            initializerBlock.add("$L = $T.$L;\n", constantName, modelSpec.getModelSpecName(), constantName);
+        } else {
+            initializerBlock.add("$L = $T.$L.$L;\n", constantName, modelSpec.getModelSpecName(),
+                    containingClassName, constantName);
+        }
+        String javadoc = JavadocPlugin.getJavadocFromElement(pluginEnv, constant);
+        if (!StringUtils.isEmpty(javadoc)) {
+            constantField.addJavadoc(javadoc);
+        }
+
+        builder.addField(constantField.build());
     }
 }

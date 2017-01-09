@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.json;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.TypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -37,7 +36,7 @@ public class JSONFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, Tabl
     }
 
     @Override
-    protected boolean hasPropertyGeneratorForField(VariableElement field, DeclaredTypeName fieldType) {
+    protected boolean hasPropertyGeneratorForField(VariableElement field, TypeName fieldType) {
         if (field.getAnnotation(JSONColumn.class) == null) {
             return false;
         }
@@ -51,27 +50,27 @@ public class JSONFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, Tabl
     }
 
     private boolean recursivelyCheckTypes(VariableElement field, TypeName rootType, AtomicBoolean showedError) {
-        if (!(rootType instanceof DeclaredTypeName)) {
+        if (TypeConstants.isGenericType(rootType)) {
             return false;
         }
-        List<? extends TypeName> typeArgs = ((DeclaredTypeName) rootType).getTypeArgs();
-        if (AptUtils.isEmpty(typeArgs)) {
-            return true;
-        }
-        for (TypeName typeArg : typeArgs) {
-            if (!recursivelyCheckTypes(field, typeArg, showedError)) {
-                if (!showedError.getAndSet(true)) {
-                    modelSpec.logError( "@JSONField fields with type arguments"
-                            + " must not use generic or otherwise non-concrete types", field);
+
+        if (rootType instanceof ParameterizedTypeName) {
+            List<TypeName> typeArgs = ((ParameterizedTypeName) rootType).typeArguments;
+            for (TypeName typeArg : typeArgs) {
+                if (!recursivelyCheckTypes(field, typeArg, showedError)) {
+                    if (!showedError.getAndSet(true)) {
+                        modelSpec.logError("@JSONField fields with type arguments"
+                                + " must not use generic or otherwise non-concrete types", field);
+                    }
+                    return false;
                 }
-                return false;
             }
         }
         return true;
     }
 
     @Override
-    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        return new JSONPropertyGenerator(modelSpec, field, fieldType, utils);
+    protected TableModelPropertyGenerator getPropertyGenerator(VariableElement field, TypeName fieldType) {
+        return new JSONPropertyGenerator(modelSpec, field, fieldType, pluginEnv);
     }
 }

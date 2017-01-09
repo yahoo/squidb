@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.json;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -30,7 +30,7 @@ public class JSONInheritedPropertyPlugin
 
     @Override
     protected InheritedModelPropertyGenerator getTypedJsonPropertyGenerator(VariableElement field,
-            DeclaredTypeName propertyType) {
-        return new JSONPropertyReferencePropertyGenerator(modelSpec, field, propertyType, utils);
+            TypeName propertyType) {
+        return new JSONPropertyReferencePropertyGenerator(modelSpec, field, propertyType, pluginEnv);
     }
 }

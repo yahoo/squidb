@@ -5,11 +5,10 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,31 +22,31 @@ import javax.lang.model.element.VariableElement;
  */
 public class BasicDoublePropertyGenerator extends BasicTableModelPropertyGenerator {
 
-    public static List<DeclaredTypeName> handledColumnTypes() {
-        return Arrays.asList(CoreTypes.JAVA_FLOAT, CoreTypes.PRIMITIVE_FLOAT,
-                CoreTypes.JAVA_DOUBLE, CoreTypes.PRIMITIVE_DOUBLE);
+    public static List<TypeName> handledColumnTypes() {
+        return Arrays.asList(TypeName.FLOAT, TypeName.FLOAT.box(),
+                TypeName.DOUBLE, TypeName.DOUBLE.box());
     }
 
-    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
-        super(modelSpec, columnName, utils);
+    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, PluginEnvironment pluginEnv) {
+        super(modelSpec, columnName, pluginEnv);
     }
 
     public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
-            String propertyName, AptUtils utils) {
-        super(modelSpec, columnName, propertyName, utils);
+            String propertyName, PluginEnvironment pluginEnv) {
+        super(modelSpec, columnName, propertyName, pluginEnv);
     }
 
-    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
-        super(modelSpec, field, utils);
-    }
-
-    @Override
-    public DeclaredTypeName getTypeForAccessors() {
-        return CoreTypes.JAVA_DOUBLE;
+    public BasicDoublePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, PluginEnvironment pluginEnv) {
+        super(modelSpec, field, pluginEnv);
     }
 
     @Override
-    public DeclaredTypeName getPropertyType() {
+    public TypeName getTypeForAccessors() {
+        return TypeName.DOUBLE.box();
+    }
+
+    @Override
+    public TypeName getPropertyType() {
         return TypeConstants.DOUBLE_PROPERTY;
     }
 

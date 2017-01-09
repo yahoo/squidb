@@ -5,22 +5,15 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
@@ -37,58 +30,42 @@ public class ConstructorPlugin extends Plugin {
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        imports.add(TypeConstants.SQUID_CURSOR);
-        imports.add(TypeConstants.MAP);
-    }
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
+        MethodSpec.Builder params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("super()");
+        builder.addMethod(params.build());
 
-    @Override
-    public void emitConstructors(JavaFileWriter writer) throws IOException {
-        writer.writeComment("--- default constructors");
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setConstructorName(modelSpec.getGeneratedClassName());
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("super()")
-                .finishMethodDefinition();
+        TypeName squidCursorType = ParameterizedTypeName.get(TypeConstants.SQUID_CURSOR,
+                modelSpec.getGeneratedClassName());
+        params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(squidCursorType, "cursor")
+                .addStatement("this()")
+                .addStatement("readPropertiesFromCursor(cursor)");
+        builder.addMethod(params.build());
 
-        DeclaredTypeName squidCursorType = TypeConstants.SQUID_CURSOR.clone();
-        squidCursorType.setTypeArgs(Collections.singletonList(modelSpec.getGeneratedClassName()));
-        params.setArgumentTypes(squidCursorType).setArgumentNames("cursor");
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("this()")
-                .writeStringStatement("readPropertiesFromCursor(cursor)")
-                .finishMethodDefinition();
+        params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeConstants.MAP_VALUES, "values")
+                .addStatement("this(values, $L)", ModelFileWriter.PROPERTIES_ARRAY_NAME);
+        builder.addMethod(params.build());
 
-        String valuesName = "values";
-        DeclaredTypeName valuesType = TypeConstants.MAP_VALUES;
+        params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeConstants.MAP_VALUES, "values")
+                .addParameter(TypeConstants.PROPERTY_ARRAY, "withProperties")
+                .varargs()
+                .addStatement("this()")
+                .addStatement("readPropertiesFromMap(values, withProperties)");
+        builder.addMethod(params.build());
 
-        params.setArgumentTypes(Collections.singletonList(valuesType))
-                .setArgumentNames(valuesName);
-        writer.beginConstructorDeclaration(params)
-                .writeStatement(Expressions.callMethod("this", valuesName,
-                        ModelFileWriter.PROPERTIES_ARRAY_NAME))
-                .finishMethodDefinition();
 
-        String methodName = "readPropertiesFromMap";
-        params.setArgumentTypes(Arrays.asList(valuesType, TypeConstants.PROPERTY_VARARGS))
-                .setArgumentNames(valuesName, "withProperties");
-        writer.beginConstructorDeclaration(params)
-                .writeStringStatement("this()")
-                .writeStringStatement(methodName + "(" + valuesName + ", withProperties)")
-                .finishMethodDefinition();
-
-        MethodDeclarationParameters cloneParams = new MethodDeclarationParameters()
-                .setModifiers(Modifier.PUBLIC)
-                .setMethodName("clone")
-                .setReturnType(modelSpec.getGeneratedClassName());
-
-        Expression cloneBody = Expressions.callMethodOn("super", "clone")
-                .cast(modelSpec.getGeneratedClassName()).returnExpr();
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        writer.beginMethodDefinition(cloneParams)
-                .writeStatement(cloneBody)
-                .finishMethodDefinition();
+        params = MethodSpec.methodBuilder("clone")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(modelSpec.getGeneratedClassName())
+                .addStatement("return ($T) super.clone()", modelSpec.getGeneratedClassName())
+                .addAnnotation(Override.class);
+        builder.addMethod(params.build());
     }
 }

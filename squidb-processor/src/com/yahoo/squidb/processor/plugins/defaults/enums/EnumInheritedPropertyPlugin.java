@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.enums;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -31,8 +31,8 @@ public class EnumInheritedPropertyPlugin
 
     @Override
     protected InheritedModelPropertyGenerator getTypedEnumPropertyGenerator(VariableElement field,
-            DeclaredTypeName propertyType) {
-        return new EnumPropertyReferencePropertyGenerator(modelSpec, field, propertyType, utils);
+            ParameterizedTypeName propertyType) {
+        return new EnumPropertyReferencePropertyGenerator(modelSpec, field, propertyType, pluginEnv);
     }
 
 }

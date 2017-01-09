@@ -5,16 +5,13 @@
  */
 package com.yahoo.squidb.processor.data;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ViewModelSpec;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
-
-import java.util.Set;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -24,8 +21,8 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
     public static final String METADATA_KEY_QUERY_ELEMENT = "queryElement";
     public static final String METADATA_KEY_VIEW_QUERY = "viewQuery";
 
-    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv, AptUtils utils) {
-        super(modelSpecElement, ViewModelSpec.class, pluginEnv, utils);
+    public ViewModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+        super(modelSpecElement, ViewModelSpec.class, pluginEnv);
         checkViewName();
     }
 
@@ -35,7 +32,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
             logError("View names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlUtils.checkIdentifier(viewName, "view", this, getModelSpecElement(), utils);
+            SqlUtils.checkIdentifier(viewName, "view", this, getModelSpecElement(), pluginEnvironment.getMessager());
         }
     }
 
@@ -50,7 +47,7 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
     }
 
     @Override
-    protected DeclaredTypeName getDefaultModelSuperclass() {
+    protected TypeName getDefaultModelSuperclass() {
         return TypeConstants.VIEW_MODEL;
     }
 
@@ -67,17 +64,5 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
      */
     public ViewQuery getViewQueryAnnotation() {
         return getMetadata(METADATA_KEY_VIEW_QUERY);
-    }
-
-    @Override
-    protected void addModelSpecificImports(Set<DeclaredTypeName> imports) {
-        if (hasMetadata(METADATA_KEY_QUERY_ELEMENT)) {
-            if (modelSpecAnnotation.isSubquery()) {
-                imports.add(TypeConstants.SUBQUERY_TABLE);
-            } else {
-                imports.add(TypeConstants.VIEW);
-            }
-            imports.add(TypeConstants.QUERY);
-        }
     }
 }

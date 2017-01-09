@@ -5,19 +5,14 @@
  */
 package com.yahoo.squidb.processor.writers;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
-
-import java.io.IOException;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -30,151 +25,151 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     private static final String VIEW_NAME = "VIEW";
     private static final String SUBQUERY_NAME = "SUBQUERY";
 
-    private static final MethodDeclarationParameters GET_TABLE_MAPPING_VISITORS;
-
-    static {
-        GET_TABLE_MAPPING_VISITORS = new MethodDeclarationParameters()
-                .setMethodName("getTableMappingVisitors")
-                .setReturnType(TypeConstants.TABLE_MAPPING_VISITORS)
-                .setModifiers(Modifier.PROTECTED);
-    }
-
-    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv, AptUtils utils) {
-        super(new ViewModelSpecWrapper(element, pluginEnv, utils), pluginEnv, utils);
+    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
+        super(new ViewModelSpecWrapper(element, pluginEnv), pluginEnv);
     }
 
     @Override
-    protected void emitModelSpecificFields() throws IOException {
-        emitUnaliasedPropertyArray();
-        emitAliasedPropertyArray();
-        emitViewOrSubqueryDeclaration();
+    protected void declareModelSpecificFields() {
+        declareUnaliasedPropertyArray();
+        declareAliasedPropertyArray();
+        declareViewOrSubqueryDeclaration();
+        declareViewInitializer();
     }
 
-    private void emitUnaliasedPropertyArray() throws IOException {
-        writer.writeComment("--- unaliased property references");
-        Expression basePropertiesInit = Expressions.block(new Expression() {
-            @Override
-            public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                return emitPropertyReferenceArrayBody(false);
-            }
-        }, false, false, false, false);
-
-        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, BASE_PROPERTY_ARRAY_NAME,
-                basePropertiesInit, TypeConstants.PRIVATE_STATIC_FINAL)
-                .writeNewline();
+    private void declareUnaliasedPropertyArray() {
+        FieldSpec.Builder unaliasedProperties = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY, BASE_PROPERTY_ARRAY_NAME,
+                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        CodeBlock.Builder unaliasedPropertiesInitializer = CodeBlock.builder()
+                .beginControlFlow("");
+        buildPropertyReferenceArrayBody(unaliasedPropertiesInitializer, false);
+        unaliasedPropertiesInitializer.endControlFlow();
+        unaliasedProperties.initializer(unaliasedPropertiesInitializer.build());
+        builder.addField(unaliasedProperties.build());
     }
 
-    private void emitAliasedPropertyArray() throws IOException {
-        writer.writeComment("--- aliased property references");
-        Expression aliasedPropertiesInit = Expressions.block(new Expression() {
-            @Override
-            public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                return emitPropertyReferenceArrayBody(true);
-            }
-        }, false, false, false, false);
-
-        writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, ALIASED_PROPERTY_ARRAY_NAME,
-                aliasedPropertiesInit, TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
-        writer.beginInitializerBlock(true, true);
-        writer.writeStatement(Expressions.callMethod("validateAliasedProperties", ALIASED_PROPERTY_ARRAY_NAME));
-        writer.finishInitializerBlock(false, true);
-        writer.writeNewline();
+    private void declareAliasedPropertyArray() {
+        FieldSpec.Builder aliasedProperties = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY,
+                ALIASED_PROPERTY_ARRAY_NAME, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+        CodeBlock.Builder aliasedPropertiesInitializer = CodeBlock.builder()
+                .beginControlFlow("");
+        buildPropertyReferenceArrayBody(aliasedPropertiesInitializer, true);
+        aliasedPropertiesInitializer.endControlFlow();
+        aliasedProperties.initializer(aliasedPropertiesInitializer.build());
+        builder.addField(aliasedProperties.build());
     }
 
-    private boolean emitPropertyReferenceArrayBody(boolean writeAlias) throws IOException {
-        for (ViewModelPropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
-            propertyGenerator.emitViewPropertyReference(writer);
-            if (writeAlias) {
-                String alias = propertyGenerator.getAlias();
-                if (!AptUtils.isEmpty(alias)) {
-                    writer.appendString(".as(\"" + alias + "\")");
-                }
-            }
-            writer.appendString(",\n");
-        }
-        return !AptUtils.isEmpty(modelSpec.getPropertyGenerators());
-    }
-
-    private void emitViewOrSubqueryDeclaration() throws IOException {
-        boolean view = !modelSpec.getSpecAnnotation().isSubquery();
-        writer.writeComment("--- " + (view ? "view" : "subquery") + " declaration");
-        String name = "\"" + modelSpec.getSpecAnnotation().viewName().trim() + "\"";
+    private void declareViewInitializer() {
+        CodeBlock.Builder viewInitializer = CodeBlock.builder()
+                .addStatement("validateAliasedProperties($L)", ALIASED_PROPERTY_ARRAY_NAME);
         if (modelSpec.getQueryElement() != null) {
-            Expression queryReference = Expressions.staticReference(modelSpec.getModelSpecName(),
-                    modelSpec.getQueryElement().getSimpleName().toString())
-                    .callMethod("selectMore", ALIASED_PROPERTY_ARRAY_NAME);
+            String queryElementName = modelSpec.getQueryElement().getSimpleName().toString();
             if (modelSpec.getViewQueryAnnotation().freeze()) {
-                queryReference = queryReference.callMethod("freeze");
+                viewInitializer.addStatement("$L = $T.$L.selectMore($L).freeze()", QUERY_NAME,
+                        modelSpec.getModelSpecName(), queryElementName, ALIASED_PROPERTY_ARRAY_NAME);
+            } else {
+                viewInitializer.addStatement("$L = $T.$L.selectMore($L)", QUERY_NAME,
+                        modelSpec.getModelSpecName(), queryElementName);
             }
 
-            writer.writeFieldDeclaration(TypeConstants.QUERY, QUERY_NAME, queryReference,
-                    TypeConstants.PUBLIC_STATIC_FINAL);
-
-            Expression initializer = constructInitializer(name, view);
-            writer.writeFieldDeclaration(view ? TypeConstants.VIEW : TypeConstants.SUBQUERY_TABLE,
-                    view ? VIEW_NAME : SUBQUERY_NAME, initializer, TypeConstants.PUBLIC_STATIC_FINAL);
-        } else {
-            writer.writeFieldDeclaration(CoreTypes.JAVA_STRING, view ? "VIEW_NAME" : "SUBQUERY_NAME",
-                    Expressions.fromString(name), TypeConstants.PUBLIC_STATIC_FINAL);
+            boolean view = !modelSpec.getSpecAnnotation().isSubquery();
+            String fieldName = view ? VIEW_NAME : SUBQUERY_NAME;
+            String name = modelSpec.getSpecAnnotation().viewName().trim();
+            if (view) {
+                viewInitializer.addStatement("$L = $T.fromQuery($L, $S, $T.class, $L)", fieldName, TypeConstants.VIEW,
+                        QUERY_NAME, name, modelSpec.getGeneratedClassName(), PROPERTIES_ARRAY_NAME);
+            } else {
+                viewInitializer.addStatement("$L = $L.as($S, $T.class, $L)", fieldName, QUERY_NAME, name,
+                        modelSpec.getGeneratedClassName(), PROPERTIES_ARRAY_NAME);
+            }
         }
-        writer.writeNewline();
+        builder.addStaticBlock(viewInitializer.build());
     }
 
-    private Expression constructInitializer(String name, boolean view) {
-        if (view) {
-            return Expressions.staticMethod(TypeConstants.VIEW, "fromQuery", QUERY_NAME, name,
-                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
-        } else {
-            return Expressions.callMethodOn(QUERY_NAME, "as", name,
-                    Expressions.classObject(modelSpec.getGeneratedClassName()), PROPERTIES_ARRAY_NAME);
+    private void buildPropertyReferenceArrayBody(CodeBlock.Builder block, boolean writeAlias) {
+        for (ViewModelPropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
+            block.add("$L,\n", propertyGenerator.buildViewPropertyReference(writeAlias));
         }
     }
 
-    @Override
-    protected void emitAllProperties() throws IOException {
-        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
-            emitSinglePropertyDeclaration(modelSpec.getPropertyGenerators().get(i), i);
-        }
-    }
-
-    private void emitSinglePropertyDeclaration(ViewModelPropertyGenerator generator, int index) throws IOException {
-        modelSpec.getPluginBundle().beforeEmitPropertyDeclaration(writer, generator);
-        DeclaredTypeName type = generator.getPropertyType();
-        String fieldToQualify = ALIASED_PROPERTY_ARRAY_NAME + "[" + index + "]";
-        Expression expressionToCast;
+    private void declareViewOrSubqueryDeclaration() {
+        boolean view = !modelSpec.getSpecAnnotation().isSubquery();
+        String name = modelSpec.getSpecAnnotation().viewName().trim();
         if (modelSpec.getQueryElement() != null) {
-            String callOn = modelSpec.getSpecAnnotation().isSubquery() ? SUBQUERY_NAME : VIEW_NAME;
-            expressionToCast = Expressions.callMethodOn(callOn, "qualifyField", fieldToQualify);
-        } else {
-            expressionToCast = Expressions.reference(fieldToQualify);
-        }
-        writer.writeFieldDeclaration(type, generator.getPropertyName(),
-                expressionToCast.cast(type), TypeConstants.PUBLIC_STATIC_FINAL)
-                .writeNewline();
-        modelSpec.getPluginBundle().afterEmitPropertyDeclaration(writer, generator);
-    }
+            FieldSpec.Builder query = FieldSpec.builder(TypeConstants.QUERY, QUERY_NAME,
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+            builder.addField(query.build());
 
-    private void emitTableModelMapper() throws IOException {
-        writer.writeComment("--- mappers");
-        writer.writeFieldDeclaration(TypeConstants.TABLE_MAPPING_VISITORS, "tableMappingInfo",
-                Expressions.callMethod("generateTableMappingVisitors",
-                        PROPERTIES_ARRAY_NAME, ALIASED_PROPERTY_ARRAY_NAME, BASE_PROPERTY_ARRAY_NAME),
-                TypeConstants.PRIVATE_STATIC_FINAL)
-                .writeNewline();
-        writer.writeAnnotation(CoreTypes.OVERRIDE)
-                .beginMethodDefinition(GET_TABLE_MAPPING_VISITORS)
-                .writeStringStatement("return tableMappingInfo")
-                .finishMethodDefinition();
+
+            TypeName type = view ? TypeConstants.VIEW : TypeConstants.SUBQUERY_TABLE;
+            String fieldName = view ? VIEW_NAME : SUBQUERY_NAME;
+            FieldSpec.Builder viewOrSubquery = FieldSpec.builder(type, fieldName,
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+            builder.addField(viewOrSubquery.build());
+        } else {
+            builder.addField(FieldSpec.builder(TypeName.get(String.class), view ? "VIEW_NAME" : "SUBQUERY_NAME",
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("$S", name).build());
+        }
     }
 
     @Override
-    protected void emitDefaultValuesInitializationBlock() throws IOException {
+    protected void declareAllProperties() {
+        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
+            declareSingleProperty(modelSpec.getPropertyGenerators().get(i));
+        }
+    }
+
+    private void declareSingleProperty(ViewModelPropertyGenerator generator) {
+        TypeName type = generator.getPropertyType();
+
+        FieldSpec.Builder propertyBuilder = FieldSpec.builder(type, generator.getPropertyName(),
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+        modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+        FieldSpec property = propertyBuilder.build();
+        builder.addField(property);
+        modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+    }
+
+    private void declareTableModelMapper() {
+        FieldSpec.Builder tableMappers = FieldSpec.builder(TypeConstants.TABLE_MAPPING_VISITORS, "tableMappingInfo",
+                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        builder.addField(tableMappers.build());
+
+        MethodSpec.Builder params = MethodSpec.methodBuilder("getTableMappingVisitors")
+                .addAnnotation(Override.class)
+                .returns(TypeConstants.TABLE_MAPPING_VISITORS)
+                .addModifiers(Modifier.PROTECTED)
+                .addStatement("return tableMappingInfo");
+        builder.addMethod(params.build());
+
+        builder.addStaticBlock(CodeBlock.of("tableMappingInfo = generateTableMappingVisitors($L, $L, $L);\n",
+                PROPERTIES_ARRAY_NAME, ALIASED_PROPERTY_ARRAY_NAME, BASE_PROPERTY_ARRAY_NAME));
+    }
+
+    @Override
+    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
+            TypeName type = modelSpec.getPropertyGenerators().get(i).getPropertyType();
+            CodeBlock initializer;
+            if (modelSpec.getQueryElement() != null) {
+                String callOn = modelSpec.getSpecAnnotation().isSubquery() ? SUBQUERY_NAME : VIEW_NAME;
+                initializer = CodeBlock.of("($T) $L.qualifyField($L[$L])", type, callOn,
+                        ALIASED_PROPERTY_ARRAY_NAME, i);
+            } else {
+                initializer = CodeBlock.of("($T) $L[$L]", type, ALIASED_PROPERTY_ARRAY_NAME, i);
+            }
+            block.addStatement("$L[$L] = $L = $L", PROPERTIES_ARRAY_NAME, i,
+                    modelSpec.getPropertyGenerators().get(i).getPropertyName(), initializer);
+        }
+    }
+
+    @Override
+    protected void buildDefaultValuesInitializationBlock(CodeBlock.Builder block) {
         //
     }
 
     @Override
-    protected void emitModelSpecificHelpers() throws IOException {
-        emitTableModelMapper();
+    protected void declareModelSpecificHelpers() {
+        declareTableModelMapper();
     }
 }

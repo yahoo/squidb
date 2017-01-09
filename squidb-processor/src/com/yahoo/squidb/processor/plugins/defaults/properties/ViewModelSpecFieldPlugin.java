@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.Alias;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.SqlUtils;
@@ -36,7 +36,7 @@ public class ViewModelSpecFieldPlugin
     }
 
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, TypeName fieldType) {
         boolean isViewProperty = TypeConstants.isBasicPropertyType(fieldType);
         ViewQuery isViewQuery = field.getAnnotation(ViewQuery.class);
         if (TypeConstants.isVisibleConstant(field)) {
@@ -60,11 +60,12 @@ public class ViewModelSpecFieldPlugin
     }
 
     @Override
-    protected ViewModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected ViewModelPropertyGenerator getPropertyGenerator(VariableElement field, TypeName fieldType) {
         Alias alias = field.getAnnotation(Alias.class);
         if (alias != null) {
-            SqlUtils.checkIdentifier(alias.value().trim(), "view column name", modelSpec, field, utils);
+            SqlUtils.checkIdentifier(alias.value().trim(), "view column name", modelSpec, field,
+                    pluginEnv.getMessager());
         }
-        return new PropertyReferencePropertyGenerator(modelSpec, field, fieldType, utils);
+        return new PropertyReferencePropertyGenerator(modelSpec, field, fieldType, pluginEnv);
     }
 }

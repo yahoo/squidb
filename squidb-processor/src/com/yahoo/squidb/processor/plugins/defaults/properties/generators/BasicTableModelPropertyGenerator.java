@@ -1,19 +1,19 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expressions;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
@@ -27,13 +27,14 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     protected final String columnName;
     protected final String constraintString;
 
-    public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, AptUtils utils) {
-        this(modelSpec, columnName, columnName, utils);
+    public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
+            PluginEnvironment pluginEnv) {
+        this(modelSpec, columnName, columnName, pluginEnv);
     }
 
     public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, String propertyName,
-            AptUtils utils) {
-        super(modelSpec, null, propertyName, utils);
+            PluginEnvironment pluginEnv) {
+        super(modelSpec, null, propertyName, pluginEnv);
 
         this.columnSpec = null;
         this.columnName = columnName == null ? null : columnName.trim();
@@ -42,8 +43,9 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         validateColumnName();
     }
 
-    public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field, AptUtils utils) {
-        super(modelSpec, field, field.getSimpleName().toString(), utils);
+    public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field,
+            PluginEnvironment pluginEnv) {
+        super(modelSpec, field, field.getSimpleName().toString(), pluginEnv);
 
         this.columnSpec = field.getAnnotation(ColumnSpec.class);
         this.columnName = initColumnName(columnSpec);
@@ -60,7 +62,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     }
 
     private String initColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !AptUtils.isEmpty(columnDef.name().trim())) {
+        if (columnDef != null && !StringUtils.isEmpty(columnDef.name().trim())) {
             return columnDef.name().trim();
         }
         return camelCasePropertyName;
@@ -79,7 +81,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             if (!toReturn.toString().toUpperCase().contains("DEFAULT")) {
                 toReturn.append(" DEFAULT ").append(columnDefaultValue);
             } else {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Duplicate default value definitions", field);
+                pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                        "Duplicate default value definitions", field);
             }
         }
 
@@ -91,14 +94,15 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
                     toReturn.append("AUTOINCREMENT");
                 }
             } else {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Duplicate primary key definition in column constraints."
-                        + " Use the @PrimaryKey annotation instead of declaring the constraint in ColumnSpec.");
+                pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Duplicate primary key definition in "
+                        + "column constraints. Use the @PrimaryKey annotation instead of declaring the constraint in "
+                        + "ColumnSpec.");
             }
         }
 
         String toReturnString = toReturn.toString().trim();
-        if (!AptUtils.isEmpty(toReturnString)) {
-            return "\"" + toReturnString + "\"";
+        if (!StringUtils.isEmpty(toReturnString)) {
+            return toReturnString;
         }
         return null;
     }
@@ -109,20 +113,28 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     }
 
     @Override
-    public void emitTablePropertyDeclaration(JavaFileWriter writer, String tableModelArgName) throws IOException {
+    public FieldSpec.Builder buildTablePropertyDeclaration(String tableModelArgName) {
+        FieldSpec.Builder property = FieldSpec.builder(getPropertyType(), propertyName,
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         if (isDeprecated) {
-            writer.writeAnnotation(CoreTypes.DEPRECATED);
-        }
-        List<Object> constructorArgs = new ArrayList<>();
-        constructorArgs.add(tableModelArgName);
-        constructorArgs.add("\"" + columnName + "\"");
-        String constraintString = getConstraintString();
-        if (!AptUtils.isEmpty(constraintString)) {
-            constructorArgs.add(constraintString);
+            property.addAnnotation(Deprecated.class);
         }
 
-        writer.writeFieldDeclaration(getPropertyType(), propertyName,
-                Expressions.callConstructor(getPropertyType(), constructorArgs), TypeConstants.PUBLIC_STATIC_FINAL);
+        String initializerFormat = "new $T($L, $S";
+
+        List<Object> formatArgs = new ArrayList<>();
+        formatArgs.add(getPropertyType());
+        formatArgs.add(tableModelArgName);
+        formatArgs.add(columnName);
+
+        String constraintString = getConstraintString();
+        if (!StringUtils.isEmpty(constraintString)) {
+            initializerFormat += ", $S";
+            formatArgs.add(constraintString);
+        }
+        initializerFormat += ")";
+        property.initializer(initializerFormat, formatArgs.toArray(new Object[formatArgs.size()]));
+        return property;
     }
 
     @Override
@@ -140,23 +152,17 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     }
 
     @Override
-    public void emitPutDefault(JavaFileWriter writer, String contentValuesName) throws IOException {
+    public CodeBlock buildPutDefault(String contentValuesName) {
         String defaultValue = getDefaultValueFromColumnSpec();
         if (ColumnSpec.DEFAULT_NONE.equals(defaultValue)) {
-            return;
+            return null;
         }
 
-        String methodToInvoke;
-        List<Object> arguments = new ArrayList<>();
-        arguments.add(Expressions.callMethodOn(propertyName, "getName"));
         if (ColumnSpec.DEFAULT_NULL.equals(defaultValue)) {
-            methodToInvoke = "putNull";
+            return CodeBlock.of("$L.putNull($L.getName())", contentValuesName, propertyName);
         } else {
-            methodToInvoke = "put";
-            arguments.add(getDefaultValueForContentValues());
+            return CodeBlock.of("$L.put($L.getName(), $L)", contentValuesName, propertyName, getDefaultValueForContentValues());
         }
-
-        writer.writeStatement(Expressions.callMethodOn(contentValuesName, methodToInvoke, arguments));
     }
 
     protected String getDefaultValueForContentValues() {

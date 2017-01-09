@@ -5,8 +5,8 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.enums;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.model.TypeName;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -29,23 +29,24 @@ public abstract class EnumPropertyReferencePlugin<T extends ModelSpec<?, P>, P e
     }
 
     @Override
-    protected boolean isSupportedPropertyType(DeclaredTypeName fieldType) {
-        return TypeConstants.ENUM_PROPERTY.equals(fieldType);
+    protected boolean isSupportedPropertyType(TypeName fieldType) {
+        return fieldType instanceof ParameterizedTypeName &&
+                TypeConstants.ENUM_PROPERTY.equals(((ParameterizedTypeName) fieldType).rawType);
     }
 
     @Override
-    protected P getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
+    protected P getPropertyGenerator(VariableElement field, TypeName fieldType) {
         // We know it's an EnumProperty, so extract the type arg
-        List<? extends TypeName> typeArgs = fieldType.getTypeArgs();
-        if (typeArgs != null && typeArgs.size() == 1 && typeArgs.get(0) instanceof DeclaredTypeName) {
-            return getTypedEnumPropertyGenerator(field, fieldType);
+        List<TypeName> typeArgs = ((ParameterizedTypeName) fieldType).typeArguments;
+        if (typeArgs != null && typeArgs.size() == 1 && !TypeConstants.isGenericType(typeArgs.get(0))) {
+            return getTypedEnumPropertyGenerator(field, (ParameterizedTypeName) fieldType);
         }
-        utils.getMessager().printMessage(Kind.WARNING,
+        pluginEnv.getMessager().printMessage(Kind.WARNING,
                 "EnumProperty must use a declared type argument; it cannot be raw or use a generic type argument",
                 field);
         return null;
     }
 
-    protected abstract P getTypedEnumPropertyGenerator(VariableElement field, DeclaredTypeName propertyType);
+    protected abstract P getTypedEnumPropertyGenerator(VariableElement field, ParameterizedTypeName propertyType);
 }
 

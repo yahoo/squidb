@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces;
 
-import com.yahoo.aptutils.writer.JavaFileWriter;
-
-import java.io.IOException;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 
 /**
  * Base interface for {@link PropertyGenerator}s specific to table models
@@ -15,11 +14,11 @@ import java.io.IOException;
 public interface TableModelPropertyGenerator extends PropertyGenerator {
 
     /**
-     * Called to write the declaration of the property itself
+     * Called to create declaration of the property itself. Plugins will have a chance to modify the params
      *
-     * @param writer a {@link JavaFileWriter} for writing to
+     * @param tableModelArgName the name of the first argument to most property constructors (the TableModelName)
      */
-    void emitTablePropertyDeclaration(JavaFileWriter writer, String tableModelArgName) throws IOException;
+    FieldSpec.Builder buildTablePropertyDeclaration(String tableModelArgName);
 
     /**
      * @return the name of the underlying column in SQLite to use for this property
@@ -32,10 +31,11 @@ public interface TableModelPropertyGenerator extends PropertyGenerator {
     String getConstraintString();
 
     /**
-     * Called to emit a call to ContentValues.put for adding a property default to the model default values
+     * Creates a {@link CodeBlock} expression representing a call to ValuesStorage.put for adding a property default
+     * to the model default values. May return null if the property has no default.
      *
-     * @param writer a {@link JavaFileWriter} for writing to
      * @param contentValuesName the name of the content values variable to call
+     * @return a {@link CodeBlock} representing the call to put a default value, or null for no expression
      */
-    void emitPutDefault(JavaFileWriter writer, String contentValuesName) throws IOException;
+    CodeBlock buildPutDefault(String contentValuesName);
 }

@@ -19,10 +19,10 @@ License: Apache 2.0
 
 *
 
-squidb-processor uses apt-utils from:
-java-traits
-https://github.com/sbosley/java-traits
-Copyright (C) 2014 -- Yahoo, Inc.
+squidb-processor uses JavaPoet from:
+JavaPoet
+https://github.com/square/javapoet
+Copyright (C) 2015 -- Square, Inc.
 License: Apache 2.0
 
 *

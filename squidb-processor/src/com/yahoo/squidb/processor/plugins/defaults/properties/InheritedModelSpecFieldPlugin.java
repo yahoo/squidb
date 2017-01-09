@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -32,7 +32,7 @@ public class InheritedModelSpecFieldPlugin extends
     }
 
     @Override
-    protected InheritedModelPropertyGenerator getPropertyGenerator(VariableElement field, DeclaredTypeName fieldType) {
-        return new PropertyReferencePropertyGenerator(modelSpec, field, fieldType, utils);
+    protected InheritedModelPropertyGenerator getPropertyGenerator(VariableElement field, TypeName fieldType) {
+        return new PropertyReferencePropertyGenerator(modelSpec, field, fieldType, pluginEnv);
     }
 }

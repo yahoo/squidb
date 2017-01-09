@@ -5,12 +5,13 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.CoreTypes;
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.ArrayTypeName;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.annotations.UpsertConfig;
 import com.yahoo.squidb.annotations.UpsertKey;
 import com.yahoo.squidb.processor.TypeConstants;
@@ -21,7 +22,6 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,19 +40,10 @@ import javax.lang.model.element.VariableElement;
  */
 public class UpsertPlugin extends Plugin {
 
-    private static final DeclaredTypeName UPSERTABLE =
-            new DeclaredTypeName(TypeConstants.SQUIDB_DATA_PACKAGE, "Upsertable");
-
-    private static final DeclaredTypeName CRITERION =
-            new DeclaredTypeName(TypeConstants.SQUIDB_SQL_PACKAGE, "Criterion");
-
-    private static final DeclaredTypeName CRITERION_ARRAY = CRITERION.clone();
-    static {
-        CRITERION_ARRAY.setArrayDepth(1);
-    }
-
-    private static final DeclaredTypeName INDEX =
-            new DeclaredTypeName(TypeConstants.SQUIDB_SQL_PACKAGE, "Index");
+    private static final ClassName UPSERTABLE = ClassName.get(TypeConstants.SQUIDB_DATA_PACKAGE, "Upsertable");
+    private static final ClassName CRITERION = ClassName.get(TypeConstants.SQUIDB_SQL_PACKAGE, "Criterion");
+    private static final TypeName CRITERION_ARRAY = ArrayTypeName.of(CRITERION);
+    private static final ClassName INDEX = ClassName.get(TypeConstants.SQUIDB_SQL_PACKAGE, "Index");
 
     private static final String LOGICAL_KEY_COL_ARRAY_NAME = "logicalKeyColumns";
 
@@ -129,51 +120,31 @@ public class UpsertPlugin extends Plugin {
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        if (!upsertColumns.isEmpty()) {
-            imports.add(UPSERTABLE);
-            imports.add(CRITERION);
-            imports.add(INDEX);
-        }
-    }
-
-    @Override
-    public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
+    public void addInterfacesToImplement(Set<TypeName> interfaces) {
         if (!upsertColumns.isEmpty()) {
             interfaces.add(UPSERTABLE);
         }
     }
 
     @Override
-    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
+    public void afterDeclareSchema(TypeSpec.Builder builder) {
         if (!upsertColumns.isEmpty()) {
-            writer.writeComment("--- columns and uniqueness index for Upsertable logical key columns");
+            FieldSpec.Builder upsertColumnsField = FieldSpec.builder(TypeConstants.PROPERTY_ARRAY,
+                    LOGICAL_KEY_COL_ARRAY_NAME, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
-            writer.writeFieldDeclaration(TypeConstants.PROPERTY_ARRAY, LOGICAL_KEY_COL_ARRAY_NAME, new Expression() {
-                @Override
-                public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                    writer.appendString("new ").appendString(writer.shortenName(TypeConstants.PROPERTY, false));
-                    writer.appendString("[] ");
-                    Expressions.block(new Expression() {
-                        @Override
-                        public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                            for (PropertyGenerator generator : upsertColumns) {
-                                writer.writeString(generator.getPropertyName())
-                                        .appendString(",")
-                                        .writeNewline();
-                            }
-                            return true;
-                        }
-                    }, false, false, false, false).writeExpression(writer);
-                    return true;
-                }
-            }, TypeConstants.PRIVATE_STATIC_FINAL);
-            writer.writeNewline();
+            CodeBlock.Builder initializer = CodeBlock.builder()
+                    .beginControlFlow("new $T[]", TypeConstants.PROPERTY);
+            for (PropertyGenerator generator : upsertColumns) {
+                initializer.add("$L,\n", generator.getPropertyName());
+            }
+            initializer.endControlFlow();
+            upsertColumnsField.initializer(initializer.build());
+            builder.addField(upsertColumnsField.build());
 
-            writer.writeFieldDeclaration(INDEX, "UPSERT_INDEX", Expressions.callMethodOn("TABLE", "uniqueIndex",
-                    "\"" + getUpsertIndexName() + "\"", LOGICAL_KEY_COL_ARRAY_NAME),
-                    TypeConstants.PUBLIC_STATIC_FINAL);
-            writer.writeNewline();
+            FieldSpec.Builder upsertIndexField = FieldSpec.builder(INDEX, "UPSERT_INDEX",
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("TABLE.uniqueIndex($S, $L)", getUpsertIndexName(), LOGICAL_KEY_COL_ARRAY_NAME);
+            builder.addField(upsertIndexField.build());
         }
     }
 
@@ -183,97 +154,70 @@ public class UpsertPlugin extends Plugin {
         return "idx_" + tableName + "_upsertColumns";
     }
 
-    @Override
-    public void emitMethods(JavaFileWriter writer) throws IOException {
-        if (!upsertColumns.isEmpty()) {
-            emitRowidHasPriorityMethod(writer);
-            emitGetUpsertKeyLookupCriterion(writer);
-        }
-    }
-
-    private void emitRowidHasPriorityMethod(JavaFileWriter writer) throws IOException {
+    private void declareRowidHasPriorityMethod(TypeSpec.Builder builder) {
         boolean rowidHasPriority = true;
         UpsertConfig upsertConfig = modelSpec.getModelSpecElement().getAnnotation(UpsertConfig.class);
         if (upsertConfig != null) {
             rowidHasPriority = upsertConfig.rowidHasPriority();
         }
 
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName("rowidSupersedesLogicalKey")
-                .setReturnType(CoreTypes.PRIMITIVE_BOOLEAN)
-                .setModifiers(Modifier.PUBLIC);
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        writer.beginMethodDefinition(params);
-        writer.writeStatement(Expressions.fromString(Boolean.toString(rowidHasPriority)).returnExpr());
-        writer.finishMethodDefinition();
+        MethodSpec.Builder params = MethodSpec.methodBuilder("rowidSupersedesLogicalKey")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(TypeName.BOOLEAN)
+                .addAnnotation(Override.class)
+                .addStatement("return $L", rowidHasPriority);
+        builder.addMethod(params.build());
     }
 
-    private void emitGetUpsertKeyLookupCriterion(JavaFileWriter writer) throws IOException {
-        MethodDeclarationParameters params = new MethodDeclarationParameters()
-                .setMethodName("getLogicalKeyLookupCriterion")
-                .setReturnType(CRITERION)
-                .setModifiers(Modifier.PUBLIC);
-
-        writer.writeAnnotation(CoreTypes.OVERRIDE);
-        writer.beginMethodDefinition(params);
-
-        emitGetUpsertKeyLookupCriterionBody(writer);
-
-        writer.finishMethodDefinition();
+    @Override
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
+        if (!upsertColumns.isEmpty()) {
+            declareRowidHasPriorityMethod(builder);
+            declareGetUpsertKeyLookupCriterion(builder);
+        }
     }
 
-    private void emitGetUpsertKeyLookupCriterionBody(JavaFileWriter writer) throws IOException {
+    private void declareGetUpsertKeyLookupCriterion(TypeSpec.Builder builder) {
+        MethodSpec.Builder params = MethodSpec.methodBuilder("getLogicalKeyLookupCriterion")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(CRITERION)
+                .addAnnotation(Override.class);
+        params.addCode(buildGetUpsertKeyLookupCriterionBody());
+
+        builder.addMethod(params.build());
+    }
+
+    private CodeBlock buildGetUpsertKeyLookupCriterionBody() {
         final boolean failureThrowsException;
         UpsertConfig upsertConfig = modelSpec.getModelSpecElement().getAnnotation(UpsertConfig.class);
         failureThrowsException = upsertConfig == null || upsertConfig.missingLookupValueThrows();
 
-        writer.writeString("for (int i = 0; i < " + upsertColumns.size() + "; i++) {").writeNewline();
-        writer.moveToScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-
-        String arrayReference = LOGICAL_KEY_COL_ARRAY_NAME + "[i]";
-        writer.writeFieldDeclaration(TypeConstants.PROPERTY, "col",
-                Expressions.fromString(arrayReference));
-        writer.writeString("if (!containsNonNullValue(col)) {").writeNewline();
-        writer.moveToScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-        writer.writeStatement(badValueFailureExpression(arrayReference, failureThrowsException));
-        writer.finishScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-        writer.writeString("}").writeNewline();
-        writer.finishScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-        writer.writeString("}").writeNewline();
-
-        writer.writeFieldDeclaration(CRITERION, "result",
-                Expressions.arrayReference(LOGICAL_KEY_COL_ARRAY_NAME, 0).callMethod("eq",
-                Expressions.callMethod("get", Expressions.arrayReference(LOGICAL_KEY_COL_ARRAY_NAME, 0))));
-        if (upsertColumns.size() > 1) {
-            writer.writeFieldDeclaration(CRITERION_ARRAY, "extraCriterion",
-                    Expressions.arrayAllocation(CRITERION, 1, upsertColumns.size() - 1));
-            writer.writeString("for (int i = 1; i < " + upsertColumns.size() + "; i++) {").writeNewline();
-            writer.moveToScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-            writer.writeStringStatement("extraCriterion[i - 1] = " + LOGICAL_KEY_COL_ARRAY_NAME
-                    + "[i].eq(get(" + LOGICAL_KEY_COL_ARRAY_NAME + "[i]))");
-            writer.finishScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-            writer.writeString("}").writeNewline();
-            writer.writeStatement(Expressions.assign(Expressions.fromString("result"),
-                    Expressions.staticMethod(CRITERION, "and", "result", "extraCriterion")));
-        }
-
-        writer.writeStatement(Expressions.fromString("result").returnExpr());
-    }
-
-    private Expression badValueFailureExpression(final String columnRef, boolean failureThrowsException) {
+        CodeBlock.Builder methodBody = CodeBlock.builder();
+        methodBody.beginControlFlow("for (int i = 0; i < $L; i++)", upsertColumns.size())
+                .addStatement("$T col = $L[i]", TypeConstants.PROPERTY, LOGICAL_KEY_COL_ARRAY_NAME)
+                .beginControlFlow("if (!containsNonNullValue(col))");
         if (failureThrowsException) {
-            return new Expression() {
-                @Override
-                public boolean writeExpression(JavaFileWriter writer) throws IOException {
-                    writer.appendString("throw new IllegalStateException(\"Value for upsert logical key column \""
-                            + " + " + columnRef + ".getName() + \" was missing when trying to build upsert criterion "
-                            + "for class \" + getClass())");
-                    return true;
-                }
-            };
+            methodBody.addStatement("throw new $T($S + $L[i].getName() + $S + getClass())",
+                    IllegalStateException.class, "Value for upsert key column ",  LOGICAL_KEY_COL_ARRAY_NAME,
+                    " was missing when trying to upsert item of class ");
         } else {
-            return Expressions.fromString("null").returnExpr();
+            methodBody.addStatement("return null");
         }
+        methodBody.endControlFlow();
+        methodBody.endControlFlow();
+        methodBody.addStatement("$T result = $L[0].eq(get($L[0]))", CRITERION,
+                LOGICAL_KEY_COL_ARRAY_NAME, LOGICAL_KEY_COL_ARRAY_NAME);
+
+        if (upsertColumns.size() > 1) {
+            methodBody.addStatement("$T extraCriterion = new $T[$L]",
+                    CRITERION_ARRAY, CRITERION, upsertColumns.size() - 1)
+                    .beginControlFlow("for (int i = 1; i < $L; i++)", upsertColumns.size())
+                    .addStatement("extraCriterion[i - 1] = $L[i].eq(get($L[i]))",
+                            LOGICAL_KEY_COL_ARRAY_NAME, LOGICAL_KEY_COL_ARRAY_NAME)
+                    .endControlFlow()
+                    .addStatement("result = $T.and(result, extraCriterion)", CRITERION);
+        }
+        methodBody.addStatement("return result");
+        return methodBody.build();
     }
 }

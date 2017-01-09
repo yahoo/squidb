@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins;
 
-import com.yahoo.aptutils.utils.AptUtils;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
@@ -14,8 +14,8 @@ import com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
-import com.yahoo.squidb.processor.plugins.defaults.enums.EnumPluginBundle;
 import com.yahoo.squidb.processor.plugins.defaults.UpsertPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.enums.EnumPluginBundle;
 import com.yahoo.squidb.processor.plugins.defaults.properties.InheritedModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.ViewModelSpecFieldPlugin;
@@ -28,24 +28,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedOptions;
 import javax.tools.Diagnostic;
 
 /**
  * This class maintains a list of known/enabled {@link Plugin} classes. Plugins available by default include
+ * all plugins found in the com.yahoo.squidb.processor.plugins.defaults package -- for example,
  * {@link ConstructorPlugin} for generating model constructors, {@link ImplementsPlugin} for allowing models to
  * implement interfaces, {@link ModelMethodPlugin} for copying methods from the model spec to the model, and the three
  * property generator plugins ({@link TableModelSpecFieldPlugin}, {@link ViewModelSpecFieldPlugin}, and
  * {@link InheritedModelSpecFieldPlugin}).
  * <p>
- * This class also manages options for the default plugins--the default plugins for constructors, interfaces, and model
- * methods can all be disabled using an option. Other options allow disabling default content values, disabling the
- * convenience getters and setters that accompany each property, and preferring user-defined plugins to the default
- * plugins. Options are passed as a comma-separated list of strings to the processor using the key "squidbOptions".
+ * This class also manages options for the default plugins--most of the default plugins for can all be disabled using
+ * an option flag. Other options allow disabling default content values or disabling the
+ * convenience getters and setters that accompany each property. Options are passed as a comma-separated list of
+ * strings to the processor using the key "squidbOptions".
  * <p>
  * All Plugin instances have access to the instance of PluginEnvironment that created them, and can call
- * {@link #hasOption(String)} or {@link #getEnvOptions()} to read any custom options specific to that plugin.
+ * {@link #hasEnvOption(String)} or {@link #getEnvOptions()} to read any custom options specific to that plugin.
  */
 public class PluginEnvironment {
 
@@ -134,7 +136,7 @@ public class PluginEnvironment {
             + ".SupportedOptions and use your own environment option key; see PluginEnvironment.getEnvOptions() and "
             + "PluginEnvironment.hasEnvOption(String) for more information.";
 
-    private final AptUtils utils;
+    private final ProcessingEnvironment env;
 
     /** all environment options passed to APT */
     private final Map<String, String> envOptions;
@@ -154,11 +156,11 @@ public class PluginEnvironment {
     }
 
     /**
-     * @param utils annotation processing utilities class
-     * @param envOptions map of annotation processing options obtained from {@link ProcessingEnvironment#getOptions()}
+     * @param env {@link ProcessingEnvironment} from the annotation processor
      */
-    public PluginEnvironment(AptUtils utils, Map<String, String> envOptions) {
-        this.utils = utils;
+    public PluginEnvironment(ProcessingEnvironment env) {
+        this.env = env;
+        Map<String, String> envOptions = env.getOptions();
         this.envOptions = Collections.unmodifiableMap(envOptions == null ? new HashMap<String, String>() : envOptions);
         this.squidbOptions = parseOptions();
         this.pluginSupportedOptions = new HashSet<>();
@@ -171,7 +173,7 @@ public class PluginEnvironment {
     private Set<String> parseOptions() {
         Set<String> result = new HashSet<>();
         String optionsString = envOptions.get(OPTIONS_KEY);
-        if (!AptUtils.isEmpty(optionsString)) {
+        if (!StringUtils.isEmpty(optionsString)) {
             String[] allOptions = optionsString.split(SEPARATOR);
             Collections.addAll(result, allOptions);
         }
@@ -179,12 +181,16 @@ public class PluginEnvironment {
     }
 
     private void initializeDefaultPlugins() {
-        if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
-            normalPriorityPlugins.add(AndroidModelPlugin.class);
-        }
+        // Can't disable these, but they can be overridden by user plugins with high priority
+        normalPriorityPlugins.add(TableModelSpecFieldPlugin.class);
+        normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
+        normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
 
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS)) {
             normalPriorityPlugins.add(ConstructorPlugin.class);
+        }
+        if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
+            normalPriorityPlugins.add(AndroidModelPlugin.class);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
             normalPriorityPlugins.add(ImplementsPlugin.class);
@@ -198,16 +204,9 @@ public class PluginEnvironment {
         if (!hasSquidbOption(OPTIONS_DISABLE_JAVADOC_COPYING)) {
             normalPriorityPlugins.add(JavadocPlugin.class);
         }
-
-        // Can't disable these, but they can be overridden by user plugins with high priority
-        normalPriorityPlugins.add(TableModelSpecFieldPlugin.class);
-        normalPriorityPlugins.add(ViewModelSpecFieldPlugin.class);
-        normalPriorityPlugins.add(InheritedModelSpecFieldPlugin.class);
-
         if (!hasSquidbOption(OPTIONS_DISABLE_ENUM_PROPERTIES)) {
             normalPriorityPlugins.add(EnumPluginBundle.class);
         }
-
         if (!hasSquidbOption(OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
             normalPriorityPlugins.add(ErrorLoggingPlugin.class);
         }
@@ -222,7 +221,7 @@ public class PluginEnvironment {
 
     private void initializePluginsFromEnvironment() {
         String pluginsString = envOptions.get(PLUGINS_KEY);
-        if (!AptUtils.isEmpty(pluginsString)) {
+        if (!StringUtils.isEmpty(pluginsString)) {
             String[] allPlugins = pluginsString.split(SEPARATOR);
             for (String plugin : allPlugins) {
                 processPlugin(plugin);
@@ -237,7 +236,7 @@ public class PluginEnvironment {
             if (pluginName.contains(":")) {
                 String[] nameAndPriority = pluginName.split(":");
                 if (nameAndPriority.length != 2) {
-                    utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    env.getMessager().printMessage(Diagnostic.Kind.WARNING,
                             "Error parsing plugin and priority " + pluginName + ", plugin will be ignored");
                 } else {
                     pluginName = nameAndPriority[0];
@@ -245,7 +244,7 @@ public class PluginEnvironment {
                     try {
                         priority = PluginPriority.valueOf(priorityString.toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unrecognized priority string " +
+                        env.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unrecognized priority string " +
                                 priorityString + " for plugin " + pluginName + ", defaulting to 'normal'. Should be " +
                                 "one of '" + PluginPriority.HIGH + "', " + "'" + PluginPriority.NORMAL + "', or '" +
                                 PluginPriority.LOW + "'.");
@@ -257,11 +256,11 @@ public class PluginEnvironment {
             if (Plugin.class.isAssignableFrom(pluginClass)) {
                 addPlugin((Class<? extends Plugin>) pluginClass, priority);
             } else {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                env.getMessager().printMessage(Diagnostic.Kind.WARNING,
                         "Plugin " + pluginName + " is not a subclass of Plugin");
             }
         } catch (Exception e) {
-            utils.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unable to instantiate plugin " + pluginName +
+            env.getMessager().printMessage(Diagnostic.Kind.WARNING, "Unable to instantiate plugin " + pluginName +
                     ", reason: " + e);
         }
     }
@@ -297,7 +296,7 @@ public class PluginEnvironment {
         Set<String> unsupportedOptions = new HashSet<>(squidbOptions);
         unsupportedOptions.removeAll(SQUIDB_SUPPORTED_OPTIONS);
 
-        if (AptUtils.isEmpty(unsupportedOptions)) {
+        if (unsupportedOptions.isEmpty()) {
             return;
         }
 
@@ -309,7 +308,7 @@ public class PluginEnvironment {
             sb.append(option);
         }
         String message = String.format(UNSUPPORTED_OPTIONS_WARNING, sb);
-        utils.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
+        env.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
     }
 
     /**
@@ -373,10 +372,17 @@ public class PluginEnvironment {
     }
 
     /**
-     * @return an AptUtils instance that provides useful annotation processing utility methods
+     * @return a ProcessingEnvironment instance that provides useful annotation processing utility methods
      */
-    public AptUtils getUtils() {
-        return utils;
+    public ProcessingEnvironment getProcessingEnvironment() {
+        return env;
+    }
+
+    /**
+     * Convenience for getProcessingEnvironment().getMessager()
+     */
+    public Messager getMessager() {
+        return env.getMessager();
     }
 
     /**
@@ -398,7 +404,7 @@ public class PluginEnvironment {
                 accumulator.add(plugin.getConstructor(ModelSpec.class, PluginEnvironment.class)
                         .newInstance(modelSpec, this));
             } catch (Exception e) {
-                utils.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                env.getMessager().printMessage(Diagnostic.Kind.WARNING,
                         "Unable to instantiate plugin " + plugin + ", reason: " + e);
             }
         }

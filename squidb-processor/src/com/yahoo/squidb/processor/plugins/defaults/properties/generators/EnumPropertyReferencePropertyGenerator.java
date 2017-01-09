@@ -5,14 +5,12 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.data.ModelSpec;
-
-import java.io.IOException;
-import java.util.Set;
+import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import javax.lang.model.element.VariableElement;
 
@@ -24,29 +22,23 @@ public class EnumPropertyReferencePropertyGenerator extends PropertyReferencePro
     private final EnumPropertyGeneratorDelegate delegate;
 
     public EnumPropertyReferencePropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field,
-            DeclaredTypeName propertyType, AptUtils utils) {
-        super(modelSpec, field, propertyType, utils);
+            ParameterizedTypeName propertyType, PluginEnvironment pluginEnv) {
+        super(modelSpec, field, propertyType, pluginEnv);
         this.delegate = new EnumPropertyGeneratorDelegate(getPropertyName(), getTypeForAccessors());
     }
 
     @Override
-    protected DeclaredTypeName initAccessorsType() {
-        return (DeclaredTypeName) propertyType.getTypeArgs().get(0);
+    protected TypeName initAccessorsType() {
+        return ((ParameterizedTypeName) propertyType).typeArguments.get(0);
     }
 
     @Override
-    public void registerRequiredImports(Set<DeclaredTypeName> imports) {
-        super.registerRequiredImports(imports);
-        delegate.registerRequiredImports(imports);
+    protected void writeGetterBody(CodeBlock.Builder body, MethodSpec methodParams) {
+        delegate.writeGetterBody(body);
     }
 
     @Override
-    protected void writeGetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        delegate.writeGetterBody(writer, params);
-    }
-
-    @Override
-    protected void writeSetterBody(JavaFileWriter writer, MethodDeclarationParameters params) throws IOException {
-        delegate.writeSetterBody(writer, params);
+    protected void writeSetterBody(CodeBlock.Builder body, MethodSpec methodParams) {
+        delegate.writeSetterBody(body, methodParams.parameters.get(0).name);
     }
 }

@@ -5,13 +5,13 @@
  */
 package com.yahoo.squidb.processor.plugins;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.parameters.MethodDeclarationParameters;
-import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +33,7 @@ public class PluginBundle extends Plugin {
     }
 
     /**
-     * Calls {@link Plugin#processVariableElement(VariableElement, DeclaredTypeName)} on all the bundled plugins until
+     * Calls {@link Plugin#processVariableElement(VariableElement, TypeName)} on all the bundled plugins until
      * one of them returns true to "claim" the field
      *
      * @param field a {@link VariableElement} field in a model spec
@@ -41,7 +41,7 @@ public class PluginBundle extends Plugin {
      * @return true if any of the bundled plugins claimed the field for processing, false otherwise
      */
     @Override
-    public boolean processVariableElement(VariableElement field, DeclaredTypeName fieldType) {
+    public boolean processVariableElement(VariableElement field, TypeName fieldType) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec() && plugin.processVariableElement(field, fieldType)) {
                 return true;
@@ -69,9 +69,9 @@ public class PluginBundle extends Plugin {
      * @return the name of a class to use as the model superclass, or null if no plugin provided one
      */
     @Override
-    public DeclaredTypeName getModelSuperclass() {
+    public TypeName getModelSuperclass() {
         for (Plugin plugin : plugins) {
-            DeclaredTypeName modelSuperclass = plugin.getModelSuperclass();
+            TypeName modelSuperclass = plugin.getModelSuperclass();
             if (modelSuperclass != null) {
                 return modelSuperclass;
             }
@@ -80,22 +80,10 @@ public class PluginBundle extends Plugin {
     }
 
     /**
-     * Calls {@link Plugin#addRequiredImports(Set)} on all the bundled plugins
-     */
-    @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.addRequiredImports(imports);
-            }
-        }
-    }
-
-    /**
      * Calls {@link Plugin#addInterfacesToImplement(Set)} on all the bundled plugins
      */
     @Override
-    public void addInterfacesToImplement(Set<DeclaredTypeName> interfaces) {
+    public void addInterfacesToImplement(Set<TypeName> interfaces) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
                 plugin.addInterfacesToImplement(interfaces);
@@ -104,179 +92,144 @@ public class PluginBundle extends Plugin {
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitClassDeclaration(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#beforeBeginClassDeclaration(TypeSpec.Builder)} on all the bundled plugins
      */
     @Override
-    public void beforeEmitClassDeclaration(JavaFileWriter writer) throws IOException {
+    public void beforeBeginClassDeclaration(TypeSpec.Builder builder) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitClassDeclaration(writer);
+                plugin.beforeBeginClassDeclaration(builder);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitSchema(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#beforeDeclareSchema(TypeSpec.Builder)} on all the bundled plugins
      */
     @Override
-    public void beforeEmitSchema(JavaFileWriter writer) throws IOException {
+    public void beforeDeclareSchema(TypeSpec.Builder builder) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitSchema(writer);
+                plugin.beforeDeclareSchema(builder);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
+     * Calls {@link Plugin#willDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec.Builder)} on
+     * all the bundled plugins
      */
     @Override
-    public void beforeEmitPropertyDeclaration(JavaFileWriter writer,
-            PropertyGenerator propertyGenerator) throws IOException {
+    public void willDeclareProperty(TypeSpec.Builder builder,
+            PropertyGenerator propertyGenerator, FieldSpec.Builder propertyDeclaration) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitPropertyDeclaration(writer, propertyGenerator);
+                plugin.willDeclareProperty(builder, propertyGenerator, propertyDeclaration);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitPropertyDeclaration(JavaFileWriter, PropertyGenerator)} on all the bundled plugins
+     * Calls {@link Plugin#didDeclareProperty(TypeSpec.Builder, PropertyGenerator, FieldSpec)} on
+     * all the bundled plugins
      */
     @Override
-    public void afterEmitPropertyDeclaration(JavaFileWriter writer,
-            PropertyGenerator propertyGenerator) throws IOException {
+    public void didDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            FieldSpec propertyDeclaration) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitPropertyDeclaration(writer, propertyGenerator);
+                plugin.didDeclareProperty(builder, propertyGenerator, propertyDeclaration);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitSchema(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#afterDeclareSchema(TypeSpec.Builder)} on all the bundled plugins
      */
     @Override
-    public void afterEmitSchema(JavaFileWriter writer) throws IOException {
+    public void afterDeclareSchema(TypeSpec.Builder builder) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitSchema(writer);
+                plugin.afterDeclareSchema(builder);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#emitConstructors(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#declareMethodsOrConstructors(TypeSpec.Builder)} on all the bundled plugins
      */
     @Override
-    public void emitConstructors(JavaFileWriter writer) throws IOException {
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.emitConstructors(writer);
+                plugin.declareMethodsOrConstructors(builder);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitGetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * Calls {@link Plugin#willDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
      * on all the bundled plugins
      */
     @Override
-    public void beforeEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters getterParams) throws IOException {
+    public void willDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            MethodSpec.Builder getterParams) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitGetter(writer, propertyGenerator, getterParams);
+                plugin.willDeclareGetter(builder, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitGetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * Calls {@link Plugin#didDeclareGetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
      * on all the bundled plugins
      */
     @Override
-    public void afterEmitGetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters getterParams) throws IOException {
+    public void didDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            MethodSpec getterParams) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitGetter(writer, propertyGenerator, getterParams);
+                plugin.didDeclareGetter(builder, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitSetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * Calls {@link Plugin#willDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec.Builder)}
      * on all the bundled plugins
      */
     @Override
-    public void beforeEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters getterParams) throws IOException {
+    public void willDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+            MethodSpec.Builder getterParams) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitSetter(writer, propertyGenerator, getterParams);
+                plugin.willDeclareSetter(builder, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#afterEmitSetter(JavaFileWriter, PropertyGenerator, MethodDeclarationParameters)}
+     * Calls {@link Plugin#didDeclareSetter(TypeSpec.Builder, PropertyGenerator, MethodSpec)}
      * on all the bundled plugins
      */
     @Override
-    public void afterEmitSetter(JavaFileWriter writer, PropertyGenerator propertyGenerator,
-            MethodDeclarationParameters getterParams) throws IOException {
+    public void didDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator, MethodSpec getterParams) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitSetter(writer, propertyGenerator, getterParams);
+                plugin.didDeclareSetter(builder, propertyGenerator, getterParams);
             }
         }
     }
 
     /**
-     * Calls {@link Plugin#beforeEmitMethods(JavaFileWriter)} on all the bundled plugins
+     * Calls {@link Plugin#declareAdditionalJava(TypeSpec.Builder)} on all the bundled plugins
      */
     @Override
-    public void beforeEmitMethods(JavaFileWriter writer) throws IOException {
+    public void declareAdditionalJava(TypeSpec.Builder builder) {
         for (Plugin plugin : plugins) {
             if (plugin.hasChangesForModelSpec()) {
-                plugin.beforeEmitMethods(writer);
-            }
-        }
-    }
-
-    /**
-     * Calls {@link Plugin#emitMethods(JavaFileWriter)} on all the bundled plugins
-     */
-    @Override
-    public void emitMethods(JavaFileWriter writer) throws IOException {
-        for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.emitMethods(writer);
-            }
-        }
-    }
-
-    /**
-     * Calls {@link Plugin#afterEmitMethods(JavaFileWriter)} on all the bundled plugins
-     */
-    @Override
-    public void afterEmitMethods(JavaFileWriter writer) throws IOException {
-        for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.afterEmitMethods(writer);
-            }
-        }
-    }
-
-    /**
-     * Calls {@link Plugin#emitAdditionalJava(JavaFileWriter)} on all the bundled plugins
-     */
-    @Override
-    public void emitAdditionalJava(JavaFileWriter writer) throws IOException {
-        for (Plugin plugin : plugins) {
-            if (plugin.hasChangesForModelSpec()) {
-                plugin.emitAdditionalJava(writer);
+                plugin.declareAdditionalJava(builder);
             }
         }
     }

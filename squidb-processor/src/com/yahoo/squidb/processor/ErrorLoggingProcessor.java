@@ -5,11 +5,13 @@
  */
 package com.yahoo.squidb.processor;
 
-import com.yahoo.aptutils.utils.AptUtils;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ModelGenErrors;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -19,6 +21,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -31,7 +34,7 @@ import javax.tools.Diagnostic;
 public class ErrorLoggingProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = new HashSet<>();
-    private AptUtils utils;
+    private ProcessingEnvironment processingEnv;
 
     public ErrorLoggingProcessor() {
         supportedAnnotationTypes.add(ModelGenErrors.class.getName());
@@ -50,7 +53,7 @@ public class ErrorLoggingProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        this.utils = new AptUtils(processingEnv);
+        this.processingEnv = processingEnv;
     }
 
     @Override
@@ -67,34 +70,71 @@ public class ErrorLoggingProcessor extends AbstractProcessor {
 
     @SuppressWarnings("unchecked")
     private void logErrors(Element element) {
-        AnnotationValue errorsArrayValue = utils.getAnnotationValue(element, ModelGenErrors.class, "value");
-        List<? extends AnnotationValue> errorsList = (List<? extends AnnotationValue>) errorsArrayValue.getValue();
-        for (AnnotationValue error : errorsList) {
-            logSingleError(error);
+        AnnotationValue errorsArrayValue = getAnnotationValueFromElement(element, ModelGenErrors.class, "value");
+        if (errorsArrayValue != null) {
+            List<? extends AnnotationValue> errorsList = (List<? extends AnnotationValue>) errorsArrayValue.getValue();
+            for (AnnotationValue error : errorsList) {
+                logSingleError(error);
+            }
         }
+    }
+
+    private AnnotationValue getAnnotationValueFromElement(Element element, Class<? extends Annotation> annotationClass,
+            String annotationValueName) {
+        List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
+        for (AnnotationMirror mirror : annotationMirrors) {
+            if (TypeName.get(annotationClass).equals(TypeName.get(mirror.getAnnotationType()))) {
+                return getAnnotationValueFromMirror(mirror, annotationValueName);
+            }
+        }
+        return null;
+    }
+
+    private AnnotationValue getAnnotationValueFromMirror(AnnotationMirror mirror, String annotationValueName) {
+        Map<? extends ExecutableElement, ? extends AnnotationValue> values = mirror.getElementValues();
+        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> value : values.entrySet()) {
+            if (annotationValueName.equals(value.getKey().getSimpleName().toString())) {
+                return value.getValue();
+            }
+        }
+        return null;
     }
 
     private void logSingleError(AnnotationValue singleErrorAnnotation) {
         AnnotationMirror singleErrorMirror = (AnnotationMirror) singleErrorAnnotation.getValue();
 
-        TypeMirror errorClass = utils.getTypeMirrorsFromAnnotationValue(
-                utils.getAnnotationValueFromMirror(singleErrorMirror, "specClass")).get(0);
-        String errorMessage = utils.getValuesFromAnnotationValue(
-                utils.getAnnotationValueFromMirror(singleErrorMirror, "message"), String.class).get(0);
-        List<String> errorElementValues = utils.getValuesFromAnnotationValue(
-                utils.getAnnotationValueFromMirror(singleErrorMirror, "element"), String.class);
-        String errorElementName = AptUtils.isEmpty(errorElementValues) ? null : errorElementValues.get(0);
+        TypeMirror errorClass = null;
+        AnnotationValue errorClassValue = getAnnotationValueFromMirror(singleErrorMirror, "specClass");
+        if (errorClassValue != null) {
+            errorClass = (TypeMirror) errorClassValue.getValue();
+        }
 
-        Element errorElement = findErrorElement(errorClass, errorElementName);
-        utils.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, errorElement);
+        String errorMessage = null;
+        AnnotationValue errorMessageValue = getAnnotationValueFromMirror(singleErrorMirror, "message");
+        if (errorMessageValue != null) {
+            errorMessage = (String) errorMessageValue.getValue();
+        }
+
+        String errorElementName = null;
+        AnnotationValue errorElementNameValue = getAnnotationValueFromMirror(singleErrorMirror, "element");
+        if (errorElementNameValue != null) {
+            errorElementName = (String) errorElementNameValue.getValue();
+        }
+
+        if (errorClass != null) {
+            Element errorElement = findErrorElement(errorClass, errorElementName);
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, errorMessage, errorElement);
+        }
     }
 
     private Element findErrorElement(TypeMirror errorClass, String elementName) {
-        Element errorClassElement = utils.getTypes().asElement(errorClass);
-        List<? extends Element> enclosedElements = errorClassElement.getEnclosedElements();
-        for (Element e : enclosedElements) {
-            if (e.getSimpleName().toString().equals(elementName)) {
-                return e;
+        Element errorClassElement = processingEnv.getTypeUtils().asElement(errorClass);
+        if (!StringUtils.isEmpty(elementName)) {
+            List<? extends Element> enclosedElements = errorClassElement.getEnclosedElements();
+            for (Element e : enclosedElements) {
+                if (e.getSimpleName().toString().equals(elementName)) {
+                    return e;
+                }
             }
         }
         return errorClassElement;

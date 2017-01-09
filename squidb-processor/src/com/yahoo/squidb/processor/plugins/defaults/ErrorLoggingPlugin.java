@@ -5,20 +5,16 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.aptutils.model.DeclaredTypeName;
-import com.yahoo.aptutils.utils.AptUtils;
-import com.yahoo.aptutils.writer.JavaFileWriter;
-import com.yahoo.aptutils.writer.expressions.Expression;
-import com.yahoo.aptutils.writer.expressions.Expressions;
-import com.yahoo.aptutils.writer.parameters.TypeDeclarationParameters;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeSpec;
+import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ErrorInfo;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -32,92 +28,37 @@ import javax.lang.model.element.Modifier;
  */
 public class ErrorLoggingPlugin extends Plugin {
 
-    private static final String MODEL_GEN_ERRORS_CLASS = "com.yahoo.squidb.annotations.ModelGenErrors";
-    private static final DeclaredTypeName MODEL_GEN_ERRORS = new DeclaredTypeName(MODEL_GEN_ERRORS_CLASS);
-    private static final DeclaredTypeName MODEL_GEN_ERROR_INNER =
-            new DeclaredTypeName(MODEL_GEN_ERRORS_CLASS, "ModelGenError");
+    private static final ClassName MODEL_GEN_ERRORS = ClassName.get("com.yahoo.squidb.annotations", "ModelGenErrors");
+    private static final ClassName MODEL_GEN_ERROR_INNER =
+            ClassName.get("com.yahoo.squidb.annotations", "ModelGenErrors", "ModelGenError");
 
     public ErrorLoggingPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
         super(modelSpec, pluginEnv);
     }
 
     @Override
-    public void addRequiredImports(Set<DeclaredTypeName> imports) {
-        if (modelSpec.getLoggedErrors().size() > 0) {
-            imports.add(MODEL_GEN_ERRORS);
-            imports.add(MODEL_GEN_ERROR_INNER);
-        }
-    }
-
-    @Override
-    public void emitAdditionalJava(JavaFileWriter writer) throws IOException {
+    public void declareAdditionalJava(TypeSpec.Builder builder) {
         List<ErrorInfo> errors = modelSpec.getLoggedErrors();
         if (errors.size() > 0) {
-            writer.writeExpression(new ModelGenErrorsExpression(errors))
-                    .writeNewline();
-            TypeDeclarationParameters dummyErrorClass = new TypeDeclarationParameters()
-                    .setModifiers(Modifier.STATIC, Modifier.FINAL)
-                    .setName(new DeclaredTypeName(modelSpec.getGeneratedClassName().toString(), "LoggedErrors"))
-                    .setKind(JavaFileWriter.Type.CLASS);
-            writer.beginTypeDefinition(dummyErrorClass);
-            writer.writeComment("Dummy class for holding logged error annotations");
-            writer.finishTypeDefinition();
+            TypeSpec.Builder dummyErrorClass = TypeSpec.classBuilder("LoggedErrors")
+                    .addModifiers(Modifier.STATIC, Modifier.FINAL)
+                    .addAnnotation(modelGenAnnotationSpec(errors))
+                    .addJavadoc("Dummy class for holding logged error annotations");
+            builder.addType(dummyErrorClass.build());
         }
     }
 
-    private static class ModelGenErrorsExpression extends Expression {
-
-        private final List<ErrorInfo> errors;
-
-        private ModelGenErrorsExpression(List<ErrorInfo> errors) {
-            this.errors = errors;
-        }
-
-        @Override
-        public boolean writeExpression(JavaFileWriter writer) throws IOException {
-            writer.appendString("@")
-                    .appendString(writer.shortenName(MODEL_GEN_ERRORS, false))
-                    .appendString("({\n");
-            writer.moveToScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-            boolean needsNewline = false;
-            for (ErrorInfo errorInfo : errors) {
-                if (needsNewline) {
-                    writer.appendString(",").writeNewline();
-                }
-                needsNewline = true;
-                writer.writeExpression(new ModelGenErrorSingle(errorInfo));
+    private AnnotationSpec modelGenAnnotationSpec(List<ErrorInfo> errors) {
+        AnnotationSpec.Builder rootAnnotationBulder = AnnotationSpec.builder(MODEL_GEN_ERRORS);
+        for (ErrorInfo errorInfo : errors) {
+            AnnotationSpec.Builder singleErrorBuilder = AnnotationSpec.builder(MODEL_GEN_ERROR_INNER)
+                    .addMember("specClass", "$T.class", errorInfo.errorClass);
+            if (!StringUtils.isEmpty(errorInfo.element)) {
+                singleErrorBuilder.addMember("element", "$S", errorInfo.element);
             }
-            writer.writeNewline();
-            writer.finishScope(JavaFileWriter.Scope.METHOD_DEFINITION);
-            writer.writeString("})");
-            return true;
+            singleErrorBuilder.addMember("message", "$S", errorInfo.message);
+            rootAnnotationBulder.addMember("value", "$L", singleErrorBuilder.build());
         }
-    }
-
-    private static class ModelGenErrorSingle extends Expression {
-
-        private final ErrorInfo errorInfo;
-
-        private ModelGenErrorSingle(ErrorInfo errorInfo) {
-            this.errorInfo = errorInfo;
-        }
-
-        @Override
-        public boolean writeExpression(JavaFileWriter writer) throws IOException {
-            writer.appendString("@")
-                    .appendString(writer.shortenName(MODEL_GEN_ERROR_INNER, false))
-                    .appendString("(specClass=")
-                    .appendExpression(Expressions.classObject(errorInfo.errorClass))
-                    .appendString(", ");
-            if (!AptUtils.isEmpty(errorInfo.element)) {
-                writer.appendString("element=\"")
-                        .appendString(errorInfo.element)
-                        .appendString("\", ");
-            }
-            writer.appendString("message=\"")
-                    .appendString(errorInfo.message)
-                    .appendString("\")");
-            return true;
-        }
+        return rootAnnotationBulder.build();
     }
 }
