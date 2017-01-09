@@ -8,8 +8,7 @@ package com.yahoo.squidb.processor.plugins.defaults;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.StringUtils;
-import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.Plugin;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
@@ -23,11 +22,7 @@ import javax.lang.model.element.Element;
  * disabled by passing {@link PluginEnvironment#OPTIONS_DISABLE_JAVADOC_COPYING 'disableJavadoc'} as one of the
  * values for the 'squidbOptions' key.
  */
-public class JavadocPlugin extends Plugin {
-
-    public JavadocPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
+public class JavadocPlugin extends AbstractPlugin {
 
     @Override
     public void beforeBeginClassDeclaration(TypeSpec.Builder builder) {
@@ -36,13 +31,13 @@ public class JavadocPlugin extends Plugin {
 
         String elementJavadoc = getJavadocFromElement(pluginEnv, modelSpec.getModelSpecElement());
         if (!StringUtils.isEmpty(elementJavadoc)) {
-            generatedJavadoc = (generatedJavadoc + "<br/>\n" + elementJavadoc);
+            generatedJavadoc = (generatedJavadoc + "<p>\n" + elementJavadoc);
         }
         builder.addJavadoc(generatedJavadoc);
     }
 
     @Override
-    public void willDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
+    public void beforeDeclareProperty(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             FieldSpec.Builder propertyDeclaration) {
         if (propertyGenerator.getField() != null) {
             String javadoc = getJavadocFromElement(pluginEnv, propertyGenerator.getField());

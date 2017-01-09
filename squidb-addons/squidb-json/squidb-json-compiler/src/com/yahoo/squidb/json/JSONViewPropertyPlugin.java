@@ -6,9 +6,7 @@
 package com.yahoo.squidb.json;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
@@ -18,10 +16,6 @@ import javax.lang.model.element.VariableElement;
  */
 public class JSONViewPropertyPlugin
         extends JSONPropertyReferencePlugin<ViewModelSpecWrapper, ViewModelPropertyGenerator> {
-
-    public JSONViewPropertyPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<ViewModelSpecWrapper> getHandledModelSpecClass() {

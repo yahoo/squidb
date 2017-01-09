@@ -15,7 +15,6 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
@@ -25,8 +24,8 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     private static final String VIEW_NAME = "VIEW";
     private static final String SUBQUERY_NAME = "SUBQUERY";
 
-    public ViewModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
-        super(new ViewModelSpecWrapper(element, pluginEnv), pluginEnv);
+    public ViewModelFileWriter(ViewModelSpecWrapper modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override
@@ -124,10 +123,10 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
         FieldSpec.Builder propertyBuilder = FieldSpec.builder(type, generator.getPropertyName(),
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
-        modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+        modelSpec.getPluginBundle().beforeDeclareProperty(builder, generator, propertyBuilder);
         FieldSpec property = propertyBuilder.build();
         builder.addField(property);
-        modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+        modelSpec.getPluginBundle().afterDeclareProperty(builder, generator, property);
     }
 
     private void declareTableModelMapper() {
@@ -147,7 +146,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
     }
 
     @Override
-    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+    protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             TypeName type = modelSpec.getPropertyGenerators().get(i).getPropertyType();
             CodeBlock initializer;

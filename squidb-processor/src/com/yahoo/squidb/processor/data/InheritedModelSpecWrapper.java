@@ -17,7 +17,7 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec, Inh
 
     private TypeName superclass;
 
-    public InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+    InheritedModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
         super(modelSpecElement, InheritedModelSpec.class, pluginEnv);
         this.superclass = ClassName.bestGuess(getSpecAnnotation().inheritsFrom());
     }
@@ -34,9 +34,6 @@ public class InheritedModelSpecWrapper extends ModelSpec<InheritedModelSpec, Inh
 
     @Override
     protected TypeName getDefaultModelSuperclass() {
-        if (superclass == null) {
-            this.superclass = ClassName.bestGuess(getSpecAnnotation().inheritsFrom());
-        }
         return superclass;
     }
 }

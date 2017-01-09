@@ -9,7 +9,6 @@ import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 import javax.lang.model.element.VariableElement;
@@ -20,10 +19,6 @@ import javax.tools.Diagnostic;
  */
 public abstract class PropertyReferencePlugin<T extends ModelSpec<?, P>, P extends PropertyGenerator>
         extends BaseFieldPlugin<T, P> {
-
-    public PropertyReferencePlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected boolean hasPropertyGeneratorForField(VariableElement field, TypeName fieldType) {

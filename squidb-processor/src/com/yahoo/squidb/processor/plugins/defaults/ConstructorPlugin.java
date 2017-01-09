@@ -10,7 +10,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
@@ -23,11 +23,7 @@ import javax.lang.model.element.Modifier;
  * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS 'disableDefaultConstructors'} as one
  * of the values for the 'squidbOptions' key.
  */
-public class ConstructorPlugin extends Plugin {
-
-    public ConstructorPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
+public class ConstructorPlugin extends AbstractPlugin {
 
     @Override
     public void declareMethodsOrConstructors(TypeSpec.Builder builder) {

@@ -10,9 +10,7 @@ import com.yahoo.squidb.annotations.Alias;
 import com.yahoo.squidb.annotations.ViewQuery;
 import com.yahoo.squidb.processor.SqlUtils;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.PropertyReferencePropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
@@ -25,10 +23,6 @@ import javax.lang.model.element.VariableElement;
  */
 public class ViewModelSpecFieldPlugin
         extends PropertyReferencePlugin<ViewModelSpecWrapper, ViewModelPropertyGenerator> {
-
-    public ViewModelSpecFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<ViewModelSpecWrapper> getHandledModelSpecClass() {

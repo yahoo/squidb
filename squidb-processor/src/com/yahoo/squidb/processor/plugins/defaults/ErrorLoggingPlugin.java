@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ErrorInfo;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
@@ -26,15 +27,11 @@ import javax.lang.model.element.Modifier;
  * disabled by passing {@link PluginEnvironment#OPTIONS_USE_STANDARD_ERROR_LOGGING 'standardErrorLogging'} as one
  * of the values for the 'squidbOptions' key.
  */
-public class ErrorLoggingPlugin extends Plugin {
+public class ErrorLoggingPlugin extends AbstractPlugin {
 
     private static final ClassName MODEL_GEN_ERRORS = ClassName.get("com.yahoo.squidb.annotations", "ModelGenErrors");
     private static final ClassName MODEL_GEN_ERROR_INNER =
             ClassName.get("com.yahoo.squidb.annotations", "ModelGenErrors", "ModelGenError");
-
-    public ErrorLoggingPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     public void declareAdditionalJava(TypeSpec.Builder builder) {

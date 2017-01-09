@@ -8,6 +8,11 @@ package com.yahoo.squidb.processor;
 import com.yahoo.squidb.annotations.InheritedModelSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.ViewModelSpec;
+import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
+import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.data.ModelSpecFactory;
+import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
+import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.InheritedModelFileWriter;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
@@ -54,7 +59,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     private Set<String> supportedAnnotationTypes = new HashSet<>();
 
     private PluginEnvironment pluginEnv;
-    private ProcessingEnvironment processingEnvironment;
 
     public ModelSpecProcessor() {
         supportedAnnotationTypes.add(TableModelSpec.class.getName());
@@ -84,7 +88,6 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-        processingEnvironment = env;
         pluginEnv = new PluginEnvironment(env);
     }
 
@@ -98,16 +101,16 @@ public final class ModelSpecProcessor extends AbstractProcessor {
                         try {
                             getFileWriter(typeElement).writeJava();
                         } catch (IOException e) {
-                            processingEnvironment.getMessager().printMessage(Kind.ERROR,
+                            processingEnv.getMessager().printMessage(Kind.ERROR,
                                     "Unable to write model file", element);
                         }
                     } else {
-                        processingEnvironment.getMessager()
+                        processingEnv.getMessager()
                                 .printMessage(Kind.ERROR, "Unexpected element type " + element.getKind(), element);
                     }
                 }
             } else {
-                processingEnvironment.getMessager().printMessage(Kind.WARNING,
+                processingEnv.getMessager().printMessage(Kind.WARNING,
                         "Skipping unsupported annotation received by processor: " + annotationType);
             }
         }
@@ -116,15 +119,23 @@ public final class ModelSpecProcessor extends AbstractProcessor {
     }
 
     private ModelFileWriter<?> getFileWriter(TypeElement typeElement) {
-        if (typeElement.getAnnotation(TableModelSpec.class) != null) {
-            return new TableModelFileWriter(typeElement, pluginEnv);
-        } else if (typeElement.getAnnotation(ViewModelSpec.class) != null) {
-            return new ViewModelFileWriter(typeElement, pluginEnv);
-        } else if (typeElement.getAnnotation(InheritedModelSpec.class) != null) {
-            return new InheritedModelFileWriter(typeElement, pluginEnv);
-        } else {
-            throw new IllegalStateException("No model spec annotation found on type element " + typeElement);
-        }
+        return ModelSpecFactory.getModelSpecForElement(typeElement, pluginEnv)
+            .accept(new ModelSpec.ModelSpecVisitor<ModelFileWriter<?>, Void>() {
+                @Override
+                public ModelFileWriter<?> visitTableModel(TableModelSpecWrapper modelSpec, Void data) {
+                    return new TableModelFileWriter(modelSpec, pluginEnv);
+                }
+
+                @Override
+                public ModelFileWriter<?> visitViewModel(ViewModelSpecWrapper modelSpec, Void data) {
+                    return new ViewModelFileWriter(modelSpec, pluginEnv);
+                }
+
+                @Override
+                public ModelFileWriter<?> visitInheritedModel(InheritedModelSpecWrapper modelSpec, Void data) {
+                    return new InheritedModelFileWriter(modelSpec, pluginEnv);
+                }
+            }, null);
     }
 
 }

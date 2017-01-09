@@ -9,9 +9,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.BaseFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
@@ -25,10 +23,6 @@ import javax.lang.model.element.VariableElement;
  * which helps support serializing objects to JSON strings.
  */
 public class JSONFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, TableModelPropertyGenerator> {
-
-    public JSONFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<TableModelSpecWrapper> getHandledModelSpecClass() {

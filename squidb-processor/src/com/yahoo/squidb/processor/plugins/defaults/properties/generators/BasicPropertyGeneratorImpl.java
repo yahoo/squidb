@@ -55,13 +55,13 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
         }
         MethodSpec.Builder params = getterMethodParams();
 
-        modelSpec.getPluginBundle().willDeclareGetter(builder, this, params);
+        modelSpec.getPluginBundle().beforeDeclareGetter(builder, this, params);
         CodeBlock.Builder getterBody = CodeBlock.builder();
         writeGetterBody(getterBody, params.build());
         params.addCode(getterBody.build());
         MethodSpec spec = params.build();
         builder.addMethod(params.build());
-        modelSpec.getPluginBundle().didDeclareGetter(builder, this, spec);
+        modelSpec.getPluginBundle().afterDeclareGetter(builder, this, spec);
     }
 
     @Override
@@ -103,13 +103,13 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
         String argName = getPropertyName().equals(camelCasePropertyName) ? "_" + camelCasePropertyName
                 : camelCasePropertyName;
         MethodSpec.Builder params = setterMethodParams(argName);
-        modelSpec.getPluginBundle().willDeclareSetter(builder, this, params);
+        modelSpec.getPluginBundle().beforeDeclareSetter(builder, this, params);
         CodeBlock.Builder setterBody = CodeBlock.builder();
         writeSetterBody(setterBody, params.build());
         params.addCode(setterBody.build());
         MethodSpec spec = params.build();
         builder.addMethod(spec);
-        modelSpec.getPluginBundle().didDeclareSetter(builder, this, spec);
+        modelSpec.getPluginBundle().afterDeclareSetter(builder, this, spec);
     }
 
     @Override

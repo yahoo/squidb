@@ -17,8 +17,13 @@ import javax.lang.model.element.TypeElement;
 
 public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelPropertyGenerator> {
 
-    public TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
+    TableModelSpecWrapper(TypeElement modelSpecElement, PluginEnvironment pluginEnv) {
         super(modelSpecElement, TableModelSpec.class, pluginEnv);
+    }
+
+    @Override
+    void initialize() {
+        super.initialize();
         checkTableName();
     }
 
@@ -28,7 +33,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
             logError("Table names cannot start with 'sqlite_'; such names are reserved for internal use",
                     getModelSpecElement());
         } else {
-            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), pluginEnvironment.getMessager());
+            SqlUtils.checkIdentifier(tableName, "table", this, getModelSpecElement(), pluginEnv.getMessager());
         }
     }
 

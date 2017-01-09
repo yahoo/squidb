@@ -5,9 +5,8 @@
  */
 package com.yahoo.squidb.json;
 
-import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginBundle;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
 import java.util.Arrays;
 
@@ -16,10 +15,10 @@ import java.util.Arrays;
  */
 public class JSONPlugin extends PluginBundle {
 
-    public JSONPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv, Arrays.asList(
-                new JSONFieldPlugin(modelSpec, pluginEnv),
-                new JSONViewPropertyPlugin(modelSpec, pluginEnv),
-                new JSONInheritedPropertyPlugin(modelSpec, pluginEnv)));
+    public JSONPlugin() {
+        super(Arrays.<Class<? extends Plugin>>asList(
+                JSONFieldPlugin.class,
+                JSONViewPropertyPlugin.class,
+                JSONInheritedPropertyPlugin.class));
     }
 }

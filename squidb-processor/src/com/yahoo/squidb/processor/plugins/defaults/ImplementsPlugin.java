@@ -10,6 +10,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
@@ -31,13 +32,15 @@ import javax.lang.model.type.TypeMirror;
  * {@link PluginEnvironment#OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING 'disableImplements'} as one of the
  * values for the 'squidbOptions' key.
  */
-public class ImplementsPlugin extends Plugin {
+public class ImplementsPlugin extends AbstractPlugin {
 
     private final List<TypeName> interfaces = new ArrayList<>();
 
-    public ImplementsPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
+    @Override
+    public boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
+        super.init(modelSpec, pluginEnv);
         parseInterfaces();
+        return true;
     }
 
     @Override

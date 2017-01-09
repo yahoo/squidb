@@ -7,9 +7,7 @@ package com.yahoo.squidb.processor.plugins.defaults.enums;
 
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.processor.TypeConstants;
-import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
-import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.BaseFieldPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.EnumPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
@@ -22,10 +20,6 @@ import javax.lang.model.element.VariableElement;
  * Plugin which handles Enum fields in a TableModelSpec file.
  */
 public class EnumFieldPlugin extends BaseFieldPlugin<TableModelSpecWrapper, TableModelPropertyGenerator> {
-
-    public EnumFieldPlugin(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super(modelSpec, pluginEnv);
-    }
 
     @Override
     protected Class<TableModelSpecWrapper> getHandledModelSpecClass() {

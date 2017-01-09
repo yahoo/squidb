@@ -749,7 +749,7 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 String result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
-     * <br>
+     * <p>
      * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param sql a sql statement
@@ -768,7 +768,7 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 long result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
-     * <br>
+     * <p>
      * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param sql a sql statement
@@ -787,7 +787,7 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 String result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
-     * <br>
+     * <p>
      * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param query a sql query
@@ -801,7 +801,7 @@ public abstract class SquidDatabase {
     /**
      * Execute a statement that returns a 1x1 long result. If you know your result set will only have one row and
      * column, this is much more efficient than calling {@link #rawQuery(String, Object[])} and parsing the cursor.
-     * <br>
+     * <p>
      * Note: This will throw an exception if the given SQL query returns a result that is not a single column
      *
      * @param query a sql query

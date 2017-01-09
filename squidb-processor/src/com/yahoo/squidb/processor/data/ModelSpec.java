@@ -54,9 +54,11 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     private final List<P> deprecatedPropertyGenerators = new ArrayList<>();
     private final Map<String, Object> metadataMap = new HashMap<>();
 
-    protected final PluginBundle pluginBundle;
-    protected final PluginEnvironment pluginEnvironment;
-    private final TypeName modelSuperclass;
+    protected final PluginEnvironment pluginEnv;
+    private PluginBundle pluginBundle;
+    private TypeName modelSuperclass;
+
+    private boolean isInitialized = false;
 
     private final List<ErrorInfo> loggedErrors = new ArrayList<>();
 
@@ -69,39 +71,24 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         RETURN visitInheritedModel(InheritedModelSpecWrapper modelSpec, PARAMETER data);
     }
 
-    public ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
+    ModelSpec(TypeElement modelSpecElement, Class<T> modelSpecClass,
             PluginEnvironment pluginEnv) {
         this.modelSpecElement = modelSpecElement;
         this.modelSpecName = ClassName.get(modelSpecElement);
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = ClassName.get(modelSpecName.packageName(), getGeneratedClassNameString());
-        this.pluginEnvironment = pluginEnv;
-        this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
-
-        processVariableElements();
-        pluginBundle.afterProcessVariableElements();
-        modelSuperclass = initializeModelSuperclass();
+        this.pluginEnv = pluginEnv;
     }
 
-    private void processVariableElements() {
-        for (Element e : modelSpecElement.getEnclosedElements()) {
-            if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
-                TypeName typeName = TypeName.get(e.asType());
-                if (TypeConstants.isGenericType(typeName)) {
-                    pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                            "Element type " + typeName + " is not a concrete type, will be ignored", e);
-                } else if (!pluginBundle.processVariableElement((VariableElement) e, typeName)) {
-                    // Deprecated things are generally ignored by plugins, so don't warn about them
-                    // private static final fields are generally internal model spec constants, so don't warn about them
-                    if (e.getAnnotation(Deprecated.class) == null &&
-                            !e.getModifiers().containsAll(
-                                    Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))) {
-                        pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                                "No plugin found to handle field", e);
-                    }
-                }
-            }
+    void initialize() {
+        if (isInitialized) {
+            throw new IllegalStateException("ModelSpec " + modelSpecElement + " has already been initialized");
         }
+        pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
+        modelSuperclass = initializeModelSuperclass();
+        processVariableElements();
+        pluginBundle.afterProcessVariableElements();
+        isInitialized = true;
     }
 
     private TypeName initializeModelSuperclass() {
@@ -112,9 +99,38 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         return getDefaultModelSuperclass();
     }
 
+    private void processVariableElements() {
+        for (Element e : modelSpecElement.getEnclosedElements()) {
+            if (e instanceof VariableElement && e.getAnnotation(Ignore.class) == null) {
+                TypeName typeName = TypeName.get(e.asType());
+                if (TypeConstants.isGenericType(typeName)) {
+                    pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            "Element type " + typeName + " is not a concrete type, will be ignored", e);
+                } else if (!pluginBundle.processVariableElement((VariableElement) e, typeName)) {
+                    // Deprecated things are generally ignored by plugins, so don't warn about them
+                    // private static final fields are generally internal model spec constants, so don't warn about them
+                    if (e.getAnnotation(Deprecated.class) == null &&
+                            !e.getModifiers().containsAll(
+                                    Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))) {
+                        pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                                "No plugin found to handle field", e);
+                    }
+                }
+            }
+        }
+    }
+
     public abstract <RETURN, PARAMETER> RETURN accept(ModelSpecVisitor<RETURN, PARAMETER> visitor, PARAMETER data);
 
     protected abstract String getGeneratedClassNameString();
+
+    /**
+     * @return true if this model spec has been initialized. If false, the fields in the model spec may not yet be
+     * fully processed and the generated model superclass may not yet be determined.
+     */
+    public boolean isInitialized() {
+        return isInitialized;
+    }
 
     /**
      * @return the name of the default superclass for the generated model. This may be overridden by a plugin
@@ -247,8 +263,8 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
      * or null for a general error
      */
     public void logError(String message, Element element) {
-        if (pluginEnvironment.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
-            pluginEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+        if (pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_USE_STANDARD_ERROR_LOGGING)) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
         } else {
             boolean isRootElement = element == null || element.equals(getModelSpecElement());
             loggedErrors.add(new ErrorInfo(getModelSpecName(),

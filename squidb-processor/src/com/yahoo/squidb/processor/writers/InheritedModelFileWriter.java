@@ -13,22 +13,21 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 
 public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpecWrapper> {
 
-    public InheritedModelFileWriter(TypeElement element, PluginEnvironment pluginEnv) {
-        super(new InheritedModelSpecWrapper(element, pluginEnv), pluginEnv);
+    public InheritedModelFileWriter(InheritedModelSpecWrapper modelSpec, PluginEnvironment pluginEnv) {
+        super(modelSpec, pluginEnv);
     }
 
     @Override
     protected void declareAllProperties() {
         for (InheritedModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
             FieldSpec.Builder propertyBuilder = generator.buildInheritedPropertyDeclaration();
-            modelSpec.getPluginBundle().willDeclareProperty(builder, generator, propertyBuilder);
+            modelSpec.getPluginBundle().beforeDeclareProperty(builder, generator, propertyBuilder);
             FieldSpec property = propertyBuilder.build();
             builder.addField(property);
-            modelSpec.getPluginBundle().didDeclareProperty(builder, generator, property);
+            modelSpec.getPluginBundle().afterDeclareProperty(builder, generator, property);
         }
     }
 
@@ -40,13 +39,8 @@ public class InheritedModelFileWriter extends ModelFileWriter<InheritedModelSpec
     }
 
     @Override
-    protected void writePropertiesInitializationBlock(CodeBlock.Builder block) {
+    protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
         // Not needed
-    }
-
-    @Override
-    protected void declarePropertyArrayInitialization() {
-        // The superclass declares this
     }
 
     @Override
