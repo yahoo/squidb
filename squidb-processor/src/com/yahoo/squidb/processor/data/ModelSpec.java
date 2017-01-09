@@ -54,8 +54,8 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
     private final List<P> deprecatedPropertyGenerators = new ArrayList<>();
     private final Map<String, Object> metadataMap = new HashMap<>();
 
-    protected final PluginBundle pluginBundle;
     protected final PluginEnvironment pluginEnv;
+    private PluginBundle pluginBundle;
     private TypeName modelSuperclass;
 
     private boolean isInitialized = false;
@@ -78,13 +78,13 @@ public abstract class ModelSpec<T extends Annotation, P extends PropertyGenerato
         this.modelSpecAnnotation = modelSpecElement.getAnnotation(modelSpecClass);
         this.generatedClassName = ClassName.get(modelSpecName.packageName(), getGeneratedClassNameString());
         this.pluginEnv = pluginEnv;
-        this.pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
     }
 
     void initialize() {
         if (isInitialized) {
             throw new IllegalStateException("ModelSpec " + modelSpecElement + " has already been initialized");
         }
+        pluginBundle = pluginEnv.getPluginBundleForModelSpec(this);
         modelSuperclass = initializeModelSuperclass();
         processVariableElements();
         pluginBundle.afterProcessVariableElements();
