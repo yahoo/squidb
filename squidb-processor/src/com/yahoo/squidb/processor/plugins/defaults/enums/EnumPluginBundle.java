@@ -16,8 +16,8 @@ import java.util.Arrays;
 public class EnumPluginBundle extends PluginBundle {
 
     public EnumPluginBundle() {
-        super(Arrays.asList(
-                (Class<? extends Plugin>) EnumFieldPlugin.class,
+        super(Arrays.<Class<? extends Plugin>>asList(
+                EnumFieldPlugin.class,
                 EnumViewPropertyPlugin.class,
                 EnumInheritedPropertyPlugin.class));
     }

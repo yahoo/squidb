@@ -16,8 +16,8 @@ import java.util.Arrays;
 public class JSONPlugin extends PluginBundle {
 
     public JSONPlugin() {
-        super(Arrays.asList(
-                (Class<? extends Plugin>) JSONFieldPlugin.class,
+        super(Arrays.<Class<? extends Plugin>>asList(
+                JSONFieldPlugin.class,
                 JSONViewPropertyPlugin.class,
                 JSONInheritedPropertyPlugin.class));
     }
