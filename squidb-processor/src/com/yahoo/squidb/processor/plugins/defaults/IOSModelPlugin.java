@@ -33,7 +33,7 @@ public class IOSModelPlugin extends AbstractPlugin {
             objectiveCName = Character.toLowerCase(objectiveCName.charAt(0)) + objectiveCName.substring(1);
             getterParams.addAnnotation(
                     AnnotationSpec.builder(OBJECTIVE_C_NAME)
-                            .addMember("value", "$S", objectiveCName)
+                            .addMember("value", "$S", sanitizeObjectiveCName(objectiveCName))
                             .build());
         }
     }
@@ -46,8 +46,13 @@ public class IOSModelPlugin extends AbstractPlugin {
             String objectiveCName = methodName + ":";
             setterParams.addAnnotation(
                     AnnotationSpec.builder(OBJECTIVE_C_NAME)
-                            .addMember("value", "$S", objectiveCName)
+                            .addMember("value", "$S", sanitizeObjectiveCName(objectiveCName))
                             .build());
         }
+    }
+
+    private String sanitizeObjectiveCName(String objectiveCName) {
+        // The @ObjectiveCName annotation rejects non-word characters, even though it seems like Obj-C allows a few others
+        return objectiveCName.replaceAll("[^\\w:]", "_");
     }
 }
