@@ -84,8 +84,8 @@ then
 fi
 
 # invoke annotation processing, output to gen folder
-javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:$SQUIDB_IOS_TESTS/*" \
-    -s $GEN -proc:only -AsquidbPlugins=com.yahoo.squidb.json.JSONPlugin -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
+javac -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/j2objc_annotations.jar:$SQUIDB_IOS_TESTS/*" \
+    -s $GEN -proc:only -AsquidbPlugins=com.yahoo.squidb.json.JSONPlugin -AsquidbOptions=iOSModels -sourcepath "${SOURCEPATH}" ${SQUIDB_TESTS_TEST_SRC}/**/*.java
 javacResult=$?
 if [ ! $javacResult -eq 0 ]
 then
@@ -94,8 +94,8 @@ then
 fi
 
 # invoke j2objc to translate java sources
-${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/jre_emul.jar" -d $INTERMEDIATE \
-    --no-package-directories -use-arc -sourcepath "${SOURCEPATH}" \
+${J2OBJC_HOME}/j2objc -classpath "${J2OBJC_HOME}/lib/j2objc_junit.jar:${J2OBJC_HOME}/lib/j2objc_annotations.jar:${J2OBJC_HOME}/lib/jre_emul.jar" \
+    -d $INTERMEDIATE --no-package-directories -use-arc -sourcepath "${SOURCEPATH}" \
     ${SQUIDB_SRC}/**/*.java ${SQUIDB_IOS_SRC}/**/*.java ${SQUIDB_JSON_SRC}/**/*.java ${SQUIDB_JSON_ANNOTATIONS_SRC}/**/*.java \
     ${SQUIDB_TESTS_TEST_SRC}/*.java ${GEN}/**/*.java ${SQUIDB_IOS_TESTS_SRC}/**/*.java ${SQUIDB_TESTS_DATA_SRC}/*.java \
     ${SQUIDB_TESTS_SQL_SRC}/*.java ${SQUIDB_TESTS_UTILITY_SRC}/*.java
