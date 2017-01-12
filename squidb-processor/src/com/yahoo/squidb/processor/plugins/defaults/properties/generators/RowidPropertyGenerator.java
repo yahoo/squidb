@@ -19,6 +19,9 @@ import javax.lang.model.element.VariableElement;
  */
 public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
 
+    public static final String DEFAULT_ROWID_GETTER_NAME = "getRowId";
+    public static final String DEFAULT_ROWID_SETTER_NAME = "setRowId";
+
     public RowidPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName, PluginEnvironment pluginEnv) {
         super(modelSpec, columnName, pluginEnv);
     }
@@ -41,7 +44,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     public String getterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
         if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
-            return "getRowId";
+            return DEFAULT_ROWID_GETTER_NAME;
         }
         return super.getterMethodName();
     }
@@ -50,7 +53,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     public String setterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
         if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
-            return "setRowId";
+            return DEFAULT_ROWID_SETTER_NAME;
         }
         return super.setterMethodName();
     }

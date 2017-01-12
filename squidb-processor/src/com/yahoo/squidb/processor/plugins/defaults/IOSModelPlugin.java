@@ -12,6 +12,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.properties.generators.RowidPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
 /**
@@ -27,7 +28,7 @@ public class IOSModelPlugin extends AbstractPlugin {
     public void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder getterParams) {
         String methodName = getterParams.build().name;
-        if (methodName.startsWith("get")) {
+        if (methodName.startsWith("get") && !RowidPropertyGenerator.DEFAULT_ROWID_GETTER_NAME.equals(methodName)) {
             String objectiveCName = methodName.substring(3);
             objectiveCName = Character.toLowerCase(objectiveCName.charAt(0)) + objectiveCName.substring(1);
             getterParams.addAnnotation(
@@ -41,7 +42,7 @@ public class IOSModelPlugin extends AbstractPlugin {
     public void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
             MethodSpec.Builder setterParams) {
         String methodName = setterParams.build().name;
-        if (methodName.startsWith("set")) {
+        if (methodName.startsWith("set") && !RowidPropertyGenerator.DEFAULT_ROWID_SETTER_NAME.equals(methodName)) {
             String objectiveCName = methodName + ":";
             setterParams.addAnnotation(
                     AnnotationSpec.builder(OBJECTIVE_C_NAME)
