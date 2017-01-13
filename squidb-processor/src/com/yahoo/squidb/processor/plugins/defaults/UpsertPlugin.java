@@ -130,11 +130,15 @@ public class UpsertPlugin extends AbstractPlugin {
         String tableConstraints = tableModelSpec.getTableConstraintString();
         if (!checkForUniquenessConstraints(columnNames, tableConstraints, UNIQUE_MULTI_COLUMN) &&
                 !checkForUniquenessConstraints(columnNames, tableConstraints, PRIMARY_KEY_MULTI_COLUMN)) {
-            modelSpec.logError("No uniqueness constraint found containing all upsert key columns", null);
+            modelSpec.logError("No uniqueness constraint found containing all upsert key columns",
+                    tableModelSpec.getModelSpecElement());
         }
     }
 
     private boolean checkForUniquenessConstraints(Set<String> columnNames, String tableConstraints, Pattern regex) {
+        if (tableConstraints == null) {
+            return false;
+        }
         Matcher matcher = regex.matcher(tableConstraints);
         while (matcher.find()) {
             Set<String> namesInExpressions = extractNamesFromExpressions(matcher.group(1));
