@@ -31,6 +31,7 @@ matrix:
       language: objective-c
       env: CI_IOS_TESTS=true J2OBJC_VERSION=1.1 J2OBJC_HOME=/tmp/j2objc-$J2OBJC_VERSION
     - os: linux
+      sudo: false
       language: java
       jdk: oraclejdk8
       env: CI_CODE_GENERATOR_TESTS=true
