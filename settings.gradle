@@ -3,32 +3,40 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-include ':squidb', ':squidb-annotations', ':squidb-processor', ':squidb-tests', ':squidb-android', ':squidb-ios'
+// Base modules
+include ':squidb', ':squidb-annotations', ':squidb-processor'
 
-include ':squidb-android-sample'
-project(':squidb-android-sample').projectDir = new File(settingsDir, 'samples/squidb-android-sample')
+// Only include these in gradle configuration if not running CI code generator tests
+if ("$System.env.CI_CODE_GENERATOR_TESTS".isEmpty() || System.env.CI_CODE_GENERATOR_TESTS == null) {
 
-include ':squidb-sample-core'
-project(':squidb-sample-core').projectDir = new File(settingsDir, 'samples/squidb-sample-core')
+    include ':squidb-tests', ':squidb-android', ':squidb-ios'
 
-include ':squidb-json-plugin'
-project(':squidb-json-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-plugin')
+    include ':squidb-android-sample'
+    project(':squidb-android-sample').projectDir = new File(settingsDir, 'samples/squidb-android-sample')
 
-include ':squidb-json-compiler'
-project(':squidb-json-compiler').projectDir = new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-compiler')
+    include ':squidb-sample-core'
+    project(':squidb-sample-core').projectDir = new File(settingsDir, 'samples/squidb-sample-core')
 
-include ':squidb-json-annotations'
-project(':squidb-json-annotations').projectDir =
-        new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-annotations')
+    include ':squidb-json-plugin'
+    project(':squidb-json-plugin').projectDir = new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-plugin')
 
-include ':squidb-sqlite-bindings'
-project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-addons/squidb-sqlite-bindings')
+    include ':squidb-json-compiler'
+    project(':squidb-json-compiler').projectDir =
+            new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-compiler')
 
-include ':squidb-reactive'
-project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/squidb-reactive')
+    include ':squidb-json-annotations'
+    project(':squidb-json-annotations').projectDir =
+            new File(settingsDir, 'squidb-addons/squidb-json/squidb-json-annotations')
 
-include ':squidb-recyclerview'
-project(':squidb-recyclerview').projectDir = new File(settingsDir, 'squidb-addons/squidb-recyclerview')
+    include ':squidb-sqlite-bindings'
+    project(':squidb-sqlite-bindings').projectDir = new File(settingsDir, 'squidb-addons/squidb-sqlite-bindings')
 
-include ':squidb-support-loader'
-project(':squidb-support-loader').projectDir = new File(settingsDir, 'squidb-addons/squidb-support-loader')
+    include ':squidb-reactive'
+    project(':squidb-reactive').projectDir = new File(settingsDir, 'squidb-addons/squidb-reactive')
+
+    include ':squidb-recyclerview'
+    project(':squidb-recyclerview').projectDir = new File(settingsDir, 'squidb-addons/squidb-recyclerview')
+
+    include ':squidb-support-loader'
+    project(':squidb-support-loader').projectDir = new File(settingsDir, 'squidb-addons/squidb-support-loader')
+}
