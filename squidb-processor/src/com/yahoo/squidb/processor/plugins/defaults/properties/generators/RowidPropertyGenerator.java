@@ -55,8 +55,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     }
 
     private void addAccessorDocumentationForRowids(MethodSpec.Builder params, boolean getter) {
-        String methodName = params.build().name;
-        if (DEFAULT_ROWID_GETTER_NAME.equals(methodName) || DEFAULT_ROWID_SETTER_NAME.equals(methodName)) {
+        if (isUnaliasedRowid()) {
             params.addAnnotation(Override.class);
         } else {
             params.addJavadoc("This " + (getter ? "getter" : "setter") + " is an alias for " +
@@ -67,7 +66,7 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     @Override
     public String getterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
-        if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
+        if (isUnaliasedRowid()) {
             return DEFAULT_ROWID_GETTER_NAME;
         }
         return super.getterMethodName();
@@ -76,10 +75,14 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     @Override
     public String setterMethodName() {
         // Camel case translation doesn't quite work in this case, so override
-        if (TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName)) {
+        if (isUnaliasedRowid()) {
             return DEFAULT_ROWID_SETTER_NAME;
         }
         return super.setterMethodName();
+    }
+
+    private boolean isUnaliasedRowid() {
+        return TableModelSpecFieldPlugin.DEFAULT_ROWID_PROPERTY_NAME.equals(propertyName);
     }
 
     @Override
