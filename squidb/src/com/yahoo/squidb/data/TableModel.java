@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.data;
 
+import com.google.j2objc.annotations.ObjectiveCName;
+
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Table;
@@ -27,6 +29,7 @@ public abstract class TableModel extends AbstractModel {
      *
      * @return {@value #NO_ID} if this model was not added to the database
      */
+    @ObjectiveCName("rowId")
     public long getRowId() {
         Long id = null;
         String idPropertyName = getRowIdProperty().getName();
@@ -46,6 +49,7 @@ public abstract class TableModel extends AbstractModel {
      * @param rowid the new rowid for this model
      * @return this model instance, to allow chaining calls
      */
+    @ObjectiveCName("setRowId:")
     public TableModel setRowId(long rowid) {
         if (rowid == NO_ID) {
             clearValue(getRowIdProperty());

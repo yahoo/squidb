@@ -18,6 +18,10 @@ sourceSets {
     }
 }
 
+dependencies {
+    compile 'com.google.j2objc:j2objc-annotations:1.1'
+}
+
 def siteUrl = 'https://github.com/yahoo/squidb'
 def gitUrl = 'https://github.com/yahoo/squidb.git'
 
