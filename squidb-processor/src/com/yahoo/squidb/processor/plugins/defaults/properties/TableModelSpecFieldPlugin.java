@@ -205,30 +205,6 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
     }
 
     @Override
-    public void beforeDeclareGetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
-            MethodSpec.Builder getterParams) {
-        addAccessorDocumentationForRowids(getterParams, propertyGenerator, true);
-    }
-
-    @Override
-    public void beforeDeclareSetter(TypeSpec.Builder builder, PropertyGenerator propertyGenerator,
-            MethodSpec.Builder setterParams) {
-        addAccessorDocumentationForRowids(setterParams, propertyGenerator, false);
-    }
-
-    private void addAccessorDocumentationForRowids(MethodSpec.Builder params, PropertyGenerator propertyGenerator,
-            boolean getter) {
-        if (propertyGenerator instanceof RowidPropertyGenerator) {
-            if (DEFAULT_ROWID_PROPERTY_NAME.equals(propertyGenerator.getPropertyName())) {
-                params.addAnnotation(Override.class);
-            } else {
-                params.addJavadoc("This " + (getter ? "getter" : "setter") + " is an alias for " +
-                        (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY\n");
-            }
-        }
-    }
-
-    @Override
     public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
         // If rowid property generator hasn't already done it, need to generate
         // overridden setRowId with appropriate return type
