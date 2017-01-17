@@ -29,7 +29,12 @@ public final class SqlUtils {
      * <li>Unicode codepoints between &#92;u00A1 and &#92;uFFFF</li>
      * </ul>
      */
-    private static final Pattern IDENTIFIER = Pattern.compile("[\u00a1-\uffff\\p{Alnum}_]+");
+    public static final String IDENTIFIER_REGEX = "[\u00a1-\uffff\\p{Alnum}_]+";
+
+    /**
+     * Compiled Pattern of {@link #IDENTIFIER_REGEX}
+     */
+    private static final Pattern IDENTIFIER = Pattern.compile(IDENTIFIER_REGEX);
 
     /**
      * Pattern for finding whitespace characters

@@ -40,10 +40,4 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 public @interface UpsertKey {
-
-    /**
-     * The 0-indexed order in which this logical key column should appear in the uniqueness index. Default is 0 as a
-     * convenience for logical keys that are only a single column.
-     */
-    int order() default 0;
 }

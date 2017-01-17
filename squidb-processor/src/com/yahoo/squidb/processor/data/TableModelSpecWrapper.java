@@ -49,6 +49,13 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
         return !StringUtils.isEmpty(modelSpecAnnotation.virtualModule());
     }
 
+    /**
+     * @return the constraints for this table as a SQL string
+     */
+    public String getTableConstraintString() {
+        return modelSpecAnnotation.tableConstraint();
+    }
+
     @Override
     protected String getGeneratedClassNameString() {
         return modelSpecAnnotation.className();
