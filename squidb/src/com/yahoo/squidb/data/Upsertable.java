@@ -11,7 +11,8 @@ import com.yahoo.squidb.sql.TableStatement;
 /**
  * Interface that can be applied to a generated {@link TableModel} class to make the model compatible with
  * {@link SquidDatabase#upsert(TableModel)}. Upsertable models are generally uniquely identified in their table by a
- * column or collection of columns referred to as a "logical key".
+ * column or collection of columns referred to as a "logical key". Logical keys can be specified in a model spec
+ * using the &#064;UpsertKey annotation.
  *
  * @see SquidDatabase#upsert(TableModel)
  * @see SquidDatabase#upsertWithOnConflict(TableModel, TableStatement.ConflictAlgorithm)  
