@@ -11,6 +11,7 @@ import com.yahoo.squidb.processor.plugins.defaults.AndroidModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstantCopyingPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ConstructorPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ErrorLoggingPlugin;
+import com.yahoo.squidb.processor.plugins.defaults.IOSModelPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ImplementsPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.JavadocPlugin;
 import com.yahoo.squidb.processor.plugins.defaults.ModelMethodPlugin;
@@ -115,10 +116,15 @@ public class PluginEnvironment {
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
 
+    /**
+     * Option for generating models that have iOS-specific features
+     */
+    public static final String OPTIONS_GENERATE_IOS_MODELS = "iOSModels";
+
     private static final Set<String> SQUIDB_SUPPORTED_OPTIONS;
 
     static {
-        SQUIDB_SUPPORTED_OPTIONS = new HashSet<>(9);
+        SQUIDB_SUPPORTED_OPTIONS = new HashSet<>(10);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_CONSTRUCTORS);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_DEFAULT_METHOD_HANDLING);
@@ -129,6 +135,7 @@ public class PluginEnvironment {
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_JAVADOC_COPYING);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_DISABLE_ENUM_PROPERTIES);
         SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_GENERATE_ANDROID_MODELS);
+        SQUIDB_SUPPORTED_OPTIONS.add(OPTIONS_GENERATE_IOS_MODELS);
     }
 
     private static final String UNSUPPORTED_OPTIONS_WARNING
@@ -192,6 +199,9 @@ public class PluginEnvironment {
         }
         if (hasSquidbOption(OPTIONS_GENERATE_ANDROID_MODELS)) {
             addPlugin(AndroidModelPlugin.class, PluginPriority.NORMAL);
+        }
+        if (hasSquidbOption(OPTIONS_GENERATE_IOS_MODELS)) {
+            addPlugin(IOSModelPlugin.class, PluginPriority.NORMAL);
         }
         if (!hasSquidbOption(OPTIONS_DISABLE_DEFAULT_IMPLEMENTS_HANDLING)) {
             addPlugin(ImplementsPlugin.class, PluginPriority.NORMAL);
