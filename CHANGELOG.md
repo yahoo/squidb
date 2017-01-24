@@ -1,9 +1,9 @@
 Change Log
 ==========
 
-Version 4.0.0-beta.1 *(2017-01-26)*
+Version 4.0.0-beta.1 *(2017-01-25)*
 -----------------------------------
-Version 4.0 of SquiDB will bring several feature enhancements. This first beta lays the foundation for future changes in the 4.0 development stream, which is taking place on the dev_4.0 branch. Note that 4.0 is not yet fully stable; there may be future API and/or behavior changes. This first beta includes the following changes:
+Version 4.0 of SquiDB will bring several feature enhancements. This first beta lays the foundation for future changes in the 4.0 development stream, which is taking place on the dev_4.0 branch. Note that 4.0 is not yet fully stable; there may be bugs as well as future API and/or behavior changes. This first beta includes the following changes:
 
 **User facing changes**
 * All deprecated methods from SquiDB 3.x have been removed
