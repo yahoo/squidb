@@ -80,6 +80,8 @@ public class TypeConstants {
 
     public static final TypeName PROPERTY_ARRAY = ArrayTypeName.of(PROPERTY);
 
+    public static final ClassName OBJECTIVE_C_NAME = ClassName.get("com.google.j2objc.annotations", "ObjectiveCName");
+
     private static final Set<TypeName> BASIC_PROPERTY_TYPES = new HashSet<>();
 
     static {

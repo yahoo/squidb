@@ -27,7 +27,13 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * The generated Person class will declare a method <code>getFullName()</code> that takes no arguments and calls back
- * to the static method defined in the spec for its implementation
+ * to the static method defined in the spec for its implementation.
+ * <p>
+ * Model methods will retain annotations on both the method and its parameters when copied to the model. Because the
+ * generated method includes one less parameter than the static declaration of the method, the code generator will
+ * handle the &#064;ObjectiveCName specially, removing the first instance of "With&lt;paramName&gt;:" in the
+ * ObjectiveCName value. For instance, <code>&#064;ObjectiveCName("getFullNameWithPerson:")</code> in the model spec
+ * will become <code>&#064;ObjectiveCName("getFullName")</code> in the generated code.
  */
 @Target(value = ElementType.METHOD)
 public @interface ModelMethod {
