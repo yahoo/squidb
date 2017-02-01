@@ -5,8 +5,6 @@
  */
 package com.yahoo.squidb.test;
 
-import android.support.annotation.Nullable;
-
 import com.google.j2objc.annotations.ObjectiveCName;
 
 import com.yahoo.squidb.annotations.ColumnSpec;
@@ -28,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Here's a test javadoc for a model spec. It should be copied to the generated model.

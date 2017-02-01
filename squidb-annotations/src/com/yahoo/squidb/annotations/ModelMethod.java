@@ -31,9 +31,12 @@ import java.lang.annotation.Target;
  * <p>
  * Model methods will retain annotations on both the method and its parameters when copied to the model. Because the
  * generated method includes one less parameter than the static declaration of the method, the code generator will
- * handle the &#064;ObjectiveCName specially, removing the first instance of "With&lt;paramName&gt;:" in the
- * ObjectiveCName value. For instance, <code>&#064;ObjectiveCName("getFullNameWithPerson:")</code> in the model spec
- * will become <code>&#064;ObjectiveCName("getFullName")</code> in the generated code.
+ * handle the &#064;ObjectiveCName annotation specially, removing the first instance of "With&lt;paramName&gt;:" in the
+ * ObjectiveCName value. For instance, in the generated code,
+ * <code>&#064;ObjectiveCName("displayNameWithModel:")</code> will become
+ * <code>&#064;ObjectiveCName("displayName")</code>, or
+ * <code>&#064;ObjectiveCName("displayNameWithModel:withPrefix:")</code> will become
+ * <code>&#064;ObjectiveCName("displayNameWithPrefix:")
  */
 @Target(value = ElementType.METHOD)
 public @interface ModelMethod {
