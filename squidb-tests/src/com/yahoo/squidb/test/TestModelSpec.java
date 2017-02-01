@@ -144,7 +144,9 @@ public class TestModelSpec {
      * @param anotherInstance another TestModel instance
      * @return the literal String "Blah"
      */
-    public static String someStaticMethod(TestModel instance, TestModel anotherInstance) {
+    @ObjectiveCName("staticMethodWithModel1:withModel2:")
+    @Nonnull
+    public static String someStaticMethod(@Nullable TestModel instance, @Nullable TestModel anotherInstance) {
         return "Blah";
     }
 }
