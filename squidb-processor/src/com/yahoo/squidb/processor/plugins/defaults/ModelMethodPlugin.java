@@ -52,6 +52,8 @@ public class ModelMethodPlugin extends AbstractPlugin {
     private final List<ExecutableElement> modelMethods = new ArrayList<>();
     private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
 
+    // -- parse and validate methods
+
     @Override
     public void afterProcessVariableElements() {
         parseModelMethods();
@@ -64,106 +66,6 @@ public class ModelMethodPlugin extends AbstractPlugin {
                 checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods);
             }
         }
-    }
-
-    @Override
-    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
-        for (ExecutableElement e : modelMethods) {
-            declareModelMethod(builder, e, false, Modifier.PUBLIC);
-        }
-        for (ExecutableElement e : staticModelMethods) {
-            declareModelMethod(builder, e, true, Modifier.PUBLIC, Modifier.STATIC);
-        }
-    }
-
-    private void declareModelMethod(TypeSpec.Builder builder, ExecutableElement e, boolean isStatic,
-            Modifier... modifiers) {
-        String originalMethodName = e.getSimpleName().toString();
-        ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
-        String modelMethodName = methodAnnotation != null ? methodAnnotation.name() : null;
-        String generatedMethodName = StringUtils.isEmpty(modelMethodName) ? originalMethodName : modelMethodName;
-
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(generatedMethodName);
-        methodBuilder.addModifiers(modifiers);
-
-        for (TypeParameterElement typeParameterElement : e.getTypeParameters()) {
-            TypeVariable var = (TypeVariable) typeParameterElement.asType();
-            methodBuilder.addTypeVariable(TypeVariableName.get(var));
-        }
-
-        List<String> delegateArguments = new ArrayList<>();
-        if (!isStatic) {
-            delegateArguments.add("this");
-        }
-        TypeName returnType = TypeName.get(e.getReturnType());
-        methodBuilder.returns(returnType);
-        int paramNumber = 0;
-        for (VariableElement parameter : e.getParameters()) {
-            if (paramNumber != 0 || isStatic) {
-                ParameterSpec.Builder parameterSpecBuilder = ParameterSpec.get(parameter).toBuilder();
-                List<? extends AnnotationMirror> parameterAnnotationMirrors = parameter.getAnnotationMirrors();
-                for (AnnotationMirror annotation : parameterAnnotationMirrors) {
-                    parameterSpecBuilder.addAnnotation(AnnotationSpec.get(annotation));
-                }
-                ParameterSpec parameterSpec = parameterSpecBuilder.build();
-                methodBuilder.addParameter(parameterSpec);
-                delegateArguments.add(parameterSpec.name);
-            }
-            paramNumber++;
-        }
-        methodBuilder.varargs(e.isVarArgs());
-
-        for (TypeMirror thrownType : e.getThrownTypes()) {
-            methodBuilder.addException(TypeName.get(thrownType));
-        }
-
-        String methodCall = "$T.$L(" + StringUtils.join(delegateArguments, ", ") + ")";
-        if (!TypeName.VOID.equals(returnType)) {
-            methodCall = "return " + methodCall;
-        }
-
-        String javadoc = JavadocPlugin.getJavadocFromElement(pluginEnv, e);
-        if (!StringUtils.isEmpty(javadoc)) {
-            methodBuilder.addJavadoc(javadoc);
-        }
-
-        List<? extends AnnotationMirror> methodAnnotations = e.getAnnotationMirrors();
-        for (AnnotationMirror annotation : methodAnnotations) {
-            if (!isStatic && TypeConstants.OBJECTIVE_C_NAME.equals(ClassName.get(annotation.getAnnotationType()))) {
-                AnnotationSpec adjustedObjectiveCName = getAdjustedObjCName(e, annotation);
-                if (adjustedObjectiveCName != null) {
-                    methodBuilder.addAnnotation(adjustedObjectiveCName);
-                }
-            } else {
-                methodBuilder.addAnnotation(AnnotationSpec.get(annotation));
-            }
-        }
-
-        methodBuilder.addStatement(methodCall, modelSpec.getModelSpecName(), originalMethodName);
-        builder.addMethod(methodBuilder.build());
-    }
-
-    private AnnotationSpec getAdjustedObjCName(ExecutableElement modelMethod, AnnotationMirror objCName) {
-        String name = null;
-        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> annotationValue :
-                objCName.getElementValues().entrySet()) {
-            if (annotationValue.getKey().getSimpleName().toString().equals("value")) {
-                AnnotationValue value = annotationValue.getValue();
-                Object nameValue = value.getValue();
-                if (nameValue instanceof String) {
-                    name = (String) nameValue;
-                    break;
-                }
-            }
-        }
-        if (name == null) {
-            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                    "Unable to adjust ObjectiveCName for model method", modelMethod);
-            return null;
-        }
-        String adjustedName = name.replaceFirst("With\\p{Alnum}:", "");
-        return AnnotationSpec.builder(TypeConstants.OBJECTIVE_C_NAME)
-                .addMember("value", "$S", adjustedName).build();
     }
 
     private void checkExecutableElement(ExecutableElement e, List<ExecutableElement> modelMethods,
@@ -239,4 +141,107 @@ public class ModelMethodPlugin extends AbstractPlugin {
             return modelSpec.getModelSuperclass();
         }
     };
+
+    // -- declare methods
+
+    @Override
+    public void declareMethodsOrConstructors(TypeSpec.Builder builder) {
+        for (ExecutableElement e : modelMethods) {
+            declareModelMethod(builder, e, false, Modifier.PUBLIC);
+        }
+        for (ExecutableElement e : staticModelMethods) {
+            declareModelMethod(builder, e, true, Modifier.PUBLIC, Modifier.STATIC);
+        }
+    }
+
+    private void declareModelMethod(TypeSpec.Builder builder, ExecutableElement e, boolean isStatic,
+            Modifier... modifiers) {
+        String originalMethodName = e.getSimpleName().toString();
+        ModelMethod methodAnnotation = e.getAnnotation(ModelMethod.class);
+        String modelMethodName = methodAnnotation != null ? methodAnnotation.name() : null;
+        String generatedMethodName = StringUtils.isEmpty(modelMethodName) ? originalMethodName : modelMethodName;
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(generatedMethodName);
+        methodBuilder.addModifiers(modifiers);
+
+        for (TypeParameterElement typeParameterElement : e.getTypeParameters()) {
+            TypeVariable var = (TypeVariable) typeParameterElement.asType();
+            methodBuilder.addTypeVariable(TypeVariableName.get(var));
+        }
+
+        List<String> delegateArguments = new ArrayList<>();
+        if (!isStatic) {
+            delegateArguments.add("this");
+        }
+        TypeName returnType = TypeName.get(e.getReturnType());
+        methodBuilder.returns(returnType);
+        int paramNumber = 0;
+        for (VariableElement parameter : e.getParameters()) {
+            if (paramNumber != 0 || isStatic) {
+                ParameterSpec.Builder parameterSpecBuilder = ParameterSpec.get(parameter).toBuilder();
+                List<? extends AnnotationMirror> parameterAnnotationMirrors = parameter.getAnnotationMirrors();
+                for (AnnotationMirror annotation : parameterAnnotationMirrors) {
+                    parameterSpecBuilder.addAnnotation(AnnotationSpec.get(annotation));
+                }
+                ParameterSpec parameterSpec = parameterSpecBuilder.build();
+                methodBuilder.addParameter(parameterSpec);
+                delegateArguments.add(parameterSpec.name);
+            }
+            paramNumber++;
+        }
+        methodBuilder.varargs(e.isVarArgs());
+
+        for (TypeMirror thrownType : e.getThrownTypes()) {
+            methodBuilder.addException(TypeName.get(thrownType));
+        }
+
+        String methodCall = "$T.$L(" + StringUtils.join(delegateArguments, ", ") + ")";
+        if (!TypeName.VOID.equals(returnType)) {
+            methodCall = "return " + methodCall;
+        }
+
+        String javadoc = JavadocPlugin.getJavadocFromElement(pluginEnv, e);
+        if (!StringUtils.isEmpty(javadoc)) {
+            methodBuilder.addJavadoc(javadoc);
+        }
+
+        List<? extends AnnotationMirror> methodAnnotations = e.getAnnotationMirrors();
+        for (AnnotationMirror annotation : methodAnnotations) {
+            TypeName annotationType = TypeName.get(annotation.getAnnotationType());
+            if (!isStatic && TypeConstants.OBJECTIVE_C_NAME.equals(annotationType)) {
+                AnnotationSpec adjustedObjectiveCName = getAdjustedObjCName(e, annotation);
+                if (adjustedObjectiveCName != null) {
+                    methodBuilder.addAnnotation(adjustedObjectiveCName);
+                }
+            } else if (!TypeName.get(ModelMethod.class).equals(annotationType)) {
+                methodBuilder.addAnnotation(AnnotationSpec.get(annotation));
+            }
+        }
+
+        methodBuilder.addStatement(methodCall, modelSpec.getModelSpecName(), originalMethodName);
+        builder.addMethod(methodBuilder.build());
+    }
+
+    private AnnotationSpec getAdjustedObjCName(ExecutableElement modelMethod, AnnotationMirror objCName) {
+        String name = null;
+        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> annotationValue :
+                objCName.getElementValues().entrySet()) {
+            if (annotationValue.getKey().getSimpleName().toString().equals("value")) {
+                AnnotationValue value = annotationValue.getValue();
+                Object nameValue = value.getValue();
+                if (nameValue instanceof String) {
+                    name = (String) nameValue;
+                    break;
+                }
+            }
+        }
+        if (name == null) {
+            pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                    "Unable to adjust ObjectiveCName for model method", modelMethod);
+            return null;
+        }
+        String adjustedName = name.replaceFirst("With\\p{Alnum}+:", "");
+        return AnnotationSpec.builder(TypeConstants.OBJECTIVE_C_NAME)
+                .addMember("value", "$S", adjustedName).build();
+    }
 }
