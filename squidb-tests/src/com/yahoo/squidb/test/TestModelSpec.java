@@ -10,7 +10,9 @@ import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
+import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
@@ -111,12 +113,12 @@ public class TestModelSpec {
     }
 
     @ModelMethod
-    public static void testVoidMethod(TestModel instance) {
+    public static void testVoidMethod(AbstractModel instance) {
         System.err.println("Hello");
     }
 
     @ModelMethod
-    public static void run(TestModel instance) {
+    public static void run(TableModel instance) {
         Logger.e(Logger.LOG_TAG, "TestModel: Interface method");
     }
 

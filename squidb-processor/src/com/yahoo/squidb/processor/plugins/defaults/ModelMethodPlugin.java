@@ -5,6 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
@@ -13,7 +14,10 @@ import com.squareup.javapoet.TypeVariableName;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
+import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ModelSpec;
+import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
+import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;
 import com.yahoo.squidb.processor.plugins.AbstractPlugin;
 import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -28,7 +32,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
@@ -46,18 +49,15 @@ public class ModelMethodPlugin extends AbstractPlugin {
     private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
 
     @Override
-    public boolean init(ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnv) {
-        super.init(modelSpec, pluginEnv);
+    public void afterProcessVariableElements() {
         parseModelMethods();
-        return true;
     }
 
     private void parseModelMethods() {
         List<? extends Element> enclosedElements = modelSpec.getModelSpecElement().getEnclosedElements();
         for (Element e : enclosedElements) {
             if (e instanceof ExecutableElement) {
-                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods,
-                        modelSpec.getGeneratedClassName());
+                checkExecutableElement((ExecutableElement) e, modelMethods, staticModelMethods);
             }
         }
     }
@@ -123,7 +123,7 @@ public class ModelMethodPlugin extends AbstractPlugin {
     }
 
     private void checkExecutableElement(ExecutableElement e, List<ExecutableElement> modelMethods,
-            List<ExecutableElement> staticModelMethods, TypeName modelClass) {
+            List<ExecutableElement> staticModelMethods) {
         Set<Modifier> modifiers = e.getModifiers();
         if (e.getKind() == ElementKind.CONSTRUCTOR) {
             // Don't copy constructors
@@ -153,8 +153,9 @@ public class ModelMethodPlugin extends AbstractPlugin {
             } else {
                 VariableElement firstParam = params.get(0);
                 TypeMirror paramType = firstParam.asType();
-                if (!checkFirstArgType(paramType, modelClass)) {
-                    modelSpec.logError("@ModelMethod methods must have an abstract model as their first argument", e);
+                if (!checkFirstArgType(paramType)) {
+                    modelSpec.logError("@ModelMethod methods must have either this model class or an appropriate model "
+                            + "superclass as their first argument", e);
                 } else {
                     modelMethods.add(e);
                 }
@@ -162,16 +163,36 @@ public class ModelMethodPlugin extends AbstractPlugin {
         }
     }
 
-    private boolean checkFirstArgType(TypeMirror type, TypeName generatedClassName) {
-        if (type instanceof ErrorType) {
-            return true;
-        }
-        if (!(type instanceof DeclaredType)) {
+    private boolean checkFirstArgType(TypeMirror type) {
+        TypeName typeName = TypeName.get(type);
+        if (!(typeName instanceof ClassName)) {
             return false;
         }
+        ClassName firstArgClass = (ClassName) typeName;
 
-        TypeName typeName = TypeName.get(type);
-
-        return typeName.equals(generatedClassName) || typeName.equals(TypeConstants.ABSTRACT_MODEL);
+        // Acceptable first arg types for model methods:
+        return TypeConstants.ABSTRACT_MODEL.equals(firstArgClass) || // AbstractModel
+                (type instanceof ErrorType && firstArgClass.simpleName()
+                        .equals(modelSpec.getGeneratedClassName().simpleName())) || // Generated model class in ErrorType case
+                modelSpec.getGeneratedClassName().equals(firstArgClass) || // Generated model class in non-ErrorType case
+                modelSpec.getModelSuperclass().equals(firstArgClass) || // Generated model superclass
+                modelSpec.accept(modelMethodArgumentTypeVisitor, null).equals(firstArgClass); // Model superclass appropriate to this model spec type
     }
+
+    private ModelSpec.ModelSpecVisitor<TypeName, Void> modelMethodArgumentTypeVisitor = new ModelSpec.ModelSpecVisitor<TypeName, Void>() {
+        @Override
+        public TypeName visitTableModel(TableModelSpecWrapper modelSpec, Void data) {
+            return TypeConstants.TABLE_MODEL;
+        }
+
+        @Override
+        public TypeName visitViewModel(ViewModelSpecWrapper modelSpec, Void data) {
+            return TypeConstants.VIEW_MODEL;
+        }
+
+        @Override
+        public TypeName visitInheritedModel(InheritedModelSpecWrapper modelSpec, Void data) {
+            return modelSpec.getModelSuperclass();
+        }
+    };
 }
