@@ -5,6 +5,10 @@
  */
 package com.yahoo.squidb.test;
 
+import android.support.annotation.Nullable;
+
+import com.google.j2objc.annotations.ObjectiveCName;
+
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
@@ -22,6 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 /**
  * Here's a test javadoc for a model spec. It should be copied to the generated model.
@@ -98,6 +104,8 @@ public class TestModelSpec {
     JSONPojo somePojo;
 
     @ModelMethod
+    @ObjectiveCName("displayNameWithModel:")
+    @Nonnull
     public static String getDisplayName(TestModel instance) {
         return instance.getFirstName() + " " + instance.getLastName();
     }
@@ -108,7 +116,9 @@ public class TestModelSpec {
      * @param prefix the prefix to use
      */
     @ModelMethod(name = "prefixedName")
-    public static String getDisplayNameWithPrefix(TestModel instance, String prefix) {
+    @ObjectiveCName("displayNameWithModel:withPrefix:")
+    @Nonnull
+    public static String getDisplayNameWithPrefix(TestModel instance, @Nonnull String prefix) {
         return prefix + " " + instance.getDisplayName();
     }
 
@@ -123,6 +133,7 @@ public class TestModelSpec {
     }
 
     @ModelMethod
+    @Nullable
     public static Iterator<String> iterator(TestModel instance) {
         return null;
     }
