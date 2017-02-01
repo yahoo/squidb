@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -48,6 +50,8 @@ import javax.tools.Diagnostic;
  * values for the 'squidbOptions' key.
  */
 public class ModelMethodPlugin extends AbstractPlugin {
+
+    private static final Pattern FIRST_OBJ_C_ARG = Pattern.compile("With\\p{Alnum}+:");
 
     private final List<ExecutableElement> modelMethods = new ArrayList<>();
     private final List<ExecutableElement> staticModelMethods = new ArrayList<>();
@@ -209,7 +213,7 @@ public class ModelMethodPlugin extends AbstractPlugin {
         for (AnnotationMirror annotation : methodAnnotations) {
             TypeName annotationType = TypeName.get(annotation.getAnnotationType());
             if (!isStatic && TypeConstants.OBJECTIVE_C_NAME.equals(annotationType)) {
-                AnnotationSpec adjustedObjectiveCName = getAdjustedObjCName(e, annotation);
+                AnnotationSpec adjustedObjectiveCName = getAdjustedObjCNameAnnotation(e, annotation);
                 if (adjustedObjectiveCName != null) {
                     methodBuilder.addAnnotation(adjustedObjectiveCName);
                 }
@@ -222,7 +226,7 @@ public class ModelMethodPlugin extends AbstractPlugin {
         builder.addMethod(methodBuilder.build());
     }
 
-    private AnnotationSpec getAdjustedObjCName(ExecutableElement modelMethod, AnnotationMirror objCName) {
+    private AnnotationSpec getAdjustedObjCNameAnnotation(ExecutableElement modelMethod, AnnotationMirror objCName) {
         String name = null;
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> annotationValue :
                 objCName.getElementValues().entrySet()) {
@@ -240,8 +244,21 @@ public class ModelMethodPlugin extends AbstractPlugin {
                     "Unable to adjust ObjectiveCName for model method", modelMethod);
             return null;
         }
-        String adjustedName = name.replaceFirst("With\\p{Alnum}+:", "");
         return AnnotationSpec.builder(TypeConstants.OBJECTIVE_C_NAME)
-                .addMember("value", "$S", adjustedName).build();
+                .addMember("value", "$S", getAdjustedObjCName(name)).build();
+    }
+
+    private String getAdjustedObjCName(String objCName) {
+        Matcher matcher = FIRST_OBJ_C_ARG.matcher(objCName);
+        if (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            StringBuilder builder = new StringBuilder(objCName.substring(0, start));
+            if (end < objCName.length()) {
+                builder.append(StringUtils.capitalize(objCName.substring(end)));
+            }
+            return builder.toString();
+        }
+        return objCName;
     }
 }
