@@ -98,14 +98,15 @@ public class ModelMethodPlugin extends AbstractPlugin {
             }
         } else {
             List<? extends VariableElement> params = e.getParameters();
+            String firstArgError = "@ModelMethod methods must have either this model class or an appropriate model "
+                    + "superclass as their first argument";
             if (params.size() == 0) {
-                modelSpec.logError("@ModelMethod methods must have an abstract model as their first argument", e);
+                modelSpec.logError(firstArgError, e);
             } else {
                 VariableElement firstParam = params.get(0);
                 TypeMirror paramType = firstParam.asType();
                 if (!checkFirstArgType(paramType)) {
-                    modelSpec.logError("@ModelMethod methods must have either this model class or an appropriate model "
-                            + "superclass as their first argument", e);
+                    modelSpec.logError(firstArgError, e);
                 } else {
                     modelMethods.add(e);
                 }
