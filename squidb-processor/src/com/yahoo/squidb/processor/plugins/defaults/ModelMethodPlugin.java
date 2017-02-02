@@ -121,12 +121,19 @@ public class ModelMethodPlugin extends AbstractPlugin {
         ClassName firstArgClass = (ClassName) typeName;
 
         // Acceptable first arg types for model methods:
-        return TypeConstants.ABSTRACT_MODEL.equals(firstArgClass) || // AbstractModel
+        // 1) AbstractModel
+        // 2) When the type doesn't exist yet (e.g. is the class to be generated), APT represents it as ErrorType, which
+        //    doesn't include package info. In this case, we just check the simple name of the type against the simple name
+        //    of the generated class.
+        // 3) If it's not an ErrorType, check the full generated class name
+        // 4) Generated model superclass
+        // 5) Model superclass appropriate to this model spec type
+        return TypeConstants.ABSTRACT_MODEL.equals(firstArgClass) ||
                 (type instanceof ErrorType && firstArgClass.simpleName()
-                        .equals(modelSpec.getGeneratedClassName().simpleName())) || // Generated model class in ErrorType case
-                modelSpec.getGeneratedClassName().equals(firstArgClass) || // Generated model class in non-ErrorType case
-                modelSpec.getModelSuperclass().equals(firstArgClass) || // Generated model superclass
-                modelSpec.accept(modelMethodArgumentTypeVisitor, null).equals(firstArgClass); // Model superclass appropriate to this model spec type
+                        .equals(modelSpec.getGeneratedClassName().simpleName())) ||
+                modelSpec.getGeneratedClassName().equals(firstArgClass) ||
+                modelSpec.getModelSuperclass().equals(firstArgClass) ||
+                modelSpec.accept(modelMethodArgumentTypeVisitor, null).equals(firstArgClass);
     }
 
     private ModelSpec.ModelSpecVisitor<TypeName, Void> modelMethodArgumentTypeVisitor = new ModelSpec.ModelSpecVisitor<TypeName, Void>() {
