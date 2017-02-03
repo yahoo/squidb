@@ -27,7 +27,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
 
     public ContentValuesStorage(ContentValues values) {
         if (values == null) {
-            throw new IllegalArgumentException("Can't create a ContentValuesStorage with null ContentValues");
+            values = new ContentValues();
         }
         this.values = values;
     }

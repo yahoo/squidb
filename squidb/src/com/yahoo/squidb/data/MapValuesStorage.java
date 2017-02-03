@@ -22,7 +22,7 @@ public class MapValuesStorage extends ValuesStorage {
 
     public MapValuesStorage(Map<String, Object> values) {
         if (values == null) {
-            throw new IllegalArgumentException("Can't create a MapValuesStorage with null Map");
+            values = new HashMap<>();
         }
         this.values = values;
     }
