@@ -162,7 +162,8 @@ public abstract class ValuesStorage {
         } else if (value instanceof byte[]) {
             put(key, (byte[]) value);
         } else if (errorOnFail) {
-            throw new IllegalArgumentException("Could not handle type " + value.getClass());
+            throw new IllegalArgumentException("Tried to insert unsupported value type " + value.getClass() +
+                    " into ValuesStorage");
         }
     }
 
