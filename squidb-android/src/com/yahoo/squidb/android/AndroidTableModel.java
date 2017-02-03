@@ -32,7 +32,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
     public void readPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
-        readPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
+        readPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 
     /**
@@ -40,7 +40,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
     public void readPropertiesFromContentValues(ContentValues values, List<Property<?>> properties) {
-        readPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
+        readPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 
     /**
@@ -48,7 +48,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * model as set values, i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
-        setPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
+        setPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 
     /**
@@ -56,7 +56,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * model as set values, i.e. marks the model as dirty with these values.
      */
     public void setPropertiesFromContentValues(ContentValues values, List<Property<?>> properties) {
-        setPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
+        setPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 
     // --- parcelable helpers
