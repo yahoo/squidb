@@ -60,7 +60,7 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
         FieldSpec.Builder propertyList = FieldSpec.builder(TypeConstants.PROPERTY_LIST, name,
                 Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
         CodeBlock.Builder initializer = CodeBlock.builder()
-                .add("$T.asList(($T)\n", Arrays.class, TypeConstants.PROPERTY)
+                .add("$T.<$T>asList(\n", Arrays.class, TypeConstants.PROPERTY)
                 .indent();
         buildPropertyReferenceArrayBody(initializer, aliased);
         initializer.unindent().add(")");
@@ -163,20 +163,25 @@ public class ViewModelFileWriter extends ModelFileWriter<ViewModelSpecWrapper> {
 
     @Override
     protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
+        CodeBlock.Builder qualifierBlock = CodeBlock.builder();
+        CodeBlock.Builder listInitializerBlock = CodeBlock.builder();
         for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
             String name = modelSpec.getPropertyGenerators().get(i).getPropertyName();
             TypeName type = modelSpec.getPropertyGenerators().get(i).getPropertyType();
             CodeBlock initializer;
             if (modelSpec.getQueryElement() != null) {
                 String callOn = modelSpec.getSpecAnnotation().isSubquery() ? SUBQUERY_NAME : VIEW_NAME;
-                initializer = CodeBlock.of("($T) $L.qualifyField($L.get($L))", type, callOn,
+                initializer = CodeBlock.of("($T) $L.qualifyProperty($L.get($L))", type, callOn,
                         ALIASED_PROPERTY_LIST_NAME, i);
             } else {
                 initializer = CodeBlock.of("($T) $L.get($L)", type, ALIASED_PROPERTY_LIST_NAME, i);
             }
-            block.addStatement("$L = $L", name, initializer);
-            block.addStatement("$L.add($L)", PROPERTIES_INTERNAL_ARRAY, name);
+            qualifierBlock.addStatement("$L = $L", name, initializer);
+            listInitializerBlock.addStatement("$L.add($L)", PROPERTIES_INTERNAL_ARRAY, name);
         }
+        block.add(qualifierBlock.build());
+        block.add("\n");
+        block.add(listInitializerBlock.build());
     }
 
     @Override

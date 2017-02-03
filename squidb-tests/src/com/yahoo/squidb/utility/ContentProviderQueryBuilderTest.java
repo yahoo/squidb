@@ -52,7 +52,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
     }
 
     public void testEmptyProjectionWithMapUsesDefault() {
-        List<Field<?>> expectedProjection = Arrays.asList((Field<?>)
+        List<Field<?>> expectedProjection = Arrays.<Field<?>>asList(
                 TestModel.ID,
                 TestModel.FIRST_NAME.as(COL_GIVEN_NAME),
                 TestModel.LAST_NAME.as(COL_SURNAME),
@@ -65,7 +65,7 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
     }
 
     public void testNonEmptyProjectionWithoutMapCreatesFields() {
-        List<Field<?>> expectedProjection = Arrays.asList((Field<?>) Field.field("foo"), Field.field("bar"));
+        List<Field<?>> expectedProjection = Arrays.<Field<?>>asList(Field.field("foo"), Field.field("bar"));
         ContentProviderQueryBuilder builder = new ContentProviderQueryBuilder();
         Query query = builder.setDataSource(TestModel.TABLE).build(new String[]{"foo", "bar"}, null, null, null);
         assertEquals(expectedProjection, query.getFields());
