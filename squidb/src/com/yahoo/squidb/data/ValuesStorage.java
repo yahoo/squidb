@@ -162,7 +162,7 @@ public abstract class ValuesStorage {
         } else if (value instanceof byte[]) {
             put(key, (byte[]) value);
         } else if (errorOnFail) {
-            throw new UnsupportedOperationException("Could not handle type " + value.getClass());
+            throw new IllegalArgumentException("Could not handle type " + value.getClass());
         }
     }
 

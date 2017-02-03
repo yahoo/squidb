@@ -427,6 +427,10 @@ public abstract class AbstractModel implements Cloneable {
         setPropertiesFromValuesStorage(values, Arrays.asList(properties));
     }
 
+    /**
+     * Analogous to {@link #readPropertiesFromValuesStorage(ValuesStorage, List)} but adds the values to the
+     * model as set values, i.e. marks the model as dirty with these values.
+     */
     public void setPropertiesFromValuesStorage(ValuesStorage values, List<Property<?>> properties) {
         if (values != null) {
             if (setValues == null) {

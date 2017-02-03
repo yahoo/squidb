@@ -19,17 +19,21 @@ import java.util.Set;
  */
 public class ContentValuesStorage extends ValuesStorage implements Parcelable {
 
-    private final ContentValues values;
+    private final ContentValues values = new ContentValues();
 
+    /**
+     * Construct an empty ContentValuesStorage
+     */
     public ContentValuesStorage() {
-        this.values = new ContentValues();
     }
 
+    /**
+     * Construct a ContentValuesStorage populated with a copy of the values from the given ContentValues.
+     */
     public ContentValuesStorage(ContentValues values) {
-        if (values == null) {
-            values = new ContentValues();
+        if (values != null) {
+            this.values.putAll(values);
         }
-        this.values = values;
     }
 
     /**
@@ -201,9 +205,6 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
         @Override
         public ContentValuesStorage createFromParcel(Parcel source) {
             ContentValues values = source.readParcelable(ContentValues.class.getClassLoader());
-            if (values == null) {
-                values = new ContentValues();
-            }
             return new ContentValuesStorage(values);
         }
 

@@ -14,17 +14,25 @@ import java.util.Set;
  */
 public class MapValuesStorage extends ValuesStorage {
 
-    private final Map<String, Object> values;
+    private final Map<String, Object> values = new HashMap<>();
 
+    /**
+     * Construct an empty MapValuesStorage
+     */
     public MapValuesStorage() {
-        this.values = new HashMap<>();
     }
 
+    /**
+     * Construct a MapValuesStorage populated with a copy of the values from the given map. This may throw an
+     * IllegalArgumentException if any of the values in the map are of an unsupported type (i.e. not
+     * a String, primitive, or byte[])
+     */
     public MapValuesStorage(Map<String, Object> values) {
-        if (values == null) {
-            values = new HashMap<>();
+        if (values != null) {
+            for (Map.Entry<String, Object> entry : values.entrySet()) {
+                put(entry.getKey(), entry.getValue(), true);
+            }
         }
-        this.values = values;
     }
 
     /**
