@@ -5,12 +5,16 @@
  */
 package com.yahoo.squidb.test;
 
+import com.google.j2objc.annotations.ObjectiveCName;
+
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
+import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
@@ -20,6 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Here's a test javadoc for a model spec. It should be copied to the generated model.
@@ -96,6 +103,8 @@ public class TestModelSpec {
     JSONPojo somePojo;
 
     @ModelMethod
+    @ObjectiveCName("displayNameWithModel:")
+    @Nonnull
     public static String getDisplayName(TestModel instance) {
         return instance.getFirstName() + " " + instance.getLastName();
     }
@@ -106,21 +115,24 @@ public class TestModelSpec {
      * @param prefix the prefix to use
      */
     @ModelMethod(name = "prefixedName")
-    public static String getDisplayNameWithPrefix(TestModel instance, String prefix) {
+    @ObjectiveCName("displayNameWithModel:withPrefix:")
+    @Nonnull
+    public static String getDisplayNameWithPrefix(TestModel instance, @Nonnull String prefix) {
         return prefix + " " + instance.getDisplayName();
     }
 
     @ModelMethod
-    public static void testVoidMethod(TestModel instance) {
+    public static void testVoidMethod(AbstractModel instance) {
         System.err.println("Hello");
     }
 
     @ModelMethod
-    public static void run(TestModel instance) {
+    public static void run(TableModel instance) {
         Logger.e(Logger.LOG_TAG, "TestModel: Interface method");
     }
 
     @ModelMethod
+    @Nullable
     public static Iterator<String> iterator(TestModel instance) {
         return null;
     }
@@ -132,7 +144,9 @@ public class TestModelSpec {
      * @param anotherInstance another TestModel instance
      * @return the literal String "Blah"
      */
-    public static String someStaticMethod(TestModel instance, TestModel anotherInstance) {
+    @ObjectiveCName("staticMethodWithModel1:withModel2:")
+    @Nonnull
+    public static String someStaticMethod(@Nullable TestModel instance, @Nullable TestModel anotherInstance) {
         return "Blah";
     }
 }
