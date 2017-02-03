@@ -44,9 +44,6 @@ public class TypeConstants {
     public static final ClassName VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "ValuesStorage");
     public static final ClassName MAP_VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "MapValuesStorage");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
-    public static final ClassName MAP = ClassName.get("java.util", "Map");
-    public static final TypeName MAP_VALUES = ParameterizedTypeName.get(MAP,
-            ClassName.get(String.class), ClassName.OBJECT);
 
     public static final ClassName ABSTRACT_MODEL = ClassName.get(SQUIDB_DATA_PACKAGE, "AbstractModel");
     public static final ClassName TABLE_MODEL = ClassName.get(SQUIDB_DATA_PACKAGE, "TableModel");
