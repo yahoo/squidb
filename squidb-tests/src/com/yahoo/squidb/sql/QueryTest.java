@@ -269,7 +269,7 @@ public class QueryTest extends DatabaseTestCase {
         Table managerTable = Employee.TABLE.as("managers");
         StringProperty employeeName = Employee.NAME.as("employeeName");
         StringProperty managerName = Employee.NAME.as(managerTable, "managerName");
-        LongProperty managerId = managerTable.qualifyField(Employee.ID);
+        LongProperty managerId = managerTable.qualifyProperty(Employee.ID);
         Join join = Join.inner(managerTable, Employee.MANAGER_ID.eq(managerId));
         Query query = Query.select(employeeName, managerName).from(Employee.TABLE).join(join).orderBy(managerId.asc());
 
@@ -523,7 +523,7 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testSimpleSubquerySelect() {
         Query query = Query.fromSubquery(Query.select(Employee.NAME).from(Employee.TABLE), "subquery");
-        StringProperty name = query.getTable().qualifyField(Employee.NAME);
+        StringProperty name = query.getTable().qualifyProperty(Employee.NAME);
         query.where(name.eq("bigBird"));
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
@@ -810,8 +810,8 @@ public class QueryTest extends DatabaseTestCase {
          */
 
         Table employeesAlias = Employee.TABLE.as("e");
-        LongProperty aliasedId = employeesAlias.qualifyField(Employee.ID);
-        LongProperty aliasedManagerId = employeesAlias.qualifyField(Employee.MANAGER_ID);
+        LongProperty aliasedId = employeesAlias.qualifyProperty(Employee.ID);
+        LongProperty aliasedManagerId = employeesAlias.qualifyProperty(Employee.MANAGER_ID);
         StringProperty subordinates = StringProperty.fromFunction(Function.groupConcat(aliasedId, separator),
                 "subordinates");
         Query subquery = Query.select(aliasedManagerId, subordinates).from(employeesAlias)
@@ -822,7 +822,7 @@ public class QueryTest extends DatabaseTestCase {
         }
 
         SqlTable<?> subTable = subquery.as("subTable");
-        StringProperty coworkers = subTable.qualifyField(subordinates);
+        StringProperty coworkers = subTable.qualifyProperty(subordinates);
         Query query = Query.select(Employee.PROPERTIES).selectMore(coworkers)
                 .from(Employee.TABLE);
         if (leftJoin) {

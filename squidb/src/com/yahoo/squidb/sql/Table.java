@@ -49,7 +49,7 @@ public class Table extends SqlTable<TableModel> {
     @Override
     public Table as(String newAlias) {
         Table result = (Table) super.as(newAlias);
-        result.rowidProperty = rowidProperty == null ? null : result.qualifyField(rowidProperty);
+        result.rowidProperty = rowidProperty == null ? null : result.qualifyProperty(rowidProperty);
         return result;
     }
 

@@ -118,7 +118,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
         }
         List<P> result = new ArrayList<>(properties.size());
         for (P property : properties) {
-            result.add(qualifyField(property));
+            result.add(qualifyProperty(property));
         }
 
         return result;
@@ -133,7 +133,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      */
     public Field<?> qualifyField(Field<?> field) {
         if (field instanceof Property<?>) {
-            return qualifyField((Property<?>) field);
+            return qualifyProperty((Property<?>) field);
         } else {
             return Field.field(field.getName(), getName());
         }
@@ -148,7 +148,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @return a clone of the given property with this object as its qualifier
      */
     @SuppressWarnings("unchecked")
-    public <P extends Property<?>> P qualifyField(P property) {
+    public <P extends Property<?>> P qualifyProperty(P property) {
         return (P) property.asSelectionFromTable(this, null);
     }
 
@@ -170,7 +170,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
         }
         SqlTable<T> result = asNewAliasWithProperties(newAlias, Collections.unmodifiableList(newProperties));
         for (Property<?> p : properties) {
-            newProperties.add(result.qualifyField(p));
+            newProperties.add(result.qualifyProperty(p));
         }
         return result;
     }

@@ -44,7 +44,7 @@ public class PropertyTest extends DatabaseTestCase {
         assertEquals("newAlias", aliasWithTable.getName());
         assertEquals("SELECT newTable._id AS newAlias", Query.select(aliasWithTable).toString());
 
-        LongProperty asSelectionFromTableNoAlias = TestViewModel.VIEW.qualifyField(basicAlias);
+        LongProperty asSelectionFromTableNoAlias = TestViewModel.VIEW.qualifyProperty(basicAlias);
         assertEquals(TestViewModel.class, asSelectionFromTableNoAlias.tableModelName.modelClass);
         assertEquals(TestViewModel.VIEW.getName(), asSelectionFromTableNoAlias.tableModelName.tableName);
         assertEquals(basicAlias.getName(), asSelectionFromTableNoAlias.getExpression());
