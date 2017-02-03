@@ -27,9 +27,9 @@ public class MapValuesStorage extends ValuesStorage {
      * IllegalArgumentException if any of the values in the map are of an unsupported type (i.e. not
      * a String, primitive, or byte[])
      */
-    public MapValuesStorage(Map<String, Object> values) {
+    public MapValuesStorage(Map<String, ?> values) {
         if (values != null) {
-            for (Map.Entry<String, Object> entry : values.entrySet()) {
+            for (Map.Entry<String, ?> entry : values.entrySet()) {
                 put(entry.getKey(), entry.getValue(), true);
             }
         }
