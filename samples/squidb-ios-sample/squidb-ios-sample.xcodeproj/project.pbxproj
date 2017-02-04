@@ -7,68 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2228C4801D11D0A900955753 /* Beta.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C43F1D11D0A900955753 /* Beta.java */; };
-		2228C4811D11D0A900955753 /* AbstractModel.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4411D11D0A900955753 /* AbstractModel.java */; };
-		2228C4821D11D0A900955753 /* DataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4421D11D0A900955753 /* DataChangedNotifier.java */; };
-		2228C4831D11D0A900955753 /* ICursor.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4431D11D0A900955753 /* ICursor.java */; };
-		2228C4841D11D0A900955753 /* ISQLiteDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4441D11D0A900955753 /* ISQLiteDatabase.java */; };
-		2228C4851D11D0A900955753 /* ISQLiteOpenHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4451D11D0A900955753 /* ISQLiteOpenHelper.java */; };
-		2228C4861D11D0A900955753 /* MapValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4461D11D0A900955753 /* MapValuesStorage.java */; };
-		2228C4871D11D0A900955753 /* SimpleDataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4471D11D0A900955753 /* SimpleDataChangedNotifier.java */; };
-		2228C4881D11D0A900955753 /* SquidCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4481D11D0A900955753 /* SquidCursor.java */; };
-		2228C4891D11D0A900955753 /* SquidDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4491D11D0A900955753 /* SquidDatabase.java */; };
-		2228C48A1D11D0A900955753 /* SquidTransactionListener.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C44A1D11D0A900955753 /* SquidTransactionListener.java */; };
-		2228C48B1D11D0A900955753 /* TableModel.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C44B1D11D0A900955753 /* TableModel.java */; };
-		2228C48C1D11D0A900955753 /* ValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C44C1D11D0A900955753 /* ValuesStorage.java */; };
-		2228C48D1D11D0A900955753 /* ViewModel.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C44D1D11D0A900955753 /* ViewModel.java */; };
-		2228C48E1D11D0A900955753 /* ArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C44F1D11D0A900955753 /* ArgumentFunction.java */; };
-		2228C48F1D11D0A900955753 /* BetweenCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4501D11D0A900955753 /* BetweenCriterion.java */; };
-		2228C4901D11D0A900955753 /* BinaryCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4511D11D0A900955753 /* BinaryCriterion.java */; };
-		2228C4911D11D0A900955753 /* CaseBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4521D11D0A900955753 /* CaseBuilder.java */; };
-		2228C4921D11D0A900955753 /* CaseInsensitiveEqualsCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4531D11D0A900955753 /* CaseInsensitiveEqualsCriterion.java */; };
-		2228C4931D11D0A900955753 /* CompilableWithArguments.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4541D11D0A900955753 /* CompilableWithArguments.java */; };
-		2228C4941D11D0A900955753 /* CompiledArgumentResolver.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4551D11D0A900955753 /* CompiledArgumentResolver.java */; };
-		2228C4951D11D0A900955753 /* CompiledStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4561D11D0A900955753 /* CompiledStatement.java */; };
-		2228C4961D11D0A900955753 /* CompoundSelect.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4571D11D0A900955753 /* CompoundSelect.java */; };
-		2228C4971D11D0A900955753 /* ConjunctionCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4581D11D0A900955753 /* ConjunctionCriterion.java */; };
-		2228C4981D11D0A900955753 /* Criterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4591D11D0A900955753 /* Criterion.java */; };
-		2228C4991D11D0A900955753 /* DBObject.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45A1D11D0A900955753 /* DBObject.java */; };
-		2228C49A1D11D0A900955753 /* Delete.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45B1D11D0A900955753 /* Delete.java */; };
-		2228C49B1D11D0A900955753 /* DistinctArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45C1D11D0A900955753 /* DistinctArgumentFunction.java */; };
-		2228C49C1D11D0A900955753 /* Field.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45D1D11D0A900955753 /* Field.java */; };
-		2228C49D1D11D0A900955753 /* Function.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45E1D11D0A900955753 /* Function.java */; };
-		2228C49E1D11D0A900955753 /* InCollectionCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C45F1D11D0A900955753 /* InCollectionCriterion.java */; };
-		2228C49F1D11D0A900955753 /* Index.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4601D11D0A900955753 /* Index.java */; };
-		2228C4A01D11D0A900955753 /* Insert.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4611D11D0A900955753 /* Insert.java */; };
-		2228C4A11D11D0A900955753 /* Join.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4621D11D0A900955753 /* Join.java */; };
-		2228C4A21D11D0A900955753 /* LikeCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4631D11D0A900955753 /* LikeCriterion.java */; };
-		2228C4A31D11D0A900955753 /* MathFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4641D11D0A900955753 /* MathFunction.java */; };
-		2228C4A41D11D0A900955753 /* MathOperator.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4651D11D0A900955753 /* MathOperator.java */; };
-		2228C4A51D11D0A900955753 /* NegationCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4661D11D0A900955753 /* NegationCriterion.java */; };
-		2228C4A61D11D0A900955753 /* Operator.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4671D11D0A900955753 /* Operator.java */; };
-		2228C4A71D11D0A900955753 /* Order.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4681D11D0A900955753 /* Order.java */; };
-		2228C4A81D11D0A900955753 /* Property.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4691D11D0A900955753 /* Property.java */; };
-		2228C4A91D11D0A900955753 /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46A1D11D0A900955753 /* Query.java */; };
-		2228C4AA1D11D0A900955753 /* QueryFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46B1D11D0A900955753 /* QueryFunction.java */; };
-		2228C4AB1D11D0A900955753 /* QueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46C1D11D0A900955753 /* QueryTable.java */; };
-		2228C4AC1D11D0A900955753 /* RawFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46D1D11D0A900955753 /* RawFunction.java */; };
-		2228C4AD1D11D0A900955753 /* SqlBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46E1D11D0A900955753 /* SqlBuilder.java */; };
-		2228C4AE1D11D0A900955753 /* SqlStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C46F1D11D0A900955753 /* SqlStatement.java */; };
-		2228C4AF1D11D0A900955753 /* SqlTable.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4701D11D0A900955753 /* SqlTable.java */; };
-		2228C4B01D11D0A900955753 /* SqlUtils.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4711D11D0A900955753 /* SqlUtils.java */; };
-		2228C4B11D11D0A900955753 /* SubqueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4721D11D0A900955753 /* SubqueryTable.java */; };
-		2228C4B21D11D0A900955753 /* Table.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4731D11D0A900955753 /* Table.java */; };
-		2228C4B31D11D0A900955753 /* TableModelName.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4741D11D0A900955753 /* TableModelName.java */; };
-		2228C4B41D11D0A900955753 /* TableStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4751D11D0A900955753 /* TableStatement.java */; };
-		2228C4B51D11D0A900955753 /* Trigger.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4761D11D0A900955753 /* Trigger.java */; };
-		2228C4B61D11D0A900955753 /* Update.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4771D11D0A900955753 /* Update.java */; };
-		2228C4B71D11D0A900955753 /* View.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4781D11D0A900955753 /* View.java */; };
-		2228C4B81D11D0A900955753 /* VirtualTable.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4791D11D0A900955753 /* VirtualTable.java */; };
-		2228C4B91D11D0A900955753 /* ContentProviderQueryBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C47B1D11D0A900955753 /* ContentProviderQueryBuilder.java */; };
-		2228C4BA1D11D0A900955753 /* Logger.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C47C1D11D0A900955753 /* Logger.java */; };
-		2228C4BB1D11D0A900955753 /* ProjectionMap.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C47D1D11D0A900955753 /* ProjectionMap.java */; };
-		2228C4BC1D11D0A900955753 /* SquidUtilities.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C47E1D11D0A900955753 /* SquidUtilities.java */; };
-		2228C4BD1D11D0A900955753 /* VersionCode.java in Sources */ = {isa = PBXBuildFile; fileRef = 2228C47F1D11D0A900955753 /* VersionCode.java */; };
 		2228C4C01D11D1AB00955753 /* SquidbUnicode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4BF1D11D1AB00955753 /* SquidbUnicode.m */; };
 		BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */; };
 		BDBF185D1BE980210025045D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDBF185C1BE980210025045D /* Main.storyboard */; };
@@ -82,16 +20,6 @@
 		BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9231BE92DD300F7E9E6 /* TasksViewController.m */; };
 		BDC8C9291BE92DD300F7E9E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */; };
 		BDC8C92C1BE92DD300F7E9E6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDC8C92A1BE92DD300F7E9E6 /* LaunchScreen.storyboard */; };
-		BDC8C9C41BE9316700F7E9E6 /* Alias.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BA1BE9316700F7E9E6 /* Alias.java */; };
-		BDC8C9C51BE9316700F7E9E6 /* ColumnSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BB1BE9316700F7E9E6 /* ColumnSpec.java */; };
-		BDC8C9C61BE9316700F7E9E6 /* Ignore.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BC1BE9316700F7E9E6 /* Ignore.java */; };
-		BDC8C9C71BE9316700F7E9E6 /* Implements.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BD1BE9316700F7E9E6 /* Implements.java */; };
-		BDC8C9C81BE9316700F7E9E6 /* InheritedModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BE1BE9316700F7E9E6 /* InheritedModelSpec.java */; };
-		BDC8C9C91BE9316700F7E9E6 /* ModelMethod.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9BF1BE9316700F7E9E6 /* ModelMethod.java */; };
-		BDC8C9CA1BE9316700F7E9E6 /* PrimaryKey.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9C01BE9316700F7E9E6 /* PrimaryKey.java */; };
-		BDC8C9CB1BE9316700F7E9E6 /* TableModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9C11BE9316700F7E9E6 /* TableModelSpec.java */; };
-		BDC8C9CC1BE9316700F7E9E6 /* ViewModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9C21BE9316700F7E9E6 /* ViewModelSpec.java */; };
-		BDC8C9CD1BE9316700F7E9E6 /* ViewQuery.java in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9C31BE9316700F7E9E6 /* ViewQuery.java */; };
 		BDC8CA171BE931B000F7E9E6 /* CursorWindowNative.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9D11BE931B000F7E9E6 /* CursorWindowNative.m */; };
 		BDC8CA181BE931B000F7E9E6 /* SQLiteConnectionNative.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9D31BE931B000F7E9E6 /* SQLiteConnectionNative.m */; };
 		BDC8CA191BE931B000F7E9E6 /* SQLiteErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC8C9D51BE931B000F7E9E6 /* SQLiteErrors.m */; };
@@ -159,6 +87,89 @@
 		BDC8CA6A1BE9352100F7E9E6 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC8CA691BE9352100F7E9E6 /* libsqlite3.tbd */; };
 		BDD9BF501BEBCCFD00EC6FE4 /* prefixes.properties in Resources */ = {isa = PBXBuildFile; fileRef = BDD9BF4F1BEBCCFD00EC6FE4 /* prefixes.properties */; };
 		BDD9BF521BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */; };
+		BDF07C641E4557FD003A4B4F /* IOSSQLiteStatementAdapter.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C631E4557FD003A4B4F /* IOSSQLiteStatementAdapter.java */; };
+		BDF07CAF1E45581E003A4B4F /* Beta.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C681E45581E003A4B4F /* Beta.java */; };
+		BDF07CB01E45581E003A4B4F /* AbstractModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6A1E45581E003A4B4F /* AbstractModel.java */; };
+		BDF07CB11E45581E003A4B4F /* DataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6B1E45581E003A4B4F /* DataChangedNotifier.java */; };
+		BDF07CB21E45581E003A4B4F /* ICursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6C1E45581E003A4B4F /* ICursor.java */; };
+		BDF07CB31E45581E003A4B4F /* ISQLiteDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6D1E45581E003A4B4F /* ISQLiteDatabase.java */; };
+		BDF07CB41E45581E003A4B4F /* ISQLiteOpenHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6E1E45581E003A4B4F /* ISQLiteOpenHelper.java */; };
+		BDF07CB51E45581E003A4B4F /* ISQLitePreparedStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C6F1E45581E003A4B4F /* ISQLitePreparedStatement.java */; };
+		BDF07CB61E45581E003A4B4F /* MapValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C701E45581E003A4B4F /* MapValuesStorage.java */; };
+		BDF07CB71E45581E003A4B4F /* PreparedInsertCache.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C711E45581E003A4B4F /* PreparedInsertCache.java */; };
+		BDF07CB81E45581E003A4B4F /* SimpleDataChangedNotifier.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C721E45581E003A4B4F /* SimpleDataChangedNotifier.java */; };
+		BDF07CB91E45581E003A4B4F /* SquidCursor.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C731E45581E003A4B4F /* SquidCursor.java */; };
+		BDF07CBA1E45581E003A4B4F /* SquidDatabase.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C741E45581E003A4B4F /* SquidDatabase.java */; };
+		BDF07CBB1E45581E003A4B4F /* SquidTransactionListener.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C751E45581E003A4B4F /* SquidTransactionListener.java */; };
+		BDF07CBC1E45581E003A4B4F /* TableModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C761E45581E003A4B4F /* TableModel.java */; };
+		BDF07CBD1E45581E003A4B4F /* Upsertable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C771E45581E003A4B4F /* Upsertable.java */; };
+		BDF07CBE1E45581E003A4B4F /* ValuesStorage.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C781E45581E003A4B4F /* ValuesStorage.java */; };
+		BDF07CBF1E45581E003A4B4F /* ViewModel.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C791E45581E003A4B4F /* ViewModel.java */; };
+		BDF07CC01E45581E003A4B4F /* ArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C7B1E45581E003A4B4F /* ArgumentFunction.java */; };
+		BDF07CC11E45581E003A4B4F /* ArgumentResolver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C7C1E45581E003A4B4F /* ArgumentResolver.java */; };
+		BDF07CC21E45581E003A4B4F /* BetweenCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C7D1E45581E003A4B4F /* BetweenCriterion.java */; };
+		BDF07CC31E45581E003A4B4F /* BinaryCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C7E1E45581E003A4B4F /* BinaryCriterion.java */; };
+		BDF07CC41E45581E003A4B4F /* CaseBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C7F1E45581E003A4B4F /* CaseBuilder.java */; };
+		BDF07CC51E45581E003A4B4F /* CaseInsensitiveEqualsCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C801E45581E003A4B4F /* CaseInsensitiveEqualsCriterion.java */; };
+		BDF07CC61E45581E003A4B4F /* CompilableWithArguments.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C811E45581E003A4B4F /* CompilableWithArguments.java */; };
+		BDF07CC71E45581E003A4B4F /* CompileContext.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C821E45581E003A4B4F /* CompileContext.java */; };
+		BDF07CC81E45581E003A4B4F /* CompiledArgumentResolver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C831E45581E003A4B4F /* CompiledArgumentResolver.java */; };
+		BDF07CC91E45581E003A4B4F /* CompiledStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C841E45581E003A4B4F /* CompiledStatement.java */; };
+		BDF07CCA1E45581E003A4B4F /* CompoundSelect.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C851E45581E003A4B4F /* CompoundSelect.java */; };
+		BDF07CCB1E45581E003A4B4F /* ConjunctionCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C861E45581E003A4B4F /* ConjunctionCriterion.java */; };
+		BDF07CCC1E45581E003A4B4F /* Criterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C871E45581E003A4B4F /* Criterion.java */; };
+		BDF07CCD1E45581E003A4B4F /* DBObject.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C881E45581E003A4B4F /* DBObject.java */; };
+		BDF07CCE1E45581E003A4B4F /* DefaultArgumentResolver.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C891E45581E003A4B4F /* DefaultArgumentResolver.java */; };
+		BDF07CCF1E45581E003A4B4F /* Delete.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8A1E45581E003A4B4F /* Delete.java */; };
+		BDF07CD01E45581E003A4B4F /* DistinctArgumentFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8B1E45581E003A4B4F /* DistinctArgumentFunction.java */; };
+		BDF07CD11E45581E003A4B4F /* Field.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8C1E45581E003A4B4F /* Field.java */; };
+		BDF07CD21E45581E003A4B4F /* Function.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8D1E45581E003A4B4F /* Function.java */; };
+		BDF07CD31E45581E003A4B4F /* InCollectionCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8E1E45581E003A4B4F /* InCollectionCriterion.java */; };
+		BDF07CD41E45581E003A4B4F /* Index.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C8F1E45581E003A4B4F /* Index.java */; };
+		BDF07CD51E45581E003A4B4F /* Insert.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C901E45581E003A4B4F /* Insert.java */; };
+		BDF07CD61E45581E003A4B4F /* Join.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C911E45581E003A4B4F /* Join.java */; };
+		BDF07CD71E45581E003A4B4F /* LikeCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C921E45581E003A4B4F /* LikeCriterion.java */; };
+		BDF07CD81E45581E003A4B4F /* MathFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C931E45581E003A4B4F /* MathFunction.java */; };
+		BDF07CD91E45581E003A4B4F /* MathOperator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C941E45581E003A4B4F /* MathOperator.java */; };
+		BDF07CDA1E45581E003A4B4F /* NegationCriterion.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C951E45581E003A4B4F /* NegationCriterion.java */; };
+		BDF07CDB1E45581E003A4B4F /* Operator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C961E45581E003A4B4F /* Operator.java */; };
+		BDF07CDC1E45581E003A4B4F /* Order.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C971E45581E003A4B4F /* Order.java */; };
+		BDF07CDD1E45581E003A4B4F /* Property.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C981E45581E003A4B4F /* Property.java */; };
+		BDF07CDE1E45581E003A4B4F /* Query.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C991E45581E003A4B4F /* Query.java */; };
+		BDF07CDF1E45581E003A4B4F /* QueryFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9A1E45581E003A4B4F /* QueryFunction.java */; };
+		BDF07CE01E45581E003A4B4F /* QueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9B1E45581E003A4B4F /* QueryTable.java */; };
+		BDF07CE11E45581E003A4B4F /* RawFunction.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9C1E45581E003A4B4F /* RawFunction.java */; };
+		BDF07CE21E45581E003A4B4F /* SqlBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9D1E45581E003A4B4F /* SqlBuilder.java */; };
+		BDF07CE31E45581E003A4B4F /* SqlStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9E1E45581E003A4B4F /* SqlStatement.java */; };
+		BDF07CE41E45581E003A4B4F /* SqlTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07C9F1E45581E003A4B4F /* SqlTable.java */; };
+		BDF07CE51E45581E003A4B4F /* SqlUtils.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA01E45581E003A4B4F /* SqlUtils.java */; };
+		BDF07CE61E45581E003A4B4F /* SubqueryTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA11E45581E003A4B4F /* SubqueryTable.java */; };
+		BDF07CE71E45581E003A4B4F /* Table.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA21E45581E003A4B4F /* Table.java */; };
+		BDF07CE81E45581E003A4B4F /* TableModelName.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA31E45581E003A4B4F /* TableModelName.java */; };
+		BDF07CE91E45581E003A4B4F /* TableStatement.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA41E45581E003A4B4F /* TableStatement.java */; };
+		BDF07CEA1E45581E003A4B4F /* Trigger.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA51E45581E003A4B4F /* Trigger.java */; };
+		BDF07CEB1E45581E003A4B4F /* Update.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA61E45581E003A4B4F /* Update.java */; };
+		BDF07CEC1E45581E003A4B4F /* View.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA71E45581E003A4B4F /* View.java */; };
+		BDF07CED1E45581E003A4B4F /* VirtualTable.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CA81E45581E003A4B4F /* VirtualTable.java */; };
+		BDF07CEE1E45581E003A4B4F /* ContentProviderQueryBuilder.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAA1E45581E003A4B4F /* ContentProviderQueryBuilder.java */; };
+		BDF07CEF1E45581E003A4B4F /* Logger.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAB1E45581E003A4B4F /* Logger.java */; };
+		BDF07CF01E45581E003A4B4F /* ProjectionMap.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAC1E45581E003A4B4F /* ProjectionMap.java */; };
+		BDF07CF11E45581E003A4B4F /* SquidUtilities.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */; };
+		BDF07CF21E45581E003A4B4F /* VersionCode.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAE1E45581E003A4B4F /* VersionCode.java */; };
+		BDF07D051E45582F003A4B4F /* Alias.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF71E45582F003A4B4F /* Alias.java */; };
+		BDF07D061E45582F003A4B4F /* ColumnSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF81E45582F003A4B4F /* ColumnSpec.java */; };
+		BDF07D071E45582F003A4B4F /* Constants.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF91E45582F003A4B4F /* Constants.java */; };
+		BDF07D081E45582F003A4B4F /* Ignore.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFA1E45582F003A4B4F /* Ignore.java */; };
+		BDF07D091E45582F003A4B4F /* Implements.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFB1E45582F003A4B4F /* Implements.java */; };
+		BDF07D0A1E45582F003A4B4F /* InheritedModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFC1E45582F003A4B4F /* InheritedModelSpec.java */; };
+		BDF07D0B1E45582F003A4B4F /* ModelGenErrors.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFD1E45582F003A4B4F /* ModelGenErrors.java */; };
+		BDF07D0C1E45582F003A4B4F /* ModelMethod.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFE1E45582F003A4B4F /* ModelMethod.java */; };
+		BDF07D0D1E45582F003A4B4F /* PrimaryKey.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFF1E45582F003A4B4F /* PrimaryKey.java */; };
+		BDF07D0E1E45582F003A4B4F /* TableModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D001E45582F003A4B4F /* TableModelSpec.java */; };
+		BDF07D0F1E45582F003A4B4F /* UpsertConfig.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D011E45582F003A4B4F /* UpsertConfig.java */; };
+		BDF07D101E45582F003A4B4F /* UpsertKey.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D021E45582F003A4B4F /* UpsertKey.java */; };
+		BDF07D111E45582F003A4B4F /* ViewModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D031E45582F003A4B4F /* ViewModelSpec.java */; };
+		BDF07D121E45582F003A4B4F /* ViewQuery.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D041E45582F003A4B4F /* ViewQuery.java */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -171,73 +182,11 @@
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
 			);
-			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar\" -sourcepath \"${SOURCEPATH}\" --prefixes \"${SRCROOT}/squidb-ios-sample/prefixes.properties\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar:${J2OBJC_HOME}/lib/j2objc_annotations.jar\" -sourcepath \"${SOURCEPATH}\" --prefixes \"${SRCROOT}/squidb-ios-sample/prefixes.properties\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		2228C43F1D11D0A900955753 /* Beta.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Beta.java; sourceTree = "<group>"; };
-		2228C4411D11D0A900955753 /* AbstractModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = AbstractModel.java; sourceTree = "<group>"; };
-		2228C4421D11D0A900955753 /* DataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DataChangedNotifier.java; sourceTree = "<group>"; };
-		2228C4431D11D0A900955753 /* ICursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ICursor.java; sourceTree = "<group>"; };
-		2228C4441D11D0A900955753 /* ISQLiteDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLiteDatabase.java; sourceTree = "<group>"; };
-		2228C4451D11D0A900955753 /* ISQLiteOpenHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLiteOpenHelper.java; sourceTree = "<group>"; };
-		2228C4461D11D0A900955753 /* MapValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MapValuesStorage.java; sourceTree = "<group>"; };
-		2228C4471D11D0A900955753 /* SimpleDataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SimpleDataChangedNotifier.java; sourceTree = "<group>"; };
-		2228C4481D11D0A900955753 /* SquidCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidCursor.java; sourceTree = "<group>"; };
-		2228C4491D11D0A900955753 /* SquidDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidDatabase.java; sourceTree = "<group>"; };
-		2228C44A1D11D0A900955753 /* SquidTransactionListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidTransactionListener.java; sourceTree = "<group>"; };
-		2228C44B1D11D0A900955753 /* TableModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModel.java; sourceTree = "<group>"; };
-		2228C44C1D11D0A900955753 /* ValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ValuesStorage.java; sourceTree = "<group>"; };
-		2228C44D1D11D0A900955753 /* ViewModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModel.java; sourceTree = "<group>"; };
-		2228C44F1D11D0A900955753 /* ArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ArgumentFunction.java; sourceTree = "<group>"; };
-		2228C4501D11D0A900955753 /* BetweenCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BetweenCriterion.java; sourceTree = "<group>"; };
-		2228C4511D11D0A900955753 /* BinaryCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BinaryCriterion.java; sourceTree = "<group>"; };
-		2228C4521D11D0A900955753 /* CaseBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CaseBuilder.java; sourceTree = "<group>"; };
-		2228C4531D11D0A900955753 /* CaseInsensitiveEqualsCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CaseInsensitiveEqualsCriterion.java; sourceTree = "<group>"; };
-		2228C4541D11D0A900955753 /* CompilableWithArguments.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompilableWithArguments.java; sourceTree = "<group>"; };
-		2228C4551D11D0A900955753 /* CompiledArgumentResolver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledArgumentResolver.java; sourceTree = "<group>"; };
-		2228C4561D11D0A900955753 /* CompiledStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledStatement.java; sourceTree = "<group>"; };
-		2228C4571D11D0A900955753 /* CompoundSelect.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompoundSelect.java; sourceTree = "<group>"; };
-		2228C4581D11D0A900955753 /* ConjunctionCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ConjunctionCriterion.java; sourceTree = "<group>"; };
-		2228C4591D11D0A900955753 /* Criterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Criterion.java; sourceTree = "<group>"; };
-		2228C45A1D11D0A900955753 /* DBObject.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DBObject.java; sourceTree = "<group>"; };
-		2228C45B1D11D0A900955753 /* Delete.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Delete.java; sourceTree = "<group>"; };
-		2228C45C1D11D0A900955753 /* DistinctArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DistinctArgumentFunction.java; sourceTree = "<group>"; };
-		2228C45D1D11D0A900955753 /* Field.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Field.java; sourceTree = "<group>"; };
-		2228C45E1D11D0A900955753 /* Function.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Function.java; sourceTree = "<group>"; };
-		2228C45F1D11D0A900955753 /* InCollectionCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InCollectionCriterion.java; sourceTree = "<group>"; };
-		2228C4601D11D0A900955753 /* Index.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Index.java; sourceTree = "<group>"; };
-		2228C4611D11D0A900955753 /* Insert.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Insert.java; sourceTree = "<group>"; };
-		2228C4621D11D0A900955753 /* Join.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Join.java; sourceTree = "<group>"; };
-		2228C4631D11D0A900955753 /* LikeCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = LikeCriterion.java; sourceTree = "<group>"; };
-		2228C4641D11D0A900955753 /* MathFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathFunction.java; sourceTree = "<group>"; };
-		2228C4651D11D0A900955753 /* MathOperator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathOperator.java; sourceTree = "<group>"; };
-		2228C4661D11D0A900955753 /* NegationCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = NegationCriterion.java; sourceTree = "<group>"; };
-		2228C4671D11D0A900955753 /* Operator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Operator.java; sourceTree = "<group>"; };
-		2228C4681D11D0A900955753 /* Order.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Order.java; sourceTree = "<group>"; };
-		2228C4691D11D0A900955753 /* Property.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Property.java; sourceTree = "<group>"; };
-		2228C46A1D11D0A900955753 /* Query.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Query.java; sourceTree = "<group>"; };
-		2228C46B1D11D0A900955753 /* QueryFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryFunction.java; sourceTree = "<group>"; };
-		2228C46C1D11D0A900955753 /* QueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryTable.java; sourceTree = "<group>"; };
-		2228C46D1D11D0A900955753 /* RawFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = RawFunction.java; sourceTree = "<group>"; };
-		2228C46E1D11D0A900955753 /* SqlBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlBuilder.java; sourceTree = "<group>"; };
-		2228C46F1D11D0A900955753 /* SqlStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlStatement.java; sourceTree = "<group>"; };
-		2228C4701D11D0A900955753 /* SqlTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlTable.java; sourceTree = "<group>"; };
-		2228C4711D11D0A900955753 /* SqlUtils.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlUtils.java; sourceTree = "<group>"; };
-		2228C4721D11D0A900955753 /* SubqueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SubqueryTable.java; sourceTree = "<group>"; };
-		2228C4731D11D0A900955753 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Table.java; sourceTree = "<group>"; };
-		2228C4741D11D0A900955753 /* TableModelName.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModelName.java; sourceTree = "<group>"; };
-		2228C4751D11D0A900955753 /* TableStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableStatement.java; sourceTree = "<group>"; };
-		2228C4761D11D0A900955753 /* Trigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Trigger.java; sourceTree = "<group>"; };
-		2228C4771D11D0A900955753 /* Update.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Update.java; sourceTree = "<group>"; };
-		2228C4781D11D0A900955753 /* View.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = View.java; sourceTree = "<group>"; };
-		2228C4791D11D0A900955753 /* VirtualTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VirtualTable.java; sourceTree = "<group>"; };
-		2228C47B1D11D0A900955753 /* ContentProviderQueryBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ContentProviderQueryBuilder.java; sourceTree = "<group>"; };
-		2228C47C1D11D0A900955753 /* Logger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Logger.java; sourceTree = "<group>"; };
-		2228C47D1D11D0A900955753 /* ProjectionMap.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ProjectionMap.java; sourceTree = "<group>"; };
-		2228C47E1D11D0A900955753 /* SquidUtilities.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidUtilities.java; sourceTree = "<group>"; };
-		2228C47F1D11D0A900955753 /* VersionCode.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VersionCode.java; sourceTree = "<group>"; };
 		2228C4BE1D11D1AB00955753 /* SquidbUnicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SquidbUnicode.h; sourceTree = "<group>"; };
 		2228C4BF1D11D1AB00955753 /* SquidbUnicode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SquidbUnicode.m; sourceTree = "<group>"; };
 		BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperCreator.java; sourceTree = "<group>"; };
@@ -258,16 +207,6 @@
 		BDC8C9281BE92DD300F7E9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BDC8C92B1BE92DD300F7E9E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BDC8C92D1BE92DD300F7E9E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BDC8C9BA1BE9316700F7E9E6 /* Alias.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Alias.java; sourceTree = "<group>"; };
-		BDC8C9BB1BE9316700F7E9E6 /* ColumnSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ColumnSpec.java; sourceTree = "<group>"; };
-		BDC8C9BC1BE9316700F7E9E6 /* Ignore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Ignore.java; sourceTree = "<group>"; };
-		BDC8C9BD1BE9316700F7E9E6 /* Implements.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Implements.java; sourceTree = "<group>"; };
-		BDC8C9BE1BE9316700F7E9E6 /* InheritedModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InheritedModelSpec.java; sourceTree = "<group>"; };
-		BDC8C9BF1BE9316700F7E9E6 /* ModelMethod.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelMethod.java; sourceTree = "<group>"; };
-		BDC8C9C01BE9316700F7E9E6 /* PrimaryKey.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PrimaryKey.java; sourceTree = "<group>"; };
-		BDC8C9C11BE9316700F7E9E6 /* TableModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModelSpec.java; sourceTree = "<group>"; };
-		BDC8C9C21BE9316700F7E9E6 /* ViewModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModelSpec.java; sourceTree = "<group>"; };
-		BDC8C9C31BE9316700F7E9E6 /* ViewQuery.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewQuery.java; sourceTree = "<group>"; };
 		BDC8C9D01BE931B000F7E9E6 /* CursorWindowNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CursorWindowNative.h; sourceTree = "<group>"; };
 		BDC8C9D11BE931B000F7E9E6 /* CursorWindowNative.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CursorWindowNative.m; sourceTree = "<group>"; };
 		BDC8C9D21BE931B000F7E9E6 /* SQLiteConnectionNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteConnectionNative.h; sourceTree = "<group>"; };
@@ -340,6 +279,89 @@
 		BDC8CA691BE9352100F7E9E6 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		BDD9BF4F1BEBCCFD00EC6FE4 /* prefixes.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prefixes.properties; sourceTree = "<group>"; };
 		BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSSQLiteDatabaseAdapter.java; sourceTree = "<group>"; };
+		BDF07C631E4557FD003A4B4F /* IOSSQLiteStatementAdapter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSSQLiteStatementAdapter.java; sourceTree = "<group>"; };
+		BDF07C681E45581E003A4B4F /* Beta.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Beta.java; sourceTree = "<group>"; };
+		BDF07C6A1E45581E003A4B4F /* AbstractModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = AbstractModel.java; sourceTree = "<group>"; };
+		BDF07C6B1E45581E003A4B4F /* DataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DataChangedNotifier.java; sourceTree = "<group>"; };
+		BDF07C6C1E45581E003A4B4F /* ICursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ICursor.java; sourceTree = "<group>"; };
+		BDF07C6D1E45581E003A4B4F /* ISQLiteDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLiteDatabase.java; sourceTree = "<group>"; };
+		BDF07C6E1E45581E003A4B4F /* ISQLiteOpenHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLiteOpenHelper.java; sourceTree = "<group>"; };
+		BDF07C6F1E45581E003A4B4F /* ISQLitePreparedStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ISQLitePreparedStatement.java; sourceTree = "<group>"; };
+		BDF07C701E45581E003A4B4F /* MapValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MapValuesStorage.java; sourceTree = "<group>"; };
+		BDF07C711E45581E003A4B4F /* PreparedInsertCache.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PreparedInsertCache.java; sourceTree = "<group>"; };
+		BDF07C721E45581E003A4B4F /* SimpleDataChangedNotifier.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SimpleDataChangedNotifier.java; sourceTree = "<group>"; };
+		BDF07C731E45581E003A4B4F /* SquidCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidCursor.java; sourceTree = "<group>"; };
+		BDF07C741E45581E003A4B4F /* SquidDatabase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidDatabase.java; sourceTree = "<group>"; };
+		BDF07C751E45581E003A4B4F /* SquidTransactionListener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidTransactionListener.java; sourceTree = "<group>"; };
+		BDF07C761E45581E003A4B4F /* TableModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModel.java; sourceTree = "<group>"; };
+		BDF07C771E45581E003A4B4F /* Upsertable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Upsertable.java; sourceTree = "<group>"; };
+		BDF07C781E45581E003A4B4F /* ValuesStorage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ValuesStorage.java; sourceTree = "<group>"; };
+		BDF07C791E45581E003A4B4F /* ViewModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModel.java; sourceTree = "<group>"; };
+		BDF07C7B1E45581E003A4B4F /* ArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ArgumentFunction.java; sourceTree = "<group>"; };
+		BDF07C7C1E45581E003A4B4F /* ArgumentResolver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ArgumentResolver.java; sourceTree = "<group>"; };
+		BDF07C7D1E45581E003A4B4F /* BetweenCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BetweenCriterion.java; sourceTree = "<group>"; };
+		BDF07C7E1E45581E003A4B4F /* BinaryCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BinaryCriterion.java; sourceTree = "<group>"; };
+		BDF07C7F1E45581E003A4B4F /* CaseBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CaseBuilder.java; sourceTree = "<group>"; };
+		BDF07C801E45581E003A4B4F /* CaseInsensitiveEqualsCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CaseInsensitiveEqualsCriterion.java; sourceTree = "<group>"; };
+		BDF07C811E45581E003A4B4F /* CompilableWithArguments.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompilableWithArguments.java; sourceTree = "<group>"; };
+		BDF07C821E45581E003A4B4F /* CompileContext.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompileContext.java; sourceTree = "<group>"; };
+		BDF07C831E45581E003A4B4F /* CompiledArgumentResolver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledArgumentResolver.java; sourceTree = "<group>"; };
+		BDF07C841E45581E003A4B4F /* CompiledStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompiledStatement.java; sourceTree = "<group>"; };
+		BDF07C851E45581E003A4B4F /* CompoundSelect.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = CompoundSelect.java; sourceTree = "<group>"; };
+		BDF07C861E45581E003A4B4F /* ConjunctionCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ConjunctionCriterion.java; sourceTree = "<group>"; };
+		BDF07C871E45581E003A4B4F /* Criterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Criterion.java; sourceTree = "<group>"; };
+		BDF07C881E45581E003A4B4F /* DBObject.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DBObject.java; sourceTree = "<group>"; };
+		BDF07C891E45581E003A4B4F /* DefaultArgumentResolver.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DefaultArgumentResolver.java; sourceTree = "<group>"; };
+		BDF07C8A1E45581E003A4B4F /* Delete.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Delete.java; sourceTree = "<group>"; };
+		BDF07C8B1E45581E003A4B4F /* DistinctArgumentFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = DistinctArgumentFunction.java; sourceTree = "<group>"; };
+		BDF07C8C1E45581E003A4B4F /* Field.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Field.java; sourceTree = "<group>"; };
+		BDF07C8D1E45581E003A4B4F /* Function.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Function.java; sourceTree = "<group>"; };
+		BDF07C8E1E45581E003A4B4F /* InCollectionCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InCollectionCriterion.java; sourceTree = "<group>"; };
+		BDF07C8F1E45581E003A4B4F /* Index.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Index.java; sourceTree = "<group>"; };
+		BDF07C901E45581E003A4B4F /* Insert.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Insert.java; sourceTree = "<group>"; };
+		BDF07C911E45581E003A4B4F /* Join.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Join.java; sourceTree = "<group>"; };
+		BDF07C921E45581E003A4B4F /* LikeCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = LikeCriterion.java; sourceTree = "<group>"; };
+		BDF07C931E45581E003A4B4F /* MathFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathFunction.java; sourceTree = "<group>"; };
+		BDF07C941E45581E003A4B4F /* MathOperator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MathOperator.java; sourceTree = "<group>"; };
+		BDF07C951E45581E003A4B4F /* NegationCriterion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = NegationCriterion.java; sourceTree = "<group>"; };
+		BDF07C961E45581E003A4B4F /* Operator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Operator.java; sourceTree = "<group>"; };
+		BDF07C971E45581E003A4B4F /* Order.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Order.java; sourceTree = "<group>"; };
+		BDF07C981E45581E003A4B4F /* Property.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Property.java; sourceTree = "<group>"; };
+		BDF07C991E45581E003A4B4F /* Query.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Query.java; sourceTree = "<group>"; };
+		BDF07C9A1E45581E003A4B4F /* QueryFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryFunction.java; sourceTree = "<group>"; };
+		BDF07C9B1E45581E003A4B4F /* QueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = QueryTable.java; sourceTree = "<group>"; };
+		BDF07C9C1E45581E003A4B4F /* RawFunction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = RawFunction.java; sourceTree = "<group>"; };
+		BDF07C9D1E45581E003A4B4F /* SqlBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlBuilder.java; sourceTree = "<group>"; };
+		BDF07C9E1E45581E003A4B4F /* SqlStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlStatement.java; sourceTree = "<group>"; };
+		BDF07C9F1E45581E003A4B4F /* SqlTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlTable.java; sourceTree = "<group>"; };
+		BDF07CA01E45581E003A4B4F /* SqlUtils.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SqlUtils.java; sourceTree = "<group>"; };
+		BDF07CA11E45581E003A4B4F /* SubqueryTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SubqueryTable.java; sourceTree = "<group>"; };
+		BDF07CA21E45581E003A4B4F /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Table.java; sourceTree = "<group>"; };
+		BDF07CA31E45581E003A4B4F /* TableModelName.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModelName.java; sourceTree = "<group>"; };
+		BDF07CA41E45581E003A4B4F /* TableStatement.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableStatement.java; sourceTree = "<group>"; };
+		BDF07CA51E45581E003A4B4F /* Trigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Trigger.java; sourceTree = "<group>"; };
+		BDF07CA61E45581E003A4B4F /* Update.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Update.java; sourceTree = "<group>"; };
+		BDF07CA71E45581E003A4B4F /* View.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = View.java; sourceTree = "<group>"; };
+		BDF07CA81E45581E003A4B4F /* VirtualTable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VirtualTable.java; sourceTree = "<group>"; };
+		BDF07CAA1E45581E003A4B4F /* ContentProviderQueryBuilder.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ContentProviderQueryBuilder.java; sourceTree = "<group>"; };
+		BDF07CAB1E45581E003A4B4F /* Logger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Logger.java; sourceTree = "<group>"; };
+		BDF07CAC1E45581E003A4B4F /* ProjectionMap.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ProjectionMap.java; sourceTree = "<group>"; };
+		BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidUtilities.java; sourceTree = "<group>"; };
+		BDF07CAE1E45581E003A4B4F /* VersionCode.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VersionCode.java; sourceTree = "<group>"; };
+		BDF07CF71E45582F003A4B4F /* Alias.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Alias.java; sourceTree = "<group>"; };
+		BDF07CF81E45582F003A4B4F /* ColumnSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ColumnSpec.java; sourceTree = "<group>"; };
+		BDF07CF91E45582F003A4B4F /* Constants.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Constants.java; sourceTree = "<group>"; };
+		BDF07CFA1E45582F003A4B4F /* Ignore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Ignore.java; sourceTree = "<group>"; };
+		BDF07CFB1E45582F003A4B4F /* Implements.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Implements.java; sourceTree = "<group>"; };
+		BDF07CFC1E45582F003A4B4F /* InheritedModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InheritedModelSpec.java; sourceTree = "<group>"; };
+		BDF07CFD1E45582F003A4B4F /* ModelGenErrors.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelGenErrors.java; sourceTree = "<group>"; };
+		BDF07CFE1E45582F003A4B4F /* ModelMethod.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelMethod.java; sourceTree = "<group>"; };
+		BDF07CFF1E45582F003A4B4F /* PrimaryKey.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PrimaryKey.java; sourceTree = "<group>"; };
+		BDF07D001E45582F003A4B4F /* TableModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TableModelSpec.java; sourceTree = "<group>"; };
+		BDF07D011E45582F003A4B4F /* UpsertConfig.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = UpsertConfig.java; sourceTree = "<group>"; };
+		BDF07D021E45582F003A4B4F /* UpsertKey.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = UpsertKey.java; sourceTree = "<group>"; };
+		BDF07D031E45582F003A4B4F /* ViewModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModelSpec.java; sourceTree = "<group>"; };
+		BDF07D041E45582F003A4B4F /* ViewQuery.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewQuery.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -354,116 +376,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2228C43C1D11D0A900955753 /* com */ = {
-			isa = PBXGroup;
-			children = (
-				2228C43D1D11D0A900955753 /* yahoo */,
-			);
-			name = com;
-			path = ../../../squidb/src/com;
-			sourceTree = "<group>";
-		};
-		2228C43D1D11D0A900955753 /* yahoo */ = {
-			isa = PBXGroup;
-			children = (
-				2228C43E1D11D0A900955753 /* squidb */,
-			);
-			path = yahoo;
-			sourceTree = "<group>";
-		};
-		2228C43E1D11D0A900955753 /* squidb */ = {
-			isa = PBXGroup;
-			children = (
-				2228C43F1D11D0A900955753 /* Beta.java */,
-				2228C4401D11D0A900955753 /* data */,
-				2228C44E1D11D0A900955753 /* sql */,
-				2228C47A1D11D0A900955753 /* utility */,
-			);
-			path = squidb;
-			sourceTree = "<group>";
-		};
-		2228C4401D11D0A900955753 /* data */ = {
-			isa = PBXGroup;
-			children = (
-				2228C4411D11D0A900955753 /* AbstractModel.java */,
-				2228C4421D11D0A900955753 /* DataChangedNotifier.java */,
-				2228C4431D11D0A900955753 /* ICursor.java */,
-				2228C4441D11D0A900955753 /* ISQLiteDatabase.java */,
-				2228C4451D11D0A900955753 /* ISQLiteOpenHelper.java */,
-				2228C4461D11D0A900955753 /* MapValuesStorage.java */,
-				2228C4471D11D0A900955753 /* SimpleDataChangedNotifier.java */,
-				2228C4481D11D0A900955753 /* SquidCursor.java */,
-				2228C4491D11D0A900955753 /* SquidDatabase.java */,
-				2228C44A1D11D0A900955753 /* SquidTransactionListener.java */,
-				2228C44B1D11D0A900955753 /* TableModel.java */,
-				2228C44C1D11D0A900955753 /* ValuesStorage.java */,
-				2228C44D1D11D0A900955753 /* ViewModel.java */,
-			);
-			path = data;
-			sourceTree = "<group>";
-		};
-		2228C44E1D11D0A900955753 /* sql */ = {
-			isa = PBXGroup;
-			children = (
-				2228C44F1D11D0A900955753 /* ArgumentFunction.java */,
-				2228C4501D11D0A900955753 /* BetweenCriterion.java */,
-				2228C4511D11D0A900955753 /* BinaryCriterion.java */,
-				2228C4521D11D0A900955753 /* CaseBuilder.java */,
-				2228C4531D11D0A900955753 /* CaseInsensitiveEqualsCriterion.java */,
-				2228C4541D11D0A900955753 /* CompilableWithArguments.java */,
-				2228C4551D11D0A900955753 /* CompiledArgumentResolver.java */,
-				2228C4561D11D0A900955753 /* CompiledStatement.java */,
-				2228C4571D11D0A900955753 /* CompoundSelect.java */,
-				2228C4581D11D0A900955753 /* ConjunctionCriterion.java */,
-				2228C4591D11D0A900955753 /* Criterion.java */,
-				2228C45A1D11D0A900955753 /* DBObject.java */,
-				2228C45B1D11D0A900955753 /* Delete.java */,
-				2228C45C1D11D0A900955753 /* DistinctArgumentFunction.java */,
-				2228C45D1D11D0A900955753 /* Field.java */,
-				2228C45E1D11D0A900955753 /* Function.java */,
-				2228C45F1D11D0A900955753 /* InCollectionCriterion.java */,
-				2228C4601D11D0A900955753 /* Index.java */,
-				2228C4611D11D0A900955753 /* Insert.java */,
-				2228C4621D11D0A900955753 /* Join.java */,
-				2228C4631D11D0A900955753 /* LikeCriterion.java */,
-				2228C4641D11D0A900955753 /* MathFunction.java */,
-				2228C4651D11D0A900955753 /* MathOperator.java */,
-				2228C4661D11D0A900955753 /* NegationCriterion.java */,
-				2228C4671D11D0A900955753 /* Operator.java */,
-				2228C4681D11D0A900955753 /* Order.java */,
-				2228C4691D11D0A900955753 /* Property.java */,
-				2228C46A1D11D0A900955753 /* Query.java */,
-				2228C46B1D11D0A900955753 /* QueryFunction.java */,
-				2228C46C1D11D0A900955753 /* QueryTable.java */,
-				2228C46D1D11D0A900955753 /* RawFunction.java */,
-				2228C46E1D11D0A900955753 /* SqlBuilder.java */,
-				2228C46F1D11D0A900955753 /* SqlStatement.java */,
-				2228C4701D11D0A900955753 /* SqlTable.java */,
-				2228C4711D11D0A900955753 /* SqlUtils.java */,
-				2228C4721D11D0A900955753 /* SubqueryTable.java */,
-				2228C4731D11D0A900955753 /* Table.java */,
-				2228C4741D11D0A900955753 /* TableModelName.java */,
-				2228C4751D11D0A900955753 /* TableStatement.java */,
-				2228C4761D11D0A900955753 /* Trigger.java */,
-				2228C4771D11D0A900955753 /* Update.java */,
-				2228C4781D11D0A900955753 /* View.java */,
-				2228C4791D11D0A900955753 /* VirtualTable.java */,
-			);
-			path = sql;
-			sourceTree = "<group>";
-		};
-		2228C47A1D11D0A900955753 /* utility */ = {
-			isa = PBXGroup;
-			children = (
-				2228C47B1D11D0A900955753 /* ContentProviderQueryBuilder.java */,
-				2228C47C1D11D0A900955753 /* Logger.java */,
-				2228C47D1D11D0A900955753 /* ProjectionMap.java */,
-				2228C47E1D11D0A900955753 /* SquidUtilities.java */,
-				2228C47F1D11D0A900955753 /* VersionCode.java */,
-			);
-			path = utility;
-			sourceTree = "<group>";
-		};
 		BDBF18551BE976500025045D /* com */ = {
 			isa = PBXGroup;
 			children = (
@@ -619,7 +531,7 @@
 		BDC8C9B31BE9313700F7E9E6 /* squidb */ = {
 			isa = PBXGroup;
 			children = (
-				2228C43C1D11D0A900955753 /* com */,
+				BDF07C651E45581E003A4B4F /* com */,
 			);
 			name = squidb;
 			sourceTree = "<group>";
@@ -627,59 +539,9 @@
 		BDC8C9B41BE9315000F7E9E6 /* squidb-annotations */ = {
 			isa = PBXGroup;
 			children = (
-				BDC8C9B51BE9316700F7E9E6 /* src */,
+				BDF07CF31E45582F003A4B4F /* com */,
 			);
 			name = "squidb-annotations";
-			sourceTree = "<group>";
-		};
-		BDC8C9B51BE9316700F7E9E6 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				BDC8C9B61BE9316700F7E9E6 /* com */,
-			);
-			name = src;
-			path = "../../../squidb-annotations/src";
-			sourceTree = "<group>";
-		};
-		BDC8C9B61BE9316700F7E9E6 /* com */ = {
-			isa = PBXGroup;
-			children = (
-				BDC8C9B71BE9316700F7E9E6 /* yahoo */,
-			);
-			path = com;
-			sourceTree = "<group>";
-		};
-		BDC8C9B71BE9316700F7E9E6 /* yahoo */ = {
-			isa = PBXGroup;
-			children = (
-				BDC8C9B81BE9316700F7E9E6 /* squidb */,
-			);
-			path = yahoo;
-			sourceTree = "<group>";
-		};
-		BDC8C9B81BE9316700F7E9E6 /* squidb */ = {
-			isa = PBXGroup;
-			children = (
-				BDC8C9B91BE9316700F7E9E6 /* annotations */,
-			);
-			path = squidb;
-			sourceTree = "<group>";
-		};
-		BDC8C9B91BE9316700F7E9E6 /* annotations */ = {
-			isa = PBXGroup;
-			children = (
-				BDC8C9BA1BE9316700F7E9E6 /* Alias.java */,
-				BDC8C9BB1BE9316700F7E9E6 /* ColumnSpec.java */,
-				BDC8C9BC1BE9316700F7E9E6 /* Ignore.java */,
-				BDC8C9BD1BE9316700F7E9E6 /* Implements.java */,
-				BDC8C9BE1BE9316700F7E9E6 /* InheritedModelSpec.java */,
-				BDC8C9BF1BE9316700F7E9E6 /* ModelMethod.java */,
-				BDC8C9C01BE9316700F7E9E6 /* PrimaryKey.java */,
-				BDC8C9C11BE9316700F7E9E6 /* TableModelSpec.java */,
-				BDC8C9C21BE9316700F7E9E6 /* ViewModelSpec.java */,
-				BDC8C9C31BE9316700F7E9E6 /* ViewQuery.java */,
-			);
-			path = annotations;
 			sourceTree = "<group>";
 		};
 		BDC8C9CE1BE9319C00F7E9E6 /* squidb-ios */ = {
@@ -814,6 +676,7 @@
 		BDC8CA131BE931B000F7E9E6 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				BDF07C631E4557FD003A4B4F /* IOSSQLiteStatementAdapter.java */,
 				BDD9BF511BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java */,
 				BDC8CA141BE931B000F7E9E6 /* IOSOpenHelper.java */,
 				BDC8CA161BE931B000F7E9E6 /* SquidCursorFactory.java */,
@@ -898,6 +761,168 @@
 			path = utils;
 			sourceTree = "<group>";
 		};
+		BDF07C651E45581E003A4B4F /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07C661E45581E003A4B4F /* yahoo */,
+			);
+			name = com;
+			path = ../../../squidb/src/com;
+			sourceTree = "<group>";
+		};
+		BDF07C661E45581E003A4B4F /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07C671E45581E003A4B4F /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDF07C671E45581E003A4B4F /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07C681E45581E003A4B4F /* Beta.java */,
+				BDF07C691E45581E003A4B4F /* data */,
+				BDF07C7A1E45581E003A4B4F /* sql */,
+				BDF07CA91E45581E003A4B4F /* utility */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDF07C691E45581E003A4B4F /* data */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07C6A1E45581E003A4B4F /* AbstractModel.java */,
+				BDF07C6B1E45581E003A4B4F /* DataChangedNotifier.java */,
+				BDF07C6C1E45581E003A4B4F /* ICursor.java */,
+				BDF07C6D1E45581E003A4B4F /* ISQLiteDatabase.java */,
+				BDF07C6E1E45581E003A4B4F /* ISQLiteOpenHelper.java */,
+				BDF07C6F1E45581E003A4B4F /* ISQLitePreparedStatement.java */,
+				BDF07C701E45581E003A4B4F /* MapValuesStorage.java */,
+				BDF07C711E45581E003A4B4F /* PreparedInsertCache.java */,
+				BDF07C721E45581E003A4B4F /* SimpleDataChangedNotifier.java */,
+				BDF07C731E45581E003A4B4F /* SquidCursor.java */,
+				BDF07C741E45581E003A4B4F /* SquidDatabase.java */,
+				BDF07C751E45581E003A4B4F /* SquidTransactionListener.java */,
+				BDF07C761E45581E003A4B4F /* TableModel.java */,
+				BDF07C771E45581E003A4B4F /* Upsertable.java */,
+				BDF07C781E45581E003A4B4F /* ValuesStorage.java */,
+				BDF07C791E45581E003A4B4F /* ViewModel.java */,
+			);
+			path = data;
+			sourceTree = "<group>";
+		};
+		BDF07C7A1E45581E003A4B4F /* sql */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07C7B1E45581E003A4B4F /* ArgumentFunction.java */,
+				BDF07C7C1E45581E003A4B4F /* ArgumentResolver.java */,
+				BDF07C7D1E45581E003A4B4F /* BetweenCriterion.java */,
+				BDF07C7E1E45581E003A4B4F /* BinaryCriterion.java */,
+				BDF07C7F1E45581E003A4B4F /* CaseBuilder.java */,
+				BDF07C801E45581E003A4B4F /* CaseInsensitiveEqualsCriterion.java */,
+				BDF07C811E45581E003A4B4F /* CompilableWithArguments.java */,
+				BDF07C821E45581E003A4B4F /* CompileContext.java */,
+				BDF07C831E45581E003A4B4F /* CompiledArgumentResolver.java */,
+				BDF07C841E45581E003A4B4F /* CompiledStatement.java */,
+				BDF07C851E45581E003A4B4F /* CompoundSelect.java */,
+				BDF07C861E45581E003A4B4F /* ConjunctionCriterion.java */,
+				BDF07C871E45581E003A4B4F /* Criterion.java */,
+				BDF07C881E45581E003A4B4F /* DBObject.java */,
+				BDF07C891E45581E003A4B4F /* DefaultArgumentResolver.java */,
+				BDF07C8A1E45581E003A4B4F /* Delete.java */,
+				BDF07C8B1E45581E003A4B4F /* DistinctArgumentFunction.java */,
+				BDF07C8C1E45581E003A4B4F /* Field.java */,
+				BDF07C8D1E45581E003A4B4F /* Function.java */,
+				BDF07C8E1E45581E003A4B4F /* InCollectionCriterion.java */,
+				BDF07C8F1E45581E003A4B4F /* Index.java */,
+				BDF07C901E45581E003A4B4F /* Insert.java */,
+				BDF07C911E45581E003A4B4F /* Join.java */,
+				BDF07C921E45581E003A4B4F /* LikeCriterion.java */,
+				BDF07C931E45581E003A4B4F /* MathFunction.java */,
+				BDF07C941E45581E003A4B4F /* MathOperator.java */,
+				BDF07C951E45581E003A4B4F /* NegationCriterion.java */,
+				BDF07C961E45581E003A4B4F /* Operator.java */,
+				BDF07C971E45581E003A4B4F /* Order.java */,
+				BDF07C981E45581E003A4B4F /* Property.java */,
+				BDF07C991E45581E003A4B4F /* Query.java */,
+				BDF07C9A1E45581E003A4B4F /* QueryFunction.java */,
+				BDF07C9B1E45581E003A4B4F /* QueryTable.java */,
+				BDF07C9C1E45581E003A4B4F /* RawFunction.java */,
+				BDF07C9D1E45581E003A4B4F /* SqlBuilder.java */,
+				BDF07C9E1E45581E003A4B4F /* SqlStatement.java */,
+				BDF07C9F1E45581E003A4B4F /* SqlTable.java */,
+				BDF07CA01E45581E003A4B4F /* SqlUtils.java */,
+				BDF07CA11E45581E003A4B4F /* SubqueryTable.java */,
+				BDF07CA21E45581E003A4B4F /* Table.java */,
+				BDF07CA31E45581E003A4B4F /* TableModelName.java */,
+				BDF07CA41E45581E003A4B4F /* TableStatement.java */,
+				BDF07CA51E45581E003A4B4F /* Trigger.java */,
+				BDF07CA61E45581E003A4B4F /* Update.java */,
+				BDF07CA71E45581E003A4B4F /* View.java */,
+				BDF07CA81E45581E003A4B4F /* VirtualTable.java */,
+			);
+			path = sql;
+			sourceTree = "<group>";
+		};
+		BDF07CA91E45581E003A4B4F /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07CAA1E45581E003A4B4F /* ContentProviderQueryBuilder.java */,
+				BDF07CAB1E45581E003A4B4F /* Logger.java */,
+				BDF07CAC1E45581E003A4B4F /* ProjectionMap.java */,
+				BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */,
+				BDF07CAE1E45581E003A4B4F /* VersionCode.java */,
+			);
+			path = utility;
+			sourceTree = "<group>";
+		};
+		BDF07CF31E45582F003A4B4F /* com */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07CF41E45582F003A4B4F /* yahoo */,
+			);
+			name = com;
+			path = "../../../squidb-annotations/src/com";
+			sourceTree = "<group>";
+		};
+		BDF07CF41E45582F003A4B4F /* yahoo */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07CF51E45582F003A4B4F /* squidb */,
+			);
+			path = yahoo;
+			sourceTree = "<group>";
+		};
+		BDF07CF51E45582F003A4B4F /* squidb */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07CF61E45582F003A4B4F /* annotations */,
+			);
+			path = squidb;
+			sourceTree = "<group>";
+		};
+		BDF07CF61E45582F003A4B4F /* annotations */ = {
+			isa = PBXGroup;
+			children = (
+				BDF07CF71E45582F003A4B4F /* Alias.java */,
+				BDF07CF81E45582F003A4B4F /* ColumnSpec.java */,
+				BDF07CF91E45582F003A4B4F /* Constants.java */,
+				BDF07CFA1E45582F003A4B4F /* Ignore.java */,
+				BDF07CFB1E45582F003A4B4F /* Implements.java */,
+				BDF07CFC1E45582F003A4B4F /* InheritedModelSpec.java */,
+				BDF07CFD1E45582F003A4B4F /* ModelGenErrors.java */,
+				BDF07CFE1E45582F003A4B4F /* ModelMethod.java */,
+				BDF07CFF1E45582F003A4B4F /* PrimaryKey.java */,
+				BDF07D001E45582F003A4B4F /* TableModelSpec.java */,
+				BDF07D011E45582F003A4B4F /* UpsertConfig.java */,
+				BDF07D021E45582F003A4B4F /* UpsertKey.java */,
+				BDF07D031E45582F003A4B4F /* ViewModelSpec.java */,
+				BDF07D041E45582F003A4B4F /* ViewQuery.java */,
+			);
+			path = annotations;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -926,7 +951,7 @@
 		BDC8C9111BE92DD300F7E9E6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = Yahoo;
 				TargetAttributes = {
 					BDC8C9181BE92DD300F7E9E6 = {
@@ -988,152 +1013,163 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2228C4911D11D0A900955753 /* CaseBuilder.java in Sources */,
 				BDC8CA461BE931B000F7E9E6 /* SQLiteProgram.java in Sources */,
 				BDC8CA4D1BE931B000F7E9E6 /* SQLiteTableLockedException.java in Sources */,
-				2228C4821D11D0A900955753 /* DataChangedNotifier.java in Sources */,
-				2228C4B11D11D0A900955753 /* SubqueryTable.java in Sources */,
+				BDF07CCC1E45581E003A4B4F /* Criterion.java in Sources */,
 				BDC8CA611BE9321F00F7E9E6 /* OpenHelperCreator.java in Sources */,
 				BDC8CA181BE931B000F7E9E6 /* SQLiteConnectionNative.m in Sources */,
+				BDF07CCB1E45581E003A4B4F /* ConjunctionCriterion.java in Sources */,
+				BDF07CDD1E45581E003A4B4F /* Property.java in Sources */,
 				BDC8CA491BE931B000F7E9E6 /* SQLiteReadOnlyDatabaseException.java in Sources */,
 				BDC8C9241BE92DD300F7E9E6 /* TasksViewController.m in Sources */,
 				BDC8CA4F1BE931B000F7E9E6 /* StaleDataException.java in Sources */,
-				2228C4951D11D0A900955753 /* CompiledStatement.java in Sources */,
-				2228C4881D11D0A900955753 /* SquidCursor.java in Sources */,
-				2228C4871D11D0A900955753 /* SimpleDataChangedNotifier.java in Sources */,
 				BDC8CA3B1BE931B000F7E9E6 /* SQLiteDatatypeMismatchException.java in Sources */,
-				2228C4A71D11D0A900955753 /* Order.java in Sources */,
+				BDF07CEE1E45581E003A4B4F /* ContentProviderQueryBuilder.java in Sources */,
+				BDF07CCF1E45581E003A4B4F /* Delete.java in Sources */,
+				BDF07D061E45582F003A4B4F /* ColumnSpec.java in Sources */,
+				BDF07CD21E45581E003A4B4F /* Function.java in Sources */,
+				BDF07CBF1E45581E003A4B4F /* ViewModel.java in Sources */,
 				BDC8CA441BE931B000F7E9E6 /* SQLiteOpenHelper.java in Sources */,
-				2228C4901D11D0A900955753 /* BinaryCriterion.java in Sources */,
+				BDF07C641E4557FD003A4B4F /* IOSSQLiteStatementAdapter.java in Sources */,
+				BDF07CEA1E45581E003A4B4F /* Trigger.java in Sources */,
+				BDF07CE91E45581E003A4B4F /* TableStatement.java in Sources */,
 				BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */,
-				2228C4AF1D11D0A900955753 /* SqlTable.java in Sources */,
-				2228C4A51D11D0A900955753 /* NegationCriterion.java in Sources */,
 				BDC8CA1F1BE931B000F7E9E6 /* CursorWindow.java in Sources */,
+				BDF07CF11E45581E003A4B4F /* SquidUtilities.java in Sources */,
 				2228C4C01D11D1AB00955753 /* SquidbUnicode.m in Sources */,
-				2228C4BC1D11D0A900955753 /* SquidUtilities.java in Sources */,
-				2228C4841D11D0A900955753 /* ISQLiteDatabase.java in Sources */,
-				2228C4B61D11D0A900955753 /* Update.java in Sources */,
-				2228C4971D11D0A900955753 /* ConjunctionCriterion.java in Sources */,
+				BDF07D0E1E45582F003A4B4F /* TableModelSpec.java in Sources */,
+				BDF07CD71E45581E003A4B4F /* LikeCriterion.java in Sources */,
+				BDF07D091E45582F003A4B4F /* Implements.java in Sources */,
+				BDF07CAF1E45581E003A4B4F /* Beta.java in Sources */,
 				BDD9BF521BEBCD8200EC6FE4 /* IOSSQLiteDatabaseAdapter.java in Sources */,
-				2228C4861D11D0A900955753 /* MapValuesStorage.java in Sources */,
+				BDF07CE71E45581E003A4B4F /* Table.java in Sources */,
 				BDC8CA301BE931B000F7E9E6 /* SQLiteClosable.java in Sources */,
 				BDC8CA291BE931B000F7E9E6 /* Printer.java in Sources */,
-				2228C4A41D11D0A900955753 /* MathOperator.java in Sources */,
+				BDF07CE11E45581E003A4B4F /* RawFunction.java in Sources */,
+				BDF07CB61E45581E003A4B4F /* MapValuesStorage.java in Sources */,
+				BDF07CCE1E45581E003A4B4F /* DefaultArgumentResolver.java in Sources */,
+				BDF07CB81E45581E003A4B4F /* SimpleDataChangedNotifier.java in Sources */,
 				BDC8CA2E1BE931B000F7E9E6 /* SQLiteBlobTooBigException.java in Sources */,
-				2228C4931D11D0A900955753 /* CompilableWithArguments.java in Sources */,
-				2228C4AA1D11D0A900955753 /* QueryFunction.java in Sources */,
 				BDC8CA381BE931B000F7E9E6 /* SQLiteDatabaseConfiguration.java in Sources */,
 				BDC8CA4C1BE931B000F7E9E6 /* SQLiteStatementInfo.java in Sources */,
-				2228C4961D11D0A900955753 /* CompoundSelect.java in Sources */,
-				2228C4B91D11D0A900955753 /* ContentProviderQueryBuilder.java in Sources */,
 				BDC8CA191BE931B000F7E9E6 /* SQLiteErrors.m in Sources */,
 				BDC0E2CB1BEA981A00F429FE /* Task.java in Sources */,
 				BDC8CA321BE931B000F7E9E6 /* SQLiteConnectionPool.java in Sources */,
-				2228C4B31D11D0A900955753 /* TableModelName.java in Sources */,
-				2228C4B71D11D0A900955753 /* View.java in Sources */,
 				BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */,
+				BDF07D0C1E45582F003A4B4F /* ModelMethod.java in Sources */,
+				BDF07CDA1E45581E003A4B4F /* NegationCriterion.java in Sources */,
+				BDF07CBE1E45581E003A4B4F /* ValuesStorage.java in Sources */,
+				BDF07CDC1E45581E003A4B4F /* Order.java in Sources */,
+				BDF07CB01E45581E003A4B4F /* AbstractModel.java in Sources */,
 				BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */,
-				BDC8C9CC1BE9316700F7E9E6 /* ViewModelSpec.java in Sources */,
-				2228C4811D11D0A900955753 /* AbstractModel.java in Sources */,
+				BDF07CF01E45581E003A4B4F /* ProjectionMap.java in Sources */,
+				BDF07CBB1E45581E003A4B4F /* SquidTransactionListener.java in Sources */,
 				BDC8CA3E1BE931B000F7E9E6 /* SQLiteDiskIOException.java in Sources */,
-				2228C49E1D11D0A900955753 /* InCollectionCriterion.java in Sources */,
+				BDF07CDF1E45581E003A4B4F /* QueryFunction.java in Sources */,
+				BDF07D0D1E45582F003A4B4F /* PrimaryKey.java in Sources */,
+				BDF07CEC1E45581E003A4B4F /* View.java in Sources */,
 				BDC8CA2C1BE931B000F7E9E6 /* SQLiteAccessPermException.java in Sources */,
+				BDF07CF21E45581E003A4B4F /* VersionCode.java in Sources */,
+				BDF07D111E45582F003A4B4F /* ViewModelSpec.java in Sources */,
 				BDC8CA171BE931B000F7E9E6 /* CursorWindowNative.m in Sources */,
-				BDC8C9C71BE9316700F7E9E6 /* Implements.java in Sources */,
 				BDC8CA241BE931B000F7E9E6 /* DefaultDatabaseErrorHandler.java in Sources */,
-				2228C4AB1D11D0A900955753 /* QueryTable.java in Sources */,
 				BDC8CA2A1BE931B000F7E9E6 /* SQLException.java in Sources */,
 				BDC8CA361BE931B000F7E9E6 /* SQLiteCustomFunction.java in Sources */,
+				BDF07CDE1E45581E003A4B4F /* Query.java in Sources */,
+				BDF07CE21E45581E003A4B4F /* SqlBuilder.java in Sources */,
+				BDF07CC61E45581E003A4B4F /* CompilableWithArguments.java in Sources */,
+				BDF07CB31E45581E003A4B4F /* ISQLiteDatabase.java in Sources */,
 				BDC8CA281BE931B000F7E9E6 /* PrefixPrinter.java in Sources */,
-				2228C4BA1D11D0A900955753 /* Logger.java in Sources */,
+				BDF07CD81E45581E003A4B4F /* MathFunction.java in Sources */,
+				BDF07CC01E45581E003A4B4F /* ArgumentFunction.java in Sources */,
 				BDC8CA1D1BE931B000F7E9E6 /* CloseGuard.java in Sources */,
+				BDF07CE01E45581E003A4B4F /* QueryTable.java in Sources */,
+				BDF07CBA1E45581E003A4B4F /* SquidDatabase.java in Sources */,
 				BDC8CA261BE931B000F7E9E6 /* OperationCanceledException.java in Sources */,
-				2228C48C1D11D0A900955753 /* ValuesStorage.java in Sources */,
+				BDF07CBD1E45581E003A4B4F /* Upsertable.java in Sources */,
 				BDC8CA631BE9321F00F7E9E6 /* TagSpec.java in Sources */,
+				BDF07CD91E45581E003A4B4F /* MathOperator.java in Sources */,
 				BDC8CA3F1BE931B000F7E9E6 /* SQLiteDoneException.java in Sources */,
-				2228C4A91D11D0A900955753 /* Query.java in Sources */,
-				BDC8C9CD1BE9316700F7E9E6 /* ViewQuery.java in Sources */,
-				2228C4981D11D0A900955753 /* Criterion.java in Sources */,
 				BDC8CA4A1BE931B000F7E9E6 /* SQLiteSession.java in Sources */,
 				BDC8CA341BE931B000F7E9E6 /* SQLiteCursor.java in Sources */,
+				BDF07CB41E45581E003A4B4F /* ISQLiteOpenHelper.java in Sources */,
+				BDF07CC71E45581E003A4B4F /* CompileContext.java in Sources */,
+				BDF07CE61E45581E003A4B4F /* SubqueryTable.java in Sources */,
 				BDC8CA1B1BE931B000F7E9E6 /* AbstractCursor.java in Sources */,
-				BDC8C9CA1BE9316700F7E9E6 /* PrimaryKey.java in Sources */,
 				BDC8CA401BE931B000F7E9E6 /* SQLiteException.java in Sources */,
-				BDC8C9C91BE9316700F7E9E6 /* ModelMethod.java in Sources */,
+				BDF07D121E45582F003A4B4F /* ViewQuery.java in Sources */,
+				BDF07CC81E45581E003A4B4F /* CompiledArgumentResolver.java in Sources */,
+				BDF07CB71E45581E003A4B4F /* PreparedInsertCache.java in Sources */,
+				BDF07CC31E45581E003A4B4F /* BinaryCriterion.java in Sources */,
+				BDF07CE31E45581E003A4B4F /* SqlStatement.java in Sources */,
 				BDC8CA411BE931B000F7E9E6 /* SQLiteFullException.java in Sources */,
 				BDC8CA651BE9321F00F7E9E6 /* TaskUtils.java in Sources */,
+				BDF07D051E45582F003A4B4F /* Alias.java in Sources */,
+				BDF07CD51E45581E003A4B4F /* Insert.java in Sources */,
 				BDC8CA371BE931B000F7E9E6 /* SQLiteDatabase.java in Sources */,
-				2228C4941D11D0A900955753 /* CompiledArgumentResolver.java in Sources */,
 				BDC8CA481BE931B000F7E9E6 /* SQLiteQueryBuilder.java in Sources */,
+				BDF07CED1E45581E003A4B4F /* VirtualTable.java in Sources */,
+				BDF07CD31E45581E003A4B4F /* InCollectionCriterion.java in Sources */,
 				BDC8CA4B1BE931B000F7E9E6 /* SQLiteStatement.java in Sources */,
-				2228C4A81D11D0A900955753 /* Property.java in Sources */,
-				2228C49C1D11D0A900955753 /* Field.java in Sources */,
+				BDF07CE41E45581E003A4B4F /* SqlTable.java in Sources */,
+				BDF07D071E45582F003A4B4F /* Constants.java in Sources */,
 				BDC8CA2F1BE931B000F7E9E6 /* SQLiteCantOpenDatabaseException.java in Sources */,
 				BDC8CA471BE931B000F7E9E6 /* SQLiteQuery.java in Sources */,
+				BDF07D081E45582F003A4B4F /* Ignore.java in Sources */,
+				BDF07CCD1E45581E003A4B4F /* DBObject.java in Sources */,
+				BDF07D0F1E45582F003A4B4F /* UpsertConfig.java in Sources */,
 				BDC8C9211BE92DD300F7E9E6 /* AppDelegate.m in Sources */,
-				2228C48D1D11D0A900955753 /* ViewModel.java in Sources */,
 				BDC8CA251BE931B000F7E9E6 /* LruCache.java in Sources */,
-				2228C49B1D11D0A900955753 /* DistinctArgumentFunction.java in Sources */,
-				2228C4B41D11D0A900955753 /* TableStatement.java in Sources */,
+				BDF07CCA1E45581E003A4B4F /* CompoundSelect.java in Sources */,
 				BDC8CA3A1BE931B000F7E9E6 /* SQLiteDatabaseLockedException.java in Sources */,
 				BDC8CA2D1BE931B000F7E9E6 /* SQLiteBindOrColumnIndexOutOfRangeException.java in Sources */,
+				BDF07CC91E45581E003A4B4F /* CompiledStatement.java in Sources */,
 				BDC8CA221BE931B000F7E9E6 /* DatabaseObjectNotClosedException.java in Sources */,
-				2228C4AE1D11D0A900955753 /* SqlStatement.java in Sources */,
-				2228C4B01D11D0A900955753 /* SqlUtils.java in Sources */,
-				2228C4AC1D11D0A900955753 /* RawFunction.java in Sources */,
 				BDC8CA1A1BE931B000F7E9E6 /* SQLitePreparedStatement.m in Sources */,
-				BDC8C9C41BE9316700F7E9E6 /* Alias.java in Sources */,
-				2228C48F1D11D0A900955753 /* BetweenCriterion.java in Sources */,
-				2228C4A11D11D0A900955753 /* Join.java in Sources */,
+				BDF07CC21E45581E003A4B4F /* BetweenCriterion.java in Sources */,
 				BDC8CA391BE931B000F7E9E6 /* SQLiteDatabaseCorruptException.java in Sources */,
-				2228C49D1D11D0A900955753 /* Function.java in Sources */,
 				BDC8CA2B1BE931B000F7E9E6 /* SQLiteAbortException.java in Sources */,
+				BDF07CD61E45581E003A4B4F /* Join.java in Sources */,
+				BDF07CEF1E45581E003A4B4F /* Logger.java in Sources */,
+				BDF07CE51E45581E003A4B4F /* SqlUtils.java in Sources */,
+				BDF07CB51E45581E003A4B4F /* ISQLitePreparedStatement.java in Sources */,
+				BDF07CD11E45581E003A4B4F /* Field.java in Sources */,
+				BDF07CB91E45581E003A4B4F /* SquidCursor.java in Sources */,
 				BDC8CA501BE931B000F7E9E6 /* IOSOpenHelper.java in Sources */,
-				2228C4BD1D11D0A900955753 /* VersionCode.java in Sources */,
-				2228C4A01D11D0A900955753 /* Insert.java in Sources */,
 				BDC0E2BE1BEA770600F429FE /* SimpleTasksNotifier.m in Sources */,
 				BDC8CA431BE931B000F7E9E6 /* SQLiteMisuseException.java in Sources */,
-				2228C4801D11D0A900955753 /* Beta.java in Sources */,
-				2228C4A61D11D0A900955753 /* Operator.java in Sources */,
 				BDC8CA621BE9321F00F7E9E6 /* TasksDatabase.java in Sources */,
-				2228C49A1D11D0A900955753 /* Delete.java in Sources */,
-				2228C4AD1D11D0A900955753 /* SqlBuilder.java in Sources */,
 				BDC8CA201BE931B000F7E9E6 /* CursorWindowAllocationException.java in Sources */,
+				BDF07D0A1E45582F003A4B4F /* InheritedModelSpec.java in Sources */,
+				BDF07CD41E45581E003A4B4F /* Index.java in Sources */,
 				BDC0E2CA1BEA981A00F429FE /* Tag.java in Sources */,
-				2228C4921D11D0A900955753 /* CaseInsensitiveEqualsCriterion.java in Sources */,
-				2228C49F1D11D0A900955753 /* Index.java in Sources */,
-				2228C4831D11D0A900955753 /* ICursor.java in Sources */,
+				BDF07CDB1E45581E003A4B4F /* Operator.java in Sources */,
+				BDF07CEB1E45581E003A4B4F /* Update.java in Sources */,
+				BDF07CB11E45581E003A4B4F /* DataChangedNotifier.java in Sources */,
+				BDF07CC11E45581E003A4B4F /* ArgumentResolver.java in Sources */,
 				BDC8CA421BE931B000F7E9E6 /* SQLiteGlobal.java in Sources */,
 				BDC8CA331BE931B000F7E9E6 /* SQLiteConstraintException.java in Sources */,
-				2228C4B81D11D0A900955753 /* VirtualTable.java in Sources */,
 				BDC8CA1C1BE931B000F7E9E6 /* AbstractWindowedCursor.java in Sources */,
 				BDC8CA521BE931B000F7E9E6 /* SquidCursorFactory.java in Sources */,
-				2228C4A21D11D0A900955753 /* LikeCriterion.java in Sources */,
 				BDC8CA311BE931B000F7E9E6 /* SQLiteConnection.java in Sources */,
 				BDC8CA211BE931B000F7E9E6 /* DatabaseErrorHandler.java in Sources */,
-				2228C48E1D11D0A900955753 /* ArgumentFunction.java in Sources */,
-				BDC8C9CB1BE9316700F7E9E6 /* TableModelSpec.java in Sources */,
-				2228C4B51D11D0A900955753 /* Trigger.java in Sources */,
 				BDC8CA451BE931B000F7E9E6 /* SQLiteOutOfMemoryException.java in Sources */,
 				BDC8CA3C1BE931B000F7E9E6 /* SQLiteDebug.java in Sources */,
-				2228C4851D11D0A900955753 /* ISQLiteOpenHelper.java in Sources */,
-				2228C4B21D11D0A900955753 /* Table.java in Sources */,
-				BDC8C9C81BE9316700F7E9E6 /* InheritedModelSpec.java in Sources */,
+				BDF07CE81E45581E003A4B4F /* TableModelName.java in Sources */,
+				BDF07CC51E45581E003A4B4F /* CaseInsensitiveEqualsCriterion.java in Sources */,
+				BDF07CD01E45581E003A4B4F /* DistinctArgumentFunction.java in Sources */,
+				BDF07D101E45582F003A4B4F /* UpsertKey.java in Sources */,
 				BDC8CA1E1BE931B000F7E9E6 /* CursorIndexOutOfBoundsException.java in Sources */,
-				2228C4BB1D11D0A900955753 /* ProjectionMap.java in Sources */,
-				2228C4991D11D0A900955753 /* DBObject.java in Sources */,
 				BDC8C91E1BE92DD300F7E9E6 /* main.m in Sources */,
 				BDC8CA231BE931B000F7E9E6 /* DatabaseUtils.java in Sources */,
-				2228C48B1D11D0A900955753 /* TableModel.java in Sources */,
 				BDC8CA351BE931B000F7E9E6 /* SQLiteCursorDriver.java in Sources */,
+				BDF07CB21E45581E003A4B4F /* ICursor.java in Sources */,
 				BDC8CA271BE931B000F7E9E6 /* Pair.java in Sources */,
-				BDC8C9C51BE9316700F7E9E6 /* ColumnSpec.java in Sources */,
-				2228C48A1D11D0A900955753 /* SquidTransactionListener.java in Sources */,
+				BDF07CC41E45581E003A4B4F /* CaseBuilder.java in Sources */,
 				BDC8CA3D1BE931B000F7E9E6 /* SQLiteDirectCursorDriver.java in Sources */,
-				2228C4A31D11D0A900955753 /* MathFunction.java in Sources */,
+				BDF07D0B1E45582F003A4B4F /* ModelGenErrors.java in Sources */,
+				BDF07CBC1E45581E003A4B4F /* TableModel.java in Sources */,
 				BDC8CA641BE9321F00F7E9E6 /* TaskSpec.java in Sources */,
-				2228C4891D11D0A900955753 /* SquidDatabase.java in Sources */,
-				BDC8C9C61BE9316700F7E9E6 /* Ignore.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1165,8 +1201,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1209,8 +1247,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
