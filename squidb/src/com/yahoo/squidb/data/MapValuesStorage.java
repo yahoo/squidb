@@ -166,6 +166,14 @@ public class MapValuesStorage extends ValuesStorage {
      * {@inheritDoc}
      */
     @Override
+    public void clear() {
+        values.clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<Map.Entry<String, Object>> valueSet() {
         return values.entrySet();
     }

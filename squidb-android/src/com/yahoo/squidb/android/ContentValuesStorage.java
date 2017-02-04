@@ -183,6 +183,14 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
+    public void clear() {
+        values.clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<Map.Entry<String, Object>> valueSet() {
         return values.valueSet();
     }
