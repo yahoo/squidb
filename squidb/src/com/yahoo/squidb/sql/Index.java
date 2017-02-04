@@ -24,7 +24,7 @@ public class Index {
         this(name, table, unique, Arrays.asList(properties));
     }
 
-    public Index (String name, Table table, boolean unique, List<Property<?>> properties) {
+    public Index (String name, Table table, boolean unique, List<? extends Property<?>> properties) {
         this.name = name;
         this.table = table;
         this.unique = unique;

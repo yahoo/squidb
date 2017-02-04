@@ -80,7 +80,7 @@ public class Insert extends TableStatement {
      * @param columns the columns to insert into
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert columns(List<Property<?>> columns) {
+    public Insert columns(List<? extends Property<?>> columns) {
         for (Property<?> column : columns) {
             this.columns.add(column.getExpression());
         }

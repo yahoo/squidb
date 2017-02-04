@@ -116,7 +116,7 @@ public class Update extends TableStatement {
      * @param values the new values for the columns
      * @return this Update object, to allow chaining method calls
      */
-    public Update set(List<Property<?>> columns, List<?> values) {
+    public Update set(List<? extends Property<?>> columns, List<?> values) {
         final int size = columns.size();
         if (size != values.size()) {
             throw new IllegalArgumentException("You must provide the same number of columns and values");

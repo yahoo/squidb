@@ -228,7 +228,7 @@ public abstract class AbstractModel implements Cloneable {
      * Copies values from the given {@link ValuesStorage} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromValuesStorage(ValuesStorage values, List<Property<?>> properties) {
+    public void readPropertiesFromValuesStorage(ValuesStorage values, List<? extends Property<?>> properties) {
         prepareToReadProperties();
 
         if (values != null) {
@@ -247,7 +247,9 @@ public abstract class AbstractModel implements Cloneable {
         prepareToReadProperties();
 
         for (Field<?> field : cursor.getFields()) {
-            readFieldIntoModel(cursor, field);
+            if (field instanceof Property<?>) {
+                readPropertyIntoModel(cursor, (Property<?>) field);
+            }
         }
     }
 
@@ -258,11 +260,14 @@ public abstract class AbstractModel implements Cloneable {
         readPropertiesFromCursor(cursor, Arrays.asList(properties));
     }
 
-    public void readPropertiesFromCursor(SquidCursor<?> cursor, List<Property<?>> properties) {
+    /**
+     * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
+     */
+    public void readPropertiesFromCursor(SquidCursor<?> cursor, List<? extends Property<?>> properties) {
         prepareToReadProperties();
 
-        for (Property<?> field : properties) {
-            readFieldIntoModel(cursor, field);
+        for (Property<?> property : properties) {
+            readPropertyIntoModel(cursor, property);
         }
     }
 
@@ -276,12 +281,9 @@ public abstract class AbstractModel implements Cloneable {
         transitoryData = null;
     }
 
-    private void readFieldIntoModel(SquidCursor<?> cursor, com.yahoo.squidb.sql.Field<?> field) {
+    private void readPropertyIntoModel(SquidCursor<?> cursor, Property<?> property) {
         try {
-            if (field instanceof Property<?>) {
-                Property<?> property = (Property<?>) field;
-                saver.save(property, values, cursor.get(property));
-            }
+            saver.save(property, values, cursor.get(property));
         } catch (IllegalArgumentException e) {
             // underlying cursor may have changed, suppress
         }
@@ -431,7 +433,7 @@ public abstract class AbstractModel implements Cloneable {
      * Analogous to {@link #readPropertiesFromValuesStorage(ValuesStorage, List)} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromValuesStorage(ValuesStorage values, List<Property<?>> properties) {
+    public void setPropertiesFromValuesStorage(ValuesStorage values, List<? extends Property<?>> properties) {
         if (values != null) {
             if (setValues == null) {
                 setValues = newValuesStorage();

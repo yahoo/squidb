@@ -39,7 +39,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values, List<Property<?>> properties) {
+    public void readPropertiesFromContentValues(ContentValues values, List<? extends Property<?>> properties) {
         readPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 
@@ -55,7 +55,7 @@ public abstract class AndroidTableModel extends TableModel implements Parcelable
      * Analogous to {@link #readPropertiesFromContentValues(ContentValues, Property[])} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromContentValues(ContentValues values, List<Property<?>> properties) {
+    public void setPropertiesFromContentValues(ContentValues values, List<? extends Property<?>> properties) {
         setPropertiesFromValuesStorage(new ContentValuesStorage(values, false), properties);
     }
 

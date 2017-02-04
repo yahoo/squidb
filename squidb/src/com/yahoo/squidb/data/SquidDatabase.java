@@ -1412,7 +1412,7 @@ public abstract class SquidDatabase {
      * @param properties the columns to create the index on
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateIndex(String indexName, Table table, boolean unique, List<Property<?>> properties) {
+    protected boolean tryCreateIndex(String indexName, Table table, boolean unique, List<? extends Property<?>> properties) {
         if (properties == null || properties.size() == 0) {
             onError(String.format("Cannot create index %s: no properties specified", indexName), null);
             return false;
@@ -1762,7 +1762,7 @@ public abstract class SquidDatabase {
      * @param properties the {@link Property properties} to read
      * @return an instance of the model with the given ID, or null if no record was found
      */
-    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, List<Property<?>> properties) {
+    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, List<? extends Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchItemById(modelClass, id, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -1791,7 +1791,7 @@ public abstract class SquidDatabase {
      * @return an instance of the model matching the given criterion, or null if no record was found
      */
     public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
-            List<Property<?>> properties) {
+            List<? extends Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, criterion, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -2248,7 +2248,7 @@ public abstract class SquidDatabase {
     }
 
     protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
-            List<Property<?>> properties) {
+            List<? extends Property<?>> properties) {
         Table table = getTable(modelClass);
         return fetchFirstItem(modelClass, table.getRowIdProperty().eq(id), properties);
     }
@@ -2259,7 +2259,7 @@ public abstract class SquidDatabase {
     }
 
     protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
-            Criterion criterion, List<Property<?>> properties) {
+            Criterion criterion, List<? extends Property<?>> properties) {
         return fetchFirstItem(modelClass, Query.select(properties).where(criterion));
     }
 
