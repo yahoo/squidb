@@ -75,6 +75,8 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
     public void testViewHolderItemBinding() {
         final TestModel model1 = database.fetch(TestModel.class, 1, TestModel.PROPERTIES);
         final TestModel model2 = database.fetch(TestModel.class, 2, TestModel.PROPERTIES);
+        assertNotNull(model1);
+        assertNotNull(model2);
 
         testRecyclerAdapterInternal(TestModel.ID, new RecyclerAdapterTest() {
 
@@ -130,6 +132,7 @@ public class SquidRecyclerAdapterTest extends DatabaseTestCase {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public SquidCursor<TestModel> getCursor() {
             return (SquidCursor<TestModel>) super.getCursor();
         }

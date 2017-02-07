@@ -7,6 +7,9 @@ package com.yahoo.squidb.sql;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Builder class for creating CASE statements. CASE statements may optionally have a base expression (CASE
  * expression WHEN ... THEN ...), which is compared to each WHEN expression during evaluation. They may also
@@ -23,7 +26,7 @@ public class CaseBuilder {
 
     private boolean ended;
 
-    CaseBuilder(Object baseExpression) {
+    CaseBuilder(@Nullable Object baseExpression) {
         this.baseExpression = baseExpression;
     }
 
@@ -34,7 +37,8 @@ public class CaseBuilder {
      * @param then the result if evaluation passes
      * @return this builder object, to allow chaining method calls
      */
-    public CaseBuilder when(Object when, Object then) {
+    @Nonnull
+    public CaseBuilder when(@Nullable Object when, @Nullable Object then) {
         if (ended) {
             throw new IllegalStateException("Can't call when() after calling end()");
         }
@@ -54,7 +58,8 @@ public class CaseBuilder {
      * @param value the expression to evaluate when no WHEN branch evaluation passes
      * @return this builder object, to allow chaining method calls
      */
-    public CaseBuilder elseExpr(Object value) {
+    @Nonnull
+    public CaseBuilder elseExpr(@Nullable Object value) {
         if (ended) {
             throw new IllegalStateException("Can't call elseExpr() after calling end()");
         }
@@ -65,6 +70,7 @@ public class CaseBuilder {
     /**
      * Completes this CASE statement and creates a Function representing it
      */
+    @Nonnull
     public <T> Function<T> end() {
         if (whens == null || whens.size() == 0) {
             throw new IllegalStateException("CASE statement must have at least one WHEN branch");
@@ -76,7 +82,7 @@ public class CaseBuilder {
 
         return new Function<T>() {
             @Override
-            protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+            protected void appendFunctionExpression(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
                 builder.sql.append("(CASE");
                 if (baseExpression != null) {
                     builder.sql.append(' ');

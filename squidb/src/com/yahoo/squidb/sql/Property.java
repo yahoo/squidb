@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Property represents a typed column in a database.
  * <p>
@@ -24,10 +27,14 @@ package com.yahoo.squidb.sql;
  */
 public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
 
+    private static final TableModelName FUNCTION_TABLE_MODEL_NAME = new TableModelName(null, "");
+
     /** The database table this property represents a column of */
+    @Nonnull
     public final TableModelName tableModelName;
 
     /** Extras for column definition (e.g. "COLLATE NOCASE") */
+    @Nullable
     public final String columnDefinition;
 
     private Function<?> function = null;
@@ -35,7 +42,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     /**
      * Create a property by table and column name
      */
-    protected Property(TableModelName tableModelName, String columnName) {
+    protected Property(@Nonnull TableModelName tableModelName, @Nonnull String columnName) {
         this(tableModelName, columnName, null, null);
     }
 
@@ -43,7 +50,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * Create a property by table and column name. The additional column definition information will be used when
      * creating the table.
      */
-    protected Property(TableModelName tableModelName, String columnName, String columnDef) {
+    protected Property(@Nonnull TableModelName tableModelName, @Nonnull String columnName,
+            @Nullable String columnDef) {
         this(tableModelName, columnName, null, columnDef);
     }
 
@@ -51,21 +59,23 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * Create a property by table and column name and with the given alias. The additional column definition
      * information will be used when creating the table.
      */
-    protected Property(TableModelName tableModelName, String columnName, String alias, String columnDefinition) {
-        super(columnName, tableModelName == null ? null : tableModelName.tableName);
+    protected Property(@Nonnull TableModelName tableModelName, @Nonnull String columnName,
+            @Nullable String alias, @Nullable String columnDefinition) {
+        super(columnName, tableModelName.tableName);
         this.tableModelName = tableModelName;
         this.alias = alias;
         this.columnDefinition = columnDefinition;
     }
 
-    protected Property(Function<?> function, String alias) {
-        this(null, null, alias, null);
+    protected Property(@Nonnull Function<?> function, @Nonnull String alias) {
+        this(FUNCTION_TABLE_MODEL_NAME, "", alias, null);
         this.function = function;
     }
 
     /**
      * @return the additional column definition information
      */
+    @Nullable
     public String getColumnDefinition() {
         return columnDefinition;
     }
@@ -75,7 +85,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     }
 
     @Override
-    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+    protected void appendQualifiedExpression(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (function != null) {
             function.appendToSqlBuilder(builder, forSqlValidation);
         } else {
@@ -84,6 +94,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     }
 
     @Override
+    @Nonnull
     public String getExpression() {
         if (function != null) {
             throw new UnsupportedOperationException("Can't call getExpression() on a Property that wraps a Function");
@@ -92,6 +103,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     }
 
     @Override
+    @Nonnull
     protected String expressionForComparison() {
         if (function != null) {
             return function.expressionForComparison();
@@ -102,12 +114,12 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
     /**
      * Accept a {@link PropertyVisitor}
      */
-    public abstract <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data);
+    public abstract <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data);
 
     /**
      * Accept a {@link PropertyWritingVisitor}
      */
-    public abstract <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+    public abstract <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
             DST dst, PARAMETER data);
 
     /**
@@ -115,6 +127,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     @Override
+    @Nonnull
     public Property<TYPE> clone() {
         try {
             return (Property<TYPE>) super.clone();
@@ -128,7 +141,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * "table.property as property", returns a property represented by "table.property as newAlias".
      */
     @Override
-    public Property<TYPE> as(String newAlias) {
+    @Nonnull
+    public Property<TYPE> as(@Nonnull String newAlias) {
         return (Property<TYPE>) super.as(newAlias);
     }
 
@@ -141,7 +155,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * @param columnAlias the new alias for the column
      * @return a clone of this property
      */
-    public Property<TYPE> as(String tableAlias, String columnAlias) {
+    @Nonnull
+    public Property<TYPE> as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
         if (SqlUtils.isEmpty(tableAlias) || function != null) {
             return as(columnAlias);
         }
@@ -159,11 +174,9 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * @param newAlias the new alias for the column
      * @return a clone of this property
      */
-    public Property<TYPE> as(SqlTable<?> newTable, String newAlias) {
-        if (function != null) {
-            return as(newAlias);
-        }
-        if (newTable == null) {
+    @Nonnull
+    public Property<TYPE> as(@Nonnull SqlTable<?> newTable, @Nonnull String newAlias) {
+        if (newTable == null || SqlUtils.isEmpty(newTable.getName()) || function != null) {
             return as(newAlias);
         }
         return cloneWithExpressionAndAlias(new TableModelName(newTable.getModelClass(), newTable.getName()),
@@ -184,14 +197,16 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      * @param newAlias the new alias for the column
      * @return a clone of this property
      */
-    public Property<TYPE> asSelectionFromTable(SqlTable<?> newTable, String newAlias) {
-        TableModelName newTableModelName = newTable == null ? null :
-                new TableModelName(newTable.getModelClass(), newTable.getName());
+    @Nonnull
+    public Property<TYPE> asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String newAlias) {
+        TableModelName newTableModelName = new TableModelName(newTable.getModelClass(), newTable.getName());
         return cloneWithExpressionAndAlias(newTableModelName, getName(), newAlias);
     }
 
     @SuppressWarnings("unchecked")
-    private Property<TYPE> cloneWithExpressionAndAlias(TableModelName tableModelName, String expression, String alias) {
+    @Nonnull
+    private Property<TYPE> cloneWithExpressionAndAlias(@Nonnull TableModelName tableModelName,
+            @Nonnull String expression, @Nullable String alias) {
         try {
             return getClass().getConstructor(TableModelName.class, String.class, String.class,
                     String.class).newInstance(tableModelName, expression, alias, null);
@@ -207,17 +222,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyVisitor<RETURN, PARAMETER> {
 
-        RETURN visitInteger(Property<Integer> property, PARAMETER data);
+        RETURN visitInteger(@Nonnull Property<Integer> property, PARAMETER data);
 
-        RETURN visitLong(Property<Long> property, PARAMETER data);
+        RETURN visitLong(@Nonnull Property<Long> property, PARAMETER data);
 
-        RETURN visitDouble(Property<Double> property, PARAMETER data);
+        RETURN visitDouble(@Nonnull Property<Double> property, PARAMETER data);
 
-        RETURN visitString(Property<String> property, PARAMETER data);
+        RETURN visitString(@Nonnull Property<String> property, PARAMETER data);
 
-        RETURN visitBoolean(Property<Boolean> property, PARAMETER data);
+        RETURN visitBoolean(@Nonnull Property<Boolean> property, PARAMETER data);
 
-        RETURN visitBlob(Property<byte[]> property, PARAMETER data);
+        RETURN visitBlob(@Nonnull Property<byte[]> property, PARAMETER data);
     }
 
     /**
@@ -225,17 +240,17 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public interface PropertyWritingVisitor<RETURN, DST, PARAMETER> {
 
-        RETURN visitInteger(Property<Integer> property, DST dst, PARAMETER data);
+        RETURN visitInteger(@Nonnull Property<Integer> property, DST dst, PARAMETER data);
 
-        RETURN visitLong(Property<Long> property, DST dst, PARAMETER data);
+        RETURN visitLong(@Nonnull Property<Long> property, DST dst, PARAMETER data);
 
-        RETURN visitDouble(Property<Double> property, DST dst, PARAMETER data);
+        RETURN visitDouble(@Nonnull Property<Double> property, DST dst, PARAMETER data);
 
-        RETURN visitString(Property<String> property, DST dst, PARAMETER data);
+        RETURN visitString(@Nonnull Property<String> property, DST dst, PARAMETER data);
 
-        RETURN visitBoolean(Property<Boolean> property, DST dst, PARAMETER data);
+        RETURN visitBoolean(@Nonnull Property<Boolean> property, DST dst, PARAMETER data);
 
-        RETURN visitBlob(Property<byte[]> property, DST dst, PARAMETER data);
+        RETURN visitBlob(@Nonnull Property<byte[]> property, DST dst, PARAMETER data);
     }
 
     // --- children
@@ -245,19 +260,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class IntegerProperty extends Property<Integer> {
 
-        public IntegerProperty(TableModelName tableModelName, String name) {
+        public IntegerProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public IntegerProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public IntegerProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public IntegerProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public IntegerProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String alias, @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public IntegerProperty(Function<Integer> function, String alias) {
+        public IntegerProperty(@Nonnull Function<Integer> function, @Nonnull String alias) {
             super(function, alias);
         }
 
@@ -267,7 +284,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param function the function
          * @param selectAs the alias to use. May be null.
          */
-        public static IntegerProperty fromFunction(Function<Integer> function, String selectAs) {
+        @Nonnull
+        public static IntegerProperty fromFunction(@Nonnull Function<Integer> function, @Nonnull String selectAs) {
             return new IntegerProperty(function, selectAs);
         }
 
@@ -277,13 +295,15 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static IntegerProperty literal(int literal, String selectAs) {
-            return new IntegerProperty(null, String.valueOf(literal), selectAs, null);
+        @Nonnull
+        public static IntegerProperty literal(int literal, @Nonnull String selectAs) {
+            return fromFunction(Function.<Integer>rawFunction(String.valueOf(literal)), selectAs);
         }
 
         /**
          * Construct an IntegerProperty represented by the expression "COUNT(1)"
          */
+        @Nonnull
         public static IntegerProperty countProperty() {
             return fromFunction(Function.count(), "count");
         }
@@ -294,39 +314,44 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param field the field to count
          * @param distinct whether to count distinct values only or not
          */
-        public static IntegerProperty countProperty(Field<?> field, boolean distinct) {
+        @Nonnull
+        public static IntegerProperty countProperty(@Nonnull Field<?> field, boolean distinct) {
             Function<Integer> function = distinct ? Function.countDistinct(field) : Function.count(field);
             return fromFunction(function, "count");
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitInteger(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitInteger(this, dst, data);
         }
 
         @Override
-        public IntegerProperty as(String newAlias) {
+        @Nonnull
+        public IntegerProperty as(@Nonnull String newAlias) {
             return (IntegerProperty) super.as(newAlias);
         }
 
         @Override
-        public IntegerProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public IntegerProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (IntegerProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public IntegerProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public IntegerProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (IntegerProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public IntegerProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public IntegerProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (IntegerProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
     }
@@ -336,19 +361,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class StringProperty extends Property<String> {
 
-        public StringProperty(TableModelName tableModelName, String name) {
+        public StringProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public StringProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public StringProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public StringProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public StringProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public StringProperty(Function<String> function, String alias) {
+        public StringProperty(@Nonnull Function<String> function, @Nonnull String alias) {
             super(function, alias);
         }
 
@@ -359,7 +386,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param function the function
          * @param selectAs the alias to use. May be null.
          */
-        public static StringProperty fromFunction(Function<String> function, String selectAs) {
+        @Nonnull
+        public static StringProperty fromFunction(@Nonnull Function<String> function, @Nonnull String selectAs) {
             return new StringProperty(function, selectAs);
         }
 
@@ -369,44 +397,50 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static StringProperty literal(String literal, String selectAs) {
-            return new StringProperty(null, SqlUtils.sanitizeStringAsLiteral(literal), selectAs, null);
+        @Nonnull
+        public static StringProperty literal(@Nullable String literal, @Nonnull String selectAs) {
+            return fromFunction(Function.<String>rawFunction(SqlUtils.sanitizeStringAsLiteral(literal)), selectAs);
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitString(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitString(this, dst, data);
         }
 
         @Override
-        public StringProperty as(String newAlias) {
+        @Nonnull
+        public StringProperty as(@Nonnull String newAlias) {
             return (StringProperty) super.as(newAlias);
         }
 
         @Override
-        public StringProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public StringProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (StringProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public StringProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public StringProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (StringProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public StringProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public StringProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (StringProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
 
         /**
          * @return a {@link Criterion} that the property is null or the empty string ''
          */
+        @Nonnull
         public Criterion isEmpty() {
             return isNull().or(eq(""));
         }
@@ -414,6 +448,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         /**
          * @return a {@link Criterion} that the property is not null and not the empty string ''
          */
+        @Nonnull
         public Criterion isNotEmpty() {
             return isNotNull().and(neq(""));
         }
@@ -423,7 +458,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * queries on virtual tables using fts3 or fts4.
          * @see <a href="http://www.sqlite.org/fts3.html#section_3">http://www.sqlite.org/fts3.html#section_3</a>
          */
-        public Criterion match(String value) {
+        @Nonnull
+        public Criterion match(@Nullable String value) {
             return new BinaryCriterion(this, Operator.match, value);
         }
     }
@@ -433,19 +469,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class DoubleProperty extends Property<Double> {
 
-        public DoubleProperty(TableModelName tableModelName, String name) {
+        public DoubleProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public DoubleProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public DoubleProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public DoubleProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public DoubleProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public DoubleProperty(Function<Double> function, String selectAs) {
+        public DoubleProperty(@Nonnull Function<Double> function, @Nonnull String selectAs) {
             super(function, selectAs);
         }
 
@@ -455,7 +493,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param function the function
          * @param selectAs the alias to use. May be null.
          */
-        public static DoubleProperty fromFunction(Function<Double> function, String selectAs) {
+        @Nonnull
+        public static DoubleProperty fromFunction(@Nonnull Function<Double> function, @Nonnull String selectAs) {
             return new DoubleProperty(function, selectAs);
         }
 
@@ -465,38 +504,43 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static DoubleProperty literal(double literal, String selectAs) {
-            return new DoubleProperty(null, String.valueOf(literal), selectAs, null);
+        @Nonnull
+        public static DoubleProperty literal(double literal, @Nonnull String selectAs) {
+            return fromFunction(Function.<Double>rawFunction(String.valueOf(literal)), selectAs);
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitDouble(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitDouble(this, dst, data);
         }
 
         @Override
-        public DoubleProperty as(String columnAlias) {
+        @Nonnull
+        public DoubleProperty as(@Nonnull String columnAlias) {
             return (DoubleProperty) super.as(columnAlias);
         }
 
         @Override
-        public DoubleProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public DoubleProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (DoubleProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public DoubleProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public DoubleProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (DoubleProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public DoubleProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public DoubleProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (DoubleProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
     }
@@ -506,19 +550,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class LongProperty extends Property<Long> {
 
-        public LongProperty(TableModelName tableModelName, String name) {
+        public LongProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public LongProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public LongProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nonnull String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public LongProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public LongProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public LongProperty(Function<Long> function, String selectAs) {
+        public LongProperty(@Nonnull Function<Long> function, @Nonnull String selectAs) {
             super(function, selectAs);
         }
 
@@ -528,7 +574,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param function the function
          * @param selectAs the alias to use. May be null.
          */
-        public static LongProperty fromFunction(Function<Long> function, String selectAs) {
+        @Nonnull
+        public static LongProperty fromFunction(@Nonnull Function<Long> function, @Nonnull String selectAs) {
             return new LongProperty(function, selectAs);
         }
 
@@ -538,38 +585,43 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static LongProperty literal(long literal, String selectAs) {
-            return new LongProperty(null, String.valueOf(literal), selectAs, null);
+        @Nonnull
+        public static LongProperty literal(long literal, @Nonnull String selectAs) {
+            return fromFunction(Function.<Long>rawFunction(String.valueOf(literal)), selectAs);
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitLong(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitLong(this, dst, data);
         }
 
         @Override
-        public LongProperty as(String newAlias) {
+        @Nonnull
+        public LongProperty as(@Nonnull String newAlias) {
             return (LongProperty) super.as(newAlias);
         }
 
         @Override
-        public LongProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public LongProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (LongProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public LongProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public LongProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (LongProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public LongProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public LongProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (LongProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
     }
@@ -579,19 +631,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class BooleanProperty extends Property<Boolean> {
 
-        public BooleanProperty(TableModelName tableModelName, String name) {
+        public BooleanProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public BooleanProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public BooleanProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public BooleanProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public BooleanProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public BooleanProperty(Function<Integer> function, String selectAs) {
+        public BooleanProperty(@Nonnull Function<Integer> function, @Nonnull String selectAs) {
             super(function, selectAs);
         }
 
@@ -602,7 +656,8 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param function the function
          * @param selectAs the alias to use. May be null.
          */
-        public static BooleanProperty fromFunction(Function<Integer> function, String selectAs) {
+        @Nonnull
+        public static BooleanProperty fromFunction(@Nonnull Function<Integer> function, @Nonnull String selectAs) {
             return new BooleanProperty(function, selectAs);
         }
 
@@ -612,53 +667,62 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static BooleanProperty literal(boolean literal, String selectAs) {
-            return new BooleanProperty(null, String.valueOf(literal ? 1 : 0), selectAs, null);
+        @Nonnull
+        public static BooleanProperty literal(boolean literal, @Nonnull String selectAs) {
+            return fromFunction(Function.<Integer>rawFunction(String.valueOf(literal ? 1 : 0)), selectAs);
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitBoolean(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitBoolean(this, dst, data);
         }
 
         @Override
-        public BooleanProperty as(String newAlias) {
+        @Nonnull
+        public BooleanProperty as(@Nonnull String newAlias) {
             return (BooleanProperty) super.as(newAlias);
         }
 
         @Override
-        public BooleanProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public BooleanProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (BooleanProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public BooleanProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public BooleanProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (BooleanProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public BooleanProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public BooleanProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (BooleanProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
 
+        @Nonnull
         public Criterion isTrue() {
             return neq(Function.FALSE);
         }
 
+        @Nonnull
         public Criterion isFalse() {
             return eq(Function.FALSE);
         }
 
+        @Nonnull
         public Criterion eq(boolean b) {
             return b ? isTrue() : isFalse();
         }
 
+        @Nonnull
         public Criterion neq(boolean b) {
             return b ? isFalse() : isTrue();
         }
@@ -669,46 +733,52 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class BlobProperty extends Property<byte[]> {
 
-        public BlobProperty(TableModelName tableModelName, String name) {
+        public BlobProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public BlobProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public BlobProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public BlobProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public BlobProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
         @Override
-        public <RETURN, PARAMETER> RETURN accept(PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
+        public <RETURN, PARAMETER> RETURN accept(@Nonnull PropertyVisitor<RETURN, PARAMETER> visitor, PARAMETER data) {
             return visitor.visitBlob(this, data);
         }
 
         @Override
-        public <RETURN, DST, PARAMETER> RETURN accept(PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
+        public <RETURN, DST, PARAMETER> RETURN accept(@Nonnull PropertyWritingVisitor<RETURN, DST, PARAMETER> visitor,
                 DST dst, PARAMETER data) {
             return visitor.visitBlob(this, dst, data);
         }
 
         @Override
-        public BlobProperty as(String newAlias) {
+        @Nonnull
+        public BlobProperty as(@Nonnull String newAlias) {
             return (BlobProperty) super.as(newAlias);
         }
 
         @Override
-        public BlobProperty as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public BlobProperty as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (BlobProperty) super.as(tableAlias, columnAlias);
         }
 
         @Override
-        public BlobProperty as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public BlobProperty as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (BlobProperty) super.as(newTable, columnAlias);
         }
 
         @Override
-        public BlobProperty asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public BlobProperty asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (BlobProperty) super.asSelectionFromTable(newTable, columnAlias);
         }
     }
@@ -721,19 +791,21 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
      */
     public static class EnumProperty<T extends Enum<T>> extends StringProperty {
 
-        public EnumProperty(TableModelName tableModelName, String name) {
+        public EnumProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
             super(tableModelName, name);
         }
 
-        public EnumProperty(TableModelName tableModelName, String name, String columnDefinition) {
+        public EnumProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
-        public EnumProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+        public EnumProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+                @Nullable String columnDefinition) {
             super(tableModelName, name, alias, columnDefinition);
         }
 
-        public EnumProperty(Function<String> function, String alias) {
+        public EnumProperty(@Nonnull Function<String> function, @Nonnull String alias) {
             super(function, alias);
         }
 
@@ -744,37 +816,43 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
          * @param literal the literal value
          * @param selectAs the alias to use. May be null.
          */
-        public static <T extends Enum<T>> EnumProperty<T> literal(T literal, String selectAs) {
-            return new EnumProperty<>(null, literal == null ? "null" : SqlUtils.sanitizeStringAsLiteral(literal.name()),
-                    selectAs, null);
+        @Nonnull
+        public static <T extends Enum<T>> EnumProperty<T> literal(@Nullable T literal, @Nonnull String selectAs) {
+            String enumString = literal == null ? "null" : SqlUtils.sanitizeStringAsLiteral(literal.name());
+            return new EnumProperty<>(Function.<String>rawFunction(enumString), selectAs);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public EnumProperty<T> as(String newAlias) {
+        @Nonnull
+        public EnumProperty<T> as(@Nonnull String newAlias) {
             return (EnumProperty<T>) super.as(newAlias);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public EnumProperty<T> as(String tableAlias, String columnAlias) {
+        @Nonnull
+        public EnumProperty<T> as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
             return (EnumProperty<T>) super.as(tableAlias, columnAlias);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public EnumProperty<T> as(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public EnumProperty<T> as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
             return (EnumProperty<T>) super.as(newTable, columnAlias);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public EnumProperty<T> asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+        @Nonnull
+        public EnumProperty<T> asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
             return (EnumProperty<T>) super.asSelectionFromTable(newTable, columnAlias);
         }
     }
 
     @Override
+    @Nonnull
     public String toString() {
         return super.toString() + " Table=" + tableModelName.tableName + " ColumnDefinition=" + columnDefinition;
     }

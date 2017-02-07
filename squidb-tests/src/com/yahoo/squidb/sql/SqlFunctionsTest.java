@@ -52,6 +52,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         StringProperty upper =
                 StringProperty.fromFunction(Function.upper(TestModel.FIRST_NAME), "upper");
         TestModel fetch = database.fetch(TestModel.class, model1.getRowId(), upper);
+        assertNotNull(fetch);
         assertEquals("SAM", fetch.get(upper));
     }
 
@@ -59,6 +60,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         StringProperty lower =
                 StringProperty.fromFunction(Function.lower(TestModel.LAST_NAME), "lower");
         TestModel fetch = database.fetch(TestModel.class, model3.getRowId(), lower);
+        assertNotNull(fetch);
         assertEquals("koren", fetch.get(lower));
     }
 
@@ -66,20 +68,23 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         IntegerProperty length =
                 IntegerProperty.fromFunction(Function.length(TestModel.FIRST_NAME), "length");
         TestModel fetch = database.fetch(TestModel.class, model2.getRowId(), length);
-        assertEquals(5, fetch.get(length).intValue());
+        assertNotNull(fetch);
+        assertEquals((Integer) 5, fetch.get(length));
     }
 
     public void testLengthOfNumeric() {
         IntegerProperty length =
                 IntegerProperty.fromFunction(Function.length(TestModel.BIRTHDAY), "length");
         TestModel fetch = database.fetch(TestModel.class, model1.getRowId(), length);
-        assertEquals(Long.toString(model1.getBirthday()).length(), fetch.get(length).intValue());
+        assertNotNull(fetch);
+        assertEquals((Integer) Long.toString(model1.getBirthday()).length(), fetch.get(length));
     }
 
     public void testUpperOfLower() {
         StringProperty upperOfLower =
                 StringProperty.fromFunction(Function.upper(Function.lower(TestModel.LAST_NAME)), "upperOfLower");
         TestModel fetch = database.fetch(TestModel.class, model1.getRowId(), upperOfLower);
+        assertNotNull(fetch);
         assertEquals("BOSLEY", fetch.get(upperOfLower));
     }
 
@@ -87,6 +92,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         StringProperty lowerOfUpper =
                 StringProperty.fromFunction(Function.lower(Function.upper(TestModel.LAST_NAME)), "lowerOfUpper");
         TestModel fetch = database.fetch(TestModel.class, model1.getRowId(), lowerOfUpper);
+        assertNotNull(fetch);
         assertEquals("bosley", fetch.get(lowerOfUpper));
     }
 
@@ -117,8 +123,8 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(alwaysTrue, alwaysFalse));
         try {
             cursor.moveToFirst();
-            assertTrue(cursor.get(alwaysTrue));
-            assertFalse(cursor.get(alwaysFalse));
+            assertNonNullAndTrue(cursor.get(alwaysTrue));
+            assertNonNullAndFalse(cursor.get(alwaysFalse));
         } finally {
             cursor.close();
         }
@@ -131,9 +137,10 @@ public class SqlFunctionsTest extends DatabaseTestCase {
                 .query(TestModel.class, Query.select(onCriterion).orderBy(Order.asc(TestModel.ID)));
         try {
             cursor.moveToFirst();
-            assertTrue(cursor.get(onCriterion));
+            assertNonNullAndTrue(cursor.get(onCriterion));
+
             cursor.moveToNext();
-            assertFalse(cursor.get(onCriterion));
+            assertNonNullAndFalse(cursor.get(onCriterion));
         } finally {
             cursor.close();
         }
@@ -173,6 +180,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         int end = length == 0 ? model1.getLastName().length() : trueStart + length;
 
         TestModel model = database.fetch(TestModel.class, model1.getRowId(), substrProperty);
+        assertNotNull(model);
         String substrLastName = model.get(substrProperty);
         String expected = model1.getLastName().substring(trueStart, end);
         assertEquals(expected, substrLastName);
@@ -182,11 +190,13 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         Function<String> concat = Function.strConcat(TestModel.FIRST_NAME, TestModel.LAST_NAME);
         StringProperty concatProperty = StringProperty.fromFunction(concat, "concat");
         TestModel model = database.fetch(TestModel.class, model1.getRowId(), concatProperty);
+        assertNotNull(model);
         assertEquals("SamBosley", model.get(concatProperty));
 
         concat = Function.strConcat(TestModel.FIRST_NAME, " ", TestModel.LAST_NAME);
         concatProperty = StringProperty.fromFunction(concat, "concat");
         model = database.fetch(TestModel.class, model1.getRowId(), concatProperty);
+        assertNotNull(model);
         assertEquals("Sam Bosley", model.get(concatProperty));
     }
 
@@ -228,14 +238,14 @@ public class SqlFunctionsTest extends DatabaseTestCase {
 
         assertNotNull(model);
         assertEquals(name.get(), model.getFirstName());
-        assertTrue(model.get(nameMatches));
+        assertNonNullAndTrue(model.get(nameMatches));
 
         name.set("Bob");
 
         model = database.fetchByQuery(TestModel.class, query);
         assertNotNull(model);
         assertNotSame(name.get(), model.getFirstName());
-        assertFalse(model.get(nameMatches));
+        assertNonNullAndFalse(model.get(nameMatches));
     }
 
     public void testOrderByFunction() {
@@ -248,16 +258,14 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
-            assertFalse(cursor.get(nameMatches));
+            assertNonNullAndFalse(cursor.get(nameMatches));
             cursor.moveToNext();
-            assertFalse(cursor.get(nameMatches));
+            assertNonNullAndFalse(cursor.get(nameMatches));
             cursor.moveToNext();
-            assertTrue(cursor.get(nameMatches));
+            assertNonNullAndTrue(cursor.get(nameMatches));
             assertEquals(name.get(), cursor.get(TestModel.FIRST_NAME));
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            cursor.close();
         }
 
         name.set("Kevin");
@@ -266,16 +274,14 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         try {
             assertEquals(3, cursor.getCount());
             cursor.moveToFirst();
-            assertTrue(cursor.get(nameMatches));
+            assertNonNullAndTrue(cursor.get(nameMatches));
             assertEquals(name.get(), cursor.get(TestModel.FIRST_NAME));
             cursor.moveToNext();
-            assertFalse(cursor.get(nameMatches));
+            assertNonNullAndFalse(cursor.get(nameMatches));
             cursor.moveToNext();
-            assertFalse(cursor.get(nameMatches));
+            assertNonNullAndFalse(cursor.get(nameMatches));
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            cursor.close();
         }
     }
 
@@ -325,7 +331,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(minId));
         try {
             cursor.moveToFirst();
-            assertEquals(model1.getRowId(), cursor.get(minId).longValue());
+            assertEquals((Long) model1.getRowId(), cursor.get(minId));
         } finally {
             cursor.close();
         }
@@ -336,7 +342,7 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         SquidCursor<TestModel> cursor = database.query(TestModel.class, Query.select(maxId));
         try {
             cursor.moveToFirst();
-            assertEquals(model3.getRowId(), cursor.get(maxId).longValue());
+            assertEquals((Long) model3.getRowId(), cursor.get(maxId));
         } finally {
             cursor.close();
         }
@@ -397,8 +403,8 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(12, cursor.get(sum).intValue());
-            assertEquals(8, cursor.get(sumDistinct).intValue());
+            assertEquals((Integer) 12, cursor.get(sum));
+            assertEquals((Integer) 8, cursor.get(sumDistinct));
         } finally {
             cursor.close();
         }
@@ -451,8 +457,8 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         test = StringProperty.fromFunction(caseWhen, "test");
         assertExpectedValues(Query.select(test), test, PASS);
 
-        caseWhen = Function.caseWhen(IntegerProperty.literal(1, null).gt(2), FAIL)
-                .when(IntegerProperty.literal(3, null).gt(0), PASS)
+        caseWhen = Function.caseWhen(IntegerProperty.literal(1, "").gt(2), FAIL)
+                .when(IntegerProperty.literal(3, "").gt(0), PASS)
                 .elseExpr(FAIL)
                 .end();
         test = StringProperty.fromFunction(caseWhen, "test");

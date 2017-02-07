@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
+
 public class QueryTest extends DatabaseTestCase {
 
     Employee bigBird;
@@ -119,8 +121,8 @@ public class QueryTest extends DatabaseTestCase {
             assertEquals(max, cursor.getCount());
             assertTrue(max > 0);
             while (cursor.moveToNext()) {
-                long nextId = cursor.get(Employee.ID);
-                if (nextId > max) {
+                Long nextId = cursor.get(Employee.ID);
+                if (nextId == null || nextId > max) {
                     fail("IDs not in reverse order");
                 }
                 max = nextId;
@@ -200,7 +202,7 @@ public class QueryTest extends DatabaseTestCase {
             assertEquals(expectedIds.size(), cursor.getCount());
             for (Long id : expectedIds) {
                 cursor.moveToNext();
-                assertEquals(id.longValue(), cursor.get(Employee.ID).longValue());
+                assertEquals(id, cursor.get(Employee.ID));
             }
         } finally {
             cursor.close();
@@ -221,7 +223,7 @@ public class QueryTest extends DatabaseTestCase {
             assertEquals(expected.size(), cursor.getCount());
             for (Employee e : expected) {
                 cursor.moveToNext();
-                assertEquals(e.getRowId(), cursor.get(Employee.ID).longValue());
+                assertEquals((Long) e.getRowId(), cursor.get(Employee.ID));
                 assertEquals(e.getName(), cursor.get(Employee.NAME));
             }
         } finally {
@@ -240,7 +242,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             groupedCursor.moveToFirst();
             assertEquals(1, groupedCursor.getCount());
-            assertEquals(2, groupedCursor.get(groupCount).intValue());
+            assertEquals((Integer) 2, groupedCursor.get(groupCount));
         } finally {
             groupedCursor.close();
         }
@@ -291,6 +293,7 @@ public class QueryTest extends DatabaseTestCase {
     public void testSelectAll() {
         insertBasicTestModel();
         TestModel model = database.fetchByQuery(TestModel.class, Query.select());
+        assertNotNull(model);
         assertTrue(model.containsNonNullValue(TestModel.FIRST_NAME));
         assertTrue(model.containsNonNullValue(TestModel.LAST_NAME));
         assertTrue(model.containsNonNullValue(TestModel.IS_HAPPY));
@@ -344,7 +347,7 @@ public class QueryTest extends DatabaseTestCase {
             expectedCount = Math.min(expectedCount, limit);
         }
 
-        long[] expectedIds = new long[expectedCount];
+        Long[] expectedIds = new Long[expectedCount];
         try {
             int index = 0;
             int start = offset > 0 ? offset : 0;
@@ -363,7 +366,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             int index = 0;
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertEquals(expectedIds[index++], cursor.get(Employee.ID).intValue());
+                assertEquals(expectedIds[index++], cursor.get(Employee.ID));
             }
         } finally {
             cursor.close();
@@ -468,7 +471,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(1, cursor.get(Employee.ID).longValue());
+            assertEquals((Long) 1L, cursor.get(Employee.ID));
         } finally {
             cursor.close();
         }
@@ -477,7 +480,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(2, cursor.get(Employee.ID).longValue());
+            assertEquals((Long) 2L, cursor.get(Employee.ID));
         } finally {
             cursor.close();
         }
@@ -491,7 +494,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, unhappyEmployee.getCount());
             unhappyEmployee.moveToFirst();
-            assertEquals(oscar.getRowId(), unhappyEmployee.get(Employee.ID).longValue());
+            assertEquals((Long) oscar.getRowId(), unhappyEmployee.get(Employee.ID));
         } finally {
             unhappyEmployee.close();
         }
@@ -523,7 +526,9 @@ public class QueryTest extends DatabaseTestCase {
 
     public void testSimpleSubquerySelect() {
         Query query = Query.fromSubquery(Query.select(Employee.NAME).from(Employee.TABLE), "subquery");
-        StringProperty name = query.getTable().qualifyProperty(Employee.NAME);
+        SqlTable<?> queryTable = query.getTable();
+        assertNotNull(queryTable);
+        StringProperty name = queryTable.qualifyProperty(Employee.NAME);
         query.where(name.eq("bigBird"));
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
         try {
@@ -592,9 +597,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(expectedSize, cursor.getCount());
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            cursor.close();
         }
     }
 
@@ -604,7 +607,9 @@ public class QueryTest extends DatabaseTestCase {
                 .fromSubquery(Query.select(Employee.MANAGER_ID).from(Employee.TABLE).groupBy(Employee.MANAGER_ID),
                         "subquery");
         query.selectMore(managerName);
-        query.join(Join.inner(Employee.TABLE, query.getTable().qualifyField(Employee.MANAGER_ID).eq(Employee.ID)))
+        SqlTable<?> queryTable = query.getTable();
+        assertNotNull(queryTable);
+        query.join(Join.inner(Employee.TABLE, queryTable.qualifyField(Employee.MANAGER_ID).eq(Employee.ID)))
                 .orderBy(Employee.MANAGER_ID.asc());
 
         SquidCursor<Employee> cursor = database.query(Employee.class, query);
@@ -716,7 +721,7 @@ public class QueryTest extends DatabaseTestCase {
             cursor = database.query(TestModel.class, Query.select());
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(3, cursor.get(TestModel.ID).longValue());
+            assertEquals((Long) 3L, cursor.get(TestModel.ID));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -747,7 +752,9 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(6, cursor.getCount());
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertTrue(cursor.get(Thing.BAR) > 0);
+                Integer bar = cursor.get(Thing.BAR);
+                assertNotNull(bar);
+                assertTrue(bar > 0);
             }
         } finally {
             cursor.close();
@@ -780,7 +787,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(1, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(bigBird.getRowId(), cursor.get(Employee.MANAGER_ID).longValue());
+            assertEquals((Long) bigBird.getRowId(), cursor.get(Employee.MANAGER_ID));
         } finally {
             cursor.close();
         }
@@ -836,7 +843,7 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(6, cursor.getCount());
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                long id = cursor.get(Employee.ID);
+                Long id = cursor.get(Employee.ID);
                 String coworkersList = cursor.get(coworkers);
                 assertEquals(expectedResults.get(id), coworkersList);
             }
@@ -853,11 +860,9 @@ public class QueryTest extends DatabaseTestCase {
             assertEquals(1, c.getCount());
             c.moveToFirst();
             assertEquals("literal", c.get(literal));
-            assertEquals(12, c.get(literalLong).longValue());
+            assertEquals((Long) 12L, c.get(literalLong));
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
     }
 
@@ -984,13 +989,13 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(4, cursor.getCount());
             cursor.moveToFirst();
-            assertEquals(Long.valueOf(0), cursor.get(Employee.MANAGER_ID));
+            assertEquals((Long) 0L, cursor.get(Employee.MANAGER_ID));
             cursor.moveToNext();
-            assertEquals(Long.valueOf(1), cursor.get(Employee.MANAGER_ID));
+            assertEquals((Long) 1L, cursor.get(Employee.MANAGER_ID));
             cursor.moveToNext();
-            assertEquals(Long.valueOf(2), cursor.get(Employee.MANAGER_ID));
+            assertEquals((Long) 2L, cursor.get(Employee.MANAGER_ID));
             cursor.moveToNext();
-            assertEquals(Long.valueOf(5), cursor.get(Employee.MANAGER_ID));
+            assertEquals((Long) 5L, cursor.get(Employee.MANAGER_ID));
         } finally {
             cursor.close();
         }
@@ -1022,6 +1027,7 @@ public class QueryTest extends DatabaseTestCase {
                 .leftJoin(Thing.TABLE, TestViewModel.TEST_MODEL_ID.eq(Thing.ID));
 
         TestViewModel model = database.fetchByQuery(TestViewModel.class, query);
+        assertNotNull(model);
         for (Property<?> p : TestViewModel.PROPERTIES) {
             assertTrue(model.containsValue(p));
         }
@@ -1038,7 +1044,8 @@ public class QueryTest extends DatabaseTestCase {
 
         SubqueryTable subqueryTable = subquery.as("t1");
         SubqueryTable joinTable = joinSubquery.as("t2");
-        Query query = Query.select().from(subqueryTable).innerJoin(joinTable, (Criterion[]) null)
+        Query query = Query.select().from(subqueryTable)
+                .innerJoin(joinTable, Thing.FOO)
                 .union(compoundSubquery);
 
         final int queryLength = query.compile(database.getCompileContext()).sql.length();
@@ -1055,7 +1062,7 @@ public class QueryTest extends DatabaseTestCase {
         final Semaphore blockThread = new Semaphore(0);
         Criterion weirdCriterion = new BinaryCriterion(Thing.BAR, Operator.eq, 0) {
             @Override
-            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            protected void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
                 super.populate(builder, forSqlValidation);
                 if (compiledOnce.compareAndSet(false, true)) {
                     try {
@@ -1114,7 +1121,7 @@ public class QueryTest extends DatabaseTestCase {
         assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
         assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
 
-        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), (Criterion[]) null);
+        testQuery = baseTestQuery.innerJoin(subquery.as("t2"), Thing.FOO);
         assertTrue(testQuery.compile(database.getCompileContext()).needsValidation);
         assertTrue(testQuery.sqlForValidation(database.getCompileContext()).contains("WHERE ((?))"));
 
@@ -1182,7 +1189,9 @@ public class QueryTest extends DatabaseTestCase {
         try {
             assertEquals(database.countAll(Employee.class), cursor.getCount());
             while (cursor.moveToNext()) {
-                assertEquals(cursor.get(Employee.ID) + 1, cursor.get(idPlus1).longValue());
+                Long employeeId = cursor.get(Employee.ID);
+                assertNotNull(employeeId);
+                assertEquals((Long) (employeeId + 1), cursor.get(idPlus1));
             }
         } finally {
             cursor.close();
@@ -1196,6 +1205,7 @@ public class QueryTest extends DatabaseTestCase {
         TestModel model = insertBasicTestModel(unicode, reversedUnicode, System.currentTimeMillis());
 
         TestModel fetched = database.fetch(TestModel.class, model.getRowId());
+        assertNotNull(fetched);
         assertEquals(unicode, fetched.getFirstName());
         assertEquals(reversedUnicode, fetched.getLastName());
     }

@@ -14,7 +14,7 @@ import com.yahoo.squidb.data.JSONPropertyTest;
 import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sqlitebindings.SQLiteBindingsOpenHelper;
 import com.yahoo.squidb.test.SQLiteBindingProvider;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 public class SquidInstrumentationTestRunner extends AndroidJUnitRunner {
 
@@ -36,7 +36,7 @@ public class SquidInstrumentationTestRunner extends AndroidJUnitRunner {
     @Override
     public void onCreate(Bundle arguments) {
         String binding = DEFAULT_BINDING;
-        Logger.setLogger(new AndroidLogger());
+        SquidbLog.setLogger(new AndroidLogger());
         if (arguments != null) {
             binding = arguments.getString(KEY_SQUIDB_BINDING, binding);
         }

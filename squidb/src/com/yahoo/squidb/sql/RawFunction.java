@@ -5,18 +5,21 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+
 class RawFunction<TYPE> extends Function<TYPE> {
 
-    public RawFunction(String expression) {
+    public RawFunction(@Nonnull String expression) {
         super(expression);
     }
 
     @Override
-    protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+    protected void appendFunctionExpression(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append(expression);
     }
 
     @Override
+    @Nonnull
     public String getExpression() {
         return expression;
     }

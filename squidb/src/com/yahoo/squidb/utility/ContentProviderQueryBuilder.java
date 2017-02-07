@@ -17,6 +17,9 @@ import com.yahoo.squidb.sql.Table;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Helper class for building queries that use raw strings for projection, selection, and sort order. This is
  * particularly useful when these elements are provided by an outside party, e.g. through
@@ -57,7 +60,8 @@ public class ContentProviderQueryBuilder {
      * @param properties the properties to initialize the projection map with
      * @param dataSource the data source to select from
      */
-    public ContentProviderQueryBuilder(List<? extends Property<?>> properties, SqlTable<?> dataSource) {
+    public ContentProviderQueryBuilder(@Nonnull List<? extends Property<?>> properties,
+            @Nonnull SqlTable<?> dataSource) {
         ProjectionMap projectionMap = new ProjectionMap();
         projectionMap.putAll(properties);
         setProjectionMap(projectionMap);
@@ -79,6 +83,7 @@ public class ContentProviderQueryBuilder {
      * @param strict true to enable strict mode, false otherwise
      * @return this builder object, to allow chaining method calls
      */
+    @Nonnull
     public ContentProviderQueryBuilder setStrict(boolean strict) {
         this.strictMode = strict;
         return this;
@@ -90,7 +95,8 @@ public class ContentProviderQueryBuilder {
      * @param projectionMap the ProjectionMap to use
      * @return this builder object, to allow chaining method calls
      */
-    public ContentProviderQueryBuilder setProjectionMap(ProjectionMap projectionMap) {
+    @Nonnull
+    public ContentProviderQueryBuilder setProjectionMap(@Nullable ProjectionMap projectionMap) {
         this.projectionMap = projectionMap;
         return this;
     }
@@ -101,7 +107,8 @@ public class ContentProviderQueryBuilder {
      * @param dataSource the data source to select from
      * @return this builder object, to allow chaining method calls
      */
-    public ContentProviderQueryBuilder setDataSource(SqlTable<?> dataSource) {
+    @Nonnull
+    public ContentProviderQueryBuilder setDataSource(@Nullable SqlTable<?> dataSource) {
         this.dataSource = dataSource;
         return this;
     }
@@ -112,7 +119,8 @@ public class ContentProviderQueryBuilder {
      * @param orders the default ordering terms
      * @return this builder object, to allow chaining method calls
      */
-    public ContentProviderQueryBuilder setDefaultOrder(Order... orders) {
+    @Nonnull
+    public ContentProviderQueryBuilder setDefaultOrder(@Nonnull Order... orders) {
         if (orders == null || orders.length == 0) {
             defaultOrder = null;
         } else {
@@ -132,7 +140,9 @@ public class ContentProviderQueryBuilder {
      * @param sortOrder a raw ordering clause
      * @return a {@link Query} using the projection, selection, selection args, and sort order
      */
-    public Query build(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    @Nonnull
+    public Query build(@Nullable String[] projection, @Nullable String selection,
+            @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Query query = Query.select(computeProjection(projection)).from(dataSource);
         boolean hasUserSelection = !SqlUtils.isEmpty(selection);
         if (hasUserSelection) {

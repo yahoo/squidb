@@ -56,8 +56,8 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestViewModel model = new TestViewModel(cursor);
-            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t1.getRowId(), model.getTestModelId());
+            assertEquals((Long) e1.getRowId(), model.getEmployeeModelId());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
@@ -66,8 +66,8 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
 
-            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t2.getRowId(), model.getTestModelId());
+            assertEquals((Long) e2.getRowId(), model.getEmployeeModelId());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(t2.getSomeEnum(), model.getTestEnum());
             assertEquals(e2.getName(), model.getEmployeeName());
@@ -86,8 +86,8 @@ public class ViewModelTest extends DatabaseTestCase {
             assertEquals(2, cursor.getCount());
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
-            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t1.getRowId(), model.getTestModelId());
+            assertEquals((Long) e1.getRowId(), model.getEmployeeModelId());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(t1.getSomeEnum(), model.getTestEnum());
             assertEquals(e1.getName(), model.getEmployeeName());
@@ -96,8 +96,8 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
 
-            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t2.getRowId(), model.getTestModelId());
+            assertEquals((Long) e2.getRowId(), model.getEmployeeModelId());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(e2.getName(), model.getEmployeeName());
             assertEquals(e2.getName().toUpperCase(), model.getUppercaseName());
@@ -191,16 +191,16 @@ public class ViewModelTest extends DatabaseTestCase {
             cursor.moveToFirst();
 
             ViewlessViewModel model = new ViewlessViewModel(cursor);
-            assertEquals(t1.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e1.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t1.getRowId(), model.getTestModelId());
+            assertEquals((Long) e1.getRowId(), model.getEmployeeModelId());
             assertEquals(t1.getFirstName(), model.getTestName());
             assertEquals(e1.getName(), model.getEmployeeName());
             assertEquals(e1.getName().toUpperCase(), model.getUppercaseName());
 
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
-            assertEquals(t2.getRowId(), model.getTestModelId().longValue());
-            assertEquals(e2.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) t2.getRowId(), model.getTestModelId());
+            assertEquals((Long) e2.getRowId(), model.getEmployeeModelId());
             assertEquals(t2.getFirstName(), model.getTestName());
             assertEquals(e2.getName(), model.getEmployeeName());
             assertEquals(e2.getName().toUpperCase(), model.getUppercaseName());

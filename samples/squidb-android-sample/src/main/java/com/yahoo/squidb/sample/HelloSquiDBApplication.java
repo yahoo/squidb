@@ -22,6 +22,9 @@ import com.yahoo.squidb.utility.Logger;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class HelloSquiDBApplication extends Application {
 
     public static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb.sample/tasks");
@@ -39,8 +42,9 @@ public class HelloSquiDBApplication extends Application {
         });
         TasksDatabase.getInstance().registerDataChangedNotifier(new UriNotifier(getContentResolver(), Task.TABLE) {
             @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                    @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                    @Nullable AbstractModel modelValues, long rowId) {
                 return accumulatorSet.add(CONTENT_URI);
             }
         });

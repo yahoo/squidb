@@ -8,6 +8,8 @@ package com.yahoo.squidb.data;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.TableStatement;
 
+import javax.annotation.Nullable;
+
 /**
  * Interface that can be applied to a generated {@link TableModel} class to make the model compatible with
  * {@link SquidDatabase#upsert(TableModel)}. Upsertable models are generally uniquely identified in their table by a
@@ -38,6 +40,7 @@ public interface Upsertable {
      *
      * @return a criterion for looking up a (possibly) existing row using the logical upsert key columns
      */
+    @Nullable
     Criterion getLogicalKeyLookupCriterion();
 
 }

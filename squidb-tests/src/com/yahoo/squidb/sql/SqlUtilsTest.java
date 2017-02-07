@@ -124,11 +124,13 @@ public class SqlUtilsTest extends DatabaseTestCase {
         database.persist(model);
 
         model = database.fetch(TestModel.class, model.getRowId());
+        assertNotNull(model);
         assertEquals(badString, model.getFirstName());
 
         database.update(TestModel.FIRST_NAME.in(badString), new TestModel().setFirstName("Sam"));
 
         model = database.fetch(TestModel.class, model.getRowId());
+        assertNotNull(model);
         assertEquals("Sam", model.getFirstName());
         database.delete(TestModel.class, model.getRowId());
     }

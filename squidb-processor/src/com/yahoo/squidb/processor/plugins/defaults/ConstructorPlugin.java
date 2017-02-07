@@ -15,6 +15,7 @@ import com.yahoo.squidb.processor.plugins.Plugin;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.writers.ModelFileWriter;
 
+import javax.annotation.Nonnull;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -69,7 +70,8 @@ public class ConstructorPlugin extends AbstractPlugin {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(modelSpec.getGeneratedClassName())
                 .addStatement("return ($T) super.clone()", modelSpec.getGeneratedClassName())
-                .addAnnotation(Override.class);
+                .addAnnotation(Override.class)
+                .addAnnotation(Nonnull.class);
         builder.addMethod(params.build());
     }
 }

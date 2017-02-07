@@ -9,6 +9,8 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.utility.VersionCode;
 
+import javax.annotation.Nonnull;
+
 /**
  * Declarations of SQLite functions found in <a href="http://sqlite.org/json1.html">the json1 extension</a>. Note that
  * these functions will only work if you are connecting to a version of SQLite >= 3.9.0 with the json1 extension
@@ -36,7 +38,9 @@ import com.yahoo.squidb.utility.VersionCode;
  */
 public class JSONFunctions {
 
+    @Nonnull
     public static final VersionCode JSON1_MIN_VERSION = new VersionCode(3, 9, 0, 0);
+    @Nonnull
     public static final VersionCode JSON1_GROUP_FUNCTIONS_VERSION = new VersionCode(3, 10, 0, 0);
 
     /**
@@ -44,7 +48,8 @@ public class JSONFunctions {
      *
      * @see <a href="http://sqlite.org/json1.html#jmini">The json() function</a>
      */
-    public static Function<String> json(Object arg) {
+    @Nonnull
+    public static Function<String> json(@Nonnull Object arg) {
         return new JSONArgumentFunction<>("json", arg);
     }
 
@@ -53,7 +58,8 @@ public class JSONFunctions {
      *
      * @see <a href="http://sqlite.org/json1.html#jarray">The json_array() function</a>
      */
-    public static Function<String> jsonArray(Object... args) {
+    @Nonnull
+    public static Function<String> jsonArray(@Nonnull Object... args) {
         return new JSONArgumentFunction<>("json_array", null, args);
     }
 
@@ -63,7 +69,8 @@ public class JSONFunctions {
      * @param json a JSON argument as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jarraylen">The json_array_length() function</a>
      */
-    public static Function<Integer> jsonArrayLength(Object json) {
+    @Nonnull
+    public static Function<Integer> jsonArrayLength(@Nonnull Object json) {
         return new JSONArgumentFunction<>("json_array_length", json);
     }
 
@@ -74,7 +81,8 @@ public class JSONFunctions {
      * @param path a PATH argument as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jarraylen">The json_array_length() function</a>
      */
-    public static Function<Integer> jsonArrayLength(Object json, String path) {
+    @Nonnull
+    public static Function<Integer> jsonArrayLength(@Nonnull Object json, @Nonnull String path) {
         return new JSONArgumentFunction<>("json_array_length", json, path);
     }
 
@@ -85,7 +93,8 @@ public class JSONFunctions {
      * @param path a PATH argument as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
-    public static <T> Function<T> jsonExtract(Object json, String path) {
+    @Nonnull
+    public static <T> Function<T> jsonExtract(@Nonnull Object json, @Nonnull String path) {
         return new JSONArgumentFunction<>("json_extract", json, path);
     }
 
@@ -96,7 +105,8 @@ public class JSONFunctions {
      * @param paths 1 or more PATH arguments as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jex">The json_extract() function</a>
      */
-    public static Function<String> jsonExtract(Object json, String... paths) {
+    @Nonnull
+    public static Function<String> jsonExtract(@Nonnull Object json, @Nonnull String... paths) {
         return new JSONArgumentFunction<>("json_extract", json, (Object[]) paths);
     }
 
@@ -106,7 +116,8 @@ public class JSONFunctions {
      * @param json a JSON argument as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jtype">The json_type() function</a>
      */
-    public static Function<String> jsonType(Object json) {
+    @Nonnull
+    public static Function<String> jsonType(@Nonnull Object json) {
         return new JSONArgumentFunction<>("json_type", json);
     }
 
@@ -117,7 +128,8 @@ public class JSONFunctions {
      * @param path a PATH argument as described in the {@link JSONFunctions} documentation
      * @see <a href="http://sqlite.org/json1.html#jtype">The json_type() function</a>
      */
-    public static Function<String> jsonType(Object json, String path) {
+    @Nonnull
+    public static Function<String> jsonType(@Nonnull Object json, @Nonnull String path) {
         return new JSONArgumentFunction<>("json_type", json, path);
     }
 
@@ -129,7 +141,8 @@ public class JSONFunctions {
      * (path1, value1, path2, value2, ...)
      * @see <a href="http://sqlite.org/json1.html#jins">The json_insert() function</a>
      */
-    public static Function<String> jsonInsert(Object json, Object... pathValuePairs) {
+    @Nonnull
+    public static Function<String> jsonInsert(@Nonnull Object json, @Nonnull Object... pathValuePairs) {
         return new JSONArgumentFunction<>("json_insert", json, pathValuePairs);
     }
 
@@ -141,7 +154,8 @@ public class JSONFunctions {
      * (path1, value1, path2, value2, ...)
      * @see <a href="http://sqlite.org/json1.html#jrepl">The json_replace() function</a>
      */
-    public static Function<String> jsonReplace(Object json, Object... pathValuePairs) {
+    @Nonnull
+    public static Function<String> jsonReplace(@Nonnull Object json, @Nonnull Object... pathValuePairs) {
         return new JSONArgumentFunction<>("json_replace", json, pathValuePairs);
     }
 
@@ -153,7 +167,8 @@ public class JSONFunctions {
      * (path1, value1, path2, value2, ...)
      * @see <a href="http://sqlite.org/json1.html#jset">The json_set() function</a>
      */
-    public static Function<String> jsonSet(Object json, Object... pathValuePairs) {
+    @Nonnull
+    public static Function<String> jsonSet(@Nonnull Object json, @Nonnull Object... pathValuePairs) {
         return new JSONArgumentFunction<>("json_set", json, pathValuePairs);
     }
 
@@ -164,7 +179,8 @@ public class JSONFunctions {
      * @param paths a list of PATH arguments as described in the {@link JSONFunctions} documentation
      * @see <a href = "http://sqlite.org/json1.html#jrm">the json_remove() function</a>
      */
-    public static Function<String> jsonRemove(Object json, Object... paths) {
+    @Nonnull
+    public static Function<String> jsonRemove(@Nonnull Object json, @Nonnull Object... paths) {
         return new JSONArgumentFunction<>("json_remove", json, paths);
     }
 
@@ -174,7 +190,8 @@ public class JSONFunctions {
      * @param labelValuePairs an alternating sequence of labels and values to construct a JSON object from
      * @see <a href = "http://sqlite.org/json1.html#jobj">the json_object() function</a>
      */
-    public static Function<String> jsonObject(Object... labelValuePairs) {
+    @Nonnull
+    public static Function<String> jsonObject(@Nonnull Object... labelValuePairs) {
         return new JSONArgumentFunction<>("json_object", null, labelValuePairs);
     }
 
@@ -183,7 +200,8 @@ public class JSONFunctions {
      *
      * @see <a href="http://sqlite.org/json1.html#jvalid">The json_valid() function</a>
      */
-    public static Function<Integer> jsonValid(Object arg) {
+    @Nonnull
+    public static Function<Integer> jsonValid(@Nonnull Object arg) {
         return new JSONArgumentFunction<>("json_valid", arg);
     }
 
@@ -193,7 +211,8 @@ public class JSONFunctions {
      *
      * @see <a href="http://sqlite.org/json1.html#jgrouparray">The json_group_array() function</a>
      */
-    public static Function<String> jsonGroupArray(Field<?> arg) {
+    @Nonnull
+    public static Function<String> jsonGroupArray(@Nonnull Field<?> arg) {
         return new JSONArgumentFunction<>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_array", arg);
     }
 
@@ -203,7 +222,8 @@ public class JSONFunctions {
      *
      * @see <a href="http://sqlite.org/json1.html#jgroupobject">The json_group_object() function</a>
      */
-    public static Function<String> jsonGroupObject(Field<?> keys, Field<?> values) {
+    @Nonnull
+    public static Function<String> jsonGroupObject(@Nonnull Field<?> keys, @Nonnull Field<?> values) {
         return new JSONArgumentFunction<>(JSON1_GROUP_FUNCTIONS_VERSION, "json_group_object", keys, values);
     }
 }

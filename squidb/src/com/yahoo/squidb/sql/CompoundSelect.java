@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+
 /**
  * A compound operator used in SELECT statements
  *
@@ -33,7 +35,7 @@ public final class CompoundSelect extends CompilableWithArguments {
     private final CompoundSelectOperator operator;
     final Query query;
 
-    private CompoundSelect(CompoundSelectOperator operator, Query query) {
+    private CompoundSelect(@Nonnull CompoundSelectOperator operator, @Nonnull Query query) {
         this.operator = operator;
         this.query = query;
     }
@@ -42,7 +44,8 @@ public final class CompoundSelect extends CompilableWithArguments {
      * The UNION operator returns all rows returned by the left-hand SELECT and all rows returned by the right-hand
      * SELECT. Duplicate rows are removed from the result set.
      */
-    public static CompoundSelect union(Query query) {
+    @Nonnull
+    public static CompoundSelect union(@Nonnull Query query) {
         return new CompoundSelect(CompoundSelectOperator.UNION, query);
     }
 
@@ -50,7 +53,8 @@ public final class CompoundSelect extends CompilableWithArguments {
      * The UNION ALL operator returns all rows returned by the left-hand SELECT and all rows returned by the right-hand
      * SELECT. The result set may contain duplicate rows.
      */
-    public static CompoundSelect unionAll(Query query) {
+    @Nonnull
+    public static CompoundSelect unionAll(@Nonnull Query query) {
         return new CompoundSelect(CompoundSelectOperator.UNION_ALL, query);
     }
 
@@ -58,7 +62,8 @@ public final class CompoundSelect extends CompilableWithArguments {
      * The INTERSECT operator returns the subset of rows returned by the left-hand SELECT that are also returned by the
      * right-hand SELECT. Duplicate rows are removed from the result set.
      */
-    public static CompoundSelect intersect(Query query) {
+    @Nonnull
+    public static CompoundSelect intersect(@Nonnull Query query) {
         return new CompoundSelect(CompoundSelectOperator.INTERSECT, query);
     }
 
@@ -66,13 +71,14 @@ public final class CompoundSelect extends CompilableWithArguments {
      * The EXCEPT operator returns the subset of rows returned by the left-hand SELECT that are not also returned by
      * the right-hand SELECT. Duplicate rows are removed from the result set.
      */
-    public static CompoundSelect except(Query query) {
+    @Nonnull
+    public static CompoundSelect except(@Nonnull Query query) {
         return new CompoundSelect(CompoundSelectOperator.EXCEPT, query);
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
-        builder.sql.append(operator.toString()).append(" ");
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
+        builder.sql.append(operator.expression).append(" ");
         query.appendToSqlBuilder(builder, forSqlValidation);
     }
 }

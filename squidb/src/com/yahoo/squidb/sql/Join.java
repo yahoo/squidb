@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+
 /**
  * A JOIN clause used in a SELECT statement.
  * <p>
@@ -24,14 +26,14 @@ public class Join extends CompilableWithArguments {
     private final Criterion[] criterions;
     private final Property<?>[] usings;
 
-    private Join(SqlTable<?> table, JoinType joinType, Criterion... criterions) {
+    private Join(@Nonnull SqlTable<?> table, @Nonnull JoinType joinType, @Nonnull Criterion... criterions) {
         this.joinTable = table;
         this.joinType = joinType;
         this.criterions = criterions;
         this.usings = null;
     }
 
-    private Join(SqlTable<?> table, JoinType joinType, Property<?>... usingColumns) {
+    private Join(@Nonnull SqlTable<?> table, @Nonnull JoinType joinType, @Nonnull Property<?>... usingColumns) {
         this.joinTable = table;
         this.joinType = joinType;
         this.usings = usingColumns;
@@ -44,7 +46,8 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param criterions criterions to use for the ON clause
      */
-    public static Join inner(SqlTable<?> table, Criterion... criterions) {
+    @Nonnull
+    public static Join inner(@Nonnull SqlTable<?> table, @Nonnull Criterion... criterions) {
         return new Join(table, JoinType.INNER, criterions);
     }
 
@@ -54,7 +57,8 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param usingColumns columns to use for the USING clause
      */
-    public static Join inner(SqlTable<?> table, Property<?>... usingColumns) {
+    @Nonnull
+    public static Join inner(@Nonnull SqlTable<?> table, @Nonnull Property<?>... usingColumns) {
         return new Join(table, JoinType.INNER, usingColumns);
     }
 
@@ -66,7 +70,8 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param criterions criterions to use for the ON clause
      */
-    public static Join left(SqlTable<?> table, Criterion... criterions) {
+    @Nonnull
+    public static Join left(@Nonnull SqlTable<?> table, @Nonnull Criterion... criterions) {
         return new Join(table, JoinType.LEFT, criterions);
     }
 
@@ -78,7 +83,8 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param usingColumns columns to use for the USING clause
      */
-    public static Join left(SqlTable<?> table, Property<?>... usingColumns) {
+    @Nonnull
+    public static Join left(@Nonnull SqlTable<?> table, @Nonnull Property<?>... usingColumns) {
         return new Join(table, JoinType.LEFT, usingColumns);
     }
 
@@ -90,7 +96,8 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param criterions criterions to use for the ON clause
      */
-    public static Join cross(SqlTable<?> table, Criterion... criterions) {
+    @Nonnull
+    public static Join cross(@Nonnull SqlTable<?> table, @Nonnull Criterion... criterions) {
         return new Join(table, JoinType.CROSS, criterions);
     }
 
@@ -102,12 +109,13 @@ public class Join extends CompilableWithArguments {
      * @param table the table to join on
      * @param usingColumns columns to use for the USING clause
      */
-    public static Join cross(SqlTable<?> table, Property<?>... usingColumns) {
+    @Nonnull
+    public static Join cross(@Nonnull SqlTable<?> table, @Nonnull Property<?>... usingColumns) {
         return new Join(table, JoinType.CROSS, usingColumns);
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append(joinType).append(" JOIN ");
         joinTable.appendToSqlBuilder(builder, forSqlValidation);
         builder.sql.append(" ");

@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Ordering term for a SELECT statement. In addition to the {@link #asc(Object) asc} and {@link #desc(Object) desc}
  * static methods, you can create an ordering term from a Field using {@link Field#asc()} and {@link Field#desc()}.
@@ -22,7 +25,7 @@ public class Order extends CompilableWithArguments {
         this(expression, OrderType.ASC);
     }
 
-    private Order(Object expression, OrderType orderType) {
+    private Order(Object expression, @Nonnull OrderType orderType) {
         this.expression = expression;
         this.orderType = orderType;
     }
@@ -30,14 +33,16 @@ public class Order extends CompilableWithArguments {
     /**
      * Sort the results in ascending ('ASC') order by the given expression
      */
-    public static Order asc(Object expression) {
+    @Nonnull
+    public static Order asc(@Nonnull Object expression) {
         return new Order(expression);
     }
 
     /**
      * Sort the results in descending ('DESC') order by the given expression
      */
-    public static Order desc(Object expression) {
+    @Nonnull
+    public static Order desc(@Nonnull Object expression) {
         return new Order(expression, OrderType.DESC);
     }
 
@@ -47,7 +52,8 @@ public class Order extends CompilableWithArguments {
      * @param field the Field to order by
      * @param order values for the specified field, in the order they should appear in the result set
      */
-    public static <T> Order byArray(Field<T> field, T[] order) {
+    @Nonnull
+    public static <T> Order byArray(@Nonnull Field<T> field, @Nullable T[] order) {
         if (order == null || order.length == 0) {
             return Order.asc("0");
         }
@@ -60,12 +66,13 @@ public class Order extends CompilableWithArguments {
         return Order.asc(caseBuilder.end());
     }
 
-    public static Order fromExpression(String expression) {
+    @Nonnull
+    public static Order fromExpression(@Nonnull String expression) {
         return new Order(expression, OrderType.RAW);
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (orderType == OrderType.RAW) {
             builder.sql.append(expression);
         } else {
@@ -77,6 +84,7 @@ public class Order extends CompilableWithArguments {
     /**
      * @return an Order term that is the reverse of this one
      */
+    @Nonnull
     public Order reverse() {
         if (orderType == OrderType.ASC) {
             return new Order(expression, OrderType.DESC);

@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Triggers are database operations that are automatically performed when a specified database event occurs.
  * <p>
@@ -27,8 +30,8 @@ import java.util.List;
  */
 public class Trigger extends DBObject<Trigger> implements SqlStatement {
 
-    private static final Table OLD = new Table(TableModel.class, null, "OLD");
-    private static final Table NEW = new Table(TableModel.class, null, "NEW");
+    private static final Table OLD = new Table(TableModel.class, Collections.<Property<?>>emptyList(), "OLD");
+    private static final Table NEW = new Table(TableModel.class, Collections.<Property<?>>emptyList(), "NEW");
 
     private SqlTable<?> table;
     private TriggerType triggerType;
@@ -52,7 +55,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         DELETE, INSERT, UPDATE
     }
 
-    protected Trigger(String name, TriggerType triggerType) {
+    protected Trigger(@Nonnull String name, @Nonnull TriggerType triggerType) {
         super(name);
         this.triggerType = triggerType;
     }
@@ -63,7 +66,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger before(String name) {
+    @Nonnull
+    public static Trigger before(@Nonnull String name) {
         return new Trigger(name, TriggerType.BEFORE);
     }
 
@@ -73,7 +77,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger after(String name) {
+    @Nonnull
+    public static Trigger after(@Nonnull String name) {
         return new Trigger(name, TriggerType.AFTER);
     }
 
@@ -84,7 +89,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger insteadOf(String name) {
+    @Nonnull
+    public static Trigger insteadOf(@Nonnull String name) {
         return new Trigger(name, TriggerType.INSTEAD);
     }
 
@@ -94,7 +100,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger tempBefore(String name) {
+    @Nonnull
+    public static Trigger tempBefore(@Nonnull String name) {
         Trigger trigger = before(name);
         trigger.isTemp = true;
         return trigger;
@@ -106,7 +113,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger tempAfter(String name) {
+    @Nonnull
+    public static Trigger tempAfter(@Nonnull String name) {
         Trigger trigger = after(name);
         trigger.isTemp = true;
         return trigger;
@@ -119,7 +127,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param name the name of the Trigger
      * @return a new Trigger instance
      */
-    public static Trigger tempInsteadOf(String name) {
+    @Nonnull
+    public static Trigger tempInsteadOf(@Nonnull String name) {
         Trigger trigger = insteadOf(name);
         trigger.isTemp = true;
         return trigger;
@@ -131,7 +140,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param table the Table
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger deleteOn(Table table) {
+    @Nonnull
+    public Trigger deleteOn(@Nonnull Table table) {
         return deleteOnTable(table);
     }
 
@@ -142,13 +152,15 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param view the View
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger deleteOn(View view) {
+    @Nonnull
+    public Trigger deleteOn(@Nonnull View view) {
         Trigger result = deleteOnTable(view);
         result.triggerType = TriggerType.INSTEAD;
         return result;
     }
 
-    private Trigger deleteOnTable(SqlTable<?> table) {
+    @Nonnull
+    private Trigger deleteOnTable(@Nonnull SqlTable<?> table) {
         assertNoTriggerEvent();
         this.table = table;
         triggerEvent = TriggerEvent.DELETE;
@@ -161,7 +173,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param table the Table
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger insertOn(Table table) {
+    @Nonnull
+    public Trigger insertOn(@Nonnull Table table) {
         return insertOnTable(table);
     }
 
@@ -172,13 +185,15 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param view the View
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger insertOn(View view) {
+    @Nonnull
+    public Trigger insertOn(@Nonnull View view) {
         Trigger result = insertOnTable(view);
         result.triggerType = TriggerType.INSTEAD;
         return result;
     }
 
-    private Trigger insertOnTable(SqlTable<?> table) {
+    @Nonnull
+    private Trigger insertOnTable(@Nonnull SqlTable<?> table) {
         assertNoTriggerEvent();
         this.table = table;
         triggerEvent = TriggerEvent.INSERT;
@@ -194,7 +209,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param columns the columns which activate the trigger
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger updateOn(Table table, Property<?>... columns) {
+    @Nonnull
+    public Trigger updateOn(@Nonnull Table table, @Nonnull Property<?>... columns) {
         return updateOnTable(table, columns);
     }
 
@@ -207,13 +223,15 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param columns the columns which activate the trigger
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger updateOn(View view, Property<?>... columns) {
+    @Nonnull
+    public Trigger updateOn(@Nonnull View view, @Nonnull Property<?>... columns) {
         Trigger result = updateOnTable(view, columns);
         result.triggerType = TriggerType.INSTEAD;
         return result;
     }
 
-    private Trigger updateOnTable(SqlTable<?> table, Property<?>... columns) {
+    @Nonnull
+    private Trigger updateOnTable(@Nonnull SqlTable<?> table, @Nonnull Property<?>... columns) {
         assertNoTriggerEvent();
         this.table = table;
         triggerEvent = TriggerEvent.UPDATE;
@@ -235,7 +253,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param criterion the {@link Criterion} to match on
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger when(Criterion criterion) {
+    @Nonnull
+    public Trigger when(@Nullable Criterion criterion) {
         if (criterion != null) {
             criterions.add(criterion);
         }
@@ -249,8 +268,9 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @param statements the statements to perform.
      * @return this Trigger instance, for chaining method calls
      */
-    public Trigger perform(TableStatement... statements) {
-        Collections.addAll(this.statements, statements);
+    @Nonnull
+    public Trigger perform(@Nonnull TableStatement... statements) {
+        SquidUtilities.addAll(this.statements, statements);
         return this;
     }
 
@@ -262,7 +282,8 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return a new {@link Property} qualified to reference the old value
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Property<?>> T oldValueOf(T property) {
+    @Nonnull
+    public static <T extends Property<?>> T oldValueOf(@Nonnull T property) {
         return (T) property.as(OLD, property.getExpression());
     }
 
@@ -275,17 +296,19 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
      * @return a new {@link Property} qualified to reference the new value
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Property<?>> T newValueOf(T property) {
+    @Nonnull
+    public static <T extends Property<?>> T newValueOf(@Nonnull T property) {
         return (T) property.as(NEW, property.getExpression());
     }
 
-    public CompiledStatement compile(CompileContext compileContext) {
+    @Nonnull
+    public CompiledStatement compile(@Nonnull CompileContext compileContext) {
         // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.
         return new CompiledStatement(toRawSql(compileContext), EMPTY_ARGS, false);
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         assertTriggerEvent();
         assertStatements();
 
@@ -309,7 +332,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         }
     }
 
-    private void visitCreateTrigger(StringBuilder sql) {
+    private void visitCreateTrigger(@Nonnull StringBuilder sql) {
         sql.append("CREATE ");
         if (isTemp) {
             sql.append("TEMP ");
@@ -317,13 +340,13 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         sql.append("TRIGGER IF NOT EXISTS ").append(getExpression()).append(" ");
     }
 
-    private void visitTriggerType(StringBuilder sql) {
+    private void visitTriggerType(@Nonnull StringBuilder sql) {
         if (triggerType != null) {
             sql.append(triggerType.name).append(" ");
         }
     }
 
-    private void visitTriggerEvent(StringBuilder sql) {
+    private void visitTriggerEvent(@Nonnull StringBuilder sql) {
         sql.append(triggerEvent.name());
         if (TriggerEvent.UPDATE == triggerEvent && !columns.isEmpty()) {
             sql.append(" OF ");
@@ -335,7 +358,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         sql.append(" ON ").append(table.getExpression()).append(" ");
     }
 
-    private void visitWhen(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitWhen(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
@@ -344,7 +367,7 @@ public class Trigger extends DBObject<Trigger> implements SqlStatement {
         builder.sql.append(" ");
     }
 
-    private void visitStatements(SqlBuilder builder) {
+    private void visitStatements(@Nonnull SqlBuilder builder) {
         builder.sql.append("BEGIN ");
         for (int i = 0; i < statements.size(); i++) {
             // Android's argument binding doesn't handle trigger statements, so we settle for a sanitized sql statement.

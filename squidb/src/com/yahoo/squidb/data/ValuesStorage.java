@@ -8,6 +8,9 @@ package com.yahoo.squidb.data;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * ValuesStorage is an abstract class for wrapping a key-value storage object. The wrapped object could be a
  * ContentValues (which works on Android and is good for implementing Parcelable) or it could be a simple HashMap
@@ -18,17 +21,18 @@ public abstract class ValuesStorage {
     /**
      * @return true if the object contains a value for the given key, false otherwise
      */
-    public abstract boolean containsKey(String key);
+    public abstract boolean containsKey(@Nonnull String key);
 
     /**
      * @return the value mapped to this key, or null if one does not exist. May return null if the value stored is null
      */
-    public abstract Object get(String key);
+    @Nullable
+    public abstract Object get(@Nonnull String key);
 
     /**
      * Remove the value with the given key, if it exists
      */
-    public abstract void remove(String key);
+    public abstract void remove(@Nonnull String key);
 
     /**
      * @return the number of key-value pairs in this ValuesStorage
@@ -40,7 +44,7 @@ public abstract class ValuesStorage {
      *
      * @param key the name of the value to put
      */
-    public abstract void putNull(String key);
+    public abstract void putNull(@Nonnull String key);
 
     /**
      * Adds a value to the set.
@@ -48,7 +52,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Boolean value);
+    public abstract void put(@Nonnull String key, @Nullable Boolean value);
 
     /**
      * Adds a value to the set.
@@ -56,7 +60,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Byte value);
+    public abstract void put(@Nonnull String key, @Nullable Byte value);
 
     /**
      * Adds a value to the set.
@@ -64,7 +68,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Double value);
+    public abstract void put(@Nonnull String key, @Nullable Double value);
 
     /**
      * Adds a value to the set.
@@ -72,7 +76,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Float value);
+    public abstract void put(@Nonnull String key, @Nullable Float value);
 
     /**
      * Adds a value to the set.
@@ -80,7 +84,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Integer value);
+    public abstract void put(@Nonnull String key, @Nullable Integer value);
 
     /**
      * Adds a value to the set.
@@ -88,7 +92,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Long value);
+    public abstract void put(@Nonnull String key, @Nullable Long value);
 
     /**
      * Adds a value to the set.
@@ -96,7 +100,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, Short value);
+    public abstract void put(@Nonnull String key, @Nullable Short value);
 
     /**
      * Adds a value to the set.
@@ -104,7 +108,7 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, String value);
+    public abstract void put(@Nonnull String key, @Nullable String value);
 
     /**
      * Adds a value to the set.
@@ -112,23 +116,25 @@ public abstract class ValuesStorage {
      * @param key the name of the value to put
      * @param value the data for the value to put
      */
-    public abstract void put(String key, byte[] value);
+    public abstract void put(@Nonnull String key, @Nullable byte[] value);
 
     /**
      * Adds all values from the passed in ValuesStorage.
      *
      * @param other the ValuesStorage from which to copy
      */
-    public abstract void putAll(ValuesStorage other);
+    public abstract void putAll(@Nullable ValuesStorage other);
 
     /**
      * @return a set of all of the keys and values in the values storage
      */
+    @Nonnull
     public abstract Set<Map.Entry<String, Object>> valueSet();
 
     /**
      * @return a set of all of the keys in the values storage
      */
+    @Nonnull
     public abstract Set<String> keySet();
 
     /**
@@ -145,7 +151,7 @@ public abstract class ValuesStorage {
      * @param errorOnFail pass true if this method should throw an exception if the value was not one of the accepted
      * types, or pass false to fail silently
      */
-    public void put(String key, Object value, boolean errorOnFail) {
+    public void put(@Nonnull String key, @Nullable Object value, boolean errorOnFail) {
         if (value == null) {
             putNull(key);
         } else if (value instanceof Boolean) {
@@ -173,7 +179,7 @@ public abstract class ValuesStorage {
     }
 
     @Override
-    public abstract boolean equals(Object o);
+    public abstract boolean equals(@Nullable Object o);
 
     @Override
     public abstract int hashCode();

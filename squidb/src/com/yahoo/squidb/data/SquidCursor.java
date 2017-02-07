@@ -12,6 +12,9 @@ import com.yahoo.squidb.sql.Query;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A wrapper around a {@link ICursor} that allows clients to extract individual {@link Property properties} or read an
  * entire {@link AbstractModel model} from a row in the cursor. After obtaining a cursor (such as from
@@ -49,7 +52,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      * @param cursor the backing cursor
      * @param fields properties read from this cursor
      */
-    public SquidCursor(ICursor cursor, Class<TYPE> modelHint, List<? extends Field<?>> fields) {
+    public SquidCursor(@Nonnull ICursor cursor, @Nullable Class<TYPE> modelHint, @Nonnull List<? extends Field<?>> fields) {
         this.cursor = cursor;
         this.modelHint = modelHint;
         this.fields = fields;
@@ -62,7 +65,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      * @return the value of the property
      */
     @SuppressWarnings("unchecked")
-    public <PROPERTY_TYPE> PROPERTY_TYPE get(Property<PROPERTY_TYPE> property) {
+    @Nullable
+    public <PROPERTY_TYPE> PROPERTY_TYPE get(@Nonnull Property<PROPERTY_TYPE> property) {
         return (PROPERTY_TYPE) property.accept(reader, this);
     }
 
@@ -71,6 +75,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      * across process boundaries, and if this SquidCursor was obtained from a SquidDatabase, you can safely cast
      * the object returned by this method to an Android cursor
      */
+    @Nonnull
     public ICursor getCursor() {
         return cursor;
     }
@@ -80,6 +85,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
      * This class is only a suggestion, and may be null if the cursor was not constructed with a model hint (this
      * may be the case if a null class was passed to {@link SquidDatabase#query(Class, Query)})
      */
+    @Nullable
     public Class<TYPE> getModelHintClass() {
         return modelHint;
     }
@@ -87,6 +93,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
     /**
      * @return the list of {@link Field fields} in this cursor
      */
+    @Nonnull
     public List<? extends Field<?>> getFields() {
         return fields;
     }
@@ -152,21 +159,23 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
     }
 
     @Override
-    public int getColumnIndex(String columnName) {
+    public int getColumnIndex(@Nonnull String columnName) {
         return cursor.getColumnIndex(columnName);
     }
 
     @Override
-    public int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException {
+    public int getColumnIndexOrThrow(@Nonnull String columnName) throws IllegalArgumentException {
         return cursor.getColumnIndexOrThrow(columnName);
     }
 
     @Override
+    @Nonnull
     public String getColumnName(int columnIndex) {
         return cursor.getColumnName(columnIndex);
     }
 
     @Override
+    @Nonnull
     public String[] getColumnNames() {
         return cursor.getColumnNames();
     }
@@ -177,11 +186,13 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
     }
 
     @Override
+    @Nullable
     public byte[] getBlob(int columnIndex) {
         return cursor.getBlob(columnIndex);
     }
 
     @Override
+    @Nullable
     public String getString(int columnIndex) {
         return cursor.getString(columnIndex);
     }
@@ -237,7 +248,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
     private static class CursorReadingVisitor implements PropertyVisitor<Object, SquidCursor<?>> {
 
         @Override
-        public Object visitDouble(Property<Double> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitDouble(@Nonnull Property<Double> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -246,7 +258,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
         }
 
         @Override
-        public Object visitInteger(Property<Integer> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitInteger(@Nonnull Property<Integer> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -255,7 +268,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
         }
 
         @Override
-        public Object visitLong(Property<Long> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitLong(@Nonnull Property<Long> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -264,7 +278,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
         }
 
         @Override
-        public Object visitString(Property<String> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitString(@Nonnull Property<String> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -273,7 +288,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
         }
 
         @Override
-        public Object visitBoolean(Property<Boolean> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitBoolean(@Nonnull Property<Boolean> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -283,7 +299,8 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
         }
 
         @Override
-        public Object visitBlob(Property<byte[]> property, SquidCursor<?> cursor) {
+        @Nullable
+        public Object visitBlob(@Nonnull Property<byte[]> property, @Nonnull SquidCursor<?> cursor) {
             int column = columnIndex(property, cursor);
             if (cursor.isNull(column)) {
                 return null;
@@ -291,7 +308,7 @@ public class SquidCursor<TYPE extends AbstractModel> implements ICursor {
             return cursor.getBlob(column);
         }
 
-        private int columnIndex(Property<?> property, SquidCursor<?> cursor) {
+        private int columnIndex(@Nonnull Property<?> property, @Nonnull SquidCursor<?> cursor) {
             return cursor.getColumnIndexOrThrow(property.getName());
         }
 

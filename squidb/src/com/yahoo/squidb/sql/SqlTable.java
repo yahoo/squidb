@@ -6,11 +6,14 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractModel;
+import com.yahoo.squidb.utility.SquidUtilities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A database object from which a select operation can be performed, such as a {@link Table} or {@link View}
@@ -18,12 +21,15 @@ import java.util.List;
 public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTable<T>> {
 
     protected final Class<? extends T> modelClass;
+
+    @Nonnull
     protected final List<Property<?>> properties;
 
     /**
      * @param expression the string-literal representation of this SqlTable
      */
-    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression) {
+    protected SqlTable(@Nullable Class<? extends T> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String expression) {
         super(expression);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -33,7 +39,8 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param expression the string-literal representation of this SqlTable
      * @param qualifier the string-literal representation of a qualifying object, e.g. a database name
      */
-    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression, String qualifier) {
+    protected SqlTable(@Nullable Class<? extends T> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String expression, @Nullable String qualifier) {
         super(expression, qualifier);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -42,13 +49,18 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     /**
      * @return the model class represented by this table
      */
+    @Nullable
     public Class<? extends T> getModelClass() {
         return modelClass;
     }
 
     /**
-     * @return the properties array corresponding to this table
+     * @return the properties array corresponding to this data source/model. May return an empty list if this table is
+     * not associated with a particular model class, e.g. if it is a {@link SubqueryTable} not backed by a model.
+     * To get a list of fields from this data source in the case when it is not associated with a model class, use
+     * {@link #allFields()}
      */
+    @Nonnull
     public List<Property<?>> getProperties() {
         return properties;
     }
@@ -60,12 +72,9 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public List<Field<?>> qualifyFields(Field<?>... fields) {
-        if (fields == null) {
-            return null;
-        }
-
-        return qualifyFields(Arrays.asList(fields));
+    @Nonnull
+    public List<Field<?>> qualifyFields(@Nonnull Field<?>... fields) {
+        return qualifyFields(SquidUtilities.asList(fields));
     }
 
     /**
@@ -75,9 +84,10 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public List<Field<?>> qualifyFields(List<? extends Field<?>> fields) {
-        if (fields == null) {
-            return null;
+    @Nonnull
+    public List<Field<?>> qualifyFields(@Nonnull List<? extends Field<?>> fields) {
+        if (fields.isEmpty()) {
+            return Collections.emptyList();
         }
         List<Field<?>> result = new ArrayList<>(fields.size());
         for (Field<?> field : fields) {
@@ -96,11 +106,9 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param properties the properties to clone
      * @return the given properties cloned and with this object as their qualifier
      */
-    public <P extends Property<?>> List<P> qualifyProperties(P... properties) {
-        if (properties == null) {
-            return null;
-        }
-        return qualifyProperties(Arrays.asList(properties));
+    @Nonnull
+    public <P extends Property<?>> List<P> qualifyProperties(@Nonnull P... properties) {
+        return qualifyProperties(SquidUtilities.asList(properties));
     }
 
     /**
@@ -112,9 +120,10 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param properties the properties to clone
      * @return the given properties cloned and with this object as their qualifier
      */
-    public <P extends Property<?>> List<P> qualifyProperties(List<P> properties) {
-        if (properties == null) {
-            return null;
+    @Nonnull
+    public <P extends Property<?>> List<P> qualifyProperties(@Nonnull List<P> properties) {
+        if (properties.isEmpty()) {
+            return Collections.emptyList();
         }
         List<P> result = new ArrayList<>(properties.size());
         for (P property : properties) {
@@ -131,7 +140,8 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param field the field to clone
      * @return a clone of the given field with this object as its qualifier
      */
-    public Field<?> qualifyField(Field<?> field) {
+    @Nonnull
+    public Field<?> qualifyField(@Nonnull Field<?> field) {
         if (field instanceof Property<?>) {
             return qualifyProperty((Property<?>) field);
         } else {
@@ -148,26 +158,23 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @return a clone of the given property with this object as its qualifier
      */
     @SuppressWarnings("unchecked")
-    public <P extends Property<?>> P qualifyProperty(P property) {
+    @Nonnull
+    public <P extends Property<?>> P qualifyProperty(@Nonnull P property) {
         return (P) property.asSelectionFromTable(this, null);
     }
 
     /**
      * @return the fields associated to this data source
      */
+    @Nonnull
     protected List<? extends Field<?>> allFields() {
-        if (properties == null) {
-            return Collections.emptyList();
-        }
         return properties;
     }
 
     @Override
-    public SqlTable<T> as(String newAlias) {
-        List<Property<?>> newProperties = properties == null ? null : new ArrayList<Property<?>>(properties.size());
-        if (newProperties == null) {
-            return asNewAliasWithProperties(newAlias, null);
-        }
+    @Nonnull
+    public SqlTable<T> as(@Nonnull String newAlias) {
+        List<Property<?>> newProperties = new ArrayList<>(properties.size());
         SqlTable<T> result = asNewAliasWithProperties(newAlias, Collections.unmodifiableList(newProperties));
         for (Property<?> p : properties) {
             newProperties.add(result.qualifyProperty(p));
@@ -175,6 +182,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
         return result;
     }
 
-    protected abstract SqlTable<T> asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties);
+    protected abstract SqlTable<T> asNewAliasWithProperties(@Nonnull String newAlias,
+            @Nonnull List<Property<?>> newProperties);
 
 }

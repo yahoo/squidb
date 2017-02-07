@@ -20,7 +20,7 @@
 
 package com.yahoo.android.sqlite;
 
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 /**
  * CloseGuard is a mechanism for flagging implicit finalizer cleanup of
@@ -234,7 +234,7 @@ public final class CloseGuard {
 
         @Override
         public void report(String message, Throwable allocationSite) {
-            Logger.w(Logger.LOG_TAG, message, allocationSite);
+            SquidbLog.w(SquidbLog.LOG_TAG, message, allocationSite);
         }
     }
 }

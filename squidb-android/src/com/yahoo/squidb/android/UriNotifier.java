@@ -18,6 +18,9 @@ import com.yahoo.squidb.sql.View;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * UriNotifiers can be registered with an instance of {@link SquidDatabase} to receive notifications whenever a table
  * they are interested in is updated.
@@ -42,7 +45,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     /**
      * Construct a UriNotifier that will be notified of changes to all tables
      */
-    public UriNotifier(ContentResolver contentResolver) {
+    public UriNotifier(@Nonnull ContentResolver contentResolver) {
         super();
         this.contentResolver = contentResolver;
     }
@@ -50,7 +53,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(ContentResolver contentResolver, SqlTable<?>... tables) {
+    public UriNotifier(@Nonnull ContentResolver contentResolver, @Nonnull SqlTable<?>... tables) {
         super(tables);
         this.contentResolver = contentResolver;
     }
@@ -58,7 +61,7 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
     /**
      * Construct a UriNotifier that will be notified of changes to the given tables
      */
-    public UriNotifier(ContentResolver contentResolver, Collection<? extends SqlTable<?>> tables) {
+    public UriNotifier(@Nonnull ContentResolver contentResolver, @Nonnull Collection<? extends SqlTable<?>> tables) {
         super(tables);
         this.contentResolver = contentResolver;
     }
@@ -96,11 +99,12 @@ public abstract class UriNotifier extends DataChangedNotifier<Uri> {
      * @return true if any Uris were added to the accumulator set to be notified, false otherwise
      */
     @Override
-    protected abstract boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-            SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId);
+    protected abstract boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet,
+            @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+            @Nullable AbstractModel modelValues, long rowId);
 
     @Override
-    protected void sendNotification(SquidDatabase database, Uri notifyObject) {
+    protected void sendNotification(@Nonnull SquidDatabase database, @Nonnull Uri notifyObject) {
         contentResolver.notifyChange(notifyObject, null);
     }
 }

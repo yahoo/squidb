@@ -189,6 +189,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+                assertNotNull(model);
                 int currentFromJSONCount = currentMapper.fromJSONCount;
                 assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_LIST)));
                 assertEquals(numbers, model.getSomeList());
@@ -216,6 +217,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+                assertNotNull(model);
                 int currentFromJSONCount = currentMapper.fromJSONCount;
                 assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.SOME_MAP)));
                 assertEquals(numbers, model.getSomeMap());
@@ -240,6 +242,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+                assertNotNull(model);
                 int currentFromJSONCount = currentMapper.fromJSONCount;
                 assertFalse(model.hasTransitory(transitoryKeyForProperty(TestModel.COMPLICATED_MAP)));
                 assertEquals(crazyMap, model.getComplicatedMap());
@@ -263,6 +266,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 database.persist(model);
 
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+                assertNotNull(model);
                 JSONPojo readPojo = model.getSomePojo();
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
                 assertEquals(pojo.pojoInt, readPojo.pojoInt);
@@ -288,6 +292,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
 
                 TestViewModel viewModel = database.fetchByQuery(TestViewModel.class,
                         Query.select().from(TestViewModel.VIEW));
+                assertNotNull(viewModel);
 
                 JSONPojo readPojo = viewModel.getJsonProp();
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);

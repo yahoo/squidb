@@ -46,6 +46,7 @@ public class ModelTest extends DatabaseTestCase {
         model.setFirstName(null);
         // Assert that despite the presence of a non-null value in the database values, containsNonNullValue
         // defers to the "active" setValue.
+        assertNotNull(model.getDatabaseValues());
         assertNotNull(model.getDatabaseValues().get(TestModel.FIRST_NAME.getName()));
         assertNull(model.getFirstName());
         assertFalse(model.containsNonNullValue(TestModel.FIRST_NAME));
@@ -91,7 +92,7 @@ public class ModelTest extends DatabaseTestCase {
 
         assertNull(emptyClone.getSetValues());
         assertNull(emptyClone.getDatabaseValues());
-        assertNull(emptyClone.getAllTransitoryKeys());
+        assertNull(emptyClone.transitoryData);
     }
 
     public void testCrudMethods() {
@@ -125,6 +126,7 @@ public class ModelTest extends DatabaseTestCase {
         thing.setFoo("new foo");
         database.persist(thing);
         fetched = database.fetch(Thing.class, thing.getRowId(), Thing.PROPERTIES);
+        assertNotNull(fetched);
         assertEquals("new foo", fetched.getFoo());
         assertEquals(1, database.countAll(Thing.class));
 
@@ -204,6 +206,7 @@ public class ModelTest extends DatabaseTestCase {
                 .setSomeEnum(enumValue);
 
         ValuesStorage setValues = model.getSetValues();
+        assertNotNull(setValues);
         assertEquals(enumAsString, setValues.get(TestModel.SOME_ENUM.getName()));
 
         database.persist(model);

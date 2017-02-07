@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.yahoo.squidb.data.ISQLitePreparedStatement;
 
+import javax.annotation.Nonnull;
+
 /**
  * Wrapper for the default Android {@link SQLiteStatement} that implements the common
  * {@link ISQLitePreparedStatement} interface.
@@ -42,12 +44,12 @@ public class SQLiteStatementAdapter implements ISQLitePreparedStatement {
     }
 
     @Override
-    public void bindString(int index, String value) {
+    public void bindString(int index, @Nonnull String value) {
         statement.bindString(index, value);
     }
 
     @Override
-    public void bindBlob(int index, byte[] value) {
+    public void bindBlob(int index, @Nonnull byte[] value) {
         statement.bindBlob(index, value);
     }
 

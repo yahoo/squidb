@@ -13,6 +13,8 @@ import com.yahoo.squidb.test.TestVirtualModel;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
+
 public class AttachDetachTest extends DatabaseTestCase {
 
     private TestModel model1;
@@ -27,6 +29,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         super.setUp();
         database2 = new TestDatabase() {
             @Override
+            @Nonnull
             public String getName() {
                 return "db2.db";
             }
@@ -45,6 +48,7 @@ public class AttachDetachTest extends DatabaseTestCase {
 
     public void testAttachDetach() {
         String attachedAs = database2.attachDatabase(database);
+        assertNotNull(attachedAs);
         Insert insert = Insert.into(TestModel.TABLE).columns(TestModel.PROPERTIES)
                 .select(Query.select(TestModel.PROPERTIES)
                         .from(TestModel.TABLE.qualifiedFromDatabase(attachedAs)));
@@ -158,6 +162,7 @@ public class AttachDetachTest extends DatabaseTestCase {
             Thread.sleep(1000L);
         }
         String attachedAs = database2.attachDatabase(database);
+        assertNotNull(attachedAs);
         database2.beginTransaction();
         try {
             database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.PROPERTIES)
@@ -216,6 +221,7 @@ public class AttachDetachTest extends DatabaseTestCase {
         Thread.sleep(1000L);
 
         String attachedAs = database2.attachDatabase(database);
+        assertNotNull(attachedAs);
         database2.beginTransaction();
         try {
             database2.tryExecStatement(Insert.into(TestModel.TABLE).columns(TestModel.FIRST_NAME, TestModel.LAST_NAME)

@@ -14,6 +14,8 @@ import com.yahoo.squidb.data.SquidDatabase;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
+import javax.annotation.Nonnull;
+
 /**
  * SQLiteOpenHelper implementation that extends {@link org.sqlite.database.sqlite.SQLiteOpenHelper} from the Android
  * SQLite bindings project (https://www.sqlite.org/android/doc/trunk/www/index.wiki)
@@ -27,20 +29,22 @@ public class SQLiteBindingsOpenHelper extends SQLiteOpenHelper implements ISQLit
     private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public SQLiteBindingsOpenHelper(Context context, String name,
-            SquidDatabase.OpenHelperDelegate delegate, int version) {
+    public SQLiteBindingsOpenHelper(@Nonnull Context context, @Nonnull String name,
+            @Nonnull SquidDatabase.OpenHelperDelegate delegate, int version) {
         super(context.getApplicationContext(), name, null, version);
         this.context = context.getApplicationContext();
         this.delegate = delegate;
     }
 
     @Override
+    @Nonnull
     public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
         return new SQLiteBindingsAdapter(database);
     }
 
     @Override
+    @Nonnull
     public String getDatabasePath() {
         return context.getDatabasePath(getDatabaseName()).getAbsolutePath();
     }

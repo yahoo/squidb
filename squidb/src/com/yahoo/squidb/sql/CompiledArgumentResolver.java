@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
 
 class CompiledArgumentResolver {
 
@@ -33,7 +35,7 @@ class CompiledArgumentResolver {
 
     private Object[] compiledArgs = null;
 
-    public CompiledArgumentResolver(SqlBuilder builder) {
+    public CompiledArgumentResolver(@Nonnull SqlBuilder builder) {
         this.compiledSql = builder.getSqlString();
         this.sqlArgs = builder.getBoundArguments();
         this.compileContext = builder.compileContext;
@@ -58,6 +60,7 @@ class CompiledArgumentResolver {
         }
     }
 
+    @Nonnull
     public CompiledStatement resolveToCompiledStatement() {
         String cacheKey = hasCollectionArgs() ? getCacheKey() : null;
         int totalArgSize = calculateArgsSizeWithCollectionArgs();
@@ -106,7 +109,7 @@ class CompiledArgumentResolver {
             if (!largeArgMode) {
                 compiledSqlCache.put(cacheKey, resultSql);
             } else {
-                Logger.w(Logger.LOG_TAG,
+                SquidbLog.w(SquidbLog.LOG_TAG,
                         "The SQL statement \"" + resultSql.substring(0, Math.min(200, resultSql.length()))
                                 + " ...\" had too many arguments to bind, so arguments were inlined into the SQL "
                                 + "instead. Consider revising your statement to have fewer arguments.");

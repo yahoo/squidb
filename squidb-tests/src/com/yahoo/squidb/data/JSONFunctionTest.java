@@ -10,7 +10,7 @@ import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.Thing;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 import com.yahoo.squidb.utility.VersionCode;
 
 import org.json.JSONArray;
@@ -37,7 +37,7 @@ public class JSONFunctionTest extends DatabaseTestCase {
         try {
             return database.simpleQueryForLong(Query.select(JSONFunctions.jsonValid("{ \"a\" : \"b\" }"))) != 0;
         } catch (RuntimeException e) {
-            Logger.d("JSONFunctionTest", "JSON1 extension not available", e);
+            SquidbLog.d("JSONFunctionTest", "JSON1 extension not available", e);
             return false;
         }
     }

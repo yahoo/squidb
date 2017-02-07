@@ -10,9 +10,10 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 /**
  * Builder class for a SQLite INSERT statement
@@ -31,6 +32,7 @@ public class Insert extends TableStatement {
      *     }
      * </pre>
      */
+    @Nonnull
     public static final VersionCode SQLITE_VERSION_MULTI_ROW_INSERT = new VersionCode(3, 7, 11, 0);
 
     private final SqlTable<?> table;
@@ -40,14 +42,15 @@ public class Insert extends TableStatement {
     private Query query;
     private boolean defaultValues;
 
-    private Insert(SqlTable<?> table) {
+    private Insert(@Nonnull SqlTable<?> table) {
         this.table = table;
     }
 
     /**
      * Construct a new Insert statement on the specified {@link Table} or {@link VirtualTable}
      */
-    public static Insert into(Table table) {
+    @Nonnull
+    public static Insert into(@Nonnull Table table) {
         return new Insert(table);
     }
 
@@ -55,11 +58,13 @@ public class Insert extends TableStatement {
      * Construct a new Insert statement on the specified {@link View}. Note that inserts into a View are only
      * permissible when an INSTEAD OF {@link com.yahoo.squidb.sql.Trigger} is constructed on that View.
      */
-    public static Insert into(View view) {
+    @Nonnull
+    public static Insert into(@Nonnull View view) {
         return new Insert(view);
     }
 
     @Override
+    @Nonnull
     public SqlTable<?> getTable() {
         return table;
     }
@@ -70,8 +75,9 @@ public class Insert extends TableStatement {
      * @param columns the columns to insert into
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert columns(Property<?>... columns) {
-        return columns(Arrays.asList(columns));
+    @Nonnull
+    public Insert columns(@Nonnull Property<?>... columns) {
+        return columns(SquidUtilities.asList(columns));
     }
 
     /**
@@ -80,7 +86,8 @@ public class Insert extends TableStatement {
      * @param columns the columns to insert into
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert columns(List<? extends Property<?>> columns) {
+    @Nonnull
+    public Insert columns(@Nonnull List<? extends Property<?>> columns) {
         for (Property<?> column : columns) {
             this.columns.add(column.getExpression());
         }
@@ -89,7 +96,8 @@ public class Insert extends TableStatement {
         return this;
     }
 
-    public Insert columns(String... columnNames) {
+    @Nonnull
+    public Insert columns(@Nonnull String... columnNames) {
         SquidUtilities.addAll(this.columns, columnNames);
         defaultValues = false;
         invalidateCompileCache();
@@ -108,8 +116,9 @@ public class Insert extends TableStatement {
      * @param values the values to insert
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert values(Object... values) {
-        valuesToInsert.add(Arrays.asList(values));
+    @Nonnull
+    public Insert values(@Nonnull Object... values) {
+        valuesToInsert.add(SquidUtilities.asList(values));
         query = null;
         defaultValues = false;
         invalidateCompileCache();
@@ -122,7 +131,8 @@ public class Insert extends TableStatement {
      * @param select the Query to execute
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert select(Query select) {
+    @Nonnull
+    public Insert select(@Nonnull Query select) {
         this.query = select;
         valuesToInsert.clear();
         defaultValues = false;
@@ -136,7 +146,8 @@ public class Insert extends TableStatement {
      * @param values a ValuesStorage where keys are column names and values are values to insert
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert fromValues(ValuesStorage values) {
+    @Nonnull
+    public Insert fromValues(@Nonnull ValuesStorage values) {
         List<Object> valuesToInsert = new ArrayList<>();
         for (Map.Entry<String, Object> entry : values.valueSet()) {
             this.columns.add(entry.getKey());
@@ -152,6 +163,7 @@ public class Insert extends TableStatement {
      *
      * @return this Insert object, to allow chaining method calls
      */
+    @Nonnull
     public Insert defaultValues() {
         defaultValues = true;
         columns.clear();
@@ -174,14 +186,15 @@ public class Insert extends TableStatement {
      * @param conflictAlgorithm the {@link TableStatement.ConflictAlgorithm} to use
      * @return this Insert object, to allow chaining method calls
      */
-    public Insert onConflict(ConflictAlgorithm conflictAlgorithm) {
+    @Nonnull
+    public Insert onConflict(@Nonnull ConflictAlgorithm conflictAlgorithm) {
         this.conflictAlgorithm = conflictAlgorithm;
         invalidateCompileCache();
         return this;
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         assertValues();
 
         builder.sql.append("INSERT ");
@@ -223,13 +236,13 @@ public class Insert extends TableStatement {
         }
     }
 
-    private void visitConflictAlgorithm(StringBuilder sql) {
+    private void visitConflictAlgorithm(@Nonnull StringBuilder sql) {
         if (ConflictAlgorithm.NONE != conflictAlgorithm) {
             sql.append("OR ").append(conflictAlgorithm).append(" ");
         }
     }
 
-    private void visitColumns(StringBuilder sql) {
+    private void visitColumns(@Nonnull StringBuilder sql) {
         if (columns.isEmpty()) {
             return;
         }
@@ -241,11 +254,11 @@ public class Insert extends TableStatement {
         sql.append(") ");
     }
 
-    private void visitQuery(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitQuery(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         query.appendToSqlBuilder(builder, forSqlValidation);
     }
 
-    private void visitValues(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitValues(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (builder.compileContext.getVersionCode().isLessThan(SQLITE_VERSION_MULTI_ROW_INSERT)
                 && valuesToInsert.size() > 1) {
             throw new UnsupportedOperationException("Can't insert with multiple sets of values below "

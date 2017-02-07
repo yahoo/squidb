@@ -15,6 +15,9 @@ import com.yahoo.squidb.sql.Property;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Extension of {@link ViewModel} that adds some Android-specific APIs and features. Android models implement
  * {@link Parcelable} and allow working with ContentValues instead of Maps. The code generator will generate view
@@ -23,6 +26,7 @@ import java.util.List;
 public abstract class AndroidViewModel extends ViewModel implements ParcelableModel {
 
     @Override
+    @Nonnull
     protected ValuesStorage newValuesStorage() {
         return new ContentValuesStorage();
     }
@@ -31,7 +35,7 @@ public abstract class AndroidViewModel extends ViewModel implements ParcelableMo
      * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
+    public void readPropertiesFromContentValues(@Nullable ContentValues values, @Nonnull Property<?>... properties) {
         readPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
     }
 
@@ -39,7 +43,7 @@ public abstract class AndroidViewModel extends ViewModel implements ParcelableMo
      * Copies values from the given {@link ContentValues} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromContentValues(ContentValues values, List<? extends Property<?>> properties) {
+    public void readPropertiesFromContentValues(@Nullable ContentValues values, @Nonnull List<? extends Property<?>> properties) {
         readPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
     }
 
@@ -47,7 +51,7 @@ public abstract class AndroidViewModel extends ViewModel implements ParcelableMo
      * Analogous to {@link #readPropertiesFromContentValues(ContentValues, Property[])} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromContentValues(ContentValues values, Property<?>... properties) {
+    public void setPropertiesFromContentValues(@Nullable ContentValues values, @Nonnull Property<?>... properties) {
         setPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
     }
 
@@ -55,7 +59,7 @@ public abstract class AndroidViewModel extends ViewModel implements ParcelableMo
      * Analogous to {@link #readPropertiesFromContentValues(ContentValues, Property[])} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromContentValues(ContentValues values, List<? extends Property<?>> properties) {
+    public void setPropertiesFromContentValues(@Nullable ContentValues values, @Nonnull List<? extends Property<?>> properties) {
         setPropertiesFromValuesStorage(new ContentValuesStorage(values), properties);
     }
 

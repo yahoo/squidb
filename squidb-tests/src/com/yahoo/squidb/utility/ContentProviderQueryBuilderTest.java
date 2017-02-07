@@ -255,16 +255,16 @@ public class ContentProviderQueryBuilderTest extends DatabaseTestCase {
 
             cursor.moveToFirst();
             TestSubqueryModel model = new TestSubqueryModel(cursor);
-            assertEquals(model1.getRowId(), model.getTestModelId().longValue());
-            assertEquals(employee1.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) model1.getRowId(), model.getTestModelId());
+            assertEquals((Long) employee1.getRowId(), model.getEmployeeModelId());
             assertEquals(model1.getFirstName(), model.getTestName());
             assertEquals(employee1.getName(), model.getEmployeeName());
             assertEquals(employee1.getName().toUpperCase(), model.getUppercaseName());
 
             cursor.moveToNext();
             model.readPropertiesFromCursor(cursor);
-            assertEquals(model2.getRowId(), model.getTestModelId().longValue());
-            assertEquals(employee2.getRowId(), model.getEmployeeModelId().longValue());
+            assertEquals((Long) model2.getRowId(), model.getTestModelId());
+            assertEquals((Long) employee2.getRowId(), model.getEmployeeModelId());
             assertEquals(model2.getFirstName(), model.getTestName());
             assertEquals(employee2.getName(), model.getEmployeeName());
             assertEquals(employee2.getName().toUpperCase(), model.getUppercaseName());

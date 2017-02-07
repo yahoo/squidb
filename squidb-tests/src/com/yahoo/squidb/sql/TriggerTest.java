@@ -90,14 +90,14 @@ public class TriggerTest extends DatabaseTestCase {
     }
 
     public void testTriggerBefore() {
-        final int initialValue = 5;
-        final int terminalValue = 10;
+        final Integer initialValue = 5;
+        final Integer terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
         database.persist(test1);
         database.persist(test2);
-        final long idTest1 = test1.getRowId();
-        final long idTest2 = test2.getRowId();
+        final Long idTest1 = test1.getRowId();
+        final Long idTest2 = test2.getRowId();
 
         // create trigger set_value2_before before update of value1 on trigger_testers begin
         //      update trigger_testers set value2 = value1 where _id = NEW._id;
@@ -124,23 +124,25 @@ public class TriggerTest extends DatabaseTestCase {
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
         test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
-        assertEquals(terminalValue, test1.getValue1().intValue());
-        assertEquals(initialValue, test1.getValue2().intValue());
+        assertNotNull(test1);
+        assertEquals(terminalValue, test1.getValue1());
+        assertEquals(initialValue, test1.getValue2());
 
         test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
-        assertEquals(terminalValue, test2.getValue1().intValue());
-        assertEquals(initialValue, test2.getValue2().intValue());
+        assertNotNull(test2);
+        assertEquals(terminalValue, test2.getValue1());
+        assertEquals(initialValue, test2.getValue2());
     }
 
     public void testTriggerAfter() {
-        final int initialValue = 5;
-        final int terminalValue = 10;
+        final Integer initialValue = 5;
+        final Integer terminalValue = 10;
         TriggerTester test1 = new TriggerTester().setValue1(initialValue);
         TriggerTester test2 = new TriggerTester().setValue1(initialValue);
         database.persist(test1);
         database.persist(test2);
-        final long idTest1 = test1.getRowId();
-        final long idTest2 = test2.getRowId();
+        final Long idTest1 = test1.getRowId();
+        final Long idTest2 = test2.getRowId();
 
         // create trigger set_value2_after after update of value1 on trigger_testers begin
         //      update trigger_testers set value2 = value1 where _id = NEW._id;
@@ -167,12 +169,14 @@ public class TriggerTest extends DatabaseTestCase {
         database.tryExecSql(compiledUpdate.sql, compiledUpdate.sqlArgs);
 
         test1 = database.fetch(TriggerTester.class, idTest1, TriggerTester.PROPERTIES);
-        assertEquals(terminalValue, test1.getValue1().intValue());
-        assertEquals(terminalValue, test1.getValue2().intValue());
+        assertNotNull(test1);
+        assertEquals(terminalValue, test1.getValue1());
+        assertEquals(terminalValue, test1.getValue2());
 
         test2 = database.fetch(TriggerTester.class, idTest2, TriggerTester.PROPERTIES);
-        assertEquals(terminalValue, test2.getValue1().intValue());
-        assertEquals(terminalValue, test2.getValue2().intValue());
+        assertNotNull(test2);
+        assertEquals(terminalValue, test2.getValue1());
+        assertEquals(terminalValue, test2.getValue2());
     }
 
     public void testTriggerInsteadOf() {
@@ -259,7 +263,9 @@ public class TriggerTest extends DatabaseTestCase {
         assertTrue(cursor.getCount() > 0);
         try {
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertTrue(cursor.get(TriggerTester.VALUE_2) > threshold);
+                Integer value2 = cursor.get(TriggerTester.VALUE_2);
+                assertNotNull(value2);
+                assertTrue(value2 > threshold);
             }
         } finally {
             cursor.close();
@@ -330,7 +336,8 @@ public class TriggerTest extends DatabaseTestCase {
         int numTestModels = modelCursor.getCount();
         try {
             for (modelCursor.moveToFirst(); !modelCursor.isAfterLast(); modelCursor.moveToNext()) {
-                int luckyNumber = modelCursor.get(TestModel.LUCKY_NUMBER);
+                Integer luckyNumber = modelCursor.get(TestModel.LUCKY_NUMBER);
+                assertNotNull(luckyNumber);
                 expectedBefore.add(luckyNumber);
                 expectedAfter.add(luckyNumber + 1);
             }
@@ -353,10 +360,10 @@ public class TriggerTest extends DatabaseTestCase {
             assertEquals(expectedTriggers, triggerCursor.getCount());
 
             for (triggerCursor.moveToFirst(); !triggerCursor.isAfterLast(); triggerCursor.moveToNext()) {
-                int before = triggerCursor.get(TriggerTester.VALUE_1);
-                int after = triggerCursor.get(TriggerTester.VALUE_2);
-                assertEquals(expectedBefore.get(triggerCursor.getPosition()).intValue(), before);
-                assertEquals(expectedAfter.get(triggerCursor.getPosition()).intValue(), after);
+                Integer before = triggerCursor.get(TriggerTester.VALUE_1);
+                Integer after = triggerCursor.get(TriggerTester.VALUE_2);
+                assertEquals(expectedBefore.get(triggerCursor.getPosition()), before);
+                assertEquals(expectedAfter.get(triggerCursor.getPosition()), after);
             }
         } finally {
             triggerCursor.close();

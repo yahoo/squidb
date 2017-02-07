@@ -5,17 +5,20 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 class LikeCriterion extends BinaryCriterion {
 
     private final char escape;
 
-    LikeCriterion(Field<?> expression, Operator operator, Object value, char escape) {
+    LikeCriterion(@Nonnull Field<?> expression, @Nonnull Operator operator, @Nullable Object value, char escape) {
         super(expression, operator, value);
         this.escape = escape;
     }
 
     @Override
-    protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+    protected void afterPopulateOperator(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         super.afterPopulateOperator(builder, forSqlValidation);
         if (escape != '\0') {
             builder.sql.append(" ESCAPE ").append(SqlUtils.sanitizeStringAsLiteral(Character.toString(escape)));
@@ -23,7 +26,8 @@ class LikeCriterion extends BinaryCriterion {
     }
 
     @Override
-    protected BinaryCriterion constructNegatedCriterion(Operator negatedOperator) {
+    @Nonnull
+    protected BinaryCriterion constructNegatedCriterion(@Nonnull Operator negatedOperator) {
         return new LikeCriterion(field, negatedOperator, value, escape);
     }
 }

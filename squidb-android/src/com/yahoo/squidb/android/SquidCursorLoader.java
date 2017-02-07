@@ -16,6 +16,9 @@ import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.SquidDatabase;
 import com.yahoo.squidb.sql.Query;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A {@link CursorLoader} that queries a {@link SquidDatabase}
  */
@@ -29,7 +32,8 @@ public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<
 
     private final ForceLoadContentObserver observer = new ForceLoadContentObserver();
 
-    public SquidCursorLoader(Context context, SquidDatabase database, Class<T> modelClass, Query query) {
+    public SquidCursorLoader(@Nonnull Context context, @Nonnull SquidDatabase database, @Nullable Class<T> modelClass,
+            @Nonnull Query query) {
         super(context);
         this.database = database;
         this.query = query;
@@ -46,13 +50,11 @@ public class SquidCursorLoader<T extends AbstractModel> extends AsyncTaskLoader<
     @Override
     public SquidCursor<T> loadInBackground() {
         SquidCursor<T> result = database.query(modelClass, query);
-        if (result != null) {
-            result.getCount(); // Make sure the window is filled
-            Cursor androidResult = (Cursor) result.getCursor();
-            androidResult.registerContentObserver(observer);
-            if (notificationUri != null) {
-                androidResult.setNotificationUri(getContext().getContentResolver(), notificationUri);
-            }
+        result.getCount(); // Make sure the window is filled
+        Cursor androidResult = (Cursor) result.getCursor();
+        androidResult.registerContentObserver(observer);
+        if (notificationUri != null) {
+            androidResult.setNotificationUri(getContext().getContentResolver(), notificationUri);
         }
         return result;
     }

@@ -5,8 +5,12 @@
  */
 package com.yahoo.squidb.sql;
 
-import java.util.Arrays;
+import com.yahoo.squidb.utility.SquidUtilities;
+
 import java.util.Collection;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Fields represent a selectable attribute, e.g. a column, function, or literal value. Most clients will not use this
@@ -17,12 +21,13 @@ import java.util.Collection;
 public class Field<TYPE> extends DBObject<Field<TYPE>> {
 
     /** SQLite NULL literal value */
+    @Nonnull
     public static final Field<Void> NULL = new Field<>("NULL");
 
     /**
      * @param expression the string-literal representation of this field
      */
-    protected Field(String expression) {
+    protected Field(@Nonnull String expression) {
         super(expression);
     }
 
@@ -30,7 +35,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param expression the string-literal representation of this field
      * @param qualifier the string-literal representation of a qualifying object, e.g. a table name
      */
-    protected Field(String expression, String qualifier) {
+    protected Field(@Nonnull String expression, @Nullable String qualifier) {
         super(expression, qualifier);
     }
 
@@ -39,7 +44,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      *
      * @param expression the string-literal representation of the returned field
      */
-    public static <T> Field<T> field(String expression) {
+    @Nonnull
+    public static <T> Field<T> field(@Nonnull String expression) {
         return new Field<>(expression);
     }
 
@@ -49,14 +55,16 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param expression the string-literal representation of this field
      * @param qualifier the string-literal representation of a qualifying object, e.g. a table name
      */
-    public static <T> Field<T> field(String expression, String qualifier) {
+    @Nonnull
+    public static <T> Field<T> field(@Nonnull String expression, @Nullable String qualifier) {
         return new Field<>(expression, qualifier);
     }
 
     /**
      * @return a {@link Criterion} that the field must be equal to the given value
      */
-    public Criterion eq(Object value) {
+    @Nonnull
+    public Criterion eq(@Nullable Object value) {
         if (value == null) {
             return isNull();
         }
@@ -67,7 +75,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field must be equal to the given string, ignoring case. This will only work
      * for ASCII characters.
      */
-    public Criterion eqCaseInsensitive(String value) {
+    @Nonnull
+    public Criterion eqCaseInsensitive(@Nullable String value) {
         if (value == null) {
             return isNull();
         }
@@ -77,21 +86,24 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} comparing the field to the given value using the IS operator.
      */
-    public Criterion is(Object value) {
+    @Nonnull
+    public Criterion is(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.is, value);
     }
 
     /**
      * @return a {@link Criterion} comparing the field to the given value using the IS NOT operator.
      */
-    public Criterion isNot(Object value) {
+    @Nonnull
+    public Criterion isNot(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.isNot, value);
     }
 
     /**
      * @return a {@link Criterion} that the field must not be equal to the given value
      */
-    public Criterion neq(Object value) {
+    @Nonnull
+    public Criterion neq(@Nullable Object value) {
         if (value == null) {
             return isNotNull();
         }
@@ -101,34 +113,39 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} that the field must be greater than the given value
      */
-    public Criterion gt(Object value) {
+    @Nonnull
+    public Criterion gt(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.gt, value);
     }
 
     /**
      * @return a {@link Criterion} that the field must be greater than or equal to the given value
      */
-    public Criterion gte(Object value) {
+    @Nonnull
+    public Criterion gte(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.gte, value);
     }
 
     /**
      * @return a {@link Criterion} that the field must be less than the given value
      */
-    public Criterion lt(Object value) {
+    @Nonnull
+    public Criterion lt(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.lt, value);
     }
 
     /**
      * @return a {@link Criterion} that the field must be less than or equal to the given value
      */
-    public Criterion lte(Object value) {
+    @Nonnull
+    public Criterion lte(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.lte, value);
     }
 
     /**
      * @return a {@link Criterion} that the field must be null
      */
+    @Nonnull
     public Criterion isNull() {
         return is(null);
     }
@@ -136,6 +153,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} that the field must not be null
      */
+    @Nonnull
     public Criterion isNotNull() {
         return isNot(null);
     }
@@ -143,14 +161,16 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} that the field must be between the specified lower and upper bounds
      */
-    public Criterion between(Object lower, Object upper) {
+    @Nonnull
+    public Criterion between(@Nullable Object lower, @Nullable Object upper) {
         return new BetweenCriterion(this, Operator.between, lower, upper);
     }
 
     /**
      * @return a {@link Criterion} that the field must not be between the specified lower and upper bounds
      */
-    public Criterion notBetween(Object lower, Object upper) {
+    @Nonnull
+    public Criterion notBetween(@Nullable Object lower, @Nullable Object upper) {
         return new BetweenCriterion(this, Operator.notBetween, lower, upper);
     }
 
@@ -158,7 +178,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param value the pattern to compare against
      * @return a {@link Criterion} that the field is LIKE the given pattern
      */
-    public Criterion like(Object value) {
+    @Nonnull
+    public Criterion like(@Nullable Object value) {
         return new LikeCriterion(this, Operator.like, value, '\0');
     }
 
@@ -172,7 +193,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param escape a character in the like pattern that escapes the '%' and '_' meta-characters and itself
      * @return a {@link Criterion} that the field is LIKE the given pattern
      */
-    public Criterion like(Object pattern, final char escape) {
+    @Nonnull
+    public Criterion like(@Nullable Object pattern, final char escape) {
         return new LikeCriterion(this, Operator.like, pattern, escape);
     }
 
@@ -180,7 +202,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param value the pattern to compare against
      * @return a {@link Criterion} that the field is NOT LIKE the given pattern
      */
-    public Criterion notLike(Object value) {
+    @Nonnull
+    public Criterion notLike(@Nullable Object value) {
         return new LikeCriterion(this, Operator.notLike, value, '\0');
     }
 
@@ -194,7 +217,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param escape a character in the like pattern that escapes the '%' and '_' meta-characters and itself
      * @return a {@link Criterion} that the field is NOT LIKE the given pattern
      */
-    public Criterion notLike(Object pattern, final char escape) {
+    @Nonnull
+    public Criterion notLike(@Nullable Object pattern, final char escape) {
         return new LikeCriterion(this, Operator.notLike, pattern, escape);
     }
 
@@ -202,7 +226,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param value the pattern to compare against
      * @return a {@link Criterion} that the field matches the given pattern
      */
-    public Criterion glob(Object value) {
+    @Nonnull
+    public Criterion glob(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.glob, value);
     }
 
@@ -210,43 +235,42 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @param value the pattern to compare against
      * @return a {@link Criterion} that the field does not match the given pattern
      */
-    public Criterion notGlob(Object value) {
+    @Nonnull
+    public Criterion notGlob(@Nullable Object value) {
         return new BinaryCriterion(this, Operator.notGlob, value);
     }
 
     /**
      * @return a {@link Criterion} that the field's value is in the list of values specified
      */
-    public Criterion in(Object... values) {
-        if (values == null) {
-            return in((Collection<?>) null);
-        }
-        return in(Arrays.asList(values));
+    @Nonnull
+    public Criterion in(@Nullable Object... values) {
+        return in(SquidUtilities.asList(values));
     }
 
     /**
      * @return a {@link Criterion} that the field's value is in the collection of values. Values that are not primitive
      * types will be converted to String literals
      */
-    public Criterion in(final Collection<?> values) {
+    @Nonnull
+    public Criterion in(@Nullable final Collection<?> values) {
         return new InCollectionCriterion(this, Operator.in, values);
     }
 
     /**
      * @return a {@link Criterion} that the field's value is not in the list of values specified
      */
-    public Criterion notIn(Object... values) {
-        if (values == null) {
-            return notIn((Collection<?>) null);
-        }
-        return notIn(Arrays.asList(values));
+    @Nonnull
+    public Criterion notIn(@Nullable Object... values) {
+        return notIn(SquidUtilities.asList(values));
     }
 
     /**
      * @return a {@link Criterion} that the field's value is not in the collection of values. Values that are not
      * primitive types will be converted to String literals
      */
-    public Criterion notIn(final Collection<?> values) {
+    @Nonnull
+    public Criterion notIn(@Nullable final Collection<?> values) {
         return new InCollectionCriterion(this, Operator.notIn, values);
     }
 
@@ -254,7 +278,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field's value is in the result of the {@link Query}. If the query is null,
      * this is equivalent to 'IN ()', which will always be false.
      */
-    public Criterion in(Query query) {
+    @Nonnull
+    public Criterion in(@Nullable Query query) {
         if (query == null) {
             return in((Collection<?>) null);
         }
@@ -265,7 +290,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
      * @return a {@link Criterion} that the field's value is not in the result of the {@link Query}. If the query is
      * null, this is equivalent to 'NOT IN ()', which will always be true.
      */
-    public Criterion notIn(Query query) {
+    @Nonnull
+    public Criterion notIn(@Nullable Query query) {
         if (query == null) {
             return notIn((Collection<?>) null);
         }
@@ -275,6 +301,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return a {@link Criterion} using this field as a literal value
      */
+    @Nonnull
     public Criterion asCriterion() {
         return Criterion.literal(this);
     }
@@ -282,6 +309,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return an {@link Order} that sorts ascending by this field's value
      */
+    @Nonnull
     public Order asc() {
         return Order.asc(this);
     }
@@ -289,6 +317,7 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return an {@link Order} that sorts descending by this field's value
      */
+    @Nonnull
     public Order desc() {
         return Order.desc(this);
     }
@@ -296,7 +325,8 @@ public class Field<TYPE> extends DBObject<Field<TYPE>> {
     /**
      * @return an {@link Order} that sorts by this field's value in the order specified by the array of values
      */
-    public Order byArray(TYPE[] order) {
+    @Nonnull
+    public Order byArray(@Nullable TYPE[] order) {
         return Order.byArray(this, order);
     }
 }

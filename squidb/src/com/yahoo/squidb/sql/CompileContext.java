@@ -10,6 +10,9 @@ import com.yahoo.squidb.utility.VersionCode;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Holds various information relevant to compiling SQL statements, including SQLite
  * {@link com.yahoo.squidb.utility.VersionCode} and an {@link ArgumentResolver} strategy for resolving higher-level
@@ -28,47 +31,56 @@ public class CompileContext {
         private ArgumentResolver argumentResolver = new DefaultArgumentResolver();
         private Map<String, Object> extras = new HashMap<>();
 
-        public Builder(VersionCode versionCode) {
+        public Builder(@Nonnull VersionCode versionCode) {
             if (versionCode == null) {
                 throw new IllegalArgumentException("Can't construct a CompileContext with a null VersionCode");
             }
             this.versionCode = versionCode;
         }
 
+        @Nonnull
         public CompileContext build() {
             return new CompileContext(this);
         }
 
-        public Builder setArgumentResolver(ArgumentResolver argumentResolver) {
+        @Nonnull
+        public Builder setArgumentResolver(@Nonnull ArgumentResolver argumentResolver) {
+            if(argumentResolver == null) {
+                throw new IllegalArgumentException("Can't construct a CompileContext with a null ArgumentResolver");
+            }
             this.argumentResolver = argumentResolver;
             return this;
         }
 
-        public Builder setExtra(String key, Object value) {
+        @Nonnull
+        public Builder setExtra(@Nullable String key, @Nullable Object value) {
             this.extras.put(key, value);
             return this;
         }
 
-        public Builder clearExtra(String key) {
+        @Nonnull
+        public Builder clearExtra(@Nullable String key) {
             this.extras.remove(key);
             return this;
         }
 
     }
 
-    private CompileContext(Builder builder) {
+    private CompileContext(@Nonnull Builder builder) {
         this.versionCode = builder.versionCode;
         this.argumentResolver = builder.argumentResolver;
         this.extras = new HashMap<>(builder.extras);
     }
 
-    public static CompileContext defaultContextForVersionCode(VersionCode sqliteVersion) {
+    @Nonnull
+    public static CompileContext defaultContextForVersionCode(@Nonnull VersionCode sqliteVersion) {
         return new CompileContext.Builder(sqliteVersion).build();
     }
 
     /**
      * @return The SQLite version for this CompileContext
      */
+    @Nonnull
     public VersionCode getVersionCode() {
         return versionCode;
     }
@@ -76,6 +88,7 @@ public class CompileContext {
     /**
      * @return the {@link ArgumentResolver} for this CompileContext
      */
+    @Nonnull
     public ArgumentResolver getArgumentResolver() {
         return argumentResolver;
     }
@@ -83,7 +96,8 @@ public class CompileContext {
     /**
      * @return the extra value set for the given key, or null if one does not exist
      */
-    public Object getExtra(String key) {
+    @Nullable
+    public Object getExtra(@Nullable String key) {
         return extras.get(key);
     }
 
@@ -92,7 +106,8 @@ public class CompileContext {
      *
      * @return this CompileContext, to chain builder-style calls
      */
-    public CompileContext setExtra(String key, Object value) {
+    @Nonnull
+    public CompileContext setExtra(@Nullable String key, @Nullable Object value) {
         extras.put(key, value);
         return this;
     }
@@ -102,7 +117,8 @@ public class CompileContext {
      *
      * @return this CompileContext, to chain builder-style calls
      */
-    public CompileContext clearExtra(String key) {
+    @Nonnull
+    public CompileContext clearExtra(@Nullable String key) {
         extras.remove(key);
         return this;
     }
@@ -110,7 +126,7 @@ public class CompileContext {
     /**
      * @return true if there is a value stored for the given key, false otherwise
      */
-    public boolean hasExtra(String key) {
+    public boolean hasExtra(@Nullable String key) {
         return extras.containsKey(key);
     }
 

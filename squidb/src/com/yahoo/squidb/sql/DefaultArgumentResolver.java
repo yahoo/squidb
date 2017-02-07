@@ -8,6 +8,8 @@ package com.yahoo.squidb.sql;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nullable;
+
 /**
  * Default implementation of {@link ArgumentResolver} that unwraps AtomicReferences, AtomicBooleans, ThreadLocals, and
  * Enum values. Users can extend DefaultArgumentResolver by overriding {@link #canResolveCustomType(Object)} and
@@ -17,7 +19,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DefaultArgumentResolver implements ArgumentResolver {
 
     @Override
-    public final Object resolveArgument(Object arg) {
+    @Nullable
+    public final Object resolveArgument(@Nullable Object arg) {
         while (true) {
             if (canResolveCustomType(arg)) {
                 arg = resolveCustomType(arg);
@@ -41,7 +44,7 @@ public class DefaultArgumentResolver implements ArgumentResolver {
      * @return true if the user wants to handle the argument using {@link #resolveCustomType(Object)}, false if the
      * default resolution logic should be used for this argument
      */
-    protected boolean canResolveCustomType(Object arg) {
+    protected boolean canResolveCustomType(@Nullable Object arg) {
         return false;
     }
 
@@ -51,7 +54,8 @@ public class DefaultArgumentResolver implements ArgumentResolver {
      *
      * @return the result of resolving/unwrapping the given argument.
      */
-    protected Object resolveCustomType(Object arg) {
+    @Nullable
+    protected Object resolveCustomType(@Nullable Object arg) {
         throw new UnsupportedOperationException("DefaultArgumentResolver#resolveCustomType unimplemented. This "
                 + "instance of DefaultArgumentResolver declared it could handle a type by returning true in "
                 + "canResolveCustomType, but did not override resolveCustomType to resolve it.");

@@ -17,10 +17,12 @@
 package com.yahoo.android.sqlite;
 
 import com.yahoo.squidb.data.ICursor;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -75,6 +77,7 @@ public abstract class AbstractCursor implements ICursor {
     /* These need to be implemented by subclasses */
     abstract public int getCount();
 
+    @Nonnull
     abstract public String[] getColumnNames();
 
     abstract public String getString(int column);
@@ -273,12 +276,13 @@ public abstract class AbstractCursor implements ICursor {
         return mPos == getCount();
     }
 
-    public int getColumnIndex(String columnName) {
+    @Override
+    public int getColumnIndex(@Nonnull String columnName) {
         // Hack according to bug 903852
         final int periodIndex = columnName.lastIndexOf('.');
         if (periodIndex != -1) {
             Exception e = new Exception();
-            Logger.e(TAG, "requesting column name with table name -- " + columnName, e);
+            SquidbLog.e(TAG, "requesting column name with table name -- " + columnName, e);
             columnName = columnName.substring(periodIndex + 1);
         }
 
@@ -292,13 +296,13 @@ public abstract class AbstractCursor implements ICursor {
 
         if (false) {
             if (getCount() > 0) {
-                Logger.w("AbstractCursor", "Unknown column " + columnName);
+                SquidbLog.w("AbstractCursor", "Unknown column " + columnName);
             }
         }
         return -1;
     }
 
-    public int getColumnIndexOrThrow(String columnName) {
+    public int getColumnIndexOrThrow(@Nonnull String columnName) {
         final int index = getColumnIndex(columnName);
         if (index < 0) {
             throw new IllegalArgumentException("column '" + columnName + "' does not exist");
@@ -306,6 +310,7 @@ public abstract class AbstractCursor implements ICursor {
         return index;
     }
 
+    @Nonnull
     public String getColumnName(int columnIndex) {
         return getColumnNames()[columnIndex];
     }

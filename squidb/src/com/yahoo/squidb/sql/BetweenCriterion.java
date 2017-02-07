@@ -5,26 +5,31 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 class BetweenCriterion extends BinaryCriterion {
 
     private final Object lower;
     private final Object upper;
 
-    BetweenCriterion(Field<?> expression, Operator operator, Object lower, Object upper) {
+    BetweenCriterion(@Nonnull Field<?> expression, @Nonnull Operator operator,
+            @Nullable Object lower, @Nullable Object upper) {
         super(expression, operator, null);
         this.lower = lower;
         this.upper = upper;
     }
 
     @Override
-    protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+    protected void afterPopulateOperator(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.addValueToSql(lower, forSqlValidation);
         builder.sql.append(" AND ");
         builder.addValueToSql(upper, forSqlValidation);
     }
 
     @Override
-    protected BinaryCriterion constructNegatedCriterion(Operator negatedOperator) {
+    @Nonnull
+    protected BinaryCriterion constructNegatedCriterion(@Nonnull Operator negatedOperator) {
         return new BetweenCriterion(field, negatedOperator, lower, upper);
     }
 }

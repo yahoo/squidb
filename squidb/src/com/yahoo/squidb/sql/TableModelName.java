@@ -2,15 +2,20 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractModel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Struct representing a pair of a model class and a table name associated with that model class.
  */
 public final class TableModelName {
 
+    @Nullable
     public final Class<? extends AbstractModel> modelClass;
+    @Nonnull
     public final String tableName;
 
-    public TableModelName(Class<? extends AbstractModel> modelClass, String tableName) {
+    public TableModelName(@Nullable Class<? extends AbstractModel> modelClass, @Nonnull String tableName) {
         this.modelClass = modelClass;
         this.tableName = tableName;
     }

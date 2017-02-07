@@ -162,8 +162,8 @@ public class InsertTest extends DatabaseTestCase {
 
         assertNotNull(newThing);
         assertEquals(Thing.DEFAULT_FOO, newThing.getFoo());
-        assertEquals(Thing.DEFAULT_BAR, newThing.getBar().intValue());
-        assertEquals(Thing.DEFAULT_IS_ALIVE, newThing.isAlive().booleanValue());
+        assertEquals((Integer) Thing.DEFAULT_BAR, newThing.getBar());
+        assertEquals((Boolean) Thing.DEFAULT_IS_ALIVE, newThing.isAlive());
     }
 
     public void testInsertWithCoflictIgnore() {
@@ -193,12 +193,13 @@ public class InsertTest extends DatabaseTestCase {
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 
-        TestModel withSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel withSameLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
-        assertEquals(sam.getFirstName(), withSamLastName.getFirstName());
-        assertEquals(sam.getLastName(), withSamLastName.getLastName());
-        assertEquals(sam.isHappy(), withSamLastName.isHappy());
-        assertEquals(sam.getLuckyNumber(), withSamLastName.getLuckyNumber());
+        assertNotNull(withSameLastName);
+        assertEquals(sam.getFirstName(), withSameLastName.getFirstName());
+        assertEquals(sam.getLastName(), withSameLastName.getLastName());
+        assertEquals(sam.isHappy(), withSameLastName.isHappy());
+        assertEquals(sam.getLuckyNumber(), withSameLastName.getLuckyNumber());
     }
 
     public void testInsertWithCoflictReplace() {
@@ -228,12 +229,13 @@ public class InsertTest extends DatabaseTestCase {
 
         assertEquals(rowsBeforeInsert, rowsAfterInsert);
 
-        TestModel modelWithSamLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
+        TestModel modelWithSameLastName = database.fetchByCriterion(TestModel.class, TestModel.LAST_NAME.eq(lname),
                 TestModel.PROPERTIES);
-        assertEquals(fname, modelWithSamLastName.getFirstName());
-        assertEquals(lname, modelWithSamLastName.getLastName());
-        assertEquals(Boolean.valueOf(isHappy), modelWithSamLastName.isHappy());
-        assertEquals(Integer.valueOf(luckyNumber), modelWithSamLastName.getLuckyNumber());
+        assertNotNull(modelWithSameLastName);
+        assertEquals(fname, modelWithSameLastName.getFirstName());
+        assertEquals(lname, modelWithSameLastName.getLastName());
+        assertEquals((Boolean) isHappy, modelWithSameLastName.isHappy());
+        assertEquals((Integer) luckyNumber, modelWithSameLastName.getLuckyNumber());
     }
 
     public void testColumnsSpecifiedButValuesMissingThrowsIllegalStateException() {

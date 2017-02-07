@@ -17,7 +17,7 @@
 package com.yahoo.android.sqlite;
 
 import com.yahoo.android.sqlite.SQLiteDatabase.CursorFactory;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.io.File;
 
@@ -247,7 +247,7 @@ public abstract class SQLiteOpenHelper {
                     if (writable) {
                         throw ex;
                     }
-                    Logger.e(TAG, "Couldn't open " + mName
+                    SquidbLog.e(TAG, "Couldn't open " + mName
                             + " for writing (will try read-only):", ex);
                     final String path = mDatabasePath.getPath(); //mContext.getDatabasePath(mName).getPath();
                     db = SQLiteDatabase.openDatabase(path, mFactory,
@@ -285,7 +285,7 @@ public abstract class SQLiteOpenHelper {
             onOpen(db);
 
             if (db.isReadOnly()) {
-                Logger.w(TAG, "Opened " + mName + " in read-only mode");
+                SquidbLog.w(TAG, "Opened " + mName + " in read-only mode");
             }
 
             mDatabase = db;

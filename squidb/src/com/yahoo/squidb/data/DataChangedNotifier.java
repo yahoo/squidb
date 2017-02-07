@@ -14,6 +14,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Subclasses of DataChangedNotifier can be registered with an instance of {@link SquidDatabase} to receive
  * notifications whenever a table they are interested in is updated.
@@ -73,21 +76,22 @@ public abstract class DataChangedNotifier<T> {
     /**
      * For constructing a DataChangedNotifier that will be notified of changes to the given tables
      */
-    public DataChangedNotifier(SqlTable<?>... tables) {
+    public DataChangedNotifier(@Nonnull SqlTable<?>... tables) {
         SquidUtilities.addAll(this.tables, tables);
     }
 
     /**
      * For constructing a DataChangedNotifier that will be notified of changes to the given tables
      */
-    public DataChangedNotifier(Collection<? extends SqlTable<?>> tables) {
+    public DataChangedNotifier(@Nonnull Collection<? extends SqlTable<?>> tables) {
         this.tables.addAll(tables);
     }
 
     /**
      * @return a set of {@link SqlTable SqlTables} that this DataChangedNotifier wants to receive notifications about.
-     * If this method returns an empty list, it will receive notifications about all database updates.
+     * If this method returns an empty set, it will receive notifications about all database updates.
      */
+    @Nonnull
     public Set<SqlTable<?>> whichTables() {
         return tables;
     }
@@ -101,8 +105,8 @@ public abstract class DataChangedNotifier<T> {
     }
 
     // Called by SquidDatabase for each data change
-    final boolean onDataChanged(SqlTable<?> table, SquidDatabase database, DBOperation operation,
-            AbstractModel modelValues, long rowId) {
+    final boolean onDataChanged(@Nonnull SqlTable<?> table, @Nonnull SquidDatabase database,
+            @Nonnull DBOperation operation, @Nullable AbstractModel modelValues, long rowId) {
         return enabled && accumulateNotificationObjects(notifyObjectAccumulator.get(), table, database, operation,
                 modelValues, rowId);
     }
@@ -113,7 +117,8 @@ public abstract class DataChangedNotifier<T> {
      * DataChangedNotifier&lt;Uri&gt;). If you want to just run arbitrary code after a data change, the object could be
      * a Runnable.
      *
-     * @param accumulatorSet add objects to be notified at the end of a successful transaction to this data set
+     * @param accumulatorSet add objects to be notified at the end of a successful transaction to this data set. You
+     * should not add a null value to this set; if you do, it will be ignored.
      * @param table the affected table.
      * @param database the SquidDatabase instance this change occurred in
      * @param operation the type of database write that occurred
@@ -124,12 +129,13 @@ public abstract class DataChangedNotifier<T> {
      * @param rowId the single row id that was updated, if applicable
      * @return true if any objects were added to the accumulator set to be notified, false otherwise
      */
-    protected abstract boolean accumulateNotificationObjects(Set<T> accumulatorSet, SqlTable<?> table,
-            SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId);
+    protected abstract boolean accumulateNotificationObjects(@Nonnull Set<T> accumulatorSet, @Nonnull SqlTable<?> table,
+            @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+            @Nullable AbstractModel modelValues, long rowId);
 
     // Called by SquidDatabase when a transaction or statement has finished and any accumulated notifications should be
     // flushed/sent
-    final void flushAccumulatedNotifications(SquidDatabase database, boolean shouldSendNotifications) {
+    final void flushAccumulatedNotifications(@Nonnull SquidDatabase database, boolean shouldSendNotifications) {
         Set<T> accumulatedNotifications = notifyObjectAccumulator.get();
         if (enabled && shouldSendNotifications) {
             sendNotificationsToAll(database, accumulatedNotifications);
@@ -145,9 +151,11 @@ public abstract class DataChangedNotifier<T> {
      * @param database the SquidDatabase the change occurred in
      * @param notifyObjects the objects to be used for sending a notification
      */
-    protected void sendNotificationsToAll(SquidDatabase database, Set<T> notifyObjects) {
+    protected void sendNotificationsToAll(@Nonnull SquidDatabase database, @Nonnull Set<T> notifyObjects) {
         for (T notifyObject : notifyObjects) {
-            sendNotification(database, notifyObject);
+            if (notifyObject != null) {
+                sendNotification(database, notifyObject);
+            }
         }
     }
 
@@ -160,6 +168,6 @@ public abstract class DataChangedNotifier<T> {
      * @param database the SquidDatabase the change occurred in
      * @param notifyObject the object to be used for sending a notification
      */
-    protected abstract void sendNotification(SquidDatabase database, T notifyObject);
+    protected abstract void sendNotification(@Nonnull SquidDatabase database, @Nonnull T notifyObject);
 
 }

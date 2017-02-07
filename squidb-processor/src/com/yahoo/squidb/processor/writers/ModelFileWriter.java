@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.lang.model.element.Modifier;
 
 public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
@@ -149,6 +150,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
         MethodSpec.Builder getDefaultValues = MethodSpec.methodBuilder("getDefaultValues")
                 .addAnnotation(Override.class)
+                .addAnnotation(Nonnull.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeConstants.VALUES_STORAGE)
                 .addStatement("return $L", DEFAULT_VALUES_NAME);

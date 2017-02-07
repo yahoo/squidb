@@ -11,6 +11,9 @@ import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A SQLite virtual table, which is an interface to an external storage or computation engine that appears to be a
  * table but does not actually store information in the database file. Virtual tables are implemented using a module
@@ -23,13 +26,13 @@ public class VirtualTable extends Table {
     private final String moduleName;
     private final Field<String> anyColumn;
 
-    public VirtualTable(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name,
-            String databaseName, String module) {
+    public VirtualTable(@Nonnull Class<? extends TableModel> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String name, @Nullable String databaseName, @Nonnull String module) {
         this(modelClass, properties, name, databaseName, module, null);
     }
 
-    private VirtualTable(Class<? extends TableModel> modelClass, List<Property<?>> properties, String name,
-            String databaseName, String module, String alias) {
+    private VirtualTable(@Nonnull Class<? extends TableModel> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String name, @Nullable String databaseName, @Nonnull String module, @Nullable String alias) {
         super(modelClass, properties, name, databaseName);
         this.moduleName = module;
         this.alias = alias;
@@ -44,7 +47,8 @@ public class VirtualTable extends Table {
     }
 
     @Override
-    public VirtualTable qualifiedFromDatabase(String databaseName) {
+    @Nonnull
+    public VirtualTable qualifiedFromDatabase(@Nonnull String databaseName) {
         VirtualTable result = new VirtualTable(modelClass, properties, getExpression(),
                 databaseName, moduleName, alias);
         result.rowidProperty = rowidProperty;
@@ -52,12 +56,14 @@ public class VirtualTable extends Table {
     }
 
     @Override
-    public VirtualTable as(String newAlias) {
+    @Nonnull
+    public VirtualTable as(@Nonnull String newAlias) {
         return (VirtualTable) super.as(newAlias);
     }
 
     @Override
-    protected VirtualTable asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
+    @Nonnull
+    protected VirtualTable asNewAliasWithProperties(@Nonnull String newAlias, @Nonnull List<Property<?>> newProperties) {
         return new VirtualTable(modelClass, newProperties, getExpression(), qualifier, moduleName, newAlias);
     }
 
@@ -66,11 +72,13 @@ public class VirtualTable extends Table {
      * queries on virtual tables using fts3 or fts4.
      * @see <a href="http://www.sqlite.org/fts3.html#section_3">http://www.sqlite.org/fts3.html#section_3</a>
      */
-    public Criterion match(String value) {
+    @Nonnull
+    public Criterion match(@Nullable String value) {
         return new BinaryCriterion(anyColumn, Operator.match, value);
     }
 
     @Override
+    @Nonnull
     public String toString() {
         return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " module=" + moduleName;
     }
@@ -80,10 +88,10 @@ public class VirtualTable extends Table {
      * call this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
     @Override
-    public void appendCreateTableSql(CompileContext compileContext, StringBuilder sql,
-            PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql,
+            @Nonnull PropertyVisitor<Void, StringBuilder> propertyVisitor) {
         sql.append("CREATE VIRTUAL TABLE ");
-        if (compileContext != null && compileContext.getVersionCode().isAtLeast(SQLITE_VERSION_IF_NOT_EXISTS)) {
+        if (compileContext.getVersionCode().isAtLeast(SQLITE_VERSION_IF_NOT_EXISTS)) {
             sql.append("IF NOT EXISTS ");
         }
         sql.append(getExpression()).append(" USING ").append(moduleName).append('(');

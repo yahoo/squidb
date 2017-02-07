@@ -32,6 +32,7 @@ public class UpsertTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestSingleColumnUpsertable.class));
         TestSingleColumnUpsertable fetchedItem = database.fetchByCriterion(TestSingleColumnUpsertable.class,
                 TestSingleColumnUpsertable.GUID.eq("key"));
+        assertNotNull(fetchedItem);
         assertEquals("newValue1", fetchedItem.getValue1());
         assertEquals("value2", fetchedItem.getValue2());
     }
@@ -59,6 +60,7 @@ public class UpsertTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestSingleColumnUpsertable.class));
         TestSingleColumnUpsertable fetchedItem = database.fetchByCriterion(TestSingleColumnUpsertable.class,
                 TestSingleColumnUpsertable.GUID.eq("key"));
+        assertNotNull(fetchedItem);
         assertEquals("newValue1", fetchedItem.getValue1());
         assertEquals("value2", fetchedItem.getValue2());
     }
@@ -93,6 +95,7 @@ public class UpsertTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestMultiColumnUpsertable.class));
         TestMultiColumnUpsertable fetchedItem = database.fetchByCriterion(TestMultiColumnUpsertable.class,
                 TestMultiColumnUpsertable.KEY_1.eq("key1").and(TestMultiColumnUpsertable.KEY_2.eq("key2")));
+        assertNotNull(fetchedItem);
         assertEquals("newValue1", fetchedItem.getValue1());
         assertEquals("value2", fetchedItem.getValue2());
     }
@@ -130,6 +133,7 @@ public class UpsertTest extends DatabaseTestCase {
         assertEquals(1, database.countAll(TestMultiColumnUpsertable.class));
         TestMultiColumnUpsertable fetchedItem = database.fetchByCriterion(TestMultiColumnUpsertable.class,
                 TestMultiColumnUpsertable.KEY_1.eq("key1").and(TestMultiColumnUpsertable.KEY_2.eq("key2")));
+        assertNotNull(fetchedItem);
         assertEquals("newValue1", fetchedItem.getValue1());
         assertEquals("value2", fetchedItem.getValue2());
     }

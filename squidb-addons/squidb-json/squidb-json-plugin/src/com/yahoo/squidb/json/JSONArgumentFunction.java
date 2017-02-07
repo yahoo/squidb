@@ -4,6 +4,9 @@ import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.SqlBuilder;
 import com.yahoo.squidb.utility.VersionCode;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 class JSONArgumentFunction<TYPE> extends Function<TYPE> {
 
     private final VersionCode minVersion;
@@ -11,11 +14,12 @@ class JSONArgumentFunction<TYPE> extends Function<TYPE> {
     private final Object jsonArg;
     private final Object[] additionalArgs;
 
-    JSONArgumentFunction(String functionName, Object jsonArg, Object... additionalArgs) {
+    JSONArgumentFunction(@Nonnull String functionName, @Nullable Object jsonArg, @Nonnull Object... additionalArgs) {
         this(JSONFunctions.JSON1_MIN_VERSION, functionName, jsonArg, additionalArgs);
     }
 
-    JSONArgumentFunction(VersionCode minVersion, String functionName, Object jsonArg, Object... additionalArgs) {
+    JSONArgumentFunction(@Nonnull VersionCode minVersion, @Nonnull String functionName, @Nullable Object jsonArg,
+            @Nonnull Object... additionalArgs) {
         super();
         this.minVersion = minVersion;
         this.functionName = functionName;
@@ -24,7 +28,7 @@ class JSONArgumentFunction<TYPE> extends Function<TYPE> {
     }
 
     @Override
-    protected void appendFunctionExpression(SqlBuilder builder, boolean forSqlValidation) {
+    protected void appendFunctionExpression(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (!builder.compileContext.getVersionCode().isAtLeast(minVersion)) {
             throw new UnsupportedOperationException("The function " + functionName + " is not supported on SQLite "
                     + "version " + builder.compileContext.getVersionCode() + " - requires version " + minVersion +

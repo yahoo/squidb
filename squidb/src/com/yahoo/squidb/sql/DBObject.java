@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A SQLite database object
  */
@@ -17,7 +20,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     /**
      * @param expression the string-literal representation of this object
      */
-    protected DBObject(String expression) {
+    protected DBObject(@Nonnull String expression) {
         this(expression, null);
     }
 
@@ -26,7 +29,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * @param qualifier the string-literal representation of a qualifying object, e.g. a table name if this object
      * represents a column
      */
-    protected DBObject(String expression, String qualifier) {
+    protected DBObject(@Nonnull String expression, @Nullable String qualifier) {
         this.expression = expression;
         this.qualifier = qualifier;
     }
@@ -35,7 +38,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * Clones this object with an alias
      */
     @SuppressWarnings("unchecked")
-    public T as(String newAlias) {
+    public T as(@Nonnull String newAlias) {
         try {
             T clone = (T) clone();
             clone.alias = newAlias;
@@ -60,7 +63,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
@@ -97,11 +100,13 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * subclasses will not need to override this; only classes like {@link Function} or {@link Property} where
      * {@link #getExpression()} is implemented differently need to care about this.
      */
+    @Nonnull
     protected String expressionForComparison() {
         return getExpression();
     }
 
     @Override
+    @Nonnull
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Expression=").append(expressionForComparison());
@@ -117,6 +122,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     /**
      * @return the string-literal representation of this object, or its alias (if it has one)
      */
+    @Nonnull
     public final String getName() {
         if (hasAlias()) {
             return alias;
@@ -127,6 +133,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     /**
      * @return the string-literal representation of this object
      */
+    @Nonnull
     public String getExpression() {
         return expression;
     }
@@ -134,6 +141,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
     /**
      * @return the string-literal representation of this object, prepended with its qualifier (if it has one)
      */
+    @Nonnull
     public final String getQualifiedExpression() {
         StringBuilder builder = new StringBuilder();
         appendQualifiedExpressionToStringBuilder(builder);
@@ -147,7 +155,7 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
      * @param forSqlValidation true if this statement is being compiled to validate against malicious SQL
      */
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         appendQualifiedExpression(builder, forSqlValidation);
         if (hasAlias()) {
             builder.sql.append(" AS ").append(alias);
@@ -156,11 +164,11 @@ abstract class DBObject<T extends DBObject<?>> extends CompilableWithArguments i
         }
     }
 
-    protected void appendQualifiedExpression(SqlBuilder builder, boolean forSqlValidation) {
+    protected void appendQualifiedExpression(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         appendQualifiedExpressionToStringBuilder(builder.sql);
     }
 
-    private void appendQualifiedExpressionToStringBuilder(StringBuilder builder) {
+    private void appendQualifiedExpressionToStringBuilder(@Nonnull StringBuilder builder) {
         if (hasQualifier()) {
             builder.append(qualifier).append('.');
         }

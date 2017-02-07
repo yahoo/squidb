@@ -218,8 +218,9 @@ public class UpdateTest extends DatabaseTestCase {
         try {
             int index = 0;
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                int newValue = cursor.get(TestModel.LUCKY_NUMBER) + 1;
-                expectedResults[index++] = newValue;
+                Integer newValue = cursor.get(TestModel.LUCKY_NUMBER);
+                assertNotNull(newValue);
+                expectedResults[index++] = (newValue + 1);
             }
         } finally {
             cursor.close();
@@ -238,7 +239,7 @@ public class UpdateTest extends DatabaseTestCase {
         try {
             int index = 0;
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                assertEquals(expectedResults[index++], cursor.get(TestModel.LUCKY_NUMBER).intValue());
+                assertEquals((Integer) expectedResults[index++], cursor.get(TestModel.LUCKY_NUMBER));
             }
         } finally {
             cursor.close();

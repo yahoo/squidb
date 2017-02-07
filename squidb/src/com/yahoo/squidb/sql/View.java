@@ -7,7 +7,11 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
 
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A SQLite View. Views are read-only tables composed from a pre-defined SELECT statement.
@@ -16,8 +20,9 @@ public class View extends QueryTable {
 
     private boolean temporary;
 
-    private View(Class<? extends ViewModel> modelClass, List<Property<?>> properties, String expression,
-            String databaseName, String alias, Query query, boolean temporary) {
+    private View(@Nullable Class<? extends ViewModel> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String expression, @Nullable String databaseName, @Nullable String alias,
+            @Nonnull Query query, boolean temporary) {
         super(modelClass, properties, expression, databaseName, query);
         this.alias = alias;
         this.temporary = temporary;
@@ -30,8 +35,9 @@ public class View extends QueryTable {
      * @param name the name for this View
      * @return a new View instance
      */
-    public static View fromQuery(Query query, String name) {
-        return fromQuery(query, name, null, null);
+    @Nonnull
+    public static View fromQuery(@Nonnull Query query, @Nonnull String name) {
+        return new View(null, Collections.<Property<?>>emptyList(), name, null, null, query, false);
     }
 
     /**
@@ -42,8 +48,9 @@ public class View extends QueryTable {
      * @param modelClass the model class representing this View
      * @return a new View instance
      */
-    public static View fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            List<Property<?>> properties) {
+    @Nonnull
+    public static View fromQuery(@Nonnull Query query, @Nonnull String name,
+            @Nonnull Class<? extends ViewModel> modelClass, @Nonnull List<Property<?>> properties) {
         return new View(modelClass, properties, name, null, null, query, false);
     }
 
@@ -54,8 +61,9 @@ public class View extends QueryTable {
      * @param name the name for this View
      * @return a new View instance
      */
-    public static View temporaryFromQuery(Query query, String name) {
-        return temporaryFromQuery(query, name, null, null);
+    @Nonnull
+    public static View temporaryFromQuery(@Nonnull Query query, @Nonnull String name) {
+        return new View(null, Collections.<Property<?>>emptyList(), name, null, null, query, true);
     }
 
     /**
@@ -66,22 +74,26 @@ public class View extends QueryTable {
      * @param modelClass the model class representing this View
      * @return a new View instance
      */
-    public static View temporaryFromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            List<Property<?>> properties) {
+    @Nonnull
+    public static View temporaryFromQuery(@Nonnull Query query, @Nonnull String name,
+            @Nonnull Class<? extends ViewModel> modelClass, @Nonnull List<Property<?>> properties) {
         return new View(modelClass, properties, name, null, null, query, true);
     }
 
-    public View qualifiedFromDatabase(String databaseName) {
+    @Nonnull
+    public View qualifiedFromDatabase(@Nonnull String databaseName) {
         return new View(modelClass, properties, getExpression(), databaseName, alias, query, temporary);
     }
 
     @Override
-    public View as(String newAlias) {
+    @Nonnull
+    public View as(@Nonnull String newAlias) {
         return (View) super.as(newAlias);
     }
 
     @Override
-    protected View asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
+    @Nonnull
+    protected View asNewAliasWithProperties(@Nonnull String newAlias, @Nonnull List<Property<?>> newProperties) {
         return new View(modelClass, newProperties, getExpression(), qualifier, newAlias, query, temporary);
     }
 
@@ -89,7 +101,7 @@ public class View extends QueryTable {
      * Append the SQL statement that creates this View to the given {@link StringBuilder}. Users should not call
      * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build views automatically.
      */
-    public void createViewSql(CompileContext compileContext, StringBuilder sql) {
+    public void createViewSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql) {
         sql.append("CREATE ");
         if (temporary) {
             sql.append("TEMPORARY ");

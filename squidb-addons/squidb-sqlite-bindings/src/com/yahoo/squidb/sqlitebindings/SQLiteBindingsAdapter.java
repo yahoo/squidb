@@ -16,6 +16,9 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteTransactionListener;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * ISQLiteDatabase implementation that wraps {@link org.sqlite.database.sqlite.SQLiteDatabase} from the Android
  * SQLite bindings project (https://www.sqlite.org/android/doc/trunk/www/index.wiki)
@@ -27,6 +30,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
      * from source with their own version of SQLite, they should update this definition to match the version of SQLite
      * used.
      */
+    @Nonnull
     public static final VersionCode SQLITE_VERSION = new VersionCode(3, 15, 0, 0);
 
     private final SQLiteDatabase db;
@@ -42,7 +46,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
 
         private final SquidTransactionListener listener;
 
-        private SQLiteTransactionListenerAdapter(SquidTransactionListener listener) {
+        private SQLiteTransactionListenerAdapter(@Nonnull SquidTransactionListener listener) {
             this.listener = listener;
         }
 
@@ -73,12 +77,12 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void beginTransactionWithListener(SquidTransactionListener listener) {
+    public void beginTransactionWithListener(@Nonnull SquidTransactionListener listener) {
         db.beginTransactionWithListener(new SQLiteTransactionListenerAdapter(listener));
     }
 
     @Override
-    public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
+    public void beginTransactionWithListenerNonExclusive(@Nonnull SquidTransactionListener listener) {
         db.beginTransactionWithListenerNonExclusive(new SQLiteTransactionListenerAdapter(listener));
     }
 
@@ -88,12 +92,12 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void execSQL(String sql) {
+    public void execSQL(@Nonnull String sql) {
         db.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) {
+    public void execSQL(@Nonnull String sql, @Nullable Object[] bindArgs) {
         db.execSQL(sql, bindArgs);
     }
 
@@ -118,13 +122,15 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public ICursor rawQuery(String sql, Object[] bindArgs) {
+    @Nonnull
+    public ICursor rawQuery(@Nonnull String sql, @Nullable Object[] bindArgs) {
         return new SquidCursorWrapper(
                 db.rawQueryWithFactory(new SQLiteBindingsCursorFactory(bindArgs), sql, null, null));
     }
 
     @Override
-    public String simpleQueryForString(String sql, Object[] bindArgs) {
+    @Nullable
+    public String simpleQueryForString(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -138,7 +144,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public long simpleQueryForLong(String sql, Object[] bindArgs) {
+    public long simpleQueryForLong(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -202,6 +208,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
+    @Nonnull
     public String getPath() {
         return db.getPath();
     }
@@ -247,7 +254,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public int executeUpdateDelete(String sql, Object[] bindArgs) {
+    public int executeUpdateDelete(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -261,7 +268,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public long executeInsert(String sql, Object[] bindArgs) {
+    public long executeInsert(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -275,7 +282,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void ensureSqlCompiles(String sql) {
+    public void ensureSqlCompiles(@Nonnull String sql) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -287,11 +294,13 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public ISQLitePreparedStatement prepareStatement(String sql) {
+    @Nonnull
+    public ISQLitePreparedStatement prepareStatement(@Nonnull String sql) {
         return new SQLiteBindingsStatementAdapter(db.compileStatement(sql));
     }
 
     @Override
+    @Nonnull
     public SQLiteDatabase getWrappedObject() {
         return db;
     }

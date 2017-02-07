@@ -66,6 +66,7 @@ public class ProjectionMapTest extends SquidTestCase {
         ProjectionMap map = new ProjectionMap();
         map.put(key, TestModel.FIRST_NAME);
         Field<?> field = map.get(key);
+        assertNotNull(field);
         assertEquals(key, field.getName());
     }
 

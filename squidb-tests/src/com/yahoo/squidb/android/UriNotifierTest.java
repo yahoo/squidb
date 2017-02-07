@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class UriNotifierTest extends DatabaseTestCase {
 
     private static final Uri CONTENT_URI = Uri.parse("content://com.yahoo.squidb/androidTestModels");
@@ -33,8 +36,9 @@ public class UriNotifierTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+        protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                @Nonnull SquidDatabase database, @Nonnull DBOperation operation, @Nullable AbstractModel modelValues,
+                long rowId) {
             return accumulatorSet.add(CONTENT_URI);
         }
     }
@@ -94,8 +98,9 @@ public class UriNotifierTest extends DatabaseTestCase {
             boolean nestedSuccessful) {
         UriNotifier idNotifier = new TestUriNotifier(ContextProvider.getContext()) {
             @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                    @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                    @Nullable AbstractModel modelValues, long rowId) {
                 Uri uri = CONTENT_URI;
                 if (rowId > 0) {
                     uri = uri.buildUpon().appendPath(Long.toString(rowId)).build();
@@ -185,16 +190,18 @@ public class UriNotifierTest extends DatabaseTestCase {
     public void testUriNotifierConstructors() {
         testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver()) {
             @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                    @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                    @Nullable AbstractModel modelValues, long rowId) {
                 return false;
             }
         });
         testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver(),
                 TestModel.TABLE) {
             @Override
-            protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                    SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                    @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                    @Nullable AbstractModel modelValues, long rowId) {
                 return false;
             }
         }, TestModel.TABLE);
@@ -202,8 +209,9 @@ public class UriNotifierTest extends DatabaseTestCase {
         testNotifierConstructorsInternal(new UriNotifier(ContextProvider.getContext().getContentResolver(),
                         Arrays.asList(TestModel.TABLE, Employee.TABLE)) {
                     @Override
-                    protected boolean accumulateNotificationObjects(Set<Uri> accumulatorSet, SqlTable<?> table,
-                            SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+                    protected boolean accumulateNotificationObjects(@Nonnull Set<Uri> accumulatorSet, @Nonnull SqlTable<?> table,
+                            @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                            @Nullable AbstractModel modelValues, long rowId) {
                         return false;
                     }
                 }, TestModel.TABLE, Employee.TABLE);

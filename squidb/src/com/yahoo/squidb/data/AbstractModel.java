@@ -9,11 +9,15 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
+import com.yahoo.squidb.utility.SquidUtilities;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Base class for models backed by a SQLite table or view. Attributes of a model are accessed and manipulated using
@@ -87,6 +91,7 @@ public abstract class AbstractModel implements Cloneable {
      * @return the default values for this object. These values may be shared between model instances and should not
      * be modified
      */
+    @Nonnull
     public abstract ValuesStorage getDefaultValues();
 
     // --- data store variables and management
@@ -101,23 +106,24 @@ public abstract class AbstractModel implements Cloneable {
     protected HashMap<String, Object> transitoryData = null;
 
     /** @return the database-read values for this object */
+    @Nullable
     public ValuesStorage getDatabaseValues() {
         return values;
     }
 
     /** @return the user-set values for this object */
+    @Nullable
     public ValuesStorage getSetValues() {
         return setValues;
     }
 
     /** @return a mapping of all field/value pairs merged across data sources */
+    @Nonnull
     public ValuesStorage getMergedValues() {
         ValuesStorage mergedValues = newValuesStorage();
 
         ValuesStorage defaultValues = getDefaultValues();
-        if (defaultValues != null) {
-            mergedValues.putAll(defaultValues);
-        }
+        mergedValues.putAll(defaultValues);
 
         if (values != null) {
             mergedValues.putAll(values);
@@ -135,6 +141,7 @@ public abstract class AbstractModel implements Cloneable {
      * will be a {@link MapValuesStorage}, but other implementations can be used for other platforms if appropriate
      * by overriding this method.
      */
+    @Nonnull
     protected ValuesStorage newValuesStorage() {
         return new MapValuesStorage();
     }
@@ -165,7 +172,7 @@ public abstract class AbstractModel implements Cloneable {
      * Use merged values to compare two models to each other. Must be of exactly the same class.
      */
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
         return other != null && getClass().equals(other.getClass()) && getMergedValues()
                 .equals(((AbstractModel) other).getMergedValues());
     }
@@ -176,6 +183,7 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     @Override
+    @Nonnull
     public String toString() {
         return getClass().getSimpleName() + "\n" +
                 "set values:\n" + setValues + "\n" +
@@ -183,6 +191,7 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     @Override
+    @Nonnull
     public AbstractModel clone() {
         AbstractModel clone;
         try {
@@ -220,15 +229,15 @@ public abstract class AbstractModel implements Cloneable {
      * Copies values from the given {@link ValuesStorage} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
-        readPropertiesFromValuesStorage(values, Arrays.asList(properties));
+    public void readPropertiesFromValuesStorage(@Nullable ValuesStorage values, @Nonnull Property<?>... properties) {
+        readPropertiesFromValuesStorage(values, SquidUtilities.asList(properties));
     }
 
     /**
      * Copies values from the given {@link ValuesStorage} into the model. The values will be added to the model as read
      * values (i.e. will not be considered set values or mark the model as dirty).
      */
-    public void readPropertiesFromValuesStorage(ValuesStorage values, List<? extends Property<?>> properties) {
+    public void readPropertiesFromValuesStorage(@Nullable ValuesStorage values, @Nonnull List<? extends Property<?>> properties) {
         prepareToReadProperties();
 
         if (values != null) {
@@ -243,12 +252,14 @@ public abstract class AbstractModel implements Cloneable {
     /**
      * Reads all properties from the supplied cursor into the model. This will clear any user-set values.
      */
-    public void readPropertiesFromCursor(SquidCursor<?> cursor) {
+    public void readPropertiesFromCursor(@Nullable SquidCursor<?> cursor) {
         prepareToReadProperties();
 
-        for (Field<?> field : cursor.getFields()) {
-            if (field instanceof Property<?>) {
-                readPropertyIntoModel(cursor, (Property<?>) field);
+        if (cursor != null) {
+            for (Field<?> field : cursor.getFields()) {
+                if (field instanceof Property<?>) {
+                    readPropertyIntoModel(cursor, (Property<?>) field);
+                }
             }
         }
     }
@@ -256,18 +267,20 @@ public abstract class AbstractModel implements Cloneable {
     /**
      * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
      */
-    public void readPropertiesFromCursor(SquidCursor<?> cursor, Property<?>... properties) {
-        readPropertiesFromCursor(cursor, Arrays.asList(properties));
+    public void readPropertiesFromCursor(@Nullable SquidCursor<?> cursor, @Nonnull Property<?>... properties) {
+        readPropertiesFromCursor(cursor, SquidUtilities.asList(properties));
     }
 
     /**
      * Reads the specified properties from the supplied cursor into the model. This will clear any user-set values.
      */
-    public void readPropertiesFromCursor(SquidCursor<?> cursor, List<? extends Property<?>> properties) {
+    public void readPropertiesFromCursor(@Nullable SquidCursor<?> cursor, @Nonnull List<? extends Property<?>> properties) {
         prepareToReadProperties();
 
-        for (Property<?> property : properties) {
-            readPropertyIntoModel(cursor, property);
+        if (cursor != null) {
+            for (Property<?> property : properties) {
+                readPropertyIntoModel(cursor, property);
+            }
         }
     }
 
@@ -281,7 +294,7 @@ public abstract class AbstractModel implements Cloneable {
         transitoryData = null;
     }
 
-    private void readPropertyIntoModel(SquidCursor<?> cursor, Property<?> property) {
+    private void readPropertyIntoModel(@Nonnull SquidCursor<?> cursor, @Nonnull Property<?> property) {
         try {
             saver.save(property, values, cursor.get(property));
         } catch (IllegalArgumentException e) {
@@ -295,7 +308,8 @@ public abstract class AbstractModel implements Cloneable {
      * @return the value of the specified property
      * @throws UnsupportedOperationException if the value is not found in the model
      */
-    public <TYPE> TYPE get(Property<TYPE> property) {
+    @Nullable
+    public <TYPE> TYPE get(@Nonnull Property<TYPE> property) {
         return get(property, true);
     }
 
@@ -313,7 +327,8 @@ public abstract class AbstractModel implements Cloneable {
      * @return the value of the specified property
      * @throws UnsupportedOperationException if the value is not found in the model
      */
-    public <TYPE> TYPE get(Property<TYPE> property, boolean throwOnFail) {
+    @Nullable
+    public <TYPE> TYPE get(@Nonnull Property<TYPE> property, boolean throwOnFail) {
         if (setValues != null && setValues.containsKey(property.getName())) {
             return getFromValues(property, setValues);
         } else if (values != null && values.containsKey(property.getName())) {
@@ -329,7 +344,8 @@ public abstract class AbstractModel implements Cloneable {
     }
 
     @SuppressWarnings("unchecked")
-    private <TYPE> TYPE getFromValues(Property<TYPE> property, ValuesStorage values) {
+    @Nullable
+    private <TYPE> TYPE getFromValues(@Nonnull Property<TYPE> property, @Nonnull ValuesStorage values) {
         Object value = values.get(property.getName());
 
         // Will throw a ClassCastException if the value could not be coerced to the correct type
@@ -340,7 +356,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param property the {@link Property} to check
      * @return true if a value for this property has been read from the database or set by the user
      */
-    public boolean containsValue(Property<?> property) {
+    public boolean containsValue(@Nonnull Property<?> property) {
         return valuesContainsKey(setValues, property) || valuesContainsKey(values, property);
     }
 
@@ -350,7 +366,7 @@ public abstract class AbstractModel implements Cloneable {
      * value stored (i.e. the value that would be returned by a call to {@link #get(Property)}) is not null. Does not
      * take into account column default values.
      */
-    public boolean containsNonNullValue(Property<?> property) {
+    public boolean containsNonNullValue(@Nonnull Property<?> property) {
         if (valuesContainsKey(setValues, property)) {
             return setValues.get(property.getName()) != null;
         } else if (valuesContainsKey(values, property)) {
@@ -363,11 +379,11 @@ public abstract class AbstractModel implements Cloneable {
      * @param property the {@link Property} to check
      * @return true if this property has a value that was set by the user
      */
-    public boolean fieldIsDirty(Property<?> property) {
+    public boolean fieldIsDirty(@Nonnull Property<?> property) {
         return valuesContainsKey(setValues, property);
     }
 
-    private boolean valuesContainsKey(ValuesStorage values, Property<?> property) {
+    private boolean valuesContainsKey(@Nullable ValuesStorage values, @Nonnull Property<?> property) {
         return values != null && values.containsKey(property.getName());
     }
 
@@ -376,11 +392,11 @@ public abstract class AbstractModel implements Cloneable {
     /**
      * Check whether the user has changed this property value and it should be stored for saving in the database
      */
-    protected <TYPE> boolean shouldSaveValue(Property<TYPE> property, TYPE newValue) {
+    protected <TYPE> boolean shouldSaveValue(@Nonnull Property<TYPE> property, @Nullable TYPE newValue) {
         return shouldSaveValue(property.getName(), newValue);
     }
 
-    protected boolean shouldSaveValue(String name, Object newValue) {
+    protected boolean shouldSaveValue(@Nonnull String name, @Nullable Object newValue) {
         // we've already decided to save it, so overwrite old value
         if (setValues.containsKey(name)) {
             return true;
@@ -409,7 +425,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param property the property to set
      * @param value the new value for the property
      */
-    public <TYPE> void set(Property<TYPE> property, TYPE value) {
+    public <TYPE> void set(@Nonnull Property<TYPE> property, @Nullable TYPE value) {
         if (setValues == null) {
             setValues = newValuesStorage();
         }
@@ -425,15 +441,15 @@ public abstract class AbstractModel implements Cloneable {
      * Analogous to {@link #readPropertiesFromValuesStorage(ValuesStorage, Property[])} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromValuesStorage(ValuesStorage values, Property<?>... properties) {
-        setPropertiesFromValuesStorage(values, Arrays.asList(properties));
+    public void setPropertiesFromValuesStorage(@Nullable ValuesStorage values, @Nonnull Property<?>... properties) {
+        setPropertiesFromValuesStorage(values, SquidUtilities.asList(properties));
     }
 
     /**
      * Analogous to {@link #readPropertiesFromValuesStorage(ValuesStorage, List)} but adds the values to the
      * model as set values, i.e. marks the model as dirty with these values.
      */
-    public void setPropertiesFromValuesStorage(ValuesStorage values, List<? extends Property<?>> properties) {
+    public void setPropertiesFromValuesStorage(@Nullable ValuesStorage values, @Nonnull List<? extends Property<?>> properties) {
         if (values != null) {
             if (setValues == null) {
                 setValues = newValuesStorage();
@@ -455,7 +471,7 @@ public abstract class AbstractModel implements Cloneable {
      *
      * @param property the property to clear
      */
-    public void clearValue(Property<?> property) {
+    public void clearValue(@Nonnull Property<?> property) {
         if (setValues != null && setValues.containsKey(property.getName())) {
             setValues.remove(property.getName());
         }
@@ -475,7 +491,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param value the value for the transitory data
      * @see #getTransitory(String)
      */
-    public void putTransitory(String key, Object value) {
+    public void putTransitory(@Nullable String key, @Nullable Object value) {
         if (transitoryData == null) {
             transitoryData = new HashMap<>();
         }
@@ -489,7 +505,8 @@ public abstract class AbstractModel implements Cloneable {
      * @return the transitory data if it exists, or null otherwise
      * @see #putTransitory(String, Object)
      */
-    public Object getTransitory(String key) {
+    @Nullable
+    public Object getTransitory(@Nullable String key) {
         if (transitoryData == null) {
             return null;
         }
@@ -503,7 +520,8 @@ public abstract class AbstractModel implements Cloneable {
      * @return the removed transitory value, or null if none existed
      * @see #putTransitory(String, Object)
      */
-    public Object clearTransitory(String key) {
+    @Nullable
+    public Object clearTransitory(@Nullable String key) {
         if (transitoryData == null) {
             return null;
         }
@@ -523,9 +541,10 @@ public abstract class AbstractModel implements Cloneable {
      * @return all transitory keys set on this model
      * @see #putTransitory(String, Object)
      */
+    @Nonnull
     public Set<String> getAllTransitoryKeys() {
         if (transitoryData == null) {
-            return null;
+            return Collections.emptySet();
         }
         return transitoryData.keySet();
     }
@@ -538,7 +557,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param key the key for the transitory data
      * @return true if a transitory object is set for the given key, false otherwise
      */
-    public boolean hasTransitory(String key) {
+    public boolean hasTransitory(@Nullable String key) {
         return transitoryData != null && transitoryData.containsKey(key);
     }
 
@@ -548,7 +567,7 @@ public abstract class AbstractModel implements Cloneable {
      * @param key the key for the transitory data
      * @return true if a transitory object is set for the given flag, false otherwise
      */
-    public boolean checkAndClearTransitory(String key) {
+    public boolean checkAndClearTransitory(@Nullable String key) {
         if (hasTransitory(key)) {
             clearTransitory(key);
             return true;
@@ -561,7 +580,7 @@ public abstract class AbstractModel implements Cloneable {
      */
     private static class ValuesStorageSavingVisitor implements PropertyWritingVisitor<Void, ValuesStorage, Object> {
 
-        public void save(Property<?> property, ValuesStorage newStore, Object value) {
+        public void save(@Nonnull Property<?> property, @Nonnull ValuesStorage newStore, @Nullable Object value) {
             if (value != null) {
                 property.accept(this, newStore, value);
             } else {
@@ -570,31 +589,36 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Void visitDouble(Property<Double> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitDouble(@Nonnull Property<Double> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             dst.put(property.getName(), (Double) value);
             return null;
         }
 
         @Override
-        public Void visitInteger(Property<Integer> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitInteger(@Nonnull Property<Integer> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             dst.put(property.getName(), (Integer) value);
             return null;
         }
 
         @Override
-        public Void visitLong(Property<Long> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitLong(@Nonnull Property<Long> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             dst.put(property.getName(), (Long) value);
             return null;
         }
 
         @Override
-        public Void visitString(Property<String> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitString(@Nonnull Property<String> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             dst.put(property.getName(), (String) value);
             return null;
         }
 
         @Override
-        public Void visitBoolean(Property<Boolean> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitBoolean(@Nonnull Property<Boolean> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             if (value instanceof Boolean) {
                 dst.put(property.getName(), (Boolean) value);
             } else if (value instanceof Integer) {
@@ -604,7 +628,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Void visitBlob(Property<byte[]> property, ValuesStorage dst, Object value) {
+        @Nullable
+        public Void visitBlob(@Nonnull Property<byte[]> property, @Nonnull ValuesStorage dst, @Nullable Object value) {
             dst.put(property.getName(), (byte[]) value);
             return null;
         }
@@ -614,7 +639,8 @@ public abstract class AbstractModel implements Cloneable {
     private static class ValueCastingVisitor implements PropertyVisitor<Object, Object> {
 
         @Override
-        public Object visitInteger(Property<Integer> property, Object data) {
+        @Nullable
+        public Object visitInteger(@Nonnull Property<Integer> property, @Nullable Object data) {
             if (data == null || data instanceof Integer) {
                 return data;
             } else if (data instanceof Number) {
@@ -632,7 +658,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Object visitLong(Property<Long> property, Object data) {
+        @Nullable
+        public Object visitLong(@Nonnull Property<Long> property, @Nullable Object data) {
             if (data == null || data instanceof Long) {
                 return data;
             } else if (data instanceof Number) {
@@ -650,7 +677,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Object visitDouble(Property<Double> property, Object data) {
+        @Nullable
+        public Object visitDouble(@Nonnull Property<Double> property, @Nullable Object data) {
             if (data == null || data instanceof Double) {
                 return data;
             } else if (data instanceof Number) {
@@ -666,7 +694,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Object visitString(Property<String> property, Object data) {
+        @Nullable
+        public Object visitString(@Nonnull Property<String> property, @Nullable Object data) {
             if (data == null || data instanceof String) {
                 return data;
             } else {
@@ -675,7 +704,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Object visitBoolean(Property<Boolean> property, Object data) {
+        @Nullable
+        public Object visitBoolean(@Nonnull Property<Boolean> property, @Nullable Object data) {
             if (data == null || data instanceof Boolean) {
                 return data;
             } else if (data instanceof Number) {
@@ -685,7 +715,8 @@ public abstract class AbstractModel implements Cloneable {
         }
 
         @Override
-        public Object visitBlob(Property<byte[]> property, Object data) {
+        @Nullable
+        public Object visitBlob(@Nonnull Property<byte[]> property, @Nullable Object data) {
             if (data != null && !(data instanceof byte[])) {
                 throw new ClassCastException("Data " + data + " could not be cast to byte[]");
             }

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 
@@ -200,7 +201,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeConstants.LONG_PROPERTY)
                 .addStatement("return $L", propertyName)
-                .addAnnotation(Override.class);
+                .addAnnotation(Override.class)
+                .addAnnotation(Nonnull.class);
         builder.addMethod(params.build());
     }
 
@@ -217,6 +219,7 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
                         .addParameter(TypeName.LONG, "rowid")
                         .returns(modelSpec.getGeneratedClassName())
                         .addAnnotation(Override.class)
+                        .addAnnotation(Nonnull.class)
                         .addStatement("super.setRowId(rowid)")
                         .addStatement("return this");
                 builder.addMethod(params.build());

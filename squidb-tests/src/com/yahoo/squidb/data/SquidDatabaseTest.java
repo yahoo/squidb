@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
+
 public class SquidDatabaseTest extends DatabaseTestCase {
 
     private TestHookDatabase testHookDatabase;
@@ -361,12 +363,13 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         };
         TestDatabase testDb = new TestDatabase() {
             @Override
+            @Nonnull
             public String getName() {
                 return super.getName() + "2";
             }
 
             @Override
-            protected void onTablesCreated(ISQLiteDatabase db) {
+            protected void onTablesCreated(@Nonnull ISQLiteDatabase db) {
                 super.onTablesCreated(db);
                 persist(new Thing().setFoo("foo").setBar(1));
                 if (failOnOpen.getAndSet(false)) {
@@ -375,7 +378,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             }
 
             @Override
-            protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
+            protected void onDatabaseOpenFailed(@Nonnull RuntimeException failure, int openFailureCount) {
                 getDatabase();
             }
         };
@@ -439,6 +442,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
+        @Nonnull
         public String getName() {
             return "badDb";
         }
@@ -449,7 +453,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onTablesCreated(ISQLiteDatabase db) {
+        protected void onTablesCreated(@Nonnull ISQLiteDatabase db) {
             onTablesCreatedCalled = true;
             if (shouldThrowDuringOpen) {
                 throw new RuntimeException("Simulating DB open failure");
@@ -457,7 +461,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected final boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+        protected final boolean onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
@@ -468,7 +472,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+        protected boolean onDowngrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
             onDowngradeCalled = true;
             if (shouldThrowDuringMigration) {
                 throw new RuntimeException("My name is \"NO! NO! BAD DATABASE!\". What's yours?");
@@ -479,7 +483,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onMigrationFailed(MigrationFailedException failure) {
+        protected void onMigrationFailed(@Nonnull MigrationFailedException failure) {
             onMigrationFailedCalled = true;
             migrationFailedOldVersion = failure.oldVersion;
             migrationFailedNewVersion = failure.newVersion;
@@ -491,7 +495,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
+        protected void onDatabaseOpenFailed(@Nonnull RuntimeException failure, int openFailureCount) {
             dbOpenFailureCount = openFailureCount;
             if (dbOpenFailedHandler != null) {
                 dbOpenFailedHandler.dbOpenFailed(failure, openFailureCount);
@@ -501,7 +505,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         }
 
         @Override
-        protected void onClose(ISQLiteDatabase db) {
+        protected void onClose(@Nonnull ISQLiteDatabase db) {
             if (onCloseTester != null) {
                 onCloseTester.onHook(db);
             }
@@ -531,9 +535,10 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         TestModel model = insertBasicTestModel();
 
         TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+        assertNotNull(fetch);
         assertEquals("Sam", fetch.getFirstName());
         assertEquals("Bosley", fetch.getLastName());
-        assertEquals(testDate, fetch.getBirthday().longValue());
+        assertEquals((Long) testDate, fetch.getBirthday());
     }
 
     public void testPropertiesAreNullable() {
@@ -546,19 +551,21 @@ public class SquidDatabaseTest extends DatabaseTestCase {
         database.persist(model);
 
         TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
+        assertNotNull(fetch);
         assertNull(fetch.getFirstName());
         assertNull(fetch.getLastName());
     }
 
     public void testBooleanProperties() {
         TestModel model = insertBasicTestModel();
-        assertTrue(model.isHappy());
+        assertNonNullAndTrue(model.isHappy());
 
         model.setIsHappy(false);
-        assertFalse(model.isHappy());
+        assertNonNullAndFalse(model.isHappy());
         database.persist(model);
         TestModel fetch = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
-        assertFalse(fetch.isHappy());
+        assertNotNull(fetch);
+        assertNonNullAndFalse(fetch.isHappy());
     }
 
     public void testQueriesWithBooleanPropertiesWork() {
@@ -571,7 +578,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             assertEquals(1, result.getCount());
             result.moveToFirst();
             model = new TestModel(result);
-            assertTrue(model.isHappy());
+            assertNonNullAndTrue(model.isHappy());
 
             model.setIsHappy(false);
             database.persist(model);
@@ -586,7 +593,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
             assertEquals(1, result.getCount());
             result.moveToFirst();
             model = new TestModel(result);
-            assertFalse(model.isHappy());
+            assertNonNullAndFalse(model.isHappy());
         } finally {
             result.close();
         }
@@ -624,6 +631,7 @@ public class SquidDatabaseTest extends DatabaseTestCase {
 
         Query query = Query.select().limit(2, 1);
         TestModel fetched = database.fetchByQuery(TestModel.class, query);
+        assertNotNull(fetched);
         assertEquals(model2.getRowId(), fetched.getRowId());
         assertEquals(Field.field("2"), query.getLimit());
         assertEquals(Field.field("1"), query.getOffset());

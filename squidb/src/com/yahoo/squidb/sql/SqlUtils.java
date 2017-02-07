@@ -7,24 +7,28 @@ package com.yahoo.squidb.sql;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class SqlUtils {
 
     private SqlUtils() {
         /* no instantiation */
     }
 
-    public static boolean isEmpty(String str) {
+    public static boolean isEmpty(@Nullable String str) {
         return str == null || str.isEmpty();
     }
 
-    public static boolean equals(String a, String b) {
+    public static boolean equals(@Nullable String a, @Nullable String b) {
         if (a == null) {
             return b == null;
         }
         return a.equals(b);
     }
 
-    static void addInlineCollectionToSqlString(StringBuilder sql, ArgumentResolver argResolver, Collection<?> values) {
+    static void addInlineCollectionToSqlString(@Nonnull StringBuilder sql, @Nonnull ArgumentResolver argResolver,
+            @Nullable Collection<?> values) {
         if (values != null && !values.isEmpty()) {
             for (Object value : values) {
                 sql.append(toSanitizedString(value, argResolver));
@@ -37,7 +41,8 @@ public class SqlUtils {
     /**
      * Convert an arbitrary object to a string. If the object itself is a {@link String}, it will be sanitized.
      */
-    static String toSanitizedString(Object value, ArgumentResolver argResolver) {
+    @Nonnull
+    static String toSanitizedString(@Nullable Object value, @Nonnull ArgumentResolver argResolver) {
         value = argResolver.resolveArgument(value);
         if (value == null) {
             return "NULL";
@@ -57,7 +62,8 @@ public class SqlUtils {
     private static final char[] hexChars =
             {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-    static String byteArrayToBlobLiteral(byte[] blob) {
+    @Nonnull
+    static String byteArrayToBlobLiteral(@Nonnull byte[] blob) {
         if (blob.length == 0) {
             return "X''"; // Empty blob
         }
@@ -78,7 +84,8 @@ public class SqlUtils {
     /**
      * Sanitize a {@link String} for use in a SQL statement
      */
-    static String sanitizeStringAsLiteral(String literal) {
+    @Nonnull
+    static String sanitizeStringAsLiteral(@Nullable String literal) {
         if (literal == null) {
             return "NULL";
         }
@@ -130,7 +137,8 @@ public class SqlUtils {
      * @throws IllegalArgumentException if the escape character is '_' or '%'
      * @see com.yahoo.squidb.sql.Field#like(Object, char)
      */
-    public static String escapeLikePattern(String pattern, char escape) {
+    @Nonnull
+    public static String escapeLikePattern(@Nullable String pattern, char escape) {
         if (escape == '%' || escape == '_') {
             throw new IllegalArgumentException("Invalid escape character: " + escape);
         }

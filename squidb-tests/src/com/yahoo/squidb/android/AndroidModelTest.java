@@ -59,6 +59,7 @@ public class AndroidModelTest extends DatabaseTestCase {
 
         // Check the types stored in the values
         ValuesStorage checkTypesOn = useSetValues ? fromValues.getSetValues() : fromValues.getDatabaseValues();
+        assertNotNull(checkTypesOn);
         assertTrue(checkTypesOn.get(TestModel.FIRST_NAME.getName()) instanceof String);
         assertTrue(checkTypesOn.get(TestModel.LAST_NAME.getName()) instanceof String);
         assertTrue(checkTypesOn.get(TestModel.BIRTHDAY.getName()) instanceof Long);
@@ -69,10 +70,10 @@ public class AndroidModelTest extends DatabaseTestCase {
         // Check the types using the model getters
         assertEquals("A", fromValues.getFirstName());
         assertEquals("B", fromValues.getLastName());
-        assertEquals(1L, fromValues.getBirthday().longValue());
-        assertTrue(fromValues.isHappy());
+        assertEquals((Long) 1L, fromValues.getBirthday());
+        assertNonNullAndTrue(fromValues.isHappy());
         assertEquals(1.0, fromValues.getSomeDouble());
-        assertEquals(1, fromValues.get$123abc().intValue());
+        assertEquals((Integer) 1, fromValues.get$123abc());
 
         values.clear();
         values.put(TestModel.IS_HAPPY.getName(), "ABC");
@@ -97,11 +98,13 @@ public class AndroidModelTest extends DatabaseTestCase {
         model.setFirstName("B");
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);
-        assertTrue(model.isHappy()); // Test default values
+        assertNonNullAndTrue(model.isHappy()); // Test default values
+        assertNotNull(model.getDatabaseValues());
         model.getDatabaseValues().put(TestModel.IS_HAPPY.getName(), 0);
-        assertFalse(model.isHappy()); // Test database values
+        assertNonNullAndFalse(model.isHappy()); // Test database values
+        assertNotNull(model.getSetValues());
         model.getSetValues().put(TestModel.IS_HAPPY.getName(), 1);
-        assertTrue(model.isHappy()); // Test set values
+        assertNonNullAndTrue(model.isHappy()); // Test set values
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
     }

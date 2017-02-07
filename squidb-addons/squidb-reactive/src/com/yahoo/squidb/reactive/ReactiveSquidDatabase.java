@@ -12,9 +12,13 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.SqlTable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import rx.Observable;
 import rx.functions.Func1;
@@ -57,10 +61,10 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     private static final Set<SqlTable<?>> INITIAL_TABLE = new HashSet<>();
 
     static {
-        INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
+        INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, Collections.<Property<?>>emptyList(), "<initial>") {
             @Override
-            protected SqlTable<AbstractModel> asNewAliasWithProperties(String newAlias,
-                    List<Property<?>> newProperties) {
+            protected SqlTable<AbstractModel> asNewAliasWithProperties(@Nonnull String newAlias,
+                    @Nullable List<Property<?>> newProperties) {
                 throw new UnsupportedOperationException("Fake initial table for ReactiveSquidDatabase should never " +
                         "be aliased");
             }
@@ -70,18 +74,19 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     private class PublishingDataChangedNotifier extends DataChangedNotifier<SqlTable<?>> {
 
         @Override
-        protected boolean accumulateNotificationObjects(Set<SqlTable<?>> accumulatorSet, SqlTable<?> table,
-                SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+        protected boolean accumulateNotificationObjects(@Nonnull Set<SqlTable<?>> accumulatorSet,
+                @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                @Nullable AbstractModel modelValues, long rowId) {
             return accumulatorSet.add(table);
         }
 
         @Override
-        protected void sendNotificationsToAll(SquidDatabase database, Set<SqlTable<?>> notifyObjects) {
+        protected void sendNotificationsToAll(@Nonnull SquidDatabase database, @Nonnull Set<SqlTable<?>> notifyObjects) {
             changedTablePublisher.onNext(notifyObjects);
         }
 
         @Override
-        protected void sendNotification(SquidDatabase database, SqlTable<?> notifyObject) {
+        protected void sendNotification(@Nonnull SquidDatabase database, @Nonnull SqlTable<?> notifyObject) {
             throw new UnsupportedOperationException("Can't send onNext to the publisher with a single table. This " +
                     "should never happen anyway.");
         }

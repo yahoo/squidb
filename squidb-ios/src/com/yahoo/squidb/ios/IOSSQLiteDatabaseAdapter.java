@@ -13,6 +13,9 @@ import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLitePreparedStatement;
 import com.yahoo.squidb.data.SquidTransactionListener;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Wrapper for the iOS port of SQLiteDatabase that implements the common {@link ISQLiteDatabase} interface.
  */
@@ -31,7 +34,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
 
         private final SquidTransactionListener listener;
 
-        private SQLiteTransactionListenerAdapter(SquidTransactionListener listener) {
+        private SQLiteTransactionListenerAdapter(@Nonnull SquidTransactionListener listener) {
             this.listener = listener;
         }
 
@@ -62,12 +65,12 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void beginTransactionWithListener(SquidTransactionListener listener) {
+    public void beginTransactionWithListener(@Nonnull SquidTransactionListener listener) {
         db.beginTransactionWithListener(new SQLiteTransactionListenerAdapter(listener));
     }
 
     @Override
-    public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
+    public void beginTransactionWithListenerNonExclusive(@Nonnull SquidTransactionListener listener) {
         db.beginTransactionWithListenerNonExclusive(new SQLiteTransactionListenerAdapter(listener));
     }
 
@@ -77,12 +80,12 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void execSQL(String sql) {
+    public void execSQL(@Nonnull String sql) {
         db.execSQL(sql);
     }
 
     @Override
-    public void execSQL(String sql, Object[] bindArgs) {
+    public void execSQL(@Nonnull String sql, @Nullable Object[] bindArgs) {
         db.execSQL(sql, bindArgs);
     }
 
@@ -127,6 +130,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
+    @Nonnull
     public String getPath() {
         return db.getPath();
     }
@@ -182,12 +186,13 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public ICursor rawQuery(String sql, Object[] bindArgs) {
+    @Nonnull
+    public ICursor rawQuery(@Nonnull String sql, @Nullable Object[] bindArgs) {
         return db.rawQueryWithFactory(new SquidCursorFactory(bindArgs), sql, null, null);
     }
 
     @Override
-    public String simpleQueryForString(String sql, Object[] bindArgs) {
+    public String simpleQueryForString(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -201,7 +206,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public long simpleQueryForLong(String sql, Object[] bindArgs) {
+    public long simpleQueryForLong(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -235,7 +240,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public int executeUpdateDelete(String sql, Object[] bindArgs) {
+    public int executeUpdateDelete(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -249,7 +254,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public long executeInsert(String sql, Object[] bindArgs) {
+    public long executeInsert(@Nonnull String sql, @Nullable Object[] bindArgs) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -263,7 +268,7 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public void ensureSqlCompiles(String sql) {
+    public void ensureSqlCompiles(@Nonnull String sql) {
         SQLiteStatement statement = null;
         try {
             statement = db.compileStatement(sql);
@@ -275,11 +280,13 @@ public class IOSSQLiteDatabaseAdapter implements ISQLiteDatabase {
     }
 
     @Override
-    public ISQLitePreparedStatement prepareStatement(String sql) {
+    @Nonnull
+    public ISQLitePreparedStatement prepareStatement(@Nonnull String sql) {
         return new IOSSQLiteStatementAdapter(db.compileStatement(sql));
     }
 
     @Override
+    @Nonnull
     public SQLiteDatabase getWrappedObject() {
         return db;
     }

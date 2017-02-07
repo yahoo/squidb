@@ -11,14 +11,19 @@ import com.yahoo.squidb.utility.SquidUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Builder class for a SQLite SELECT statement
  */
 public final class Query extends TableStatement {
 
     /** Specifies this query has no limit */
+    @Nonnull
     public static final Field<Integer> NO_LIMIT = Field.field("-1");
     /** Specifies this query has no offset */
+    @Nonnull
     public static final Field<Integer> NO_OFFSET = Field.field("0");
 
     private SqlTable<?> table = null;
@@ -38,13 +43,13 @@ public final class Query extends TableStatement {
 
     private ArrayList<Field<?>> selectAllCache = null;
 
-    private Query(List<? extends Field<?>> fields) {
+    private Query(@Nonnull List<? extends Field<?>> fields) {
         if (!isEmpty(fields)) {
             this.fields = new ArrayList<>(fields);
         }
     }
 
-    private Query(Field<?>... fields) {
+    private Query(@Nonnull Field<?>... fields) {
         if (!isEmpty(fields)) {
             this.fields = new ArrayList<>();
             SquidUtilities.addAll(this.fields, fields);
@@ -57,7 +62,8 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query select(Field<?>... fields) {
+    @Nonnull
+    public static Query select(@Nonnull Field<?>... fields) {
         return new Query(fields);
     }
 
@@ -67,7 +73,8 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query select(List<? extends Field<?>> fields) {
+    @Nonnull
+    public static Query select(@Nonnull List<? extends Field<?>> fields) {
         return new Query(fields);
     }
 
@@ -77,7 +84,8 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query selectDistinct(Field<?>... fields) {
+    @Nonnull
+    public static Query selectDistinct(@Nonnull Field<?>... fields) {
         Query query = new Query(fields);
         query.distinct = true;
         return query;
@@ -89,7 +97,8 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query selectDistinct(List<? extends Field<?>> fields) {
+    @Nonnull
+    public static Query selectDistinct(@Nonnull List<? extends Field<?>> fields) {
         Query query = new Query(fields);
         query.distinct = true;
         return query;
@@ -102,7 +111,8 @@ public final class Query extends TableStatement {
      * @param subqueryAlias the name to alias the subquery
      * @return a new Query object
      */
-    public static Query fromSubquery(Query subquery, String subqueryAlias) {
+    @Nonnull
+    public static Query fromSubquery(@Nonnull Query subquery, @Nonnull String subqueryAlias) {
         SubqueryTable table = subquery.as(subqueryAlias);
         return Query.select(table.qualifiedFields()).from(table);
     }
@@ -113,7 +123,8 @@ public final class Query extends TableStatement {
      * @param view the View to select from
      * @return a new Query object
      */
-    public static Query fromView(View view) {
+    @Nonnull
+    public static Query fromView(@Nonnull View view) {
         return Query.select(view.qualifiedFields()).from(view);
     }
 
@@ -123,7 +134,8 @@ public final class Query extends TableStatement {
      * @param fields the additional Fields to be selected
      * @return this Query object, to allow chaining method calls
      */
-    public Query selectMore(Field<?>... fields) {
+    @Nonnull
+    public Query selectMore(@Nonnull Field<?>... fields) {
         if (immutable) {
             return fork().selectMore(fields);
         }
@@ -146,7 +158,8 @@ public final class Query extends TableStatement {
      * @param fields the additional Fields to be selected
      * @return this Query object, to allow chaining method calls
      */
-    public Query selectMore(List<? extends Field<?>> fields) {
+    @Nonnull
+    public Query selectMore(@Nonnull List<? extends Field<?>> fields) {
         if (immutable) {
             return fork().selectMore(fields);
         }
@@ -170,7 +183,8 @@ public final class Query extends TableStatement {
      * @param table the table to select from
      * @return this Query object, to allow chaining method calls
      */
-    public Query from(SqlTable<?> table) {
+    @Nonnull
+    public Query from(@Nullable SqlTable<?> table) {
         if (immutable) {
             return fork().from(table);
         }
@@ -190,7 +204,8 @@ public final class Query extends TableStatement {
      * @param joins one or more joins to apply to this query
      * @return this Query object, to allow chaining method calls
      */
-    public Query join(Join... joins) {
+    @Nonnull
+    public Query join(@Nonnull Join... joins) {
         if (immutable) {
             return fork().join(joins);
         }
@@ -212,7 +227,8 @@ public final class Query extends TableStatement {
      * @param onCriterions one or more criterions to use for the "on" clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query leftJoin(SqlTable<?> table, Criterion... onCriterions) {
+    @Nonnull
+    public Query leftJoin(@Nonnull SqlTable<?> table, @Nonnull Criterion... onCriterions) {
         return join(Join.left(table, onCriterions));
     }
 
@@ -223,7 +239,8 @@ public final class Query extends TableStatement {
      * @param usingColumns one or more columns to use for the "using" clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query leftJoin(SqlTable<?> table, Property<?>... usingColumns) {
+    @Nonnull
+    public Query leftJoin(@Nonnull SqlTable<?> table, @Nonnull Property<?>... usingColumns) {
         return join(Join.left(table, usingColumns));
     }
 
@@ -234,7 +251,8 @@ public final class Query extends TableStatement {
      * @param onCriterions one or more criterions to use for the "on" clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query innerJoin(SqlTable<?> table, Criterion... onCriterions) {
+    @Nonnull
+    public Query innerJoin(@Nonnull SqlTable<?> table, @Nonnull Criterion... onCriterions) {
         return join(Join.inner(table, onCriterions));
     }
 
@@ -245,7 +263,8 @@ public final class Query extends TableStatement {
      * @param usingColumns one or more columns to use for the "using" clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query innerJoin(SqlTable<?> table, Property<?>... usingColumns) {
+    @Nonnull
+    public Query innerJoin(@Nonnull SqlTable<?> table, @Nonnull Property<?>... usingColumns) {
         return join(Join.inner(table, usingColumns));
     }
 
@@ -256,7 +275,8 @@ public final class Query extends TableStatement {
      * @param criterion the Criterion to add to the WHERE clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query where(Criterion criterion) {
+    @Nonnull
+    public Query where(@Nullable Criterion criterion) {
         if (criterion == null) {
             return this;
         }
@@ -277,7 +297,8 @@ public final class Query extends TableStatement {
      * @param fields one or more Fields to group on
      * @return this Query object, to allow chaining method calls
      */
-    public Query groupBy(Field<?>... fields) {
+    @Nonnull
+    public Query groupBy(@Nonnull Field<?>... fields) {
         if (immutable) {
             return fork().groupBy(fields);
         }
@@ -296,7 +317,8 @@ public final class Query extends TableStatement {
      * @param criterion the Criterion to add to the HAVING clause
      * @return this Query object, to allow chaining method calls
      */
-    public Query having(Criterion criterion) {
+    @Nonnull
+    public Query having(@Nullable Criterion criterion) {
         if (criterion == null) {
             return this;
         }
@@ -318,7 +340,8 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
      */
-    public Query union(Query query) {
+    @Nonnull
+    public Query union(@Nonnull Query query) {
         if (immutable) {
             return fork().union(query);
         }
@@ -333,7 +356,8 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
      */
-    public Query unionAll(Query query) {
+    @Nonnull
+    public Query unionAll(@Nonnull Query query) {
         if (immutable) {
             return fork().unionAll(query);
         }
@@ -348,7 +372,8 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
      */
-    public Query intersect(Query query) {
+    @Nonnull
+    public Query intersect(@Nonnull Query query) {
         if (immutable) {
             return fork().intersect(query);
         }
@@ -363,7 +388,8 @@ public final class Query extends TableStatement {
      * @return this Query object, to allow chaining method calls
      * @see <a href="http://www.sqlite.org/lang_select.html#compound">http://www.sqlite.org/lang_select.html#compound</a>
      */
-    public Query except(Query query) {
+    @Nonnull
+    public Query except(@Nonnull Query query) {
         if (immutable) {
             return fork().except(query);
         }
@@ -371,7 +397,7 @@ public final class Query extends TableStatement {
         return this;
     }
 
-    private void addCompoundSelect(CompoundSelect compoundSelect) {
+    private void addCompoundSelect(@Nonnull CompoundSelect compoundSelect) {
         if (this.compoundSelects == null) {
             this.compoundSelects = new ArrayList<>();
         }
@@ -385,7 +411,8 @@ public final class Query extends TableStatement {
      * @param orders one or more ordering terms
      * @return this Query object, to allow chaining method calls
      */
-    public Query orderBy(Order... orders) {
+    @Nonnull
+    public Query orderBy(@Nonnull Order... orders) {
         if (immutable) {
             return fork().orderBy(orders);
         }
@@ -403,6 +430,7 @@ public final class Query extends TableStatement {
      * @param limit the maximum number of rows this query should return
      * @return this Query object, to allow chaining method calls
      */
+    @Nonnull
     public Query limit(int limit) {
         return limit(limit < 0 ? NO_LIMIT : Field.<Integer>field(Integer.toString(limit)));
     }
@@ -415,6 +443,7 @@ public final class Query extends TableStatement {
      * @param offset the number of rows this query should skip
      * @return this Query object, to allow chaining method calls
      */
+    @Nonnull
     public Query limit(int limit, int offset) {
         return limit(limit < 0 ? NO_LIMIT : Field.<Integer>field(Integer.toString(limit)),
                 offset < 1 ? NO_OFFSET : Field.<Integer>field(Integer.toString(offset)));
@@ -427,7 +456,8 @@ public final class Query extends TableStatement {
      * @param limit the maximum number of rows this query should return
      * @return this Query object, to allow chaining method calls
      */
-    public Query limit(Field<Integer> limit) {
+    @Nonnull
+    public Query limit(@Nonnull Field<Integer> limit) {
         if (limit == null) {
             limit = NO_LIMIT;
         }
@@ -450,7 +480,8 @@ public final class Query extends TableStatement {
      * @param offset the number of rows this query should skip
      * @return this Query object, to allow chaining method calls
      */
-    public Query limit(Field<Integer> limit, Field<Integer> offset) {
+    @Nonnull
+    public Query limit(@Nonnull Field<Integer> limit, @Nonnull Field<Integer> offset) {
         if (limit == null) {
             limit = NO_LIMIT;
         }
@@ -469,15 +500,17 @@ public final class Query extends TableStatement {
     }
 
     /**
-     * @return the current limit of this query
+     * @return the current limit of this query. May be {@link #NO_LIMIT} to indicate no limit
      */
+    @Nonnull
     public Field<Integer> getLimit() {
         return limit;
     }
 
     /**
-     * @return the current offset of this query
+     * @return the current offset of this query. May be {@link #NO_OFFSET} to indicate no offset
      */
+    @Nonnull
     public Field<Integer> getOffset() {
         return offset;
     }
@@ -498,7 +531,7 @@ public final class Query extends TableStatement {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         return this == o || !(o == null || getClass() != o.getClass()) && this.toString().equals(o.toString());
     }
 
@@ -508,7 +541,7 @@ public final class Query extends TableStatement {
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         visitSelectClause(builder, forSqlValidation);
         visitFromClause(builder, forSqlValidation);
         visitJoinClause(builder, forSqlValidation);
@@ -523,7 +556,7 @@ public final class Query extends TableStatement {
         }
     }
 
-    private void visitSelectClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitSelectClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("SELECT ");
         if (distinct) {
             builder.sql.append("DISTINCT ");
@@ -540,7 +573,7 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(toSelect, ", ", forSqlValidation);
     }
 
-    private void visitFromClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitFromClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (table == null) {
             return;
         }
@@ -548,7 +581,7 @@ public final class Query extends TableStatement {
         table.appendToSqlBuilder(builder, forSqlValidation);
     }
 
-    private void visitJoinClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitJoinClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(joins)) {
             return;
         }
@@ -556,7 +589,7 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(joins, " ", forSqlValidation);
     }
 
-    private void visitWhereClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitWhereClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(criterions)) {
             return;
         }
@@ -570,7 +603,7 @@ public final class Query extends TableStatement {
         }
     }
 
-    private void visitGroupByClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitGroupByClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(groupByFields)) {
             return;
         }
@@ -588,7 +621,7 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(havings, " AND ", forSqlValidation);
     }
 
-    private void visitCompoundSelectClauses(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitCompoundSelectClauses(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(compoundSelects)) {
             return;
         }
@@ -596,7 +629,7 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(compoundSelects, " ", forSqlValidation);
     }
 
-    private void visitOrderByClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitOrderByClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (isEmpty(orders)) {
             return;
         }
@@ -604,7 +637,7 @@ public final class Query extends TableStatement {
         builder.appendConcatenatedCompilables(orders, ", ", forSqlValidation);
     }
 
-    private void visitLimitClause(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitLimitClause(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (!NO_LIMIT.equals(limit) || !NO_OFFSET.equals(offset)) {
             builder.sql.append(" LIMIT ");
             limit.appendQualifiedExpression(builder, forSqlValidation);
@@ -618,6 +651,7 @@ public final class Query extends TableStatement {
     /**
      * @return the table being selected from
      */
+    @Nullable
     public SqlTable<?> getTable() {
         return this.table;
     }
@@ -635,7 +669,8 @@ public final class Query extends TableStatement {
      * @param alias the name for the table when this query is used as a subquery
      * @return a {@link SubqueryTable} from this Query
      */
-    public SubqueryTable as(String alias) {
+    @Nonnull
+    public SubqueryTable as(@Nonnull String alias) {
         return SubqueryTable.fromQuery(this, alias);
     }
 
@@ -646,7 +681,9 @@ public final class Query extends TableStatement {
      * @param modelClass the model class representing the subquery
      * @return a {@link SubqueryTable} from this Query
      */
-    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, List<Property<?>> properties) {
+    @Nonnull
+    public SubqueryTable as(@Nonnull String alias, @Nonnull Class<? extends ViewModel> modelClass,
+            @Nonnull List<Property<?>> properties) {
         return SubqueryTable.fromQuery(this, alias, modelClass, properties);
     }
 
@@ -657,6 +694,7 @@ public final class Query extends TableStatement {
      *
      * @return a {@link Function} from this query
      */
+    @Nonnull
     public <T> Function<T> asFunction() {
         return Function.fromQuery(this);
     }
@@ -666,6 +704,7 @@ public final class Query extends TableStatement {
      * called on one query will not affect the state of the forked query--but changes to variable arguments in
      * {@link Criterion Criterions} they share will affect both copies.
      */
+    @Nonnull
     public Query fork() {
         Query newQuery = new Query(fields);
         newQuery.table = table;
@@ -704,6 +743,7 @@ public final class Query extends TableStatement {
      *
      * @return this Query object
      */
+    @Nonnull
     public Query freeze() {
         this.immutable = true;
         return this;
@@ -719,6 +759,7 @@ public final class Query extends TableStatement {
     /**
      * @return the {@link Field Fields} this query selects
      */
+    @Nonnull
     public List<Field<?>> getFields() {
         if (isEmpty(selectAllCache)) {
             if (selectAllCache == null) {

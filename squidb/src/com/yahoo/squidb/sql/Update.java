@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Builder class for a SQLite UPDATE statement
  */
@@ -24,14 +27,15 @@ public class Update extends TableStatement {
     private final Map<String, Object> valuesToUpdate = new HashMap<>();
     private final List<Criterion> criterions = new ArrayList<>();
 
-    protected Update(SqlTable<?> table) {
+    protected Update(@Nonnull SqlTable<?> table) {
         this.table = table;
     }
 
     /**
      * Construct a new Update statement on the specified {@link Table} or {@link VirtualTable}
      */
-    public static Update table(Table table) {
+    @Nonnull
+    public static Update table(@Nonnull Table table) {
         return new Update(table);
     }
 
@@ -39,11 +43,13 @@ public class Update extends TableStatement {
      * Construct a new Update statement on the specified {@link View}. Note that updates on a View are only permissible
      * when an INSTEAD OF Trigger is constructed on that View.
      */
-    public static Update table(View view) {
+    @Nonnull
+    public static Update table(@Nonnull View view) {
         return new Update(view);
     }
 
     @Override
+    @Nonnull
     public SqlTable<?> getTable() {
         return table;
     }
@@ -54,7 +60,8 @@ public class Update extends TableStatement {
      * @param conflictAlgorithm the conflictAlgorithm to use
      * @return this Update object, to allow chaining method calls
      */
-    public Update onConflict(ConflictAlgorithm conflictAlgorithm) {
+    @Nonnull
+    public Update onConflict(@Nonnull ConflictAlgorithm conflictAlgorithm) {
         this.conflictAlgorithm = conflictAlgorithm;
         invalidateCompileCache();
         return this;
@@ -67,7 +74,8 @@ public class Update extends TableStatement {
      * @param criterion A criterion to use in the where clause
      * @return this Delete object, to allow chaining method calls
      */
-    public Update where(Criterion criterion) {
+    @Nonnull
+    public Update where(@Nullable Criterion criterion) {
         if (criterion != null) {
             this.criterions.add(criterion);
             invalidateCompileCache();
@@ -82,7 +90,8 @@ public class Update extends TableStatement {
      * @param value the new value for the column
      * @return this Update object, to allow chaining method calls
      */
-    public Update set(Property<?> column, Object value) {
+    @Nonnull
+    public Update set(@Nonnull Property<?> column, @Nullable Object value) {
         if (column == null) {
             throw new IllegalArgumentException("column must not be null");
         }
@@ -98,7 +107,8 @@ public class Update extends TableStatement {
      * @param values the new values for the columns
      * @return this Update object, to allow chaining method calls
      */
-    public Update set(Property<?>[] columns, Object[] values) {
+    @Nonnull
+    public Update set(@Nonnull Property<?>[] columns, @Nonnull Object[] values) {
         if (columns.length != values.length) {
             throw new IllegalArgumentException("You must provide the same number of columns and values");
         }
@@ -116,7 +126,8 @@ public class Update extends TableStatement {
      * @param values the new values for the columns
      * @return this Update object, to allow chaining method calls
      */
-    public Update set(List<? extends Property<?>> columns, List<?> values) {
+    @Nonnull
+    public Update set(@Nonnull List<? extends Property<?>> columns, @Nonnull List<?> values) {
         final int size = columns.size();
         if (size != values.size()) {
             throw new IllegalArgumentException("You must provide the same number of columns and values");
@@ -134,11 +145,12 @@ public class Update extends TableStatement {
      *
      * @return this Update object, to allow chaining method calls
      */
-    public Update fromTemplate(AbstractModel template) {
-        if (!template.isModified()) {
+    @Nonnull
+    public Update fromTemplate(@Nonnull AbstractModel template) {
+        ValuesStorage setValues = template.getSetValues();
+        if (!template.isModified() || setValues == null) {
             throw new IllegalArgumentException("Template has no values set to use for update");
         }
-        ValuesStorage setValues = template.getSetValues();
         for (Entry<String, Object> entry : setValues.valueSet()) {
             valuesToUpdate.put(entry.getKey(), entry.getValue());
         }
@@ -147,7 +159,7 @@ public class Update extends TableStatement {
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         assertValues();
 
         builder.sql.append("UPDATE ");
@@ -163,13 +175,13 @@ public class Update extends TableStatement {
         }
     }
 
-    private void visitConflictAlgorithm(StringBuilder sql) {
+    private void visitConflictAlgorithm(@Nonnull StringBuilder sql) {
         if (ConflictAlgorithm.NONE != conflictAlgorithm) {
             sql.append("OR ").append(conflictAlgorithm).append(" ");
         }
     }
 
-    protected void visitValues(SqlBuilder builder, boolean forSqlValidation) {
+    protected void visitValues(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         boolean appendComma = false;
         for (String column : valuesToUpdate.keySet()) {
             if (appendComma) {
@@ -183,7 +195,7 @@ public class Update extends TableStatement {
         }
     }
 
-    private void visitWhere(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitWhere(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }

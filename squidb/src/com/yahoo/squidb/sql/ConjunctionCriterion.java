@@ -5,26 +5,29 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.utility.SquidUtilities;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 class ConjunctionCriterion extends Criterion {
 
     private final List<Criterion> criterions = new ArrayList<>();
 
-    ConjunctionCriterion(Operator operator, Criterion baseCriterion, Criterion... additionalCriterions) {
+    ConjunctionCriterion(@Nonnull Operator operator, @Nonnull Criterion baseCriterion,
+            @Nonnull Criterion... additionalCriterions) {
         super(operator);
         if (baseCriterion == null) {
             throw new IllegalArgumentException("First Criterion of a ConjunctionCriterion must not be null");
         }
         this.criterions.add(baseCriterion);
-        if (additionalCriterions != null) {
-            Collections.addAll(this.criterions, additionalCriterions);
-        }
+        SquidUtilities.addAll(this.criterions, additionalCriterions);
     }
 
-    ConjunctionCriterion(Operator operator, List<Criterion> criterions) {
+    ConjunctionCriterion(@Nonnull Operator operator, @Nonnull List<Criterion> criterions) {
         super(operator);
         if (criterions == null || criterions.isEmpty()) {
             throw new IllegalArgumentException("Must specify at least one criterion for a ConjunctionCriterion");
@@ -36,7 +39,7 @@ class ConjunctionCriterion extends Criterion {
     }
 
     @Override
-    protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+    protected void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         criterions.get(0).appendToSqlBuilder(builder, forSqlValidation);
         for (int i = 1; i < criterions.size(); i++) {
             Criterion c = criterions.get(i);
@@ -48,7 +51,8 @@ class ConjunctionCriterion extends Criterion {
     }
 
     @Override
-    public Criterion and(Criterion criterion) {
+    @Nonnull
+    public Criterion and(@Nullable Criterion criterion) {
         Criterion toReturn = checkOperatorAndAppendCriterions(Operator.and, criterion);
         if (toReturn == null) {
             return super.and(criterion);
@@ -57,7 +61,8 @@ class ConjunctionCriterion extends Criterion {
     }
 
     @Override
-    public Criterion or(Criterion criterion) {
+    @Nonnull
+    public Criterion or(@Nullable Criterion criterion) {
         Criterion toReturn = checkOperatorAndAppendCriterions(Operator.or, criterion);
         if (toReturn == null) {
             return super.or(criterion);
@@ -65,7 +70,8 @@ class ConjunctionCriterion extends Criterion {
         return toReturn;
     }
 
-    private Criterion checkOperatorAndAppendCriterions(Operator toCheck, Criterion criterion) {
+    @Nullable
+    private Criterion checkOperatorAndAppendCriterions(@Nonnull Operator toCheck, @Nullable Criterion criterion) {
         if (criterion == null) {
             return this;
         }

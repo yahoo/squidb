@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.PropertyWritingVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlTable;
+import com.yahoo.squidb.sql.SqlUtils;
 import com.yahoo.squidb.sql.TableModelName;
 import com.yahoo.squidb.sql.View;
 
@@ -18,6 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a row in a SQLite view. The properties of a ViewModel are defined in terms of the properties of other
@@ -42,7 +46,8 @@ public abstract class ViewModel extends AbstractModel {
      * @param dst the destination model object
      * @return the destination model object
      */
-    public <T extends AbstractModel> T mapToModel(T dst) {
+    @Nonnull
+    public <T extends AbstractModel> T mapToModel(@Nonnull T dst) {
         return mapToModel(dst, (String) null);
     }
 
@@ -55,11 +60,13 @@ public abstract class ViewModel extends AbstractModel {
      * once without aliasing it, this would simply be e.g. Model.TABLE.
      * @return the destination model object
      */
-    public <T extends AbstractModel> T mapToModel(T dst, SqlTable<?> tableAlias) {
+    @Nonnull
+    public <T extends AbstractModel> T mapToModel(@Nonnull T dst, @Nonnull SqlTable<?> tableAlias) {
         return mapToModel(dst, tableAlias.getName());
     }
 
-    public <T extends AbstractModel> T mapToModel(T dst, String tableAlias) {
+    @Nonnull
+    public <T extends AbstractModel> T mapToModel(@Nonnull T dst, @Nullable String tableAlias) {
         TableMappingVisitors visitors = getTableMappingVisitors();
         if (visitors != null) {
             @SuppressWarnings("unchecked")
@@ -71,6 +78,7 @@ public abstract class ViewModel extends AbstractModel {
         return dst;
     }
 
+    @Nonnull
     public List<AbstractModel> mapToSourceModels() {
         List<AbstractModel> result = new ArrayList<>();
         TableMappingVisitors visitors = getTableMappingVisitors();
@@ -99,13 +107,14 @@ public abstract class ViewModel extends AbstractModel {
         private final List<Property<?>> relevantProperties;
         private final Map<Property<?>, Property<?>> aliasedPropertyMap;
 
-        public TableModelMappingVisitor(List<Property<?>> relevantProperties,
-                Map<Property<?>, Property<?>> aliasedPropertyMap) {
+        public TableModelMappingVisitor(@Nonnull List<Property<?>> relevantProperties,
+                @Nonnull Map<Property<?>, Property<?>> aliasedPropertyMap) {
             this.relevantProperties = relevantProperties;
             this.aliasedPropertyMap = aliasedPropertyMap;
         }
 
-        public T map(ViewModel src, T dst) {
+        @Nonnull
+        public T map(@Nonnull ViewModel src, @Nonnull T dst) {
             for (Property<?> p : relevantProperties) {
                 p.accept(this, dst, src);
             }
@@ -113,7 +122,8 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitInteger(Property<Integer> property, T dst, ViewModel src) {
+        @Nullable
+        public Void visitInteger(@Nonnull Property<Integer> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<Integer> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -122,7 +132,8 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitLong(Property<Long> property, T dst, ViewModel src) {
+        @Nullable
+        public Void visitLong(@Nonnull Property<Long> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<Long> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -131,7 +142,8 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitDouble(Property<Double> property, T dst, ViewModel src) {
+        @Nullable
+        public Void visitDouble(@Nonnull Property<Double> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<Double> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -140,7 +152,8 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitString(Property<String> property, T dst, ViewModel src) {
+        @Nullable
+        public Void visitString(@Nonnull Property<String> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<String> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -149,7 +162,7 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitBoolean(Property<Boolean> property, T dst, ViewModel src) {
+        public Void visitBoolean(@Nonnull Property<Boolean> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<Boolean> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -158,7 +171,8 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @Override
-        public Void visitBlob(Property<byte[]> property, T dst, ViewModel src) {
+        @Nullable
+        public Void visitBlob(@Nonnull Property<byte[]> property, @Nonnull T dst, @Nonnull ViewModel src) {
             Property<byte[]> toSet = getPropertyToSet(property);
             if (src.containsValue(property)) {
                 dst.set(toSet, src.get(property));
@@ -167,8 +181,9 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @SuppressWarnings("unchecked")
-        private <PT> Property<PT> getPropertyToSet(Property<PT> property) {
-            if (aliasedPropertyMap == null || !aliasedPropertyMap.containsKey(property)) {
+        @Nonnull
+        private <PT> Property<PT> getPropertyToSet(@Nonnull Property<PT> property) {
+            if (!aliasedPropertyMap.containsKey(property)) {
                 return property;
             }
             return (Property<PT>) aliasedPropertyMap.get(property);
@@ -176,7 +191,7 @@ public abstract class ViewModel extends AbstractModel {
 
     }
 
-    protected static void validateAliasedProperties(List<Property<?>> aliasedPropertyArray) {
+    protected static void validateAliasedProperties(@Nonnull List<Property<?>> aliasedPropertyArray) {
         Map<String, Integer> numOccurrences = new HashMap<>();
         Set<String> duplicates = new HashSet<>();
 
@@ -209,11 +224,10 @@ public abstract class ViewModel extends AbstractModel {
 
     protected static class TableMappingVisitors {
 
-        private Map<Class<? extends AbstractModel>, Map<String, TableModelMappingVisitor<?>>> map
-                = new HashMap<>();
+        private Map<Class<? extends AbstractModel>, Map<String, TableModelMappingVisitor<?>>> map = new HashMap<>();
 
-        private <T extends AbstractModel> void put(Class<T> cls, String tableName,
-                TableModelMappingVisitor<T> mapper) {
+        private <T extends AbstractModel> void put(@Nonnull Class<T> cls, @Nonnull String tableName,
+                @Nonnull TableModelMappingVisitor<T> mapper) {
             Map<String, TableModelMappingVisitor<?>> visitors = map.get(cls);
             if (visitors == null) {
                 visitors = new HashMap<>();
@@ -223,7 +237,9 @@ public abstract class ViewModel extends AbstractModel {
         }
 
         @SuppressWarnings("unchecked")
-        public <T extends AbstractModel> TableModelMappingVisitor<T> get(Class<T> cls, String tableName) {
+        @Nullable
+        public <T extends AbstractModel> TableModelMappingVisitor<T> get(@Nonnull Class<T> cls,
+                @Nullable String tableName) {
             Map<String, TableModelMappingVisitor<?>> visitors = map.get(cls);
             if (visitors == null) {
                 return null;
@@ -241,14 +257,15 @@ public abstract class ViewModel extends AbstractModel {
             }
         }
 
+        @Nonnull
         public Set<Map.Entry<Class<? extends AbstractModel>,
                 Map<String, TableModelMappingVisitor<?>>>> allMappings() {
             return map.entrySet();
         }
     }
 
-    protected static TableMappingVisitors generateTableMappingVisitors(List<Property<?>> viewModelProperties,
-            List<Property<?>> aliasedProperties, List<Property<?>> baseProperties) {
+    protected static TableMappingVisitors generateTableMappingVisitors(@Nonnull List<Property<?>> viewModelProperties,
+            @Nonnull List<Property<?>> aliasedProperties, @Nonnull List<Property<?>> baseProperties) {
 
         TableMappingVisitors result = new TableMappingVisitors();
 
@@ -269,9 +286,6 @@ public abstract class ViewModel extends AbstractModel {
             Property<?> baseProperty = baseProperties.get(position);
 
             TableModelName table = baseProperty.tableModelName;
-            if (table == null) { // Not part of any other model, e.g. a function
-                continue;
-            }
 
             List<Property<?>> propertyList = tableToPropertyMap.get(table);
             if (propertyList == null) {
@@ -301,8 +315,9 @@ public abstract class ViewModel extends AbstractModel {
     }
 
     private static <T extends AbstractModel> void constructVisitor(Class<T> cls, String tableName,
-            TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
-        if (cls != null) {
+            @Nonnull TableMappingVisitors visitors, @Nonnull List<Property<?>> properties,
+            @Nonnull Map<Property<?>, Property<?>> aliasMap) {
+        if (cls != null && !SqlUtils.isEmpty(tableName)) {
             TableModelMappingVisitor<T> visitor = new TableModelMappingVisitor<>(properties, aliasMap);
             visitors.put(cls, tableName, visitor);
         }
