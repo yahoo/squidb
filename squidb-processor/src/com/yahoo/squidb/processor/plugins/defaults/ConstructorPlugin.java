@@ -43,17 +43,25 @@ public class ConstructorPlugin extends AbstractPlugin {
 
         params = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(TypeConstants.MAP_VALUES, "values")
-                .addStatement("this(values, $L)", ModelFileWriter.PROPERTIES_ARRAY_NAME);
+                .addParameter(TypeConstants.VALUES_STORAGE, "values")
+                .addStatement("this(values, $L)", ModelFileWriter.PROPERTIES_LIST_NAME);
         builder.addMethod(params.build());
 
         params = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(TypeConstants.MAP_VALUES, "values")
+                .addParameter(TypeConstants.VALUES_STORAGE, "values")
                 .addParameter(TypeConstants.PROPERTY_ARRAY, "withProperties")
                 .varargs()
                 .addStatement("this()")
-                .addStatement("readPropertiesFromMap(values, withProperties)");
+                .addStatement("readPropertiesFromValuesStorage(values, withProperties)");
+        builder.addMethod(params.build());
+
+        params = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeConstants.VALUES_STORAGE, "values")
+                .addParameter(TypeConstants.PROPERTY_LIST, "withProperties")
+                .addStatement("this()")
+                .addStatement("readPropertiesFromValuesStorage(values, withProperties)");
         builder.addMethod(params.build());
 
 

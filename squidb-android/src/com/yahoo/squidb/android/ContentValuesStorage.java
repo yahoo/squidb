@@ -21,15 +21,34 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
 
     private final ContentValues values;
 
+    /**
+     * Construct an empty ContentValuesStorage
+     */
     public ContentValuesStorage() {
         this.values = new ContentValues();
     }
 
+    /**
+     * Construct a ContentValuesStorage populated with a copy of the values from the given ContentValues.
+     */
     public ContentValuesStorage(ContentValues values) {
-        if (values == null) {
-            throw new IllegalArgumentException("Can't create a ContentValuesStorage with null ContentValues");
+        this(values, true);
+    }
+
+    /**
+     * Constructor that allows initializing the object with a reference to the given values rather than copying them.
+     * This is an optimization for short-lived objects (e.g. for read/setPropertiesFromContentValues) or for inflating
+     * this object from a parcel, when copying is not necessary
+     */
+    ContentValuesStorage(ContentValues values, boolean copyValues) {
+        if (values != null && !copyValues) {
+            this.values = values;
+        } else {
+            this.values = new ContentValues();
+            if (values != null) {
+                this.values.putAll(values);
+            }
         }
-        this.values = values;
     }
 
     /**
@@ -164,6 +183,14 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
+    public void clear() {
+        values.clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Set<Map.Entry<String, Object>> valueSet() {
         return values.valueSet();
     }
@@ -201,10 +228,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
         @Override
         public ContentValuesStorage createFromParcel(Parcel source) {
             ContentValues values = source.readParcelable(ContentValues.class.getClassLoader());
-            if (values == null) {
-                values = new ContentValues();
-            }
-            return new ContentValuesStorage(values);
+            return new ContentValuesStorage(values, false);
         }
 
         @Override

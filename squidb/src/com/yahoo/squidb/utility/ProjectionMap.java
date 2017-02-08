@@ -9,6 +9,7 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.SqlUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,15 @@ public class ProjectionMap {
      * @param columns the Fields to add
      */
     public void putAll(Field<?>... columns) {
+        putAll(Arrays.asList(columns));
+    }
+
+    /**
+     * Add multiple {@link Field Fields} to the map using their current names as keys
+     *
+     * @param columns the Fields to add
+     */
+    public void putAll(List<? extends Field<?>> columns) {
         if (columns != null) {
             for (Field<?> field : columns) {
                 put(field);

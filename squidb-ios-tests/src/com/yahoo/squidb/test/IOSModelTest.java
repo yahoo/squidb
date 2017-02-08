@@ -5,11 +5,10 @@
  */
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.data.MapValuesStorage;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.test.TestModel;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class IOSModelTest extends DatabaseTestCase {
 
@@ -22,7 +21,7 @@ public class IOSModelTest extends DatabaseTestCase {
     }
 
     private void testMapValuesTypes(final boolean useSetValues) {
-        final Map<String, Object> values = new HashMap<String, Object>();
+        final MapValuesStorage values = new MapValuesStorage();
         values.put(TestModel.FIRST_NAME.getName(), "A");
         values.put(TestModel.LAST_NAME.getName(), "B");
         values.put(TestModel.BIRTHDAY.getName(), 1); // Putting an int where long expected
@@ -33,7 +32,7 @@ public class IOSModelTest extends DatabaseTestCase {
         TestModel fromValues;
         if (useSetValues) {
             fromValues = new TestModel();
-            fromValues.setPropertiesFromMap(values, TestModel.PROPERTIES);
+            fromValues.setPropertiesFromValuesStorage(values, TestModel.PROPERTIES);
         } else {
             fromValues = new TestModel(values);
         }
@@ -61,7 +60,7 @@ public class IOSModelTest extends DatabaseTestCase {
             @Override
             public void run() {
                 if (useSetValues) {
-                    new TestModel().setPropertiesFromMap(values, TestModel.IS_HAPPY);
+                    new TestModel().setPropertiesFromValuesStorage(values, TestModel.IS_HAPPY);
                 } else {
                     new TestModel(values);
                 }
@@ -71,10 +70,10 @@ public class IOSModelTest extends DatabaseTestCase {
 
     public void testValueCoercionAppliesToAllValues() {
         // Make sure the model is initialized with values and setValues
-        Map<String, Object> values = new HashMap<String, Object>();
+        MapValuesStorage values = new MapValuesStorage();
         values.put(TestModel.FIRST_NAME.getName(), "A");
         TestModel model = new TestModel();
-        model.readPropertiesFromMap(values, TestModel.FIRST_NAME);
+        model.readPropertiesFromValuesStorage(values, TestModel.FIRST_NAME);
         model.setFirstName("B");
 
         model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);

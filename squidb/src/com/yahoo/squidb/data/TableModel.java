@@ -11,6 +11,8 @@ import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Property.LongProperty;
 import com.yahoo.squidb.sql.Table;
 
+import java.util.List;
+
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
  * can be retrieved by calling {@link #getRowId()}. Conventionally, the presence of an ID other than {@link #NO_ID}
@@ -76,7 +78,7 @@ public abstract class TableModel extends AbstractModel {
 
     void bindValuesForInsert(Table table, ISQLitePreparedStatement preparedInsert) {
         LongProperty rowidProperty = getRowIdProperty();
-        Property<?>[] allProperties = table.getProperties();
+        List<Property<?>> allProperties = table.getProperties();
 
         ModelAndIndex modelAndIndex = new ModelAndIndex(this);
         for (Property<?> property : allProperties) {

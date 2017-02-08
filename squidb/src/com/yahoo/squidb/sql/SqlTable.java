@@ -7,7 +7,9 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.AbstractModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,12 +18,12 @@ import java.util.List;
 public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTable<T>> {
 
     protected final Class<? extends T> modelClass;
-    protected final Property<?>[] properties;
+    protected final List<Property<?>> properties;
 
     /**
      * @param expression the string-literal representation of this SqlTable
      */
-    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression) {
+    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression) {
         super(expression);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -31,7 +33,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param expression the string-literal representation of this SqlTable
      * @param qualifier the string-literal representation of a qualifying object, e.g. a database name
      */
-    protected SqlTable(Class<? extends T> modelClass, Property<?>[] properties, String expression, String qualifier) {
+    protected SqlTable(Class<? extends T> modelClass, List<Property<?>> properties, String expression, String qualifier) {
         super(expression, qualifier);
         this.modelClass = modelClass;
         this.properties = properties;
@@ -47,7 +49,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
     /**
      * @return the properties array corresponding to this table
      */
-    public Property<?>[] getProperties() {
+    public List<Property<?>> getProperties() {
         return properties;
     }
 
@@ -58,7 +60,7 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public Field<?>[] qualifyFields(Field<?>... fields) {
+    public List<Field<?>> qualifyFields(Field<?>... fields) {
         if (fields == null) {
             return null;
         }
@@ -73,15 +75,50 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param fields the fields to clone
      * @return the given fields cloned and with this object as their qualifier
      */
-    public Field<?>[] qualifyFields(List<Field<?>> fields) {
+    public List<Field<?>> qualifyFields(List<? extends Field<?>> fields) {
         if (fields == null) {
             return null;
         }
-        Field<?>[] result = new Field<?>[fields.size()];
-        int i = 0;
+        List<Field<?>> result = new ArrayList<>(fields.size());
         for (Field<?> field : fields) {
-            result[i] = qualifyField(field);
-            i++;
+            result.add(qualifyField(field));
+        }
+
+        return result;
+    }
+
+    /**
+     * Clone the given {@link Property properties} with this object's name as their qualifier. This is useful for
+     * selecting from views, subqueries, or aliased tables. This method is distinct from the more general
+     * {@link #qualifyFields(Field[])} because it is guaranteed to return a list of the same property type that it is
+     * called with.
+     *
+     * @param properties the properties to clone
+     * @return the given properties cloned and with this object as their qualifier
+     */
+    public <P extends Property<?>> List<P> qualifyProperties(P... properties) {
+        if (properties == null) {
+            return null;
+        }
+        return qualifyProperties(Arrays.asList(properties));
+    }
+
+    /**
+     * Clone the given {@link Property properties} with this object's name as their qualifier. This is useful for
+     * selecting from views, subqueries, or aliased tables. This method is distinct from the more general
+     * {@link #qualifyFields(List)} because it is guaranteed to return a list of the same property type that it is
+     * called with.
+     *
+     * @param properties the properties to clone
+     * @return the given properties cloned and with this object as their qualifier
+     */
+    public <P extends Property<?>> List<P> qualifyProperties(List<P> properties) {
+        if (properties == null) {
+            return null;
+        }
+        List<P> result = new ArrayList<>(properties.size());
+        for (P property : properties) {
+            result.add(qualifyProperty(property));
         }
 
         return result;
@@ -94,37 +131,50 @@ public abstract class SqlTable<T extends AbstractModel> extends DBObject<SqlTabl
      * @param field the field to clone
      * @return a clone of the given field with this object as its qualifier
      */
-    @SuppressWarnings("unchecked")
-    public <F extends Field<?>> F qualifyField(F field) {
+    public Field<?> qualifyField(Field<?> field) {
         if (field instanceof Property<?>) {
-            return (F) ((Property<?>) field).asSelectionFromTable(this, null);
+            return qualifyProperty((Property<?>) field);
         } else {
-            return (F) Field.field(field.getName(), getName());
+            return Field.field(field.getName(), getName());
         }
+    }
+
+    /**
+     * Clone the given {@link Property} with this object's name as its qualifier. This is useful for selecting
+     * from views, subqueries, or aliased tables. This method is distinct from the more general
+     * {@link #qualifyField(Field)} because it is guaranteed to return the same property type that it is called with.
+     *
+     * @param property the property to clone
+     * @return a clone of the given property with this object as its qualifier
+     */
+    @SuppressWarnings("unchecked")
+    public <P extends Property<?>> P qualifyProperty(P property) {
+        return (P) property.asSelectionFromTable(this, null);
     }
 
     /**
      * @return the fields associated to this data source
      */
-    protected Field<?>[] allFields() {
+    protected List<? extends Field<?>> allFields() {
         if (properties == null) {
-            return new Field<?>[0];
+            return Collections.emptyList();
         }
         return properties;
     }
 
     @Override
     public SqlTable<T> as(String newAlias) {
-        Property<?>[] newProperties = properties == null ? null : new Property<?>[properties.length];
-        SqlTable<T> result = asNewAliasWithPropertiesArray(newAlias, newProperties);
-        if (newProperties != null) {
-            for (int i = 0; i < newProperties.length; i++) {
-                newProperties[i] = result.qualifyField(properties[i]);
-            }
+        List<Property<?>> newProperties = properties == null ? null : new ArrayList<Property<?>>(properties.size());
+        if (newProperties == null) {
+            return asNewAliasWithProperties(newAlias, null);
+        }
+        SqlTable<T> result = asNewAliasWithProperties(newAlias, Collections.unmodifiableList(newProperties));
+        for (Property<?> p : properties) {
+            newProperties.add(result.qualifyProperty(p));
         }
         return result;
     }
 
-    protected abstract SqlTable<T> asNewAliasWithPropertiesArray(String newAlias, Property<?>[] newProperties);
+    protected abstract SqlTable<T> asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties);
 
 }

@@ -21,16 +21,16 @@ public class ThingJoinSpec {
             .innerJoin(THING_3, Thing.ID.eq(Function.subtract(THING_3.qualifyField(Thing.ID), 2)));
 
     public static final Property.LongProperty THING_1_ID = Thing.ID;
-    public static final Property.LongProperty THING_2_ID = THING_2.qualifyField(Thing.ID);
-    public static final Property.LongProperty THING_3_ID = THING_3.qualifyField(Thing.ID);
+    public static final Property.LongProperty THING_2_ID = THING_2.qualifyProperty(Thing.ID);
+    public static final Property.LongProperty THING_3_ID = THING_3.qualifyProperty(Thing.ID);
 
     public static final Property.StringProperty THING_1_FOO = Thing.FOO;
-    public static final Property.StringProperty THING_2_FOO = THING_2.qualifyField(Thing.FOO);
-    public static final Property.StringProperty THING_3_FOO = THING_3.qualifyField(Thing.FOO);
+    public static final Property.StringProperty THING_2_FOO = THING_2.qualifyProperty(Thing.FOO);
+    public static final Property.StringProperty THING_3_FOO = THING_3.qualifyProperty(Thing.FOO);
 
     public static final Property.IntegerProperty THING_1_BAR = Thing.BAR;
-    public static final Property.IntegerProperty THING_2_BAR = THING_2.qualifyField(Thing.BAR);
-    public static final Property.IntegerProperty THING_3_BAR = THING_3.qualifyField(Thing.BAR);
+    public static final Property.IntegerProperty THING_2_BAR = THING_2.qualifyProperty(Thing.BAR);
+    public static final Property.IntegerProperty THING_3_BAR = THING_3.qualifyProperty(Thing.BAR);
 
     @Constants
     public static class Const {

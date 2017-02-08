@@ -37,8 +37,9 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
         FieldSpec.Builder tableField = FieldSpec.builder(modelSpec.getTableType(), TABLE_NAME,
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T($T.class, $L, $S, null, $S)", modelSpec.getTableType(), modelSpec.getGeneratedClassName(),
-                        PROPERTIES_ARRAY_NAME, modelSpec.getSpecAnnotation().tableName().trim(), lastTableArg);
+                .initializer("new $T($T.class, $L, $S, null, $S)", modelSpec.getTableType(),
+                        modelSpec.getGeneratedClassName(), PROPERTIES_LIST_NAME,
+                        modelSpec.getSpecAnnotation().tableName().trim(), lastTableArg);
         builder.addField(tableField.build());
 
         FieldSpec.Builder tableModelField = FieldSpec.builder(TypeConstants.TABLE_MODEL_NAME, TABLE_MODEL_NAME,
@@ -69,9 +70,8 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
 
     @Override
     protected void buildPropertiesInitializationBlock(CodeBlock.Builder block) {
-        for (int i = 0; i < modelSpec.getPropertyGenerators().size(); i++) {
-            block.addStatement("$L[$L] = $L", PROPERTIES_ARRAY_NAME, i,
-                    modelSpec.getPropertyGenerators().get(i).getPropertyName());
+        for (TableModelPropertyGenerator propertyGenerator : modelSpec.getPropertyGenerators()) {
+            block.addStatement("$L.add($L)", PROPERTIES_INTERNAL_ARRAY, propertyGenerator.getPropertyName());
         }
     }
 

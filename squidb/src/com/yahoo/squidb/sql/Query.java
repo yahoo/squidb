@@ -38,7 +38,7 @@ public final class Query extends TableStatement {
 
     private ArrayList<Field<?>> selectAllCache = null;
 
-    private Query(List<Field<?>> fields) {
+    private Query(List<? extends Field<?>> fields) {
         if (!isEmpty(fields)) {
             this.fields = new ArrayList<>(fields);
         }
@@ -67,7 +67,7 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query select(List<Field<?>> fields) {
+    public static Query select(List<? extends Field<?>> fields) {
         return new Query(fields);
     }
 
@@ -89,7 +89,7 @@ public final class Query extends TableStatement {
      * @param fields the Fields to select
      * @return a new Query object
      */
-    public static Query selectDistinct(List<Field<?>> fields) {
+    public static Query selectDistinct(List<? extends Field<?>> fields) {
         Query query = new Query(fields);
         query.distinct = true;
         return query;
@@ -146,7 +146,7 @@ public final class Query extends TableStatement {
      * @param fields the additional Fields to be selected
      * @return this Query object, to allow chaining method calls
      */
-    public Query selectMore(List<Field<?>> fields) {
+    public Query selectMore(List<? extends Field<?>> fields) {
         if (immutable) {
             return fork().selectMore(fields);
         }
@@ -646,7 +646,7 @@ public final class Query extends TableStatement {
      * @param modelClass the model class representing the subquery
      * @return a {@link SubqueryTable} from this Query
      */
-    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, Property<?>[] properties) {
+    public SubqueryTable as(String alias, Class<? extends ViewModel> modelClass, List<Property<?>> properties) {
         return SubqueryTable.fromQuery(this, alias, modelClass, properties);
     }
 
@@ -727,10 +727,10 @@ public final class Query extends TableStatement {
             if (!isEmpty(fields)) {
                 selectAllCache.addAll(fields);
             } else {
-                SquidUtilities.addAll(selectAllCache, table.allFields());
+                selectAllCache.addAll(table.allFields());
                 if (joins != null) {
                     for (Join join : joins) {
-                        SquidUtilities.addAll(selectAllCache, join.joinTable.allFields());
+                        selectAllCache.addAll(join.joinTable.allFields());
                     }
                 }
             }

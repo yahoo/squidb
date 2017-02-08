@@ -96,10 +96,10 @@ public abstract class ViewModel extends AbstractModel {
     protected static class TableModelMappingVisitor<T extends AbstractModel> implements
             PropertyWritingVisitor<Void, T, ViewModel> {
 
-        private final Property<?>[] relevantProperties;
+        private final List<Property<?>> relevantProperties;
         private final Map<Property<?>, Property<?>> aliasedPropertyMap;
 
-        public TableModelMappingVisitor(Property<?>[] relevantProperties,
+        public TableModelMappingVisitor(List<Property<?>> relevantProperties,
                 Map<Property<?>, Property<?>> aliasedPropertyMap) {
             this.relevantProperties = relevantProperties;
             this.aliasedPropertyMap = aliasedPropertyMap;
@@ -176,7 +176,7 @@ public abstract class ViewModel extends AbstractModel {
 
     }
 
-    protected static void validateAliasedProperties(Property<?>[] aliasedPropertyArray) {
+    protected static void validateAliasedProperties(List<Property<?>> aliasedPropertyArray) {
         Map<String, Integer> numOccurrences = new HashMap<>();
         Set<String> duplicates = new HashSet<>();
 
@@ -190,8 +190,8 @@ public abstract class ViewModel extends AbstractModel {
             }
         }
 
-        for (int i = aliasedPropertyArray.length - 1; i >= 0; i--) {
-            Property<?> base = aliasedPropertyArray[i];
+        for (int i = aliasedPropertyArray.size() - 1; i >= 0; i--) {
+            Property<?> base = aliasedPropertyArray.get(i);
             String name = base.getName();
             if (duplicates.contains(name)) {
                 String alias;
@@ -201,7 +201,7 @@ public abstract class ViewModel extends AbstractModel {
                     int occurrence = numOccurrences.get(name);
                     alias = name + "_" + occurrence;
                 }
-                aliasedPropertyArray[i] = base.as(alias);
+                aliasedPropertyArray.set(i, base.as(alias));
                 numOccurrences.put(name, numOccurrences.get(name) - 1);
             }
         }
@@ -247,14 +247,14 @@ public abstract class ViewModel extends AbstractModel {
         }
     }
 
-    protected static TableMappingVisitors generateTableMappingVisitors(Property<?>[] viewModelProperties,
-            Property<?>[] aliasedProperties, Property<?>[] baseProperties) {
+    protected static TableMappingVisitors generateTableMappingVisitors(List<Property<?>> viewModelProperties,
+            List<Property<?>> aliasedProperties, List<Property<?>> baseProperties) {
 
         TableMappingVisitors result = new TableMappingVisitors();
 
         Map<String, Integer> namesToPositions = new HashMap<>();
-        for (int i = 0; i < aliasedProperties.length; i++) {
-            namesToPositions.put(aliasedProperties[i].getName(), i);
+        for (int i = 0; i < aliasedProperties.size(); i++) {
+            namesToPositions.put(aliasedProperties.get(i).getName(), i);
         }
 
         Map<TableModelName, List<Property<?>>> tableToPropertyMap = new HashMap<>();
@@ -266,7 +266,7 @@ public abstract class ViewModel extends AbstractModel {
                 continue;
             }
 
-            Property<?> baseProperty = baseProperties[position];
+            Property<?> baseProperty = baseProperties.get(position);
 
             TableModelName table = baseProperty.tableModelName;
             if (table == null) { // Not part of any other model, e.g. a function
@@ -303,8 +303,7 @@ public abstract class ViewModel extends AbstractModel {
     private static <T extends AbstractModel> void constructVisitor(Class<T> cls, String tableName,
             TableMappingVisitors visitors, List<Property<?>> properties, Map<Property<?>, Property<?>> aliasMap) {
         if (cls != null) {
-            TableModelMappingVisitor<T> visitor =
-                    new TableModelMappingVisitor<>(properties.toArray(new Property<?>[properties.size()]), aliasMap);
+            TableModelMappingVisitor<T> visitor = new TableModelMappingVisitor<>(properties, aliasMap);
             visitors.put(cls, tableName, visitor);
         }
     }

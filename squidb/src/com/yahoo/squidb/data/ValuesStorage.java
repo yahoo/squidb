@@ -132,6 +132,11 @@ public abstract class ValuesStorage {
     public abstract Set<String> keySet();
 
     /**
+     * Clear all values from this ValuesStorage
+     */
+    public abstract void clear();
+
+    /**
      * Add a value of unknown type to the set if it is one of the accepted types. Accepted types are any primitive
      * (Integer, Boolean, etc.), String, and byte[].
      *
@@ -162,7 +167,8 @@ public abstract class ValuesStorage {
         } else if (value instanceof byte[]) {
             put(key, (byte[]) value);
         } else if (errorOnFail) {
-            throw new UnsupportedOperationException("Could not handle type " + value.getClass());
+            throw new IllegalArgumentException("Tried to insert unsupported value type " + value.getClass() +
+                    " into ValuesStorage");
         }
     }
 

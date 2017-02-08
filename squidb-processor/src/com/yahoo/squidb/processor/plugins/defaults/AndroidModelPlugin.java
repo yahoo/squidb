@@ -69,7 +69,7 @@ public class AndroidModelPlugin extends AbstractPlugin {
             MethodSpec.Builder params = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(valuesType, valuesName)
-                    .addStatement("this($L, $L)", valuesName, ModelFileWriter.PROPERTIES_ARRAY_NAME);
+                    .addStatement("this($L, $L)", valuesName, ModelFileWriter.PROPERTIES_LIST_NAME);
             builder.addMethod(params.build());
 
             params = MethodSpec.constructorBuilder()
@@ -77,6 +77,14 @@ public class AndroidModelPlugin extends AbstractPlugin {
                     .addParameter(valuesType, valuesName)
                     .addParameter(TypeConstants.PROPERTY_ARRAY, "withProperties")
                     .varargs()
+                    .addStatement("this()")
+                    .addStatement("readPropertiesFromContentValues($L, withProperties)", valuesName);
+            builder.addMethod(params.build());
+
+            params = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(valuesType, valuesName)
+                    .addParameter(TypeConstants.PROPERTY_LIST, "withProperties")
                     .addStatement("this()")
                     .addStatement("readPropertiesFromContentValues($L, withProperties)", valuesName);
             builder.addMethod(params.build());

@@ -13,6 +13,7 @@ import com.yahoo.squidb.sql.SqlTable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import rx.Observable;
@@ -58,8 +59,8 @@ public abstract class ReactiveSquidDatabase extends SquidDatabase {
     static {
         INITIAL_TABLE.add(new SqlTable<AbstractModel>(null, null, "<initial>") {
             @Override
-            protected SqlTable<AbstractModel> asNewAliasWithPropertiesArray(String newAlias,
-                    Property<?>[] newProperties) {
+            protected SqlTable<AbstractModel> asNewAliasWithProperties(String newAlias,
+                    List<Property<?>> newProperties) {
                 throw new UnsupportedOperationException("Fake initial table for ReactiveSquidDatabase should never " +
                         "be aliased");
             }

@@ -16,6 +16,7 @@ import com.yahoo.squidb.processor.plugins.defaults.properties.generators.BasicLo
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -43,9 +44,6 @@ public class TypeConstants {
     public static final ClassName VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "ValuesStorage");
     public static final ClassName MAP_VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "MapValuesStorage");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
-    public static final ClassName MAP = ClassName.get("java.util", "Map");
-    public static final TypeName MAP_VALUES = ParameterizedTypeName.get(MAP,
-            ClassName.get(String.class), ClassName.OBJECT);
 
     public static final ClassName ABSTRACT_MODEL = ClassName.get(SQUIDB_DATA_PACKAGE, "AbstractModel");
     public static final ClassName TABLE_MODEL = ClassName.get(SQUIDB_DATA_PACKAGE, "TableModel");
@@ -79,6 +77,7 @@ public class TypeConstants {
     public static final ClassName ENUM_PROPERTY = ClassName.get(SQUIDB_SQL_PACKAGE, "Property", "EnumProperty");
 
     public static final TypeName PROPERTY_ARRAY = ArrayTypeName.of(PROPERTY);
+    public static final TypeName PROPERTY_LIST = ParameterizedTypeName.get(ClassName.get(List.class), PROPERTY);
 
     public static final ClassName OBJECTIVE_C_NAME = ClassName.get("com.google.j2objc.annotations", "ObjectiveCName");
 

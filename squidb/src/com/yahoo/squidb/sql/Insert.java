@@ -71,6 +71,16 @@ public class Insert extends TableStatement {
      * @return this Insert object, to allow chaining method calls
      */
     public Insert columns(Property<?>... columns) {
+        return columns(Arrays.asList(columns));
+    }
+
+    /**
+     * Specify columns to insert into
+     *
+     * @param columns the columns to insert into
+     * @return this Insert object, to allow chaining method calls
+     */
+    public Insert columns(List<? extends Property<?>> columns) {
         for (Property<?> column : columns) {
             this.columns.add(column.getExpression());
         }
