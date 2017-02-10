@@ -7,7 +7,6 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
-import com.yahoo.squidb.sql.Property.PropertyVisitor;
 
 import java.util.List;
 
@@ -105,12 +104,13 @@ public class Table extends SqlTable<TableModel> {
         return super.toString() + " ModelClass=" + modelClass.getSimpleName() + " TableConstraint=" + tableConstraint;
     }
 
+    private static final ColumnDefinitionVisitor columnDefVisitor = new ColumnDefinitionVisitor();
+
     /**
      * Append a CREATE TABLE statement that would create this table and its columns. Users should not call
      * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
-    public void appendCreateTableSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql,
-            @Nonnull PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql) {
         sql.append("CREATE TABLE IF NOT EXISTS ").append(getExpression()).append('(');
         boolean needsComma = false;
         for (Property<?> property : properties) {
@@ -120,13 +120,25 @@ public class Table extends SqlTable<TableModel> {
             if (needsComma) {
                 sql.append(", ");
             }
-            property.accept(propertyVisitor, sql);
+            property.accept(columnDefVisitor, sql);
             needsComma = true;
         }
         if (!SqlUtils.isEmpty(getTableConstraint())) {
             sql.append(", ").append(getTableConstraint());
         }
         sql.append(')');
+    }
+
+    /**
+     * @return the <code>CREATE TABLE</code> statement for creating this table. Users should generally not need to call
+     * this method directly unless they are not working with a SquidDatabase instance and wish to create tables
+     * manually.
+     */
+    @Nonnull
+    public String getCreateTableSql() {
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
+        appendCreateTableSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING), sql);
+        return sql.toString();
     }
 
     /**
@@ -148,7 +160,7 @@ public class Table extends SqlTable<TableModel> {
     @Nonnull
     public LongProperty getRowIdProperty() {
         if (rowidProperty == null) {
-            throw new UnsupportedOperationException("Table " + getExpression() + " has no id property defined");
+            throw new UnsupportedOperationException("Table " + getExpression() + " has no rowid property defined");
         }
         return rowidProperty;
     }

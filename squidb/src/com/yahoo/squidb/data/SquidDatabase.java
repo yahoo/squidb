@@ -6,6 +6,7 @@
 package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.Beta;
+import com.yahoo.squidb.sql.ColumnDefinitionVisitor;
 import com.yahoo.squidb.sql.CompileContext;
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
@@ -15,7 +16,6 @@ import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.Property;
-import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.sql.Query;
 import com.yahoo.squidb.sql.SqlStatement;
 import com.yahoo.squidb.sql.SqlTable;
@@ -286,8 +286,6 @@ public abstract class SquidDatabase {
     }
 
     // --- internal implementation
-
-    private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
     private Set<ISQLitePreparedStatement> trackedPreparedInserts = Collections.newSetFromMap(
             new ConcurrentHashMap<ISQLitePreparedStatement, Boolean>());
@@ -1211,14 +1209,13 @@ public abstract class SquidDatabase {
          */
         public void onCreate(@Nonnull ISQLiteDatabase db) {
             setDatabase(db);
-            StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-            SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
+            StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
 
             // create tables
             Table[] tables = getTables();
             if (tables != null) {
                 for (Table table : tables) {
-                    table.appendCreateTableSql(getCompileContext(), sql, sqlVisitor);
+                    table.appendCreateTableSql(getCompileContext(), sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1227,7 +1224,7 @@ public abstract class SquidDatabase {
             View[] views = getViews();
             if (views != null) {
                 for (View view : views) {
-                    view.createViewSql(getCompileContext(), sql);
+                    view.appendCreateViewSql(getCompileContext(), sql);
                     db.execSQL(sql.toString());
                     sql.setLength(0);
                 }
@@ -1341,10 +1338,9 @@ public abstract class SquidDatabase {
         if (!propertyBelongsToTable(property)) {
             throw new IllegalArgumentException("Can't alter table: property does not belong to a Table");
         }
-        SqlConstructorVisitor visitor = new SqlConstructorVisitor();
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
         sql.append("ALTER TABLE ").append(property.tableModelName.tableName).append(" ADD ");
-        property.accept(visitor, sql);
+        property.accept(new ColumnDefinitionVisitor(), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1361,9 +1357,8 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without error, false otherwise
      */
     protected boolean tryCreateTable(@Nonnull Table table) {
-        SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        table.appendCreateTableSql(getCompileContext(), sql, sqlVisitor);
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
+        table.appendCreateTableSql(getCompileContext(), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1386,8 +1381,8 @@ public abstract class SquidDatabase {
      * @see com.yahoo.squidb.sql.View#temporaryFromQuery(com.yahoo.squidb.sql.Query, String)
      */
     public boolean tryCreateView(@Nonnull View view) {
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
-        view.createViewSql(getCompileContext(), sql);
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
+        view.appendCreateViewSql(getCompileContext(), sql);
         return tryExecSql(sql.toString());
     }
 
@@ -1440,7 +1435,7 @@ public abstract class SquidDatabase {
             onError(String.format("Cannot create index %s: no properties specified", indexName), null);
             return false;
         }
-        StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
         sql.append("CREATE ");
         if (unique) {
             sql.append("UNIQUE ");
@@ -1642,58 +1637,6 @@ public abstract class SquidDatabase {
             return getDatabase().prepareStatement(sql);
         } finally {
             releaseNonExclusiveLock();
-        }
-    }
-
-    /**
-     * Visitor that builds column definitions for {@link Property}s
-     */
-    private static class SqlConstructorVisitor implements PropertyVisitor<Void, StringBuilder> {
-
-        @Nullable
-        private Void appendColumnDefinition(@Nonnull String type, @Nonnull Property<?> property,
-                @Nonnull StringBuilder sql) {
-            sql.append(property.getName()).append(" ").append(type);
-            if (!SqlUtils.isEmpty(property.getColumnDefinition())) {
-                sql.append(" ").append(property.getColumnDefinition());
-            }
-            return null;
-        }
-
-        @Override
-        @Nullable
-        public Void visitDouble(@Nonnull Property<Double> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("REAL", property, sql);
-        }
-
-        @Override
-        @Nullable
-        public Void visitInteger(@Nonnull Property<Integer> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("INTEGER", property, sql);
-        }
-
-        @Override
-        @Nullable
-        public Void visitLong(@Nonnull Property<Long> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("INTEGER", property, sql);
-        }
-
-        @Override
-        @Nullable
-        public Void visitString(@Nonnull Property<String> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("TEXT", property, sql);
-        }
-
-        @Override
-        @Nullable
-        public Void visitBoolean(@Nonnull Property<Boolean> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("INTEGER", property, sql);
-        }
-
-        @Override
-        @Nullable
-        public Void visitBlob(@Nonnull Property<byte[]> property, @Nonnull StringBuilder sql) {
-            return appendColumnDefinition("BLOB", property, sql);
         }
     }
 

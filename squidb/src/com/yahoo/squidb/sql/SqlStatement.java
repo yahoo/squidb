@@ -14,6 +14,9 @@ public interface SqlStatement {
 
     Object[] EMPTY_ARGS = new Object[0];
 
+    /** Suggested initial capacity for StringBuilders when compiling SQL statements */
+    int STRING_BUILDER_INITIAL_CAPACITY = 256;
+
     /** Character substituted by values when used in SQL statements */
     String REPLACEABLE_PARAMETER = "?";
     String REPLACEABLE_ARRAY_PARAMETER = "[?]";

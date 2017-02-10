@@ -101,7 +101,7 @@ public class View extends QueryTable {
      * Append the SQL statement that creates this View to the given {@link StringBuilder}. Users should not call
      * this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build views automatically.
      */
-    public void createViewSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql) {
+    public void appendCreateViewSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql) {
         sql.append("CREATE ");
         if (temporary) {
             sql.append("TEMPORARY ");
@@ -109,5 +109,17 @@ public class View extends QueryTable {
         sql.append("VIEW IF NOT EXISTS ")
                 .append(getExpression()).append(" AS ")
                 .append(query.toRawSql(compileContext));
+    }
+
+    /**
+     * @return the <code>CREATE VIEW</code> statement for creating this view. Users should generally not need to call
+     * this method directly unless they are not working with a SquidDatabase instance and wish to create views
+     * manually.
+     */
+    @Nonnull
+    public String getCreateViewSql() {
+        StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
+        appendCreateViewSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING), sql);
+        return sql.toString();
     }
 }

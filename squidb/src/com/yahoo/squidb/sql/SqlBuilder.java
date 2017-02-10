@@ -14,10 +14,8 @@ import javax.annotation.Nullable;
 
 public final class SqlBuilder {
 
-    private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
-
     @Nonnull
-    public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+    public final StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
     @Nonnull
     public final CompileContext compileContext;
 
