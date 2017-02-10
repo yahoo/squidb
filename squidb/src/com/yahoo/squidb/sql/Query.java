@@ -20,10 +20,8 @@ import javax.annotation.Nullable;
 public final class Query extends TableStatement {
 
     /** Specifies this query has no limit */
-    @Nonnull
     public static final Field<Integer> NO_LIMIT = Field.field("-1");
     /** Specifies this query has no offset */
-    @Nonnull
     public static final Field<Integer> NO_OFFSET = Field.field("0");
 
     private SqlTable<?> table = null;

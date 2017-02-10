@@ -32,7 +32,6 @@ public class Insert extends TableStatement {
      *     }
      * </pre>
      */
-    @Nonnull
     public static final VersionCode SQLITE_VERSION_MULTI_ROW_INSERT = new VersionCode(3, 7, 11, 0);
 
     private final SqlTable<?> table;

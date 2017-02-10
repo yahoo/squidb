@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 public class Field<TYPE> extends DBObject<Field<TYPE>> {
 
     /** SQLite NULL literal value */
-    @Nonnull
     public static final Field<Void> NULL = new Field<>("NULL");
 
     /**

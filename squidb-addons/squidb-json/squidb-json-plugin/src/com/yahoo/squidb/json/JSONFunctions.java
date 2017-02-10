@@ -38,9 +38,7 @@ import javax.annotation.Nonnull;
  */
 public class JSONFunctions {
 
-    @Nonnull
     public static final VersionCode JSON1_MIN_VERSION = new VersionCode(3, 9, 0, 0);
-    @Nonnull
     public static final VersionCode JSON1_GROUP_FUNCTIONS_VERSION = new VersionCode(3, 10, 0, 0);
 
     /**

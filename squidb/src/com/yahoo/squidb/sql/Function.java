@@ -35,11 +35,9 @@ import javax.annotation.Nullable;
 public abstract class Function<TYPE> extends Field<TYPE> {
 
     /** constant value 1, suitable for use with a boolean function */
-    @Nonnull
     public static final Function<Integer> TRUE = rawFunction("1");
 
     /** constant value 0, suitable for use with a boolean function */
-    @Nonnull
     public static final Function<Integer> FALSE = rawFunction("0");
 
     public Function() {
