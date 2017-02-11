@@ -14,6 +14,9 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteProgram;
 import android.database.sqlite.SQLiteQuery;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A custom cursor factory that ensures query arguments are bound as their native types, rather than as strings. The
  * {@link com.yahoo.squidb.data.SquidDatabase SquidDatabase} documentation notes why this is important.
@@ -24,7 +27,7 @@ public class SquidCursorFactory implements CursorFactory {
 
     private final Object[] sqlArgs;
 
-    public SquidCursorFactory(Object[] sqlArgs) {
+    public SquidCursorFactory(@Nullable Object[] sqlArgs) {
         this.sqlArgs = sqlArgs;
     }
 
@@ -34,7 +37,7 @@ public class SquidCursorFactory implements CursorFactory {
         return new SQLiteCursor(masterQuery, editTable, query);
     }
 
-    public static void bindArgumentsToProgram(SQLiteProgram program, Object[] sqlArgs) {
+    public static void bindArgumentsToProgram(@Nonnull SQLiteProgram program, @Nullable Object[] sqlArgs) {
         if (sqlArgs == null) {
             return;
         }

@@ -13,6 +13,8 @@ import com.yahoo.squidb.data.SquidDatabase;
 
 import java.io.File;
 
+import javax.annotation.Nonnull;
+
 /**
  * ISQLiteOpenHelper implementation that wraps the iOS port of SQLiteOpenHelper. When on iOS, returning an instance of
  * this class in {@link SquidDatabase#createOpenHelper(String, SquidDatabase.OpenHelperDelegate, int)} will connect
@@ -22,19 +24,21 @@ public class IOSOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHelper
 
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public IOSOpenHelper(String path, String name, SquidDatabase.OpenHelperDelegate delegate,
-            int version) {
+    public IOSOpenHelper(@Nonnull String path, @Nonnull String name,
+            @Nonnull SquidDatabase.OpenHelperDelegate delegate, int version) {
         super(path, name, null, version);
         this.delegate = delegate;
     }
 
     @Override
+    @Nonnull
     public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
         return new IOSSQLiteDatabaseAdapter(database);
     }
 
     @Override
+    @Nonnull
     public String getDatabasePath() {
         return getDatabaseFile().getAbsolutePath();
     }

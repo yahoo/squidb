@@ -5,10 +5,13 @@
  */
 package com.yahoo.squidb.sql;
 
+import com.yahoo.squidb.utility.SquidUtilities;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * A SQLite Index
@@ -20,11 +23,12 @@ public class Index {
     private final boolean unique;
     private final List<Property<?>> properties;
 
-    public Index(String name, Table table, boolean unique, Property<?>... properties) {
-        this(name, table, unique, Arrays.asList(properties));
+    public Index(@Nonnull String name, @Nonnull Table table, boolean unique, @Nonnull Property<?>... properties) {
+        this(name, table, unique, SquidUtilities.asList(properties));
     }
 
-    public Index (String name, Table table, boolean unique, List<? extends Property<?>> properties) {
+    public Index (@Nonnull String name, @Nonnull Table table, boolean unique,
+            @Nonnull List<? extends Property<?>> properties) {
         this.name = name;
         this.table = table;
         this.unique = unique;
@@ -34,6 +38,7 @@ public class Index {
     /**
      * @return the name of this Index
      */
+    @Nonnull
     public String getName() {
         return name;
     }
@@ -41,6 +46,7 @@ public class Index {
     /**
      * @return the {@link Table} on which this Index is created
      */
+    @Nonnull
     public Table getTable() {
         return table;
     }
@@ -55,6 +61,7 @@ public class Index {
     /**
      * @return the {@link Property properties} representing columns indexed by this Index
      */
+    @Nonnull
     public List<Property<?>> getProperties() {
         return properties;
     }

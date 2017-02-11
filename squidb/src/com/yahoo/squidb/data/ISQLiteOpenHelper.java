@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.data;
 
+import javax.annotation.Nonnull;
+
 /**
  * Common interface for helper classes that open the database to implement, e.g.
  * com.yahoo.squidb.android.AndroidOpenHelper in the squidb-android module wraps
@@ -12,8 +14,10 @@ package com.yahoo.squidb.data;
  */
 public interface ISQLiteOpenHelper {
 
+    @Nonnull
     ISQLiteDatabase openForWriting();
 
+    @Nonnull
     String getDatabasePath();
 
     boolean deleteDatabase();

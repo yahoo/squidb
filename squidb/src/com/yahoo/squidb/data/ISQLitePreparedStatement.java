@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.data;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * This interface represents a low-level SQLite prepared statement. For situations where performance is
  * critical, a prepared statement can significantly improve performance by enabling binding argument directly to the
@@ -32,9 +35,9 @@ public interface ISQLitePreparedStatement {
 
     void bindDouble(int index, double value);
 
-    void bindString(int index, String value);
+    void bindString(int index, @Nonnull String value);
 
-    void bindBlob(int index, byte[] value);
+    void bindBlob(int index, @Nonnull byte[] value);
 
     void clearBindings();
 
@@ -46,6 +49,7 @@ public interface ISQLitePreparedStatement {
 
     long simpleQueryForLong();
 
+    @Nullable
     String simpleQueryForString();
 
 }

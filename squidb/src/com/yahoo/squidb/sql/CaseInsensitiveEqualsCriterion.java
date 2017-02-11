@@ -5,20 +5,24 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 class CaseInsensitiveEqualsCriterion extends BinaryCriterion {
 
-    CaseInsensitiveEqualsCriterion(Field<?> expression, Operator operator, Object value) {
+    CaseInsensitiveEqualsCriterion(@Nonnull Field<?> expression, @Nonnull Operator operator, @Nullable Object value) {
         super(expression, operator, value);
     }
 
     @Override
-    protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+    protected void afterPopulateOperator(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         super.afterPopulateOperator(builder, forSqlValidation);
         builder.sql.append(" COLLATE NOCASE ");
     }
 
     @Override
-    protected BinaryCriterion constructNegatedCriterion(Operator negatedOperator) {
+    @Nonnull
+    protected BinaryCriterion constructNegatedCriterion(@Nonnull Operator negatedOperator) {
         return new CaseInsensitiveEqualsCriterion(field, negatedOperator, value);
     }
 }

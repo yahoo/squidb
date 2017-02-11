@@ -7,13 +7,17 @@ package com.yahoo.squidb.data;
 
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Insert;
+import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.TableStatement;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nonnull;
 
 // This class is not threadsafe. We currently keep a threadlocal instance of it in SquidDatabase that is invalidated
 // when the DB is closed.
@@ -26,12 +30,13 @@ class PreparedInsertCache {
     // Tracks all open prepared statements across the DB so that they can be closed safely when the DB is closed
     private final Set<ISQLitePreparedStatement> dbStatementTracking;
 
-    PreparedInsertCache(Set<ISQLitePreparedStatement> dbStatementTracking) {
+    PreparedInsertCache(@Nonnull Set<ISQLitePreparedStatement> dbStatementTracking) {
         this.dbStatementTracking = dbStatementTracking;
     }
 
-    ISQLitePreparedStatement getPreparedInsert(SquidDatabase db, Table table,
-            TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    @Nonnull
+    ISQLitePreparedStatement getPreparedInsert(@Nonnull SquidDatabase db, @Nonnull Table table,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
 
         Class<? extends TableModel> modelClass = table.getModelClass();
         ISQLitePreparedStatement[] preparedStatements = preparedStatementCache.get(modelClass);
@@ -39,10 +44,6 @@ class PreparedInsertCache {
         if (preparedStatements == null) {
             preparedStatements = new ISQLitePreparedStatement[TableStatement.ConflictAlgorithm.values().length];
             preparedStatementCache.put(modelClass, preparedStatements);
-        }
-
-        if (conflictAlgorithm == null) {
-            conflictAlgorithm = TableStatement.ConflictAlgorithm.NONE;
         }
 
         ISQLitePreparedStatement toReturn = preparedStatements[conflictAlgorithm.ordinal()];
@@ -53,13 +54,13 @@ class PreparedInsertCache {
         return toReturn;
     }
 
-    private ISQLitePreparedStatement prepareInsert(SquidDatabase db, Table table,
-            TableStatement.ConflictAlgorithm conflictAlgorithm) {
-        Object[] placeholders = new Object[table.getProperties().size()];
+    private ISQLitePreparedStatement prepareInsert(@Nonnull SquidDatabase db, @Nonnull Table table,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
+        List<Property<?>> properties = table.getProperties();
+        Object[] placeholders = new Object[properties.size()];
         Arrays.fill(placeholders, new Object());
 
-        Insert insert = Insert.into(table).columns(table.getProperties())
-                .values(placeholders).onConflict(conflictAlgorithm);
+        Insert insert = Insert.into(table).columns(properties).values(placeholders).onConflict(conflictAlgorithm);
         CompiledStatement compiled = insert.compile(db.getCompileContext());
 
         ISQLitePreparedStatement statement = db.prepareStatement(compiled.sql);

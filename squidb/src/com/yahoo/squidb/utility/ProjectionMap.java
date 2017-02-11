@@ -9,10 +9,12 @@ import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.SqlUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A mapping from column names to selectable {@link Field Fields}. This is useful for renaming columns passed as
@@ -34,7 +36,7 @@ public class ProjectionMap {
      *
      * @param other the other ProjectionMap to copy
      */
-    public ProjectionMap(ProjectionMap other) {
+    public ProjectionMap(@Nonnull ProjectionMap other) {
         map = new LinkedHashMap<>(other.map);
     }
 
@@ -46,7 +48,8 @@ public class ProjectionMap {
      * @param column the Field to add
      * @return the value of any previous mapping with the specified key, or null if there was no mapping
      */
-    public Field<?> put(String name, Field<?> column) {
+    @Nullable
+    public Field<?> put(@Nonnull String name, @Nonnull Field<?> column) {
         if (column == null) {
             throw new IllegalArgumentException("Cannot use null column in ProjectionMap");
         }
@@ -65,7 +68,8 @@ public class ProjectionMap {
      * @param column the Field to add
      * @return the value of any previous mapping with the specified key, or null if there was no mapping
      */
-    public Field<?> put(Field<?> column) {
+    @Nullable
+    public Field<?> put(@Nonnull Field<?> column) {
         if (column == null) {
             throw new IllegalArgumentException("Cannot use null column in ProjectionMap");
         }
@@ -77,8 +81,8 @@ public class ProjectionMap {
      *
      * @param columns the Fields to add
      */
-    public void putAll(Field<?>... columns) {
-        putAll(Arrays.asList(columns));
+    public void putAll(@Nonnull Field<?>... columns) {
+        putAll(SquidUtilities.asList(columns));
     }
 
     /**
@@ -86,11 +90,9 @@ public class ProjectionMap {
      *
      * @param columns the Fields to add
      */
-    public void putAll(List<? extends Field<?>> columns) {
-        if (columns != null) {
-            for (Field<?> field : columns) {
-                put(field);
-            }
+    public void putAll(@Nonnull List<? extends Field<?>> columns) {
+        for (Field<?> field : columns) {
+            put(field);
         }
     }
 
@@ -100,7 +102,8 @@ public class ProjectionMap {
      * @param expression the expression to add
      * @return the value of any previous mapping with the specified key, or null if there was no mapping
      */
-    public Field<?> put(String expression) {
+    @Nullable
+    public Field<?> put(@Nonnull String expression) {
         if (SqlUtils.isEmpty(expression)) {
             throw new IllegalArgumentException("Expression cannot be empty");
         }
@@ -113,13 +116,15 @@ public class ProjectionMap {
      * @param key the key
      * @return the {@link Field} mapped to the given key, or null if no mapping exists for that key
      */
-    public Field<?> get(String key) {
+    @Nullable
+    public Field<?> get(@Nonnull String key) {
         return map.get(key);
     }
 
     /**
      * @return a list of {@link Field Fields} in the map
      */
+    @Nonnull
     public List<Field<?>> getDefaultProjection() {
         return new ArrayList<>(map.values());
     }
@@ -127,6 +132,7 @@ public class ProjectionMap {
     /**
      * @return an array of keys (column names) in the map
      */
+    @Nonnull
     public String[] getDefaultProjectionNames() {
         return map.keySet().toArray(new String[map.size()]);
     }

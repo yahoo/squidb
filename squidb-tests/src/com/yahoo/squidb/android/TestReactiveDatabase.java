@@ -23,6 +23,8 @@ import com.yahoo.squidb.test.TriggerTester;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
+import javax.annotation.Nonnull;
+
 public class TestReactiveDatabase extends ReactiveSquidDatabase {
 
     private static final Index INDEX_TESTMODELS_LUCKYNUMBER = TestModel.TABLE
@@ -33,6 +35,7 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return "testDb";
     }
@@ -62,7 +65,9 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     }
 
     @Override
-    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
+    @Nonnull
+    protected ISQLiteOpenHelper createOpenHelper(@Nonnull String databaseName, @Nonnull OpenHelperDelegate delegate,
+            int version) {
         return SQLiteBindingProvider.getInstance().createOpenHelper(databaseName, delegate, version);
     }
 
@@ -72,12 +77,12 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
     }
 
     @Override
-    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
     }
 
     @Override
-    protected void onConfigure(ISQLiteDatabase db) {
+    protected void onConfigure(@Nonnull ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         Object wrappedObject = db.getWrappedObject();
         if (wrappedObject instanceof SQLiteDatabase) {

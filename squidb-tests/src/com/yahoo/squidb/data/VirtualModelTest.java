@@ -49,6 +49,7 @@ public class VirtualModelTest extends DatabaseTestCase {
 
         final long id = model.getRowId();
         TestVirtualModel fetched = database.fetch(TestVirtualModel.class, id, TestVirtualModel.PROPERTIES);
+        assertNotNull(fetched);
         assertEquals(id, fetched.getRowId());
         assertEquals(testNum, fetched.getTestNumber());
     }
@@ -63,6 +64,7 @@ public class VirtualModelTest extends DatabaseTestCase {
         long expectedId = model.getRowId();
 
         TestVirtualModel fetchedModel = database.fetchByQuery(TestVirtualModel.class, Query.select());
+        assertNotNull(fetchedModel);
         assertEquals(expectedId, fetchedModel.getRowId());
         assertEquals(model, fetchedModel);
     }

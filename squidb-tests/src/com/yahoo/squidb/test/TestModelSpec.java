@@ -18,7 +18,7 @@ import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.json.annotations.JSONColumn;
 import com.yahoo.squidb.sql.Order;
 import com.yahoo.squidb.sql.Property;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -128,7 +128,7 @@ public class TestModelSpec {
 
     @ModelMethod
     public static void run(TableModel instance) {
-        Logger.e(Logger.LOG_TAG, "TestModel: Interface method");
+        SquidbLog.e(SquidbLog.LOG_TAG, "TestModel: Interface method");
     }
 
     @ModelMethod

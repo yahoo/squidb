@@ -14,6 +14,9 @@ import com.yahoo.squidb.data.ValuesStorage;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Implementation of {@link ValuesStorage} that stores its values using {@link ContentValues}
  */
@@ -31,7 +34,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
     /**
      * Construct a ContentValuesStorage populated with a copy of the values from the given ContentValues.
      */
-    public ContentValuesStorage(ContentValues values) {
+    public ContentValuesStorage(@Nullable ContentValues values) {
         this(values, true);
     }
 
@@ -40,7 +43,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * This is an optimization for short-lived objects (e.g. for read/setPropertiesFromContentValues) or for inflating
      * this object from a parcel, when copying is not necessary
      */
-    ContentValuesStorage(ContentValues values, boolean copyValues) {
+    ContentValuesStorage(@Nullable ContentValues values, boolean copyValues) {
         if (values != null && !copyValues) {
             this.values = values;
         } else {
@@ -55,7 +58,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public boolean containsKey(String key) {
+    public boolean containsKey(@Nonnull String key) {
         return values.containsKey(key);
     }
 
@@ -63,7 +66,8 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public Object get(String key) {
+    @Nullable
+    public Object get(@Nonnull String key) {
         return values.get(key);
     }
 
@@ -71,7 +75,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void remove(String key) {
+    public void remove(@Nonnull String key) {
         values.remove(key);
     }
 
@@ -87,7 +91,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void putNull(String key) {
+    public void putNull(@Nonnull String key) {
         values.putNull(key);
     }
 
@@ -95,7 +99,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Boolean value) {
+    public void put(@Nonnull String key, @Nullable Boolean value) {
         values.put(key, value);
     }
 
@@ -103,7 +107,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Byte value) {
+    public void put(@Nonnull String key, @Nullable Byte value) {
         values.put(key, value);
     }
 
@@ -111,7 +115,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Double value) {
+    public void put(@Nonnull String key, @Nullable Double value) {
         values.put(key, value);
     }
 
@@ -119,7 +123,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Float value) {
+    public void put(@Nonnull String key, @Nullable Float value) {
         values.put(key, value);
     }
 
@@ -127,7 +131,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Integer value) {
+    public void put(@Nonnull String key, @Nullable Integer value) {
         values.put(key, value);
     }
 
@@ -135,7 +139,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Long value) {
+    public void put(@Nonnull String key, @Nullable Long value) {
         values.put(key, value);
     }
 
@@ -143,7 +147,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, Short value) {
+    public void put(@Nonnull String key, @Nullable Short value) {
         values.put(key, value);
     }
 
@@ -151,7 +155,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, String value) {
+    public void put(@Nonnull String key, @Nullable String value) {
         values.put(key, value);
     }
 
@@ -159,7 +163,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void put(String key, byte[] value) {
+    public void put(@Nonnull String key, @Nullable byte[] value) {
         values.put(key, value);
     }
 
@@ -167,15 +171,16 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
-    public void putAll(ValuesStorage other) {
-        if (other instanceof ContentValuesStorage) {
-            values.putAll(((ContentValuesStorage) other).values);
-        } else {
-            Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
-            for (Map.Entry<String, Object> entry : valuesSet) {
-                put(entry.getKey(), entry.getValue(), false);
+    public void putAll(@Nullable ValuesStorage other) {
+        if (other != null) {
+            if (other instanceof ContentValuesStorage) {
+                values.putAll(((ContentValuesStorage) other).values);
+            } else {
+                Set<Map.Entry<String, Object>> valuesSet = other.valueSet();
+                for (Map.Entry<String, Object> entry : valuesSet) {
+                    put(entry.getKey(), entry.getValue(), false);
+                }
             }
-
         }
     }
 
@@ -191,6 +196,7 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
+    @Nonnull
     public Set<Map.Entry<String, Object>> valueSet() {
         return values.valueSet();
     }
@@ -199,12 +205,13 @@ public class ContentValuesStorage extends ValuesStorage implements Parcelable {
      * {@inheritDoc}
      */
     @Override
+    @Nonnull
     public Set<String> keySet() {
         return values.keySet();
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         return (o instanceof ContentValuesStorage) &&
                 values.equals(((ContentValuesStorage) o).values);
     }

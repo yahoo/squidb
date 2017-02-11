@@ -12,5 +12,5 @@ SQUIDB_SAMPLE_CORE_SRC="${SRCROOT}/../squidb-sample-core/src/main/java"
 
 SOURCEPATH="${GEN}:${SQUIDB_SRC}:${SQUIDB_ANNOTATIONS_SRC}:${SQUIDB_SAMPLE_CORE_SRC}"
 
-javac -classpath "${J2OBJC_HOME}/lib/j2objc_annotations.jar:$JARS/*" -s $GEN -proc:only -sourcepath "${SOURCEPATH}" \
+javac -classpath "${J2OBJC_HOME}/lib/j2objc_annotations.jar:${J2OBJC_HOME}/lib/jsr305-3.0.0.jar:$JARS/*" -s $GEN -proc:only -sourcepath "${SOURCEPATH}" \
     $SQUIDB_SAMPLE_CORE_SRC/com/yahoo/squidb/sample/models/*.java

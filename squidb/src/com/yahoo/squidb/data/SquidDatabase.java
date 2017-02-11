@@ -11,6 +11,7 @@ import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.Criterion;
 import com.yahoo.squidb.sql.Delete;
 import com.yahoo.squidb.sql.Field;
+import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Insert;
 import com.yahoo.squidb.sql.Property;
@@ -24,14 +25,13 @@ import com.yahoo.squidb.sql.TableStatement;
 import com.yahoo.squidb.sql.Update;
 import com.yahoo.squidb.sql.View;
 import com.yahoo.squidb.sql.VirtualTable;
-import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.SquidbLog;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -43,6 +43,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * SquidDatabase is a database abstraction which wraps a SQLite database.
@@ -87,6 +90,7 @@ public abstract class SquidDatabase {
     /**
      * @return the database name
      */
+    @Nonnull
     public abstract String getName();
 
     /**
@@ -98,12 +102,14 @@ public abstract class SquidDatabase {
      * @return all {@link Table Tables} and {@link VirtualTable VirtualTables} and that should be created when the
      * database is created
      */
+    @Nullable
     protected abstract Table[] getTables();
 
     /**
      * @return all {@link View Views} that should be created when the database is created. Views will be created after
      * all Tables have been created.
      */
+    @Nullable
     protected View[] getViews() {
         return null;
     }
@@ -112,6 +118,7 @@ public abstract class SquidDatabase {
      * @return all {@link Index Indexes} that should be created when the database is created. Indexes will be created
      * after Tables and Views have been created.
      */
+    @Nullable
     protected Index[] getIndexes() {
         return null;
     }
@@ -124,7 +131,7 @@ public abstract class SquidDatabase {
      *
      * @param db the {@link ISQLiteDatabase} being created
      */
-    protected void onTablesCreated(ISQLiteDatabase db) {
+    protected void onTablesCreated(@Nonnull ISQLiteDatabase db) {
     }
 
     /**
@@ -154,7 +161,7 @@ public abstract class SquidDatabase {
      * @return true if the upgrade was handled successfully, false otherwise
      * @see #onMigrationFailed(MigrationFailedException)
      */
-    protected abstract boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion);
+    protected abstract boolean onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion);
 
     /**
      * Called when the database should be downgraded from one version to another. If this method returns false or
@@ -171,7 +178,7 @@ public abstract class SquidDatabase {
      * as downgrades are not considered successful unless explicitly handled.
      * @see #onMigrationFailed(MigrationFailedException)
      */
-    protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
         return false;
     }
 
@@ -199,7 +206,7 @@ public abstract class SquidDatabase {
      *
      * @param failure details about the upgrade or downgrade that failed
      */
-    protected void onMigrationFailed(MigrationFailedException failure) {
+    protected void onMigrationFailed(@Nonnull MigrationFailedException failure) {
         throw failure;
     }
 
@@ -222,7 +229,7 @@ public abstract class SquidDatabase {
      * @param failure the exception that caused opening the database to fail
      */
     @Beta
-    protected void onDatabaseOpenFailed(RuntimeException failure, int openFailureCount) {
+    protected void onDatabaseOpenFailed(@Nonnull RuntimeException failure, int openFailureCount) {
         throw failure;
     }
 
@@ -246,7 +253,7 @@ public abstract class SquidDatabase {
      *
      * @param db the {@link ISQLiteDatabase} being configured
      */
-    protected void onConfigure(ISQLiteDatabase db) {
+    protected void onConfigure(@Nonnull ISQLiteDatabase db) {
     }
 
     /**
@@ -255,7 +262,7 @@ public abstract class SquidDatabase {
      *
      * @param db the {@link ISQLiteDatabase} being opened
      */
-    protected void onOpen(ISQLiteDatabase db) {
+    protected void onOpen(@Nonnull ISQLiteDatabase db) {
     }
 
     /**
@@ -264,7 +271,7 @@ public abstract class SquidDatabase {
      *
      * @param db the {@link ISQLiteDatabase} that is about to close
      */
-    protected void onClose(ISQLiteDatabase db) {
+    protected void onClose(@Nonnull ISQLiteDatabase db) {
     }
 
     /**
@@ -274,8 +281,8 @@ public abstract class SquidDatabase {
      * @param message an error message
      * @param error the error that was encountered
      */
-    protected void onError(String message, Throwable error) {
-        Logger.e(Logger.LOG_TAG, getClass().getSimpleName() + " -- " + message, error);
+    protected void onError(@Nonnull String message, @Nullable Throwable error) {
+        SquidbLog.e(SquidbLog.LOG_TAG, getClass().getSimpleName() + " -- " + message, error);
     }
 
     // --- internal implementation
@@ -324,16 +331,18 @@ public abstract class SquidDatabase {
         registerTableModels(getViews());
     }
 
-    private <T extends SqlTable<?>> void registerTableModels(T[] tables) {
+    private <T extends SqlTable<?>> void registerTableModels(@Nullable T[] tables) {
         if (tables != null) {
             for (SqlTable<?> table : tables) {
-                if (table.getModelClass() != null && !tableMap.containsKey(table.getModelClass())) {
-                    tableMap.put(table.getModelClass(), table);
+                Class<? extends AbstractModel> modelClass = table.getModelClass();
+                if (modelClass != null && !tableMap.containsKey(modelClass)) {
+                    tableMap.put(modelClass, table);
                 }
             }
         }
     }
 
+    @Nonnull
     private synchronized ISQLiteOpenHelper getOpenHelper() {
         if (helper == null) {
             helper = createOpenHelper(getName(), new OpenHelperDelegate(), getVersion());
@@ -353,12 +362,14 @@ public abstract class SquidDatabase {
      * @param version the current database version
      * @return an object suitable for the current platform that implements the {@link ISQLiteOpenHelper} interface
      */
-    protected abstract ISQLiteOpenHelper createOpenHelper(String databaseName,
-            OpenHelperDelegate delegate, int version);
+    @Nonnull
+    protected abstract ISQLiteOpenHelper createOpenHelper(@Nonnull String databaseName,
+            @Nonnull OpenHelperDelegate delegate, int version);
 
     /**
      * @return the path to the underlying database file.
      */
+    @Nonnull
     public String getDatabasePath() {
         return getOpenHelper().getDatabasePath();
     }
@@ -370,7 +381,8 @@ public abstract class SquidDatabase {
      * @return the corresponding data source for the model. May be a table, view, or subquery
      * @throws UnsupportedOperationException if the model class is unknown to this database
      */
-    protected final SqlTable<?> getSqlTable(Class<? extends AbstractModel> modelClass) {
+    @Nonnull
+    protected final SqlTable<?> getSqlTable(@Nonnull Class<? extends AbstractModel> modelClass) {
         Class<?> type = modelClass;
         SqlTable<?> table;
         //noinspection SuspiciousMethodCalls
@@ -390,7 +402,8 @@ public abstract class SquidDatabase {
      * @return the corresponding table for the model
      * @throws UnsupportedOperationException if the model class is unknown to this database
      */
-    protected final Table getTable(Class<? extends TableModel> modelClass) {
+    @Nonnull
+    protected final Table getTable(@Nonnull Class<? extends TableModel> modelClass) {
         return (Table) getSqlTable(modelClass);
     }
 
@@ -416,6 +429,7 @@ public abstract class SquidDatabase {
      * @see #acquireExclusiveLock()
      * @see #acquireNonExclusiveLock()
      */
+    @Nonnull
     protected final ISQLiteDatabase getDatabase() {
         // If we get here, we should already have the non-exclusive lock
         synchronized (databaseInstanceLock) {
@@ -490,8 +504,9 @@ public abstract class SquidDatabase {
         preparedInsertCacheEnabled = enabled;
     }
 
+    @Nonnull
     private ThreadLocal<PreparedInsertCache> newPreparedInsertCache(
-            final Set<ISQLitePreparedStatement> openStatementTracking) {
+            @Nonnull final Set<ISQLitePreparedStatement> openStatementTracking) {
         return new ThreadLocal<PreparedInsertCache>() {
             @Override
             protected PreparedInsertCache initialValue() {
@@ -521,7 +536,8 @@ public abstract class SquidDatabase {
      * @throws IllegalStateException if either database has an open transaction on the current thread
      */
     @Beta
-    public final String attachDatabase(SquidDatabase other) {
+    @Nullable
+    public final String attachDatabase(@Nonnull SquidDatabase other) {
         if (attachedTo != null) {
             throw new IllegalStateException("Can't attach a database to a database that is itself attached");
         }
@@ -545,7 +561,7 @@ public abstract class SquidDatabase {
      * @return true if the other database was successfully detached
      */
     @Beta
-    public final boolean detachDatabase(SquidDatabase other) {
+    public final boolean detachDatabase(@Nonnull SquidDatabase other) {
         if (other.attachedTo != this) {
             throw new IllegalArgumentException("Database " + other.getName() + " is not attached to " + getName());
         }
@@ -553,7 +569,8 @@ public abstract class SquidDatabase {
         return other.detachFrom(this);
     }
 
-    private String attachTo(SquidDatabase attachTo) {
+    @Nullable
+    private String attachTo(@Nonnull SquidDatabase attachTo) {
         if (attachedTo != null) {
             throw new IllegalArgumentException(
                     "Database " + getName() + " is already attached to " + attachedTo.getName());
@@ -576,7 +593,7 @@ public abstract class SquidDatabase {
         }
     }
 
-    private boolean detachFrom(SquidDatabase detachFrom) {
+    private boolean detachFrom(@Nonnull SquidDatabase detachFrom) {
         if (detachFrom.tryExecSql("DETACH '" + getAttachedName() + "'")) {
             attachedTo = null;
             releaseExclusiveLock();
@@ -585,6 +602,7 @@ public abstract class SquidDatabase {
         return false;
     }
 
+    @Nonnull
     private String getAttachedName() {
         return getName().replace('.', '_');
     }
@@ -714,6 +732,7 @@ public abstract class SquidDatabase {
      * @return a human-readable database name for debugging
      */
     @Override
+    @Nonnull
     public String toString() {
         return "DB:" + getName();
     }
@@ -738,7 +757,8 @@ public abstract class SquidDatabase {
      * @param sqlArgs arguments to bind to the sql statement
      * @return a {@link ICursor} containing results of the query
      */
-    public ICursor rawQuery(String sql, Object[] sqlArgs) {
+    @Nonnull
+    public ICursor rawQuery(@Nonnull String sql, @Nullable Object[] sqlArgs) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().rawQuery(sql, sqlArgs);
@@ -757,7 +777,8 @@ public abstract class SquidDatabase {
      * @param sqlArgs arguments to bind to the sql statement
      * @return the String result of the query
      */
-    public String simpleQueryForString(String sql, Object[] sqlArgs) {
+    @Nullable
+    public String simpleQueryForString(@Nonnull String sql, @Nullable Object[] sqlArgs) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().simpleQueryForString(sql, sqlArgs);
@@ -776,7 +797,7 @@ public abstract class SquidDatabase {
      * @param sqlArgs arguments to bind to the sql statement
      * @return the long result of the query
      */
-    public long simpleQueryForLong(String sql, Object[] sqlArgs) {
+    public long simpleQueryForLong(@Nonnull String sql, @Nullable Object[] sqlArgs) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().simpleQueryForLong(sql, sqlArgs);
@@ -794,7 +815,8 @@ public abstract class SquidDatabase {
      * @param query a sql query
      * @return the String result of the query
      */
-    public String simpleQueryForString(Query query) {
+    @Nullable
+    public String simpleQueryForString(@Nonnull Query query) {
         CompiledStatement compiled = query.compile(getCompileContext());
         return simpleQueryForString(compiled.sql, compiled.sqlArgs);
     }
@@ -808,7 +830,7 @@ public abstract class SquidDatabase {
      * @param query a sql query
      * @return the long result of the query
      */
-    public long simpleQueryForLong(Query query) {
+    public long simpleQueryForLong(@Nonnull Query query) {
         CompiledStatement compiled = query.compile(getCompileContext());
         return simpleQueryForLong(compiled.sql, compiled.sqlArgs);
     }
@@ -818,7 +840,7 @@ public abstract class SquidDatabase {
      *
      * @return the row id of the last row inserted on success, -1 on failure
      */
-    private long insertInternal(Insert insert) {
+    private long insertInternal(@Nonnull Insert insert) {
         CompiledStatement compiled = insert.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
@@ -833,7 +855,7 @@ public abstract class SquidDatabase {
      *
      * @return the number of rows deleted on success, -1 on failure
      */
-    private int deleteInternal(Delete delete) {
+    private int deleteInternal(@Nonnull Delete delete) {
         CompiledStatement compiled = delete.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
@@ -848,7 +870,7 @@ public abstract class SquidDatabase {
      *
      * @return the number of rows updated on success, -1 on failure
      */
-    private int updateInternal(Update update) {
+    private int updateInternal(@Nonnull Update update) {
         CompiledStatement compiled = update.compile(getCompileContext());
         acquireNonExclusiveLock();
         try {
@@ -965,7 +987,7 @@ public abstract class SquidDatabase {
      * @see #acquireNonExclusiveLock()
      * @see ISQLiteDatabase#beginTransactionWithListener(SquidTransactionListener)
      */
-    public void beginTransactionWithListener(SquidTransactionListener listener) {
+    public void beginTransactionWithListener(@Nonnull SquidTransactionListener listener) {
         acquireNonExclusiveLock();
         try {
             getDatabase().beginTransactionWithListener(listener);
@@ -1006,7 +1028,7 @@ public abstract class SquidDatabase {
      * @see ISQLiteDatabase#beginTransactionWithListenerNonExclusive(SquidTransactionListener)
      * @see ISQLiteDatabase#enableWriteAheadLogging()
      */
-    public void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener) {
+    public void beginTransactionWithListenerNonExclusive(@Nonnull SquidTransactionListener listener) {
         acquireNonExclusiveLock();
         try {
             getDatabase().beginTransactionWithListenerNonExclusive(listener);
@@ -1187,7 +1209,7 @@ public abstract class SquidDatabase {
         /**
          * Called to create the database tables
          */
-        public void onCreate(ISQLiteDatabase db) {
+        public void onCreate(@Nonnull ISQLiteDatabase db) {
             setDatabase(db);
             StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
             SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
@@ -1225,7 +1247,7 @@ public abstract class SquidDatabase {
         /**
          * Called to upgrade the database to a new version
          */
-        public void onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
             setDatabase(db);
             boolean success = false;
             Exception thrown = null;
@@ -1251,7 +1273,7 @@ public abstract class SquidDatabase {
         /**
          * Called to downgrade the database to an older version
          */
-        public void onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onDowngrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
             setDatabase(db);
             boolean success = false;
             Exception thrown = null;
@@ -1274,18 +1296,18 @@ public abstract class SquidDatabase {
             }
         }
 
-        public void onConfigure(ISQLiteDatabase db) {
+        public void onConfigure(@Nonnull ISQLiteDatabase db) {
             setDatabase(db);
             SquidDatabase.this.onConfigure(db);
         }
 
-        public void onOpen(ISQLiteDatabase db) {
+        public void onOpen(@Nonnull ISQLiteDatabase db) {
             setDatabase(db);
             SquidDatabase.this.onOpen(db);
         }
     }
 
-    private void setDatabase(ISQLiteDatabase db) {
+    private void setDatabase(@Nullable ISQLiteDatabase db) {
         synchronized (databaseInstanceLock) {
             // If we're already holding a reference to the same object, don't need to update or recalculate the version
             if (database != null && db != null && db.getWrappedObject() == database.getWrappedObject()) {
@@ -1296,10 +1318,11 @@ public abstract class SquidDatabase {
         }
     }
 
-    private VersionCode readSqliteVersionLocked(ISQLiteDatabase db) {
+    @Nonnull
+    private VersionCode readSqliteVersionLocked(@Nonnull ISQLiteDatabase db) {
         try {
             String versionString = db.simpleQueryForString("select sqlite_version()", null);
-            return VersionCode.parse(versionString);
+            return VersionCode.parse(versionString != null ? versionString : "");
         } catch (RuntimeException e) {
             onError("Failed to read sqlite version", e);
             throw e;
@@ -1314,7 +1337,7 @@ public abstract class SquidDatabase {
      * @param property the Property associated with the column to add
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryAddColumn(Property<?> property) {
+    protected boolean tryAddColumn(@Nonnull Property<?> property) {
         if (!propertyBelongsToTable(property)) {
             throw new IllegalArgumentException("Can't alter table: property does not belong to a Table");
         }
@@ -1325,7 +1348,7 @@ public abstract class SquidDatabase {
         return tryExecSql(sql.toString());
     }
 
-    private boolean propertyBelongsToTable(Property<?> property) {
+    private boolean propertyBelongsToTable(@Nonnull Property<?> property) {
         return property.tableModelName.modelClass != null &&
                 TableModel.class.isAssignableFrom(property.tableModelName.modelClass) &&
                 !SqlUtils.isEmpty(property.tableModelName.tableName);
@@ -1337,7 +1360,7 @@ public abstract class SquidDatabase {
      * @param table the Table or VirtualTable to create
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateTable(Table table) {
+    protected boolean tryCreateTable(@Nonnull Table table) {
         SqlConstructorVisitor sqlVisitor = new SqlConstructorVisitor();
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
         table.appendCreateTableSql(getCompileContext(), sql, sqlVisitor);
@@ -1350,7 +1373,7 @@ public abstract class SquidDatabase {
      * @param table the Table or VirtualTable to drop
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryDropTable(Table table) {
+    protected boolean tryDropTable(@Nonnull Table table) {
         return tryExecSql("DROP TABLE IF EXISTS " + table.getExpression());
     }
 
@@ -1362,7 +1385,7 @@ public abstract class SquidDatabase {
      * @see com.yahoo.squidb.sql.View#fromQuery(com.yahoo.squidb.sql.Query, String)
      * @see com.yahoo.squidb.sql.View#temporaryFromQuery(com.yahoo.squidb.sql.Query, String)
      */
-    public boolean tryCreateView(View view) {
+    public boolean tryCreateView(@Nonnull View view) {
         StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
         view.createViewSql(getCompileContext(), sql);
         return tryExecSql(sql.toString());
@@ -1374,7 +1397,7 @@ public abstract class SquidDatabase {
      * @param view the View to drop
      * @return true if the statement executed without error, false otherwise
      */
-    public boolean tryDropView(View view) {
+    public boolean tryDropView(@Nonnull View view) {
         return tryExecSql("DROP VIEW IF EXISTS " + view.getExpression());
     }
 
@@ -1386,7 +1409,7 @@ public abstract class SquidDatabase {
      * @see com.yahoo.squidb.sql.Table#index(String, com.yahoo.squidb.sql.Property[])
      * @see com.yahoo.squidb.sql.Table#uniqueIndex(String, com.yahoo.squidb.sql.Property[])
      */
-    protected boolean tryCreateIndex(Index index) {
+    protected boolean tryCreateIndex(@Nonnull Index index) {
         return tryCreateIndex(index.getName(), index.getTable(), index.isUnique(), index.getProperties());
     }
 
@@ -1399,8 +1422,8 @@ public abstract class SquidDatabase {
      * @param properties the columns to create the index on
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateIndex(String indexName, Table table, boolean unique, Property<?>... properties) {
-        return tryCreateIndex(indexName, table, unique, Arrays.asList(properties));
+    protected boolean tryCreateIndex(@Nonnull String indexName, @Nonnull Table table, boolean unique, @Nonnull Property<?>... properties) {
+        return tryCreateIndex(indexName, table, unique, SquidUtilities.asList(properties));
     }
 
     /**
@@ -1412,8 +1435,8 @@ public abstract class SquidDatabase {
      * @param properties the columns to create the index on
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryCreateIndex(String indexName, Table table, boolean unique, List<? extends Property<?>> properties) {
-        if (properties == null || properties.size() == 0) {
+    protected boolean tryCreateIndex(@Nonnull String indexName, @Nonnull Table table, boolean unique, @Nonnull List<? extends Property<?>> properties) {
+        if (properties.size() == 0) {
             onError(String.format("Cannot create index %s: no properties specified", indexName), null);
             return false;
         }
@@ -1438,7 +1461,7 @@ public abstract class SquidDatabase {
      * @param index the Index to drop
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryDropIndex(Index index) {
+    protected boolean tryDropIndex(@Nonnull Index index) {
         return tryDropIndex(index.getName());
     }
 
@@ -1448,7 +1471,7 @@ public abstract class SquidDatabase {
      * @param indexName the name of the Index to drop
      * @return true if the statement executed without error, false otherwise
      */
-    protected boolean tryDropIndex(String indexName) {
+    protected boolean tryDropIndex(@Nonnull String indexName) {
         return tryExecSql("DROP INDEX IF EXISTS " + indexName);
     }
 
@@ -1458,7 +1481,7 @@ public abstract class SquidDatabase {
      * @param statement the statement to execute
      * @return true if the statement executed without error, false otherwise
      */
-    public boolean tryExecStatement(SqlStatement statement) {
+    public boolean tryExecStatement(@Nonnull SqlStatement statement) {
         CompiledStatement compiled = statement.compile(getCompileContext());
         return tryExecSql(compiled.sql, compiled.sqlArgs);
     }
@@ -1470,7 +1493,7 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without an error
      * @see ISQLiteDatabase#execSQL(String)
      */
-    public boolean tryExecSql(String sql) {
+    public boolean tryExecSql(@Nonnull String sql) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
@@ -1490,7 +1513,7 @@ public abstract class SquidDatabase {
      * @param sql the statement to execute
      * @see ISQLiteDatabase#execSQL(String)
      */
-    public void execSqlOrThrow(String sql) {
+    public void execSqlOrThrow(@Nonnull String sql) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql);
@@ -1508,7 +1531,7 @@ public abstract class SquidDatabase {
      * @return true if the statement executed without an error
      * @see ISQLiteDatabase#execSQL(String, Object[])
      */
-    public boolean tryExecSql(String sql, Object[] bindArgs) {
+    public boolean tryExecSql(@Nonnull String sql, @Nullable Object[] bindArgs) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);
@@ -1529,7 +1552,7 @@ public abstract class SquidDatabase {
      * @param bindArgs the arguments to bind to the statement
      * @see ISQLiteDatabase#execSQL(String, Object[])
      */
-    public void execSqlOrThrow(String sql, Object[] bindArgs) {
+    public void execSqlOrThrow(@Nonnull String sql, @Nullable Object[] bindArgs) {
         acquireNonExclusiveLock();
         try {
             getDatabase().execSQL(sql, bindArgs);
@@ -1542,6 +1565,7 @@ public abstract class SquidDatabase {
      * @return the current SQLite version as a {@link VersionCode}
      * @throws RuntimeException if the version could not be read
      */
+    @Nonnull
     public VersionCode getSqliteVersion() {
         VersionCode toReturn = sqliteVersion;
         if (toReturn == null) {
@@ -1564,6 +1588,7 @@ public abstract class SquidDatabase {
      * CompileContext object by overriding {@link #buildCompileContext(CompileContext.Builder)} to e.g. specify a
      * different implementation of {@link com.yahoo.squidb.sql.ArgumentResolver} to use.
      */
+    @Nonnull
     public final CompileContext getCompileContext() {
         CompileContext.Builder builder = new CompileContext.Builder(getSqliteVersion());
         buildCompileContext(builder);
@@ -1578,7 +1603,7 @@ public abstract class SquidDatabase {
      * @param builder a builder for a {@link CompileContext} object to be returned by {@link #getCompileContext()}
      * @see #getCompileContext()
      */
-    protected void buildCompileContext(CompileContext.Builder builder) {
+    protected void buildCompileContext(@Nonnull CompileContext.Builder builder) {
         // Subclasses can override to change the basic parameters of the CompileContext
     }
 
@@ -1610,7 +1635,8 @@ public abstract class SquidDatabase {
      * @param sql the SQL to compile into a prepared statement
      * @return a {@link ISQLitePreparedStatement} object representing the compiled SQL
      */
-    public ISQLitePreparedStatement prepareStatement(String sql) {
+    @Nonnull
+    public ISQLitePreparedStatement prepareStatement(@Nonnull String sql) {
         acquireNonExclusiveLock();
         try {
             return getDatabase().prepareStatement(sql);
@@ -1624,7 +1650,9 @@ public abstract class SquidDatabase {
      */
     private static class SqlConstructorVisitor implements PropertyVisitor<Void, StringBuilder> {
 
-        private Void appendColumnDefinition(String type, Property<?> property, StringBuilder sql) {
+        @Nullable
+        private Void appendColumnDefinition(@Nonnull String type, @Nonnull Property<?> property,
+                @Nonnull StringBuilder sql) {
             sql.append(property.getName()).append(" ").append(type);
             if (!SqlUtils.isEmpty(property.getColumnDefinition())) {
                 sql.append(" ").append(property.getColumnDefinition());
@@ -1633,32 +1661,38 @@ public abstract class SquidDatabase {
         }
 
         @Override
-        public Void visitDouble(Property<Double> property, StringBuilder sql) {
+        @Nullable
+        public Void visitDouble(@Nonnull Property<Double> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("REAL", property, sql);
         }
 
         @Override
-        public Void visitInteger(Property<Integer> property, StringBuilder sql) {
+        @Nullable
+        public Void visitInteger(@Nonnull Property<Integer> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("INTEGER", property, sql);
         }
 
         @Override
-        public Void visitLong(Property<Long> property, StringBuilder sql) {
+        @Nullable
+        public Void visitLong(@Nonnull Property<Long> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("INTEGER", property, sql);
         }
 
         @Override
-        public Void visitString(Property<String> property, StringBuilder sql) {
+        @Nullable
+        public Void visitString(@Nonnull Property<String> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("TEXT", property, sql);
         }
 
         @Override
-        public Void visitBoolean(Property<Boolean> property, StringBuilder sql) {
+        @Nullable
+        public Void visitBoolean(@Nonnull Property<Boolean> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("INTEGER", property, sql);
         }
 
         @Override
-        public Void visitBlob(Property<byte[]> property, StringBuilder sql) {
+        @Nullable
+        public Void visitBlob(@Nonnull Property<byte[]> property, @Nonnull StringBuilder sql) {
             return appendColumnDefinition("BLOB", property, sql);
         }
     }
@@ -1685,11 +1719,12 @@ public abstract class SquidDatabase {
         public final int oldVersion;
         public final int newVersion;
 
-        public MigrationFailedException(String dbName, int oldVersion, int newVersion) {
+        public MigrationFailedException(@Nonnull String dbName, int oldVersion, int newVersion) {
             this(dbName, oldVersion, newVersion, null);
         }
 
-        public MigrationFailedException(String dbName, int oldVersion, int newVersion, Throwable throwable) {
+        public MigrationFailedException(@Nonnull String dbName, int oldVersion, int newVersion,
+                @Nullable Throwable throwable) {
             super("Failed to migrate db " + dbName + " from version " + oldVersion + " to " + newVersion, throwable);
             this.dbName = dbName;
             this.oldVersion = oldVersion;
@@ -1707,7 +1742,9 @@ public abstract class SquidDatabase {
      * @param query the query to execute
      * @return a {@link SquidCursor} containing the query results
      */
-    public <TYPE extends AbstractModel> SquidCursor<TYPE> query(Class<TYPE> modelClass, Query query) {
+    @Nonnull
+    public <TYPE extends AbstractModel> SquidCursor<TYPE> query(@Nullable Class<TYPE> modelClass,
+            @Nonnull Query query) {
         query = inferTableForQuery(modelClass, query);
         CompiledStatement compiled = query.compile(getCompileContext());
         if (compiled.needsValidation) {
@@ -1720,20 +1757,17 @@ public abstract class SquidDatabase {
 
     // If the query does not have a from clause, look up the table by model object and add it to the query. May
     // return a new query object if the argument passed was frozen.
-    private Query inferTableForQuery(Class<? extends AbstractModel> modelClass, Query query) {
+    @Nonnull
+    private Query inferTableForQuery(@Nullable Class<? extends AbstractModel> modelClass, @Nonnull Query query) {
         if (!query.hasTable() && modelClass != null) {
             SqlTable<?> table = getSqlTable(modelClass);
-            if (table == null) {
-                throw new IllegalArgumentException("Query has no FROM clause and model class "
-                        + modelClass.getSimpleName() + " has no associated table");
-            }
             query = query.from(table); // If argument was frozen, we may get a new object
         }
         return query;
     }
 
     // For use only when validating queries
-    private void ensureSqlCompiles(String sql) {
+    private void ensureSqlCompiles(@Nonnull String sql) {
         acquireNonExclusiveLock();
         try {
             getDatabase().ensureSqlCompiles(sql);
@@ -1750,8 +1784,10 @@ public abstract class SquidDatabase {
      * @param properties the {@link Property properties} to read
      * @return an instance of the model with the given ID, or null if no record was found
      */
-    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, Property<?>... properties) {
-        return fetch(modelClass, id, Arrays.asList(properties));
+    @Nullable
+    public <TYPE extends TableModel> TYPE fetch(@Nonnull Class<TYPE> modelClass, long id,
+            @Nonnull Property<?>... properties) {
+        return fetch(modelClass, id, SquidUtilities.asList(properties));
     }
 
     /**
@@ -1762,7 +1798,9 @@ public abstract class SquidDatabase {
      * @param properties the {@link Property properties} to read
      * @return an instance of the model with the given ID, or null if no record was found
      */
-    public <TYPE extends TableModel> TYPE fetch(Class<TYPE> modelClass, long id, List<? extends Property<?>> properties) {
+    @Nullable
+    public <TYPE extends TableModel> TYPE fetch(@Nonnull Class<TYPE> modelClass, long id,
+            @Nonnull List<? extends Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchItemById(modelClass, id, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -1776,9 +1814,10 @@ public abstract class SquidDatabase {
      * @param criterion the criterion to match
      * @return an instance of the model matching the given criterion, or null if no record was found
      */
-    public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
-            Property<?>... properties) {
-        return fetchByCriterion(modelClass, criterion, Arrays.asList(properties));
+    @Nullable
+    public <TYPE extends AbstractModel> TYPE fetchByCriterion(@Nonnull Class<TYPE> modelClass,
+            @Nullable Criterion criterion, @Nonnull Property<?>... properties) {
+        return fetchByCriterion(modelClass, criterion, SquidUtilities.asList(properties));
     }
 
     /**
@@ -1790,8 +1829,9 @@ public abstract class SquidDatabase {
      * @param criterion the criterion to match
      * @return an instance of the model matching the given criterion, or null if no record was found
      */
-    public <TYPE extends AbstractModel> TYPE fetchByCriterion(Class<TYPE> modelClass, Criterion criterion,
-            List<? extends Property<?>> properties) {
+    @Nullable
+    public <TYPE extends AbstractModel> TYPE fetchByCriterion(@Nonnull Class<TYPE> modelClass,
+            @Nullable Criterion criterion, @Nonnull List<? extends Property<?>> properties) {
         SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, criterion, properties);
         return returnFetchResult(modelClass, cursor);
     }
@@ -1804,12 +1844,15 @@ public abstract class SquidDatabase {
      * @param query the query to execute
      * @return an instance of the model returned by the given query, or null if no record was found
      */
-    public <TYPE extends AbstractModel> TYPE fetchByQuery(Class<TYPE> modelClass, Query query) {
+    @Nullable
+    public <TYPE extends AbstractModel> TYPE fetchByQuery(@Nonnull Class<TYPE> modelClass, @Nonnull Query query) {
         SquidCursor<TYPE> cursor = fetchFirstItem(modelClass, query);
         return returnFetchResult(modelClass, cursor);
     }
 
-    protected <TYPE extends AbstractModel> TYPE returnFetchResult(Class<TYPE> modelClass, SquidCursor<TYPE> cursor) {
+    @Nullable
+    protected <TYPE extends AbstractModel> TYPE returnFetchResult(@Nonnull Class<TYPE> modelClass,
+            @Nonnull SquidCursor<TYPE> cursor) {
         try {
             if (cursor.getCount() == 0) {
                 return null;
@@ -1831,11 +1874,11 @@ public abstract class SquidDatabase {
      * @param id the row ID of the record
      * @return true if delete was successful
      */
-    public boolean delete(Class<? extends TableModel> modelClass, long id) {
+    public boolean delete(@Nonnull Class<? extends TableModel> modelClass, long id) {
         Table table = getTable(modelClass);
         int rowsUpdated = deleteInternal(Delete.from(table).where(table.getRowIdProperty().eq(id)));
         if (rowsUpdated > 0) {
-            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, id);
+            notifyForTable(table, DataChangedNotifier.DBOperation.DELETE, null, id);
         }
         return rowsUpdated > 0;
     }
@@ -1847,7 +1890,7 @@ public abstract class SquidDatabase {
      * @param where the Criterion to match. Note: passing null will delete all rows!
      * @return the number of deleted rows
      */
-    public int deleteWhere(Class<? extends TableModel> modelClass, Criterion where) {
+    public int deleteWhere(@Nonnull Class<? extends TableModel> modelClass, @Nullable Criterion where) {
         Table table = getTable(modelClass);
         Delete delete = Delete.from(table);
         if (where != null) {
@@ -1855,7 +1898,7 @@ public abstract class SquidDatabase {
         }
         int rowsUpdated = deleteInternal(delete);
         if (rowsUpdated > 0) {
-            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, table, TableModel.NO_ID);
+            notifyForTable(table, DataChangedNotifier.DBOperation.DELETE, null, TableModel.NO_ID);
         }
         return rowsUpdated;
     }
@@ -1866,7 +1909,7 @@ public abstract class SquidDatabase {
      * @param modelClass model class for the table to delete from
      * @return the number of deleted rows
      */
-    public int deleteAll(Class<? extends TableModel> modelClass) {
+    public int deleteAll(@Nonnull Class<? extends TableModel> modelClass) {
         return deleteWhere(modelClass, null);
     }
 
@@ -1880,10 +1923,10 @@ public abstract class SquidDatabase {
      * @param delete the statement to execute
      * @return the number of rows deleted on success, -1 on failure
      */
-    public int delete(Delete delete) {
+    public int delete(@Nonnull Delete delete) {
         int result = deleteInternal(delete);
         if (result > 0) {
-            notifyForTable(DataChangedNotifier.DBOperation.DELETE, null, delete.getTable(), TableModel.NO_ID);
+            notifyForTable(delete.getTable(), DataChangedNotifier.DBOperation.DELETE, null, TableModel.NO_ID);
         }
         return result;
     }
@@ -1903,8 +1946,8 @@ public abstract class SquidDatabase {
      * class implicitly defines the table to be updated.
      * @return the number of updated rows
      */
-    public int update(Criterion where, TableModel template) {
-        return updateWithOnConflict(where, template, null);
+    public int update(@Nullable Criterion where, @Nonnull TableModel template) {
+        return updateWithOnConflict(where, template, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -1914,7 +1957,7 @@ public abstract class SquidDatabase {
      * class implicitly defines the table to be updated.
      * @return the number of updated rows
      */
-    public int updateAll(TableModel template) {
+    public int updateAll(@Nonnull TableModel template) {
         return update(null, template);
     }
 
@@ -1929,21 +1972,19 @@ public abstract class SquidDatabase {
      * @return the number of updated rows
      * @see #update(Criterion, TableModel)
      */
-    public int updateWithOnConflict(Criterion where, TableModel template,
-            TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    public int updateWithOnConflict(@Nullable Criterion where, @Nonnull TableModel template,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = template.getClass();
         Table table = getTable(modelClass);
         Update update = Update.table(table).fromTemplate(template);
         if (where != null) {
             update.where(where);
         }
-        if (conflictAlgorithm != null) {
-            update.onConflict(conflictAlgorithm);
-        }
+        update.onConflict(conflictAlgorithm);
 
         int rowsUpdated = updateInternal(update);
         if (rowsUpdated > 0) {
-            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, template, table, TableModel.NO_ID);
+            notifyForTable(table, DataChangedNotifier.DBOperation.UPDATE, template, TableModel.NO_ID);
         }
         return rowsUpdated;
     }
@@ -1956,7 +1997,8 @@ public abstract class SquidDatabase {
      * @param conflictAlgorithm the conflict algorithm to use
      * @return the number of updated rows
      */
-    public int updateAllWithOnConflict(TableModel template, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    public int updateAllWithOnConflict(@Nonnull TableModel template,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         return updateWithOnConflict(null, template, conflictAlgorithm);
     }
 
@@ -1971,10 +2013,10 @@ public abstract class SquidDatabase {
      * @param update statement to execute
      * @return the number of rows updated on success, -1 on failure
      */
-    public int update(Update update) {
+    public int update(@Nonnull Update update) {
         int result = updateInternal(update);
         if (result > 0) {
-            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, null, update.getTable(), TableModel.NO_ID);
+            notifyForTable(update.getTable(), DataChangedNotifier.DBOperation.UPDATE, null, TableModel.NO_ID);
         }
         return result;
     }
@@ -1986,8 +2028,8 @@ public abstract class SquidDatabase {
      * @param item the model to save
      * @return true if current the model data is stored in the database
      */
-    public boolean persist(TableModel item) {
-        return persistWithOnConflict(item, null);
+    public boolean persist(@Nonnull TableModel item) {
+        return persistWithOnConflict(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2001,7 +2043,8 @@ public abstract class SquidDatabase {
      * @return true if current the model data is stored in the database
      * @see #persist(TableModel)
      */
-    public boolean persistWithOnConflict(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    public boolean persistWithOnConflict(@Nonnull TableModel item,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         if (!item.isSaved()) {
             return insertRow(item, conflictAlgorithm);
         }
@@ -2029,8 +2072,8 @@ public abstract class SquidDatabase {
      * @return true if the model was successfully upserted, false otherwise
      * @see Upsertable
      */
-    public <T extends TableModel & Upsertable> boolean upsert(T item) {
-        return upsertWithOnConflict(item, null);
+    public <T extends TableModel & Upsertable> boolean upsert(@Nonnull T item) {
+        return upsertWithOnConflict(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2056,8 +2099,8 @@ public abstract class SquidDatabase {
      * @see Upsertable
      */
     @SuppressWarnings("unchecked")
-    public <T extends TableModel & Upsertable> boolean upsertWithOnConflict(T item,
-            TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    public <T extends TableModel & Upsertable> boolean upsertWithOnConflict(@Nonnull T item,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         if (item.isSaved() && item.rowidSupersedesLogicalKey()) {
             return updateRow(item, conflictAlgorithm);
         }
@@ -2098,9 +2141,9 @@ public abstract class SquidDatabase {
      * @param item the model to save
      * @return true if current the model data is stored in the database
      */
-    public boolean createNew(TableModel item) {
+    public boolean createNew(@Nonnull TableModel item) {
         item.setRowId(TableModel.NO_ID);
-        return insertRow(item, null);
+        return insertRow(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2111,8 +2154,8 @@ public abstract class SquidDatabase {
      * @param item the model to save
      * @return true if current the model data is stored in the database
      */
-    public boolean saveExisting(TableModel item) {
-        return updateRow(item, null);
+    public boolean saveExisting(@Nonnull TableModel item) {
+        return updateRow(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2126,8 +2169,8 @@ public abstract class SquidDatabase {
      * @param item the model to insert
      * @return true if success, false otherwise
      */
-    protected final boolean insertRow(TableModel item) {
-        return insertRow(item, null);
+    protected final boolean insertRow(@Nonnull TableModel item) {
+        return insertRow(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2138,7 +2181,8 @@ public abstract class SquidDatabase {
      * @param conflictAlgorithm the conflict algorithm to use
      * @return true if success, false otherwise
      */
-    protected final boolean insertRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    protected final boolean insertRow(@Nonnull TableModel item,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
 
@@ -2160,22 +2204,20 @@ public abstract class SquidDatabase {
 
         boolean result = newRow > 0;
         if (result) {
-            notifyForTable(DataChangedNotifier.DBOperation.INSERT, item, table, newRow);
+            notifyForTable(table, DataChangedNotifier.DBOperation.INSERT, item, newRow);
             item.setRowId(newRow);
             item.markSaved();
         }
         return result;
     }
 
-    private long insertRowLegacy(TableModel item, Table table, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    private long insertRowLegacy(@Nonnull TableModel item, @Nonnull Table table,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         ValuesStorage mergedValues = item.getMergedValues();
         if (mergedValues.size() == 0) {
             return -1;
         }
-        Insert insert = Insert.into(table).fromValues(mergedValues);
-        if (conflictAlgorithm != null) {
-            insert.onConflict(conflictAlgorithm);
-        }
+        Insert insert = Insert.into(table).fromValues(mergedValues).onConflict(conflictAlgorithm);
         return insertInternal(insert);
     }
 
@@ -2186,8 +2228,8 @@ public abstract class SquidDatabase {
      * @param item the model to save
      * @return true if success, false otherwise
      */
-    protected final boolean updateRow(TableModel item) {
-        return updateRow(item, null);
+    protected final boolean updateRow(@Nonnull TableModel item) {
+        return updateRow(item, TableStatement.ConflictAlgorithm.NONE);
     }
 
     /**
@@ -2198,7 +2240,8 @@ public abstract class SquidDatabase {
      * @param conflictAlgorithm the conflict algorithm to use
      * @return true if success, false otherwise
      */
-    protected final boolean updateRow(TableModel item, TableStatement.ConflictAlgorithm conflictAlgorithm) {
+    protected final boolean updateRow(@Nonnull TableModel item,
+            @Nonnull TableStatement.ConflictAlgorithm conflictAlgorithm) {
         if (!item.isModified()) { // nothing changed
             return true;
         }
@@ -2208,13 +2251,12 @@ public abstract class SquidDatabase {
 
         Class<? extends TableModel> modelClass = item.getClass();
         Table table = getTable(modelClass);
-        Update update = Update.table(table).fromTemplate(item).where(table.getRowIdProperty().eq(item.getRowId()));
-        if (conflictAlgorithm != null) {
-            update.onConflict(conflictAlgorithm);
-        }
+        Update update = Update.table(table).fromTemplate(item)
+                .where(table.getRowIdProperty().eq(item.getRowId()))
+                .onConflict(conflictAlgorithm);
         boolean result = updateInternal(update) > 0;
         if (result) {
-            notifyForTable(DataChangedNotifier.DBOperation.UPDATE, item, table, item.getRowId());
+            notifyForTable(table, DataChangedNotifier.DBOperation.UPDATE, item, item.getRowId());
             item.markSaved();
         }
         return result;
@@ -2230,11 +2272,11 @@ public abstract class SquidDatabase {
      * @param insert the statement to execute
      * @return the row id of the last row inserted on success, 0 on failure
      */
-    public long insert(Insert insert) {
+    public long insert(@Nonnull Insert insert) {
         long result = insertInternal(insert);
         if (result > TableModel.NO_ID) {
             int numInserted = insert.getNumRows();
-            notifyForTable(DataChangedNotifier.DBOperation.INSERT, null, insert.getTable(),
+            notifyForTable(insert.getTable(), DataChangedNotifier.DBOperation.INSERT, null,
                     numInserted == 1 ? result : TableModel.NO_ID);
         }
         return result;
@@ -2242,28 +2284,34 @@ public abstract class SquidDatabase {
 
     // --- helper methods
 
-    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
-            Property<?>... properties) {
-        return fetchItemById(modelClass, id, Arrays.asList(properties));
+    @Nonnull
+    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(@Nonnull Class<TYPE> modelClass, long id,
+            @Nonnull Property<?>... properties) {
+        return fetchItemById(modelClass, id, SquidUtilities.asList(properties));
     }
 
-    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(Class<TYPE> modelClass, long id,
-            List<? extends Property<?>> properties) {
+    @Nonnull
+    protected <TYPE extends TableModel> SquidCursor<TYPE> fetchItemById(@Nonnull Class<TYPE> modelClass, long id,
+            @Nonnull List<? extends Property<?>> properties) {
         Table table = getTable(modelClass);
         return fetchFirstItem(modelClass, table.getRowIdProperty().eq(id), properties);
     }
 
-    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
-            Criterion criterion, Property<?>... properties) {
-        return fetchFirstItem(modelClass, criterion, Arrays.asList(properties));
+    @Nonnull
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(@Nonnull Class<TYPE> modelClass,
+            @Nullable Criterion criterion, @Nonnull Property<?>... properties) {
+        return fetchFirstItem(modelClass, criterion, SquidUtilities.asList(properties));
     }
 
-    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass,
-            Criterion criterion, List<? extends Property<?>> properties) {
+    @Nonnull
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(@Nonnull Class<TYPE> modelClass,
+            @Nullable Criterion criterion, @Nonnull List<? extends Property<?>> properties) {
         return fetchFirstItem(modelClass, Query.select(properties).where(criterion));
     }
 
-    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(Class<TYPE> modelClass, Query query) {
+    @Nonnull
+    protected <TYPE extends AbstractModel> SquidCursor<TYPE> fetchFirstItem(@Nonnull Class<TYPE> modelClass,
+            @Nonnull Query query) {
         boolean immutableQuery = query.isImmutable();
         Field<Integer> beforeLimit = query.getLimit();
         SqlTable<?> beforeTable = query.getTable();
@@ -2277,15 +2325,14 @@ public abstract class SquidDatabase {
     }
 
     /**
-     * Count the number of rows matching a given {@link Criterion}. Use null to count all rows.
+     * Count the number of rows matching a given {@link Criterion}. Passing a null criterion will count all rows.
      *
      * @param modelClass the model class corresponding to the table
      * @param criterion the criterion to match
      * @return the number of rows matching the given criterion
      */
-    public int count(Class<? extends AbstractModel> modelClass, Criterion criterion) {
-        Property.IntegerProperty countProperty = Property.IntegerProperty.countProperty();
-        Query query = Query.select(countProperty);
+    public int count(@Nonnull Class<? extends AbstractModel> modelClass, @Nullable Criterion criterion) {
+        Query query = Query.select(Function.count());
         if (criterion != null) {
             query.where(criterion);
         }
@@ -2305,7 +2352,7 @@ public abstract class SquidDatabase {
      * @param modelClass the model class corresponding to the table
      * @return the number of rows in the table
      */
-    public int countAll(Class<? extends AbstractModel> modelClass) {
+    public int countAll(@Nonnull Class<? extends AbstractModel> modelClass) {
         return count(modelClass, null);
     }
 
@@ -2332,13 +2379,13 @@ public abstract class SquidDatabase {
      *
      * @param notifier the DataChangedNotifier to register
      */
-    public void registerDataChangedNotifier(DataChangedNotifier<?> notifier) {
+    public void registerDataChangedNotifier(@Nullable DataChangedNotifier<?> notifier) {
         if (notifier == null) {
             return;
         }
         synchronized (notifiersLock) {
             Collection<SqlTable<?>> tables = notifier.whichTables();
-            if (tables == null || tables.isEmpty()) {
+            if (tables.isEmpty()) {
                 globalNotifiers.add(notifier);
             } else {
                 for (SqlTable<?> table : tables) {
@@ -2359,13 +2406,13 @@ public abstract class SquidDatabase {
      *
      * @param notifier the DataChangedNotifier to unregister
      */
-    public void unregisterDataChangedNotifier(DataChangedNotifier<?> notifier) {
+    public void unregisterDataChangedNotifier(@Nullable DataChangedNotifier<?> notifier) {
         if (notifier == null) {
             return;
         }
         synchronized (notifiersLock) {
             Collection<SqlTable<?>> tables = notifier.whichTables();
-            if (tables == null || tables.isEmpty()) {
+            if (tables.isEmpty()) {
                 globalNotifiers.remove(notifier);
             } else {
                 for (SqlTable<?> table : tables) {
@@ -2404,22 +2451,22 @@ public abstract class SquidDatabase {
         return dataChangedNotificationsEnabled;
     }
 
-    private void notifyForTable(DataChangedNotifier.DBOperation op, AbstractModel modelValues, SqlTable<?> table,
-            long rowId) {
+    private void notifyForTable(@Nonnull SqlTable<?> table, @Nonnull DataChangedNotifier.DBOperation op,
+            @Nullable AbstractModel modelValues, long rowId) {
         if (!dataChangedNotificationsEnabled) {
             return;
         }
         synchronized (notifiersLock) {
-            onDataChanged(globalNotifiers, op, modelValues, table, rowId);
-            onDataChanged(tableNotifiers.get(table), op, modelValues, table, rowId);
+            onDataChanged(globalNotifiers, table, op, modelValues, rowId);
+            onDataChanged(tableNotifiers.get(table), table, op, modelValues, rowId);
         }
         if (!inTransaction()) {
             flushAccumulatedNotifications(true);
         }
     }
 
-    private void onDataChanged(List<DataChangedNotifier<?>> notifiers, DataChangedNotifier.DBOperation op,
-            AbstractModel modelValues, SqlTable<?> table, long rowId) {
+    private void onDataChanged(List<DataChangedNotifier<?>> notifiers, @Nonnull SqlTable<?> table,
+            @Nonnull DataChangedNotifier.DBOperation op, @Nullable AbstractModel modelValues, long rowId) {
         if (notifiers != null) {
             for (DataChangedNotifier<?> notifier : notifiers) {
                 if (notifier.onDataChanged(table, this, op, modelValues, rowId)) {
@@ -2445,12 +2492,12 @@ public abstract class SquidDatabase {
      * Directly analogous to {@link #query(Class, Query)}, but instead of returning a result, this method just logs the
      * output of EXPLAIN QUERY PLAN for the given query. This is method is intended for debugging purposes only.
      */
-    public void explainQueryPlan(Class<? extends AbstractModel> modelClass, Query query) {
+    public void explainQueryPlan(@Nullable Class<? extends AbstractModel> modelClass, @Nonnull Query query) {
         query = inferTableForQuery(modelClass, query);
         CompiledStatement compiled = query.compile(getCompileContext());
         ICursor cursor = rawQuery("EXPLAIN QUERY PLAN " + compiled.sql, compiled.sqlArgs);
         try {
-            Logger.d(Logger.LOG_TAG, "Query plan for: " + compiled.sql);
+            SquidbLog.d(SquidbLog.LOG_TAG, "Query plan for: " + compiled.sql);
             SquidUtilities.dumpCursor(cursor, -1);
         } finally {
             cursor.close();
@@ -2466,7 +2513,7 @@ public abstract class SquidDatabase {
      * @param toDir the directory to copy the database files to
      * @return true if copying the database files succeeded, false otherwise
      */
-    public boolean copyDatabase(File toDir) {
+    public boolean copyDatabase(@Nonnull File toDir) {
         acquireExclusiveLock();
         try {
             return copyDatabaseLocked(toDir);
@@ -2475,9 +2522,9 @@ public abstract class SquidDatabase {
         }
     }
 
-    private boolean copyDatabaseLocked(File toDir) {
+    private boolean copyDatabaseLocked(@Nonnull File toDir) {
         if (!(toDir.mkdirs() || toDir.isDirectory())) {
-            Logger.e(Logger.LOG_TAG, "Error creating directories for database copy");
+            SquidbLog.e(SquidbLog.LOG_TAG, "Error creating directories for database copy");
             return false;
         }
         File dbFile = new File(getDatabasePath());
@@ -2487,17 +2534,17 @@ public abstract class SquidDatabase {
                 copyFileIfExists(new File(dbFile.getPath() + "-shm"), toDir);
                 copyFileIfExists(new File(dbFile.getPath() + "-wal"), toDir);
             } else {
-                Logger.e(Logger.LOG_TAG, "Attempted to copy database " + getName() + " but it doesn't exist yet");
+                SquidbLog.e(SquidbLog.LOG_TAG, "Attempted to copy database " + getName() + " but it doesn't exist yet");
                 return false;
             }
         } catch (IOException e) {
-            Logger.e(Logger.LOG_TAG, "Error copying database " + getName(), e);
+            SquidbLog.e(SquidbLog.LOG_TAG, "Error copying database " + getName(), e);
             return false;
         }
         return true;
     }
 
-    private boolean copyFileIfExists(File in, File toDir) throws IOException {
+    private boolean copyFileIfExists(@Nonnull File in, @Nonnull File toDir) throws IOException {
         if (in.exists()) {
             SquidUtilities.copyFile(in, new File(toDir.getAbsolutePath() + File.separator + in.getName()));
             return true;

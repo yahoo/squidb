@@ -5,26 +5,32 @@
  */
 package com.yahoo.squidb.json;
 
+import com.yahoo.squidb.sql.Field;
 import com.yahoo.squidb.sql.Function;
 import com.yahoo.squidb.sql.Property.StringProperty;
 import com.yahoo.squidb.sql.SqlTable;
 import com.yahoo.squidb.sql.TableModelName;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class JSONProperty<T> extends StringProperty {
 
-    public JSONProperty(TableModelName tableModelName, String name) {
+    public JSONProperty(@Nonnull TableModelName tableModelName, @Nonnull String name) {
         super(tableModelName, name);
     }
 
-    public JSONProperty(TableModelName tableModelName, String name, String columnDefinition) {
+    public JSONProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
+            @Nullable String columnDefinition) {
         super(tableModelName, name, columnDefinition);
     }
 
-    public JSONProperty(TableModelName tableModelName, String name, String alias, String columnDefinition) {
+    public JSONProperty(@Nonnull TableModelName tableModelName, @Nonnull String name, @Nullable String alias,
+            @Nullable String columnDefinition) {
         super(tableModelName, name, alias, columnDefinition);
     }
 
-    public JSONProperty(Function<String> function, String alias) {
+    public JSONProperty(@Nonnull Function<String> function, @Nonnull String alias) {
         super(function, alias);
     }
 
@@ -35,7 +41,8 @@ public class JSONProperty<T> extends StringProperty {
      * @param function the function
      * @param selectAs the alias to use. May be null.
      */
-    public static <T> JSONProperty<T> fromJSONFunction(Function<String> function, String selectAs) {
+    @Nonnull
+    public static <T> JSONProperty<T> fromJSONFunction(@Nonnull Function<String> function, @Nonnull String selectAs) {
         return new JSONProperty<>(function, selectAs);
     }
 
@@ -46,31 +53,36 @@ public class JSONProperty<T> extends StringProperty {
      * @param jsonString the JSON string to use
      * @param selectAs the alias to use. May be null.
      */
-    public static <T> JSONProperty<T> fromJSONString(String jsonString, String selectAs) {
-        return fromJSONFunction(JSONFunctions.json(jsonString), selectAs);
+    @Nonnull
+    public static <T> JSONProperty<T> fromJSONString(@Nullable String jsonString, @Nonnull String selectAs) {
+        return fromJSONFunction(JSONFunctions.json(jsonString == null ? Field.NULL : jsonString), selectAs);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public JSONProperty<T> as(String newAlias) {
+    @Nonnull
+    public JSONProperty<T> as(@Nonnull String newAlias) {
         return (JSONProperty<T>) super.as(newAlias);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public JSONProperty<T> as(String tableAlias, String columnAlias) {
+    @Nonnull
+    public JSONProperty<T> as(@Nonnull String tableAlias, @Nonnull String columnAlias) {
         return (JSONProperty<T>) super.as(tableAlias, columnAlias);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public JSONProperty<T> as(SqlTable<?> newTable, String columnAlias) {
+    @Nonnull
+    public JSONProperty<T> as(@Nonnull SqlTable<?> newTable, @Nonnull String columnAlias) {
         return (JSONProperty<T>) super.as(newTable, columnAlias);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public JSONProperty<T> asSelectionFromTable(SqlTable<?> newTable, String columnAlias) {
+    @Nonnull
+    public JSONProperty<T> asSelectionFromTable(@Nonnull SqlTable<?> newTable, @Nullable String columnAlias) {
         return (JSONProperty<T>) super.asSelectionFromTable(newTable, columnAlias);
     }
 }

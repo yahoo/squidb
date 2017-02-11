@@ -13,6 +13,8 @@ import com.yahoo.squidb.sample.models.Task;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 
+import javax.annotation.Nonnull;
+
 /**
  * Implementation of SquidDatabase for this tasks app. Remember--instances of your SquidDatabase
  * subclass should always be singletons!
@@ -39,6 +41,7 @@ public class TasksDatabase extends SquidDatabase {
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return "hello-squidb-tasks.db";
     }
@@ -64,7 +67,7 @@ public class TasksDatabase extends SquidDatabase {
     }
 
     @Override
-    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
         // Example DB migration if the tags table and tasks.priority columns were added in version 2
         switch (oldVersion) {
             case 1:
@@ -76,7 +79,8 @@ public class TasksDatabase extends SquidDatabase {
     }
 
     @Override
-    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate,
+    @Nonnull
+    protected ISQLiteOpenHelper createOpenHelper(@Nonnull String databaseName, @Nonnull OpenHelperDelegate delegate,
             int version) {
         return OpenHelperCreator.getCreator().createOpenHelper(databaseName, delegate, version);
     }

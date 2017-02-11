@@ -19,6 +19,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class DataChangedNotifierTest extends DatabaseTestCase {
 
     private static class TestDataChangedNotifier extends DataChangedNotifier<TestDataChangedNotifier> {
@@ -28,15 +31,16 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         private Set<TestDataChangedNotifier> accumulatorSet = null;
 
         @Override
-        protected boolean accumulateNotificationObjects(Set<TestDataChangedNotifier> accumulatorSet, SqlTable<?> table,
-                SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+        protected boolean accumulateNotificationObjects(@Nonnull Set<TestDataChangedNotifier> accumulatorSet,
+                @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                @Nullable AbstractModel modelValues, long rowId) {
             accumulateCalled = true;
             this.accumulatorSet = accumulatorSet;
             return accumulatorSet.add(this);
         }
 
         @Override
-        protected void sendNotification(SquidDatabase database, TestDataChangedNotifier notifyObject) {
+        protected void sendNotification(@Nonnull SquidDatabase database, @Nullable TestDataChangedNotifier notifyObject) {
             sendNotificationCalled = true;
             assertTrue(notifyObject == this);
         }
@@ -49,7 +53,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
     public void testFlushAccumulationsClearsSet() {
         TestDataChangedNotifier notifier = new TestDataChangedNotifier();
 
-        notifier.onDataChanged(null, database, DataChangedNotifier.DBOperation.INSERT, null, 0);
+        notifier.onDataChanged(TestModel.TABLE, database, DataChangedNotifier.DBOperation.INSERT, null, 0);
         assertFalse(notifier.accumulatorSet.isEmpty());
         notifier.flushAccumulatedNotifications(database, true);
         assertTrue(notifier.accumulateCalled);
@@ -57,7 +61,7 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         assertTrue(notifier.accumulatorSet.isEmpty());
         notifier.reset();
 
-        notifier.onDataChanged(null, database, DataChangedNotifier.DBOperation.INSERT, null, 0);
+        notifier.onDataChanged(TestModel.TABLE, database, DataChangedNotifier.DBOperation.INSERT, null, 0);
         assertFalse(notifier.accumulatorSet.isEmpty());
         notifier.flushAccumulatedNotifications(database, false);
         assertTrue(notifier.accumulateCalled);
@@ -176,10 +180,9 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
             final AbstractModel expectedModel, final long expectedRowId) {
         TestDataChangedNotifier notifier = new TestDataChangedNotifier() {
             @Override
-            protected boolean accumulateNotificationObjects(Set<TestDataChangedNotifier> accumulatorSet,
-                    SqlTable<?> table,
-                    SquidDatabase database, DataChangedNotifier.DBOperation operation, AbstractModel modelValues,
-                    long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<TestDataChangedNotifier> accumulatorSet,
+                    @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database,
+                    @Nonnull DataChangedNotifier.DBOperation operation, @Nullable AbstractModel modelValues, long rowId) {
                 assertEquals(expectedTable, table);
                 assertEquals(expectedOp, operation);
                 assertEquals(expectedModel, modelValues);
@@ -213,9 +216,9 @@ public class DataChangedNotifierTest extends DatabaseTestCase {
         final Set<SqlTable<?>> calledForTables = new HashSet<>();
         TestDataChangedNotifier globalNotifier = new TestDataChangedNotifier() {
             @Override
-            protected boolean accumulateNotificationObjects(Set<TestDataChangedNotifier> accumulatorSet,
-                    SqlTable<?> table, SquidDatabase database, DBOperation operation,
-                    AbstractModel modelValues, long rowId) {
+            protected boolean accumulateNotificationObjects(@Nonnull Set<TestDataChangedNotifier> accumulatorSet,
+                    @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+                    @Nullable AbstractModel modelValues, long rowId) {
                 calledForTables.add(table);
                 return super.accumulateNotificationObjects(accumulatorSet, table, database, operation,
                         modelValues, rowId);

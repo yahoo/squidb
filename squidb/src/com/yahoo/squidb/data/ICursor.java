@@ -15,6 +15,9 @@
  */
 package com.yahoo.squidb.data;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * This class is a fork of android.database.Cursor free of any Android-specific dependencies. It is used to provide
  * a common interface that various SQLite adapters can conform to when returning query results
@@ -164,7 +167,7 @@ public interface ICursor {
      * the column name does not exist.
      * @see #getColumnIndexOrThrow(String)
      */
-    int getColumnIndex(String columnName);
+    int getColumnIndex(@Nonnull String columnName);
 
     /**
      * Returns the zero-based index for the given column name, or throws
@@ -177,7 +180,7 @@ public interface ICursor {
      * @throws IllegalArgumentException if the column does not exist
      * @see #getColumnIndex(String)
      */
-    int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException;
+    int getColumnIndexOrThrow(@Nonnull String columnName) throws IllegalArgumentException;
 
     /**
      * Returns the column name at the given zero-based column index.
@@ -185,6 +188,7 @@ public interface ICursor {
      * @param columnIndex the zero-based index of the target column.
      * @return the column name for the given column index.
      */
+    @Nonnull
     String getColumnName(int columnIndex);
 
     /**
@@ -193,6 +197,7 @@ public interface ICursor {
      *
      * @return the names of the columns returned in this query.
      */
+    @Nonnull
     String[] getColumnNames();
 
     /**
@@ -212,6 +217,7 @@ public interface ICursor {
      * @param columnIndex the zero-based index of the target column.
      * @return the value of that column as a byte array.
      */
+    @Nullable
     byte[] getBlob(int columnIndex);
 
     /**
@@ -224,6 +230,7 @@ public interface ICursor {
      * @param columnIndex the zero-based index of the target column.
      * @return the value of that column as a String.
      */
+    @Nullable
     String getString(int columnIndex);
 
     /**

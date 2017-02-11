@@ -7,24 +7,28 @@ package com.yahoo.squidb.sql;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 class InCollectionCriterion extends BinaryCriterion {
 
     private final Collection<?> collection;
 
-    InCollectionCriterion(Field<?> expression, Operator operator, Collection<?> value) {
+    InCollectionCriterion(@Nonnull Field<?> expression, @Nonnull Operator operator, @Nullable Collection<?> value) {
         super(expression, operator, value);
         this.collection = value;
     }
 
     @Override
-    protected void afterPopulateOperator(SqlBuilder builder, boolean forSqlValidation) {
+    protected void afterPopulateOperator(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("(");
         builder.addCollectionArg(collection);
         builder.sql.append(")");
     }
 
     @Override
-    protected BinaryCriterion constructNegatedCriterion(Operator negatedOperator) {
+    @Nonnull
+    protected BinaryCriterion constructNegatedCriterion(@Nonnull Operator negatedOperator) {
         return new InCollectionCriterion(field, negatedOperator, collection);
     }
 }

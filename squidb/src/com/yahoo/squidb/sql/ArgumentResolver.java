@@ -5,6 +5,8 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nullable;
+
 /**
  * This interface defines methods for resolving higher-level objects found in SQL builders like Query into the
  * lower-level primitives that are bound to the SQLite query at execution time. For example, an implementation of
@@ -32,6 +34,7 @@ public interface ArgumentResolver {
      * If the argument resolver does not map the given argument into one of these primitive types, it will eventually
      * be bound to the statement as a string using toString().
      */
-    Object resolveArgument(Object arg);
+    @Nullable
+    Object resolveArgument(@Nullable Object arg);
 
 }

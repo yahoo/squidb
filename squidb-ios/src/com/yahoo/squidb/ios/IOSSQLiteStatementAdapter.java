@@ -8,6 +8,9 @@ package com.yahoo.squidb.ios;
 import com.yahoo.android.sqlite.SQLiteStatement;
 import com.yahoo.squidb.data.ISQLitePreparedStatement;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Wrapper for the iOS port of SQLiteStatement that implements the common {@link ISQLitePreparedStatement} interface.
  */
@@ -15,7 +18,7 @@ public class IOSSQLiteStatementAdapter implements ISQLitePreparedStatement {
 
     private final SQLiteStatement statement;
 
-    IOSSQLiteStatementAdapter(SQLiteStatement statement) {
+    IOSSQLiteStatementAdapter(@Nonnull SQLiteStatement statement) {
         this.statement = statement;
     }
 
@@ -40,12 +43,12 @@ public class IOSSQLiteStatementAdapter implements ISQLitePreparedStatement {
     }
 
     @Override
-    public void bindString(int index, String value) {
+    public void bindString(int index, @Nonnull String value) {
         statement.bindString(index, value);
     }
 
     @Override
-    public void bindBlob(int index, byte[] value) {
+    public void bindBlob(int index, @Nonnull byte[] value) {
         statement.bindBlob(index, value);
     }
 
@@ -75,6 +78,7 @@ public class IOSSQLiteStatementAdapter implements ISQLitePreparedStatement {
     }
 
     @Override
+    @Nullable
     public String simpleQueryForString() {
         return statement.simpleQueryForString();
     }

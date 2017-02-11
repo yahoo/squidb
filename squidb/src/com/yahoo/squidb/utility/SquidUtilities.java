@@ -13,8 +13,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Various utility functions for SquiDB
@@ -26,7 +31,7 @@ public class SquidUtilities {
      *
      * @param cursor the cursor to print
      */
-    public static void dumpCursor(ICursor cursor) {
+    public static void dumpCursor(@Nullable ICursor cursor) {
         dumpCursor(cursor, 20);
     }
 
@@ -36,10 +41,10 @@ public class SquidUtilities {
      * @param cursor the cursor to dump
      * @param maxColumnWidth maximum width for each column
      */
-    public static void dumpCursor(ICursor cursor, int maxColumnWidth) {
+    public static void dumpCursor(@Nullable ICursor cursor, int maxColumnWidth) {
         StringBuilder builder = new StringBuilder("\n");
         dumpCursor(cursor, maxColumnWidth, builder);
-        Logger.d(Logger.LOG_TAG, builder.toString());
+        SquidbLog.d(SquidbLog.LOG_TAG, builder.toString());
     }
 
     /**
@@ -48,7 +53,7 @@ public class SquidUtilities {
      * @param cursor the cursor to dump
      * @param builder the builder to append to
      */
-    public static void dumpCursor(ICursor cursor, StringBuilder builder) {
+    public static void dumpCursor(@Nullable ICursor cursor, @Nonnull StringBuilder builder) {
         dumpCursor(cursor, 20, builder);
     }
 
@@ -59,7 +64,7 @@ public class SquidUtilities {
      * @param maxColumnWidth maximum width for each column
      * @param builder the builder to append to
      */
-    public static void dumpCursor(ICursor cursor, int maxColumnWidth, StringBuilder builder) {
+    public static void dumpCursor(@Nullable ICursor cursor, int maxColumnWidth, @Nonnull StringBuilder builder) {
         if (cursor == null) {
             builder.append("Cursor is null");
             return;
@@ -88,7 +93,7 @@ public class SquidUtilities {
      *
      * @param cursor the cursor, with its position already moved to the desired row
      */
-    public static void dumpCurrentRow(ICursor cursor) {
+    public static void dumpCurrentRow(@Nonnull ICursor cursor) {
         dumpCurrentRow(cursor, 20);
     }
 
@@ -98,10 +103,10 @@ public class SquidUtilities {
      * @param cursor the cursor, with its position already moved to the desired row
      * @param maxColumnWidth maximum width for each column
      */
-    public static void dumpCurrentRow(ICursor cursor, int maxColumnWidth) {
+    public static void dumpCurrentRow(@Nonnull ICursor cursor, int maxColumnWidth) {
         StringBuilder builder = new StringBuilder("\n");
         dumpCurrentRow(cursor, maxColumnWidth, builder);
-        Logger.d(Logger.LOG_TAG, builder.toString());
+        SquidbLog.d(SquidbLog.LOG_TAG, builder.toString());
     }
 
     /**
@@ -110,7 +115,7 @@ public class SquidUtilities {
      * @param cursor the cursor, with its position already moved to the desired row
      * @param builder the builder to append to
      */
-    public static void dumpCurrentRow(ICursor cursor, StringBuilder builder) {
+    public static void dumpCurrentRow(@Nonnull ICursor cursor, @Nonnull StringBuilder builder) {
         dumpCurrentRow(cursor, 20, builder);
     }
 
@@ -121,13 +126,13 @@ public class SquidUtilities {
      * @param maxColumnWidth maximum width for each column
      * @param builder the builder to append to
      */
-    public static void dumpCurrentRow(ICursor cursor, int maxColumnWidth, StringBuilder builder) {
+    public static void dumpCurrentRow(@Nonnull ICursor cursor, int maxColumnWidth, @Nonnull StringBuilder builder) {
         for (int i = 0, count = cursor.getColumnCount(); i < count; i++) {
             addColumnToRowBuilder(builder, cursor.getString(i), maxColumnWidth);
         }
     }
 
-    private static void addColumnToRowBuilder(StringBuilder builder, String value, int maxColumnWidth) {
+    private static void addColumnToRowBuilder(@Nonnull StringBuilder builder, @Nullable String value, int maxColumnWidth) {
         if (value == null) {
             value = "null";
         }
@@ -148,10 +153,23 @@ public class SquidUtilities {
      * A version of {@link Collection#addAll(Collection)} that performs a null check on its second argument. It can be
      * safely used with a varargs array its caller has or with any other array.
      */
-    public static <T> void addAll(Collection<T> collection, T[] objects) {
+    public static <T> void addAll(@Nonnull Collection<T> collection, @Nullable T[] objects) {
         if (objects != null) {
             Collections.addAll(collection, objects);
         }
+    }
+
+    /**
+     * A version of {@link Arrays#asList(Object[])} that performs a null check on the objects array. It can be
+     * safely used with a varargs array its caller has or with any other array. If the array argument is null, an
+     * empty list is returned.
+     */
+    @Nonnull
+    public static <T> List<T> asList(@Nullable T[] objects) {
+        if (objects == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(objects);
     }
 
     // --- serialization
@@ -159,7 +177,7 @@ public class SquidUtilities {
     /**
      * Copy a file from one place to another
      */
-    public static void copyFile(File in, File out) throws IOException {
+    public static void copyFile(@Nonnull File in, @Nonnull File out) throws IOException {
         FileInputStream fis = new FileInputStream(in);
         FileOutputStream fos = new FileOutputStream(out);
         try {
@@ -173,7 +191,7 @@ public class SquidUtilities {
     /**
      * Copy a stream from source to destination
      */
-    private static void copyStream(InputStream source, OutputStream dest) throws IOException {
+    private static void copyStream(@Nonnull InputStream source, @Nonnull OutputStream dest) throws IOException {
         int bytes;
         byte[] buffer;
         int BUFFER_SIZE = 1024;

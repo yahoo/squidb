@@ -7,9 +7,12 @@ package com.yahoo.squidb.json;
 
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.sql.SqlUtils;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.lang.reflect.Type;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Business logic of managing serialization and deserialization of JSON properties. Clients of this plugin should
@@ -22,7 +25,7 @@ public class JSONPropertySupport {
 
     private static JSONMapper MAPPER = null;
 
-    public static void setJSONMapper(JSONMapper jsonMapper) {
+    public static void setJSONMapper(@Nonnull JSONMapper jsonMapper) {
         MAPPER = jsonMapper;
     }
 
@@ -39,7 +42,9 @@ public class JSONPropertySupport {
     /**
      * Deserialize a JSON string property into the specified Java type
      */
-    public static <T> T getValueFromJSON(AbstractModel model, JSONProperty<T> property, Type javaType) {
+    @Nullable
+    public static <T> T getValueFromJSON(@Nonnull AbstractModel model, @Nonnull JSONProperty<T> property,
+            @Nonnull Type javaType) {
         String transitoryKey = transitoryKeyForProperty(property);
         checkCacheIntegrity(model, property, transitoryKey);
 
@@ -55,7 +60,7 @@ public class JSONPropertySupport {
                     data = MAPPER.fromJSON(json, javaType);
                 } catch (Exception e) {
                     // TODO: Should this throw or at least not cache null?
-                    Logger.w(TAG, "Error deserializing JSON string: " + json, e);
+                    SquidbLog.w(TAG, "Error deserializing JSON string: " + json, e);
                     model.clearValue(property);
                 }
             }
@@ -72,7 +77,8 @@ public class JSONPropertySupport {
      *
      * @return true if the value object was successfully serialized, false otherwise
      */
-    public static <T> boolean setValueAsJSON(AbstractModel model, JSONProperty<T> property, T data, Type javaType) {
+    public static <T> boolean setValueAsJSON(@Nonnull AbstractModel model, @Nonnull JSONProperty<T> property,
+            @Nullable T data, @Nonnull Type javaType) {
         try {
             String json = null;
             if (data != null) {
@@ -89,7 +95,7 @@ public class JSONPropertySupport {
             putJSONTransitory(model, transitoryKeyForProperty(property), data, json);
             return true;
         } catch (Exception e) {
-            Logger.w(TAG, "Error serializing object to JSON string: " + data, e);
+            SquidbLog.w(TAG, "Error serializing object to JSON string: " + data, e);
             // TODO: Should this throw?
             return false;
         }

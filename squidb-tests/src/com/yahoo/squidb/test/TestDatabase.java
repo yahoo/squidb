@@ -14,6 +14,8 @@ import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
 
+import javax.annotation.Nonnull;
+
 public class TestDatabase extends SquidDatabase {
 
     public boolean caughtCustomMigrationException;
@@ -27,6 +29,7 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return "testDb";
     }
@@ -62,7 +65,9 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected ISQLiteOpenHelper createOpenHelper(String databaseName, OpenHelperDelegate delegate, int version) {
+    @Nonnull
+    protected ISQLiteOpenHelper createOpenHelper(@Nonnull String databaseName,
+            @Nonnull OpenHelperDelegate delegate, int version) {
         return SQLiteBindingProvider.getInstance().createOpenHelper(databaseName, delegate, version);
     }
 
@@ -72,34 +77,34 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected void onTablesCreated(ISQLiteDatabase db) {
+    protected void onTablesCreated(@Nonnull ISQLiteDatabase db) {
         super.onTablesCreated(db);
     }
 
     @Override
-    protected boolean onUpgrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onUpgrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
         return true;
     }
 
     @Override
-    protected void onOpen(ISQLiteDatabase db) {
+    protected void onOpen(@Nonnull ISQLiteDatabase db) {
         super.onOpen(db);
     }
 
     @Override
-    protected void onConfigure(ISQLiteDatabase db) {
+    protected void onConfigure(@Nonnull ISQLiteDatabase db) {
         /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
         db.enableWriteAheadLogging();
         setPreparedInsertCacheEnabled(true);
     }
 
     @Override
-    protected boolean onDowngrade(ISQLiteDatabase db, int oldVersion, int newVersion) {
+    protected boolean onDowngrade(@Nonnull ISQLiteDatabase db, int oldVersion, int newVersion) {
         throw new CustomMigrationException(getName(), oldVersion, newVersion);
     }
 
     @Override
-    protected void onMigrationFailed(MigrationFailedException failure) {
+    protected void onMigrationFailed(@Nonnull MigrationFailedException failure) {
         if (failure instanceof CustomMigrationException) {
             // suppress
             caughtCustomMigrationException = true;
@@ -107,7 +112,7 @@ public class TestDatabase extends SquidDatabase {
     }
 
     @Override
-    protected void buildCompileContext(CompileContext.Builder builder) {
+    protected void buildCompileContext(@Nonnull CompileContext.Builder builder) {
         if (useCustomArgumentBinder) {
             builder.setArgumentResolver(new DefaultArgumentResolver() {
                 @Override

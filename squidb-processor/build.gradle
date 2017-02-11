@@ -15,6 +15,7 @@ dependencies {
     testCompile 'org.mockito:mockito-core:2.6.2'
 
     compile 'com.squareup:javapoet:1.8.0'
+    compile 'com.google.code.findbugs:jsr305:3.0.1' // For nullability annotations
     compile project(':squidb-annotations')
 }
 

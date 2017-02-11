@@ -14,6 +14,8 @@ import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.data.SquidDatabase;
 
+import javax.annotation.Nonnull;
+
 /**
  * ISQLiteOpenHelper implementation for a standard Android SQLiteOpenHelper. When on Android, returning an instance of
  * this class in {@link SquidDatabase#createOpenHelper(String, SquidDatabase.OpenHelperDelegate, int)} will connect
@@ -24,14 +26,15 @@ public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHe
     private final Context context;
     private final SquidDatabase.OpenHelperDelegate delegate;
 
-    public AndroidOpenHelper(Context context, String name, SquidDatabase.OpenHelperDelegate delegate,
-            int version) {
+    public AndroidOpenHelper(@Nonnull Context context, @Nonnull String name,
+            @Nonnull SquidDatabase.OpenHelperDelegate delegate, int version) {
         super(context.getApplicationContext(), name, null, version);
         this.context = context.getApplicationContext();
         this.delegate = delegate;
     }
 
     @Override
+    @Nonnull
     public ISQLiteDatabase openForWriting() {
         SQLiteDatabase database = super.getWritableDatabase();
         return new SQLiteDatabaseAdapter(database);
@@ -72,6 +75,7 @@ public class AndroidOpenHelper extends SQLiteOpenHelper implements ISQLiteOpenHe
     }
 
     @Override
+    @Nonnull
     public String getDatabasePath() {
         return context.getDatabasePath(getDatabaseName()).getAbsolutePath();
     }

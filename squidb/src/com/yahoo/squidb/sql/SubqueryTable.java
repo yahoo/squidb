@@ -7,14 +7,19 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
 
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A table represented by a subquery
  */
 public class SubqueryTable extends QueryTable {
 
-    private SubqueryTable(Class<? extends ViewModel> modelClass, List<Property<?>> properties, String name, Query query) {
+    private SubqueryTable(@Nullable Class<? extends ViewModel> modelClass, @Nonnull List<Property<?>> properties,
+            @Nonnull String name, @Nonnull Query query) {
         super(modelClass, properties, name, null, query);
     }
 
@@ -25,8 +30,9 @@ public class SubqueryTable extends QueryTable {
      * @param name the name for the table
      * @return a new SubqueryTable
      */
-    public static SubqueryTable fromQuery(Query query, String name) {
-        return new SubqueryTable(null, null, name, query);
+    @Nonnull
+    public static SubqueryTable fromQuery(@Nonnull Query query, @Nonnull String name) {
+        return new SubqueryTable(null, Collections.<Property<?>>emptyList(), name, query);
     }
 
     /**
@@ -38,23 +44,26 @@ public class SubqueryTable extends QueryTable {
      * @param modelClass the ViewModel to associate
      * @return a new SubqueryTable
      */
-    public static SubqueryTable fromQuery(Query query, String name, Class<? extends ViewModel> modelClass,
-            List<Property<?>> properties) {
+    @Nonnull
+    public static SubqueryTable fromQuery(@Nonnull Query query, @Nonnull String name,
+            @Nonnull Class<? extends ViewModel> modelClass, @Nonnull List<Property<?>> properties) {
         return new SubqueryTable(modelClass, properties, name, query);
     }
 
     @Override
-    public SubqueryTable as(String newAlias) {
+    @Nonnull
+    public SubqueryTable as(@Nonnull String newAlias) {
         return (SubqueryTable) super.as(newAlias);
     }
 
     @Override
-    protected SubqueryTable asNewAliasWithProperties(String newAlias, List<Property<?>> newProperties) {
+    @Nonnull
+    protected SubqueryTable asNewAliasWithProperties(@Nonnull String newAlias, @Nonnull List<Property<?>> newProperties) {
         return new SubqueryTable(modelClass, newProperties, newAlias, query);
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("(");
         query.appendToSqlBuilder(builder, forSqlValidation);
         builder.sql.append(") AS ").append(getName());

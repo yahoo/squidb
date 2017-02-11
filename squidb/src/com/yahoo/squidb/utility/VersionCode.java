@@ -10,6 +10,9 @@ import com.yahoo.squidb.sql.SqlUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Represents a version code of the form {@code major.minor.micro.trailing}.
  */
@@ -35,7 +38,7 @@ public class VersionCode implements Comparable<VersionCode> {
     /**
      * @throws IllegalArgumentException if any value is less than zero.
      */
-    public VersionCode(int major, int minor, int micro, int nano, String trailing) {
+    public VersionCode(int major, int minor, int micro, int nano, @Nullable String trailing) {
         if (major < 0 || minor < 0 || micro < 0 || nano < 0) {
             throw new IllegalArgumentException(
                     "Can't use a value less than zero to construct a VersionCode.");
@@ -86,7 +89,7 @@ public class VersionCode implements Comparable<VersionCode> {
      * @return true if the version represented by this object is equal to or greater than the version represented by the
      * {@code version} argument.
      */
-    public boolean isAtLeast(VersionCode version) {
+    public boolean isAtLeast(@Nonnull VersionCode version) {
         return this.compareTo(version) >= 0;
     }
 
@@ -94,7 +97,7 @@ public class VersionCode implements Comparable<VersionCode> {
      * @return true if the version represented by this object is equal to or greater than the version represented by the
      * {@code versionString} argument.
      */
-    public boolean isAtLeast(String versionString) {
+    public boolean isAtLeast(@Nonnull String versionString) {
         return isAtLeast(parse(versionString));
     }
 
@@ -102,7 +105,7 @@ public class VersionCode implements Comparable<VersionCode> {
      * @return true if the version represented by this object is less than the version represented by the
      * {@code version} argument.
      */
-    public boolean isLessThan(VersionCode version) {
+    public boolean isLessThan(@Nonnull VersionCode version) {
         return this.compareTo(version) < 0;
     }
 
@@ -110,7 +113,7 @@ public class VersionCode implements Comparable<VersionCode> {
      * @return true if the version represented by this object is less than the version represented by the
      * {@code versionString} argument.
      */
-    public boolean isLessThan(String versionString) {
+    public boolean isLessThan(@Nonnull String versionString) {
         return isLessThan(parse(versionString));
     }
 
@@ -134,7 +137,8 @@ public class VersionCode implements Comparable<VersionCode> {
      *
      * @throws IllegalArgumentException if the input cannot be parsed.
      */
-    public static VersionCode parse(String versionString) {
+    @Nonnull
+    public static VersionCode parse(@Nonnull String versionString) {
         if (SqlUtils.isEmpty(versionString)) {
             throw new IllegalArgumentException("Empty versionString");
         }
@@ -165,7 +169,7 @@ public class VersionCode implements Comparable<VersionCode> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }
@@ -178,7 +182,7 @@ public class VersionCode implements Comparable<VersionCode> {
     }
 
     @Override
-    public int compareTo(VersionCode other) {
+    public int compareTo(@Nonnull VersionCode other) {
         if (this == other) {
             return 0;
         }
@@ -208,6 +212,7 @@ public class VersionCode implements Comparable<VersionCode> {
     }
 
     @Override
+    @Nonnull
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(Integer.toString(majorVersion))

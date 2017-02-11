@@ -13,6 +13,9 @@ import com.yahoo.squidb.sql.Table;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Represents a row in a SQLite table. Each model has an ID property that references the rowid in the table. This value
  * can be retrieved by calling {@link #getRowId()}. Conventionally, the presence of an ID other than {@link #NO_ID}
@@ -52,6 +55,7 @@ public abstract class TableModel extends AbstractModel {
      * @return this model instance, to allow chaining calls
      */
     @ObjectiveCName("setRowId:")
+    @Nonnull
     public TableModel setRowId(long rowid) {
         if (rowid == NO_ID) {
             clearValue(getRowIdProperty());
@@ -74,9 +78,10 @@ public abstract class TableModel extends AbstractModel {
     /**
      * @return a {@link LongProperty representing the rowid of the table}
      */
+    @Nonnull
     public abstract LongProperty getRowIdProperty();
 
-    void bindValuesForInsert(Table table, ISQLitePreparedStatement preparedInsert) {
+    void bindValuesForInsert(@Nonnull Table table, @Nonnull ISQLitePreparedStatement preparedInsert) {
         LongProperty rowidProperty = getRowIdProperty();
         List<Property<?>> allProperties = table.getProperties();
 
@@ -112,8 +117,9 @@ public abstract class TableModel extends AbstractModel {
             implements Property.PropertyWritingVisitor<Void, ISQLitePreparedStatement, ModelAndIndex> {
 
         @Override
-        public Void visitInteger(Property<Integer> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitInteger(@Nonnull Property<Integer> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             Integer val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);
@@ -124,8 +130,9 @@ public abstract class TableModel extends AbstractModel {
         }
 
         @Override
-        public Void visitLong(Property<Long> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitLong(@Nonnull Property<Long> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             Long val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);
@@ -136,8 +143,9 @@ public abstract class TableModel extends AbstractModel {
         }
 
         @Override
-        public Void visitDouble(Property<Double> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitDouble(@Nonnull Property<Double> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             Double val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);
@@ -148,8 +156,9 @@ public abstract class TableModel extends AbstractModel {
         }
 
         @Override
-        public Void visitString(Property<String> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitString(@Nonnull Property<String> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             String val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);
@@ -160,8 +169,9 @@ public abstract class TableModel extends AbstractModel {
         }
 
         @Override
-        public Void visitBoolean(Property<Boolean> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitBoolean(@Nonnull Property<Boolean> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             Boolean val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);
@@ -172,8 +182,9 @@ public abstract class TableModel extends AbstractModel {
         }
 
         @Override
-        public Void visitBlob(Property<byte[]> property, ISQLitePreparedStatement preparedStatement,
-                ModelAndIndex data) {
+        @Nullable
+        public Void visitBlob(@Nonnull Property<byte[]> property, @Nonnull ISQLitePreparedStatement preparedStatement,
+                @Nonnull ModelAndIndex data) {
             byte[] val = data.model.get(property, false);
             if (val == null) {
                 preparedStatement.bindNull(data.index);

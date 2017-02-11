@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A statement that operates on a {@link SqlTable}
  */
@@ -50,7 +53,8 @@ public abstract class TableStatement extends CompilableWithArguments implements 
     private CompiledArgumentResolver compiledArgumentResolver = null;
 
     @Override
-    public final synchronized CompiledStatement compile(CompileContext compileContext) {
+    @Nonnull
+    public final synchronized CompiledStatement compile(@Nonnull CompileContext compileContext) {
         if (compiledArgumentResolver == null) {
             SqlBuilder builder = buildSql(compileContext, true, false);
             compiledArgumentResolver = new CompiledArgumentResolver(builder);
@@ -58,11 +62,13 @@ public abstract class TableStatement extends CompilableWithArguments implements 
         return compiledArgumentResolver.resolveToCompiledStatement();
     }
 
-    public final String sqlForValidation(CompileContext compileContext) {
+    @Nonnull
+    public final String sqlForValidation(@Nonnull CompileContext compileContext) {
         SqlBuilder builder = buildSql(compileContext, true, true);
         return new CompiledArgumentResolver(builder).resolveToCompiledStatement().sql;
     }
 
+    @Nullable
     public abstract SqlTable<?> getTable();
 
     /**

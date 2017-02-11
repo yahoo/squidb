@@ -18,7 +18,7 @@ package com.yahoo.android.sqlite;
 
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.sql.SqlUtils;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -392,8 +392,8 @@ public class SQLiteQueryBuilder {
                 projectionIn, selection, groupBy, having,
                 sortOrder, limit);
 
-        if (Logger.isLoggable(TAG, Logger.Level.DEBUG)) {
-            Logger.d(TAG, "Performing query: " + sql);
+        if (SquidbLog.isLoggable(TAG, SquidbLog.Level.DEBUG)) {
+            SquidbLog.d(TAG, "Performing query: " + sql);
         }
         return db.rawQueryWithFactory(
                 mFactory, sql, selectionArgs,

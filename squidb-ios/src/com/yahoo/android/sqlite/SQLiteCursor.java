@@ -16,10 +16,12 @@
 
 package com.yahoo.android.sqlite;
 
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 /**
  * A Cursor implementation that exposes results from a query on a
@@ -141,8 +143,8 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
-                if (Logger.isLoggable(TAG, Logger.Level.INFO)) {
-                    Logger.i(TAG, "received count(*) from native_fill_window: " + mCount);
+                if (SquidbLog.isLoggable(TAG, SquidbLog.Level.INFO)) {
+                    SquidbLog.i(TAG, "received count(*) from native_fill_window: " + mCount);
                 }
             } else {
                 int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
@@ -160,7 +162,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
     }
 
     @Override
-    public int getColumnIndex(String columnName) {
+    public int getColumnIndex(@Nonnull String columnName) {
         // Create mColumnNameMap on demand
         if (mColumnNameMap == null) {
             String[] columns = mColumns;
@@ -176,7 +178,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         final int periodIndex = columnName.lastIndexOf('.');
         if (periodIndex != -1) {
             Exception e = new Exception();
-            Logger.e(TAG, "requesting column name with table name -- " + columnName, e);
+            SquidbLog.e(TAG, "requesting column name with table name -- " + columnName, e);
             columnName = columnName.substring(periodIndex + 1);
         }
 
@@ -189,6 +191,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
     }
 
     @Override
+    @Nonnull
     public String[] getColumnNames() {
         return mColumns;
     }
@@ -232,7 +235,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             return super.requery();
         } catch (IllegalStateException e) {
             // for backwards compatibility, just return false
-            Logger.w(TAG, "requery() failed " + e.getMessage(), e);
+            SquidbLog.w(TAG, "requery() failed " + e.getMessage(), e);
             return false;
         }
     }
@@ -262,7 +265,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                     String sql = mQuery.getSql();
                     int len = sql.length();
 //                    StrictMode.onSqliteObjectLeaked(
-                    Logger.e(TAG,
+                    SquidbLog.e(TAG,
                             "Finalizing a Cursor that has not been deactivated or closed. " +
                                     "database = " + mQuery.getDatabase().getLabel() +
                                     ", table = " + mEditTable +

@@ -113,6 +113,7 @@ public class SquidCursorAdapterTest extends DatabaseTestCase {
             SquidCursor<TestModel> cursor2 = database.query(TestModel.class, Query.select().where(TestModel.ID.eq(1)));
             try {
                 SquidCursor<?> swappedCursor = adapter.swapCursor(cursor2);
+                assertNotNull(swappedCursor);
                 assertFalse(swappedCursor.isClosed());
             } finally {
                 adapter.swapCursor(null);

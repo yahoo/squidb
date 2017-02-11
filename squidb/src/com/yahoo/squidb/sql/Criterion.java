@@ -5,10 +5,13 @@
  */
 package com.yahoo.squidb.sql;
 
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidUtilities;
+import com.yahoo.squidb.utility.SquidbLog;
 
-import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Criterions are primarily used to construct the WHERE clause of a SQL statement. Most criterion objects can be
@@ -42,45 +45,51 @@ public abstract class Criterion extends CompilableWithArguments {
     /**
      * @return a {@link Criterion} that combines the given criterions with AND
      */
-    public static Criterion and(Criterion criterion, Criterion... criterions) {
+    @Nonnull
+    public static Criterion and(@Nonnull Criterion criterion, @Nonnull Criterion... criterions) {
         return new ConjunctionCriterion(Operator.and, criterion, criterions);
     }
 
     /**
      * @return a {@link Criterion} that combines the given criterions with AND
      */
-    public static Criterion and(List<Criterion> criterions) {
+    @Nonnull
+    public static Criterion and(@Nonnull List<Criterion> criterions) {
         return new ConjunctionCriterion(Operator.and, criterions);
     }
 
     /**
      * @return a {@link Criterion} that combines the given criterions with OR
      */
-    public static Criterion or(Criterion criterion, Criterion... criterions) {
+    @Nonnull
+    public static Criterion or(@Nonnull Criterion criterion, @Nonnull Criterion... criterions) {
         return new ConjunctionCriterion(Operator.or, criterion, criterions);
     }
 
     /**
      * @return a {@link Criterion} that combines the given criterions with OR
      */
-    public static Criterion or(List<Criterion> criterions) {
+    @Nonnull
+    public static Criterion or(@Nonnull List<Criterion> criterions) {
         return new ConjunctionCriterion(Operator.or, criterions);
     }
 
     /**
      * @return a {@link Criterion} that negates the given criterion
      */
-    public static Criterion not(Criterion criterion) {
+    @Nonnull
+    public static Criterion not(@Nonnull Criterion criterion) {
         return new NegationCriterion(criterion);
     }
 
     /**
      * @return a {@link Criterion} that evaluates whether the specified {@link Query} returns any rows
      */
-    public static Criterion exists(final Query query) {
+    @Nonnull
+    public static Criterion exists(@Nonnull final Query query) {
         return new Criterion(Operator.exists) {
             @Override
-            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            protected void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
                 builder.sql.append(operator).append("(");
                 query.appendToSqlBuilder(builder, forSqlValidation);
                 builder.sql.append(")");
@@ -99,22 +108,23 @@ public abstract class Criterion extends CompilableWithArguments {
      * {@link com.yahoo.squidb.data.SquidDatabase#update(Update) SquidDatabase.update}, or
      * {@link com.yahoo.squidb.data.SquidDatabase#delete(Delete) SquidDatabase.delete}
      */
-    public static Criterion fromRawSelection(final String selection, final String[] selectionArgs) {
+    @Nullable
+    public static Criterion fromRawSelection(@Nullable final String selection, @Nullable final String[] selectionArgs) {
         if (SqlUtils.isEmpty(selection)) {
             return null;
         }
         return new Criterion(null) {
             @Override
-            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            protected void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
                 if (forSqlValidation) {
                     builder.sql.append("(");
                 }
                 builder.sql.append(selection);
                 if (selectionArgs != null && selectionArgs.length > 0) {
                     if (builder.args == null) {
-                        Logger.w(Logger.LOG_TAG, "Raw selection criterion converted to raw SQL with unbound arguments");
+                        SquidbLog.w(SquidbLog.LOG_TAG, "Raw selection criterion converted to raw SQL with unbound arguments");
                     } else {
-                        Collections.addAll(builder.args, selectionArgs);
+                        SquidUtilities.addAll(builder.args, selectionArgs);
                     }
                 }
                 if (forSqlValidation) {
@@ -130,10 +140,11 @@ public abstract class Criterion extends CompilableWithArguments {
      * a numeric value and comparing to zero. For example, the values NULL, 0.0, 0, 'sqlite' and '0sqlite' are all
      * considered to be false. Values 1, 1.0, 0.1, -0.1 and '1sqlite' are considered to be true.
      */
-    public static Criterion literal(final Object value) {
+    @Nonnull
+    public static Criterion literal(@Nullable final Object value) {
         return new Criterion(null) {
             @Override
-            protected void populate(SqlBuilder builder, boolean forSqlValidation) {
+            protected void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
                 builder.addValueToSql(value, forSqlValidation);
             }
         };
@@ -149,7 +160,7 @@ public abstract class Criterion extends CompilableWithArguments {
      * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
      * SQL
      */
-    protected abstract void populate(SqlBuilder builder, boolean forSqlValidation);
+    protected abstract void populate(@Nonnull SqlBuilder builder, boolean forSqlValidation);
 
     /**
      * Append a string representation of this Criterion
@@ -159,7 +170,7 @@ public abstract class Criterion extends CompilableWithArguments {
      * SQL
      */
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("(");
         populate(builder, forSqlValidation);
         builder.sql.append(")");
@@ -171,6 +182,7 @@ public abstract class Criterion extends CompilableWithArguments {
      * negation cannot be performed in the operator, the criterion will be wrapped in a "not" statement (e.g. {@code
      * "not (myField like 'Sam')"}).
      */
+    @Nonnull
     public Criterion negate() {
         return not(this);
     }
@@ -179,7 +191,8 @@ public abstract class Criterion extends CompilableWithArguments {
      * @param criterion another criterion to be appended with AND. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this AND criterion)
      */
-    public Criterion and(Criterion criterion) {
+    @Nonnull
+    public Criterion and(@Nullable Criterion criterion) {
         if (criterion == null) {
             return this;
         }
@@ -190,7 +203,8 @@ public abstract class Criterion extends CompilableWithArguments {
      * @param criterion another criterion to be appended with OR. If null, this Criterion will be returned unmodified.
      * @return a criterion equivalent to (this OR criterion)
      */
-    public Criterion or(Criterion criterion) {
+    @Nonnull
+    public Criterion or(@Nullable Criterion criterion) {
         if (criterion == null) {
             return this;
         }
@@ -198,7 +212,7 @@ public abstract class Criterion extends CompilableWithArguments {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         return this == o || !(o == null || getClass() != o.getClass()) && this.toString().equals(o.toString());
     }
 

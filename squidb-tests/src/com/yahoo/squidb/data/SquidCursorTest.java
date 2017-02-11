@@ -35,12 +35,17 @@ public class SquidCursorTest extends DatabaseTestCase {
             assertTrue(cursor.moveToFirst());
 
             assertEquals("literalString", cursor.get(literalString));
-            assertEquals(2, cursor.get(literalInteger).intValue());
-            assertTrue(cursor.get(literalInteger) instanceof Integer);
-            assertTrue(cursor.get(literalBoolean));
+            Integer cursorInteger = cursor.get(literalInteger);
+            assertEquals((Integer) 2, cursorInteger);
 
-            assertTrue(cursor.get(castBool));
-            assertEquals(1, cursor.get(castInt).intValue());
+            Boolean cursorBoolean = cursor.get(literalBoolean);
+            assertNonNullAndTrue(cursorBoolean);
+
+            Boolean castBoolean = cursor.get(castBool);
+            assertNonNullAndTrue(castBoolean);
+
+            Integer castInteger = cursor.get(castInt);
+            assertEquals((Integer) 1, castInteger);
             assertEquals("2", cursor.get(castString));
         } finally {
             cursor.close();
@@ -116,10 +121,10 @@ public class SquidCursorTest extends DatabaseTestCase {
         for (int i = 0; i < numRows; i++) {
             if (i % 2 == 0) {
                 evens.moveToNext();
-                assertEquals(i, evens.get(Thing.BAR).intValue());
+                assertEquals((Integer) i, evens.get(Thing.BAR));
             } else {
                 odds.moveToNext();
-                assertEquals(i, odds.get(Thing.BAR).intValue());
+                assertEquals((Integer) i, odds.get(Thing.BAR));
             }
         }
         odds.close();
@@ -127,7 +132,7 @@ public class SquidCursorTest extends DatabaseTestCase {
         // Rescan evens to make sure it still has a window after the first cursor was closed
         for (int i = 0; i < evens.getCount(); i++) {
             evens.moveToPosition(i);
-            assertEquals(i * 2, evens.get(Thing.BAR).intValue());
+            assertEquals((Integer) (i * 2), evens.get(Thing.BAR));
         }
         evens.close();
     }

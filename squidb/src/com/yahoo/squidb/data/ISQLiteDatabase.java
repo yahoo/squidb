@@ -5,6 +5,9 @@
  */
 package com.yahoo.squidb.data;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * This interface represents the general interface for a low-level SQLite access object. The interface is inspired by
  * android.database.sqlite.SQLiteDatabase and many of the methods declared here are taken from that class, although
@@ -19,9 +22,9 @@ public interface ISQLiteDatabase {
 
     void beginTransactionNonExclusive();
 
-    void beginTransactionWithListener(SquidTransactionListener listener);
+    void beginTransactionWithListener(@Nonnull SquidTransactionListener listener);
 
-    void beginTransactionWithListenerNonExclusive(SquidTransactionListener listener);
+    void beginTransactionWithListenerNonExclusive(@Nonnull SquidTransactionListener listener);
 
     void setTransactionSuccessful();
 
@@ -37,23 +40,26 @@ public interface ISQLiteDatabase {
 
     void setVersion(int version);
 
-    ICursor rawQuery(String sql, Object[] bindArgs);
+    @Nonnull
+    ICursor rawQuery(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    String simpleQueryForString(String sql, Object[] bindArgs);
+    @Nullable
+    String simpleQueryForString(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    long simpleQueryForLong(String sql, Object[] bindArgs);
+    long simpleQueryForLong(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    long executeInsert(String sql, Object[] bindArgs);
+    long executeInsert(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    int executeUpdateDelete(String sql, Object[] bindArgs);
+    int executeUpdateDelete(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    void execSQL(String sql);
+    void execSQL(@Nonnull String sql);
 
-    void execSQL(String sql, Object[] bindArgs);
+    void execSQL(@Nonnull String sql, @Nullable Object[] bindArgs);
 
-    void ensureSqlCompiles(String sql);
+    void ensureSqlCompiles(@Nonnull String sql);
 
-    ISQLitePreparedStatement prepareStatement(String sql);
+    @Nonnull
+    ISQLitePreparedStatement prepareStatement(@Nonnull String sql);
 
     boolean isOpen();
 
@@ -69,6 +75,7 @@ public interface ISQLiteDatabase {
 
     long getPageSize();
 
+    @Nonnull
     String getPath();
 
     boolean isDatabaseIntegrityOk();
@@ -87,6 +94,7 @@ public interface ISQLiteDatabase {
 
     void setPageSize(long numBytes);
 
+    @Nonnull
     Object getWrappedObject();
 
 }

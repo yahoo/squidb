@@ -5,11 +5,13 @@
  */
 package com.yahoo.squidb.sql;
 
+import javax.annotation.Nonnull;
+
 class MathFunction<TYPE> extends ArgumentFunction<TYPE> {
 
     private final MathOperator operator;
 
-    MathFunction(MathOperator operator, Object... args) {
+    MathFunction(@Nonnull MathOperator operator, @Nonnull Object... args) {
         super("", args);
         this.operator = operator;
     }

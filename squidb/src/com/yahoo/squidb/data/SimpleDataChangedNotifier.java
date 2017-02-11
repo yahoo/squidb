@@ -10,6 +10,9 @@ import com.yahoo.squidb.sql.SqlTable;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * SimpleDataChangedNotifier is a very basic implementation of {@link DataChangedNotifier}. Subclasses of
  * SimpleDataChangedNotifier override a single, no-arg method: {@link #onDataChanged()}. This method will be called once
@@ -31,25 +34,27 @@ public abstract class SimpleDataChangedNotifier extends DataChangedNotifier<Simp
     /**
      * Construct a SimpleDataChangedNotifier that will be notified of changes to the given tables
      */
-    public SimpleDataChangedNotifier(SqlTable<?>... tables) {
+    public SimpleDataChangedNotifier(@Nonnull SqlTable<?>... tables) {
         super(tables);
     }
 
     /**
      * Construct a SimpleDataChangedNotifier that will be notified of changes to the given tables
      */
-    public SimpleDataChangedNotifier(Collection<? extends SqlTable<?>> tables) {
+    public SimpleDataChangedNotifier(@Nonnull Collection<? extends SqlTable<?>> tables) {
         super(tables);
     }
 
     @Override
-    protected final boolean accumulateNotificationObjects(Set<SimpleDataChangedNotifier> accumulatorSet,
-            SqlTable<?> table, SquidDatabase database, DBOperation operation, AbstractModel modelValues, long rowId) {
+    protected final boolean accumulateNotificationObjects(@Nonnull Set<SimpleDataChangedNotifier> accumulatorSet,
+            @Nonnull SqlTable<?> table, @Nonnull SquidDatabase database, @Nonnull DBOperation operation,
+            @Nullable AbstractModel modelValues, long rowId) {
         return accumulatorSet.add(this);
     }
 
     @Override
-    protected final void sendNotification(SquidDatabase database, SimpleDataChangedNotifier notifyObject) {
+    protected final void sendNotification(@Nonnull SquidDatabase database,
+            @Nonnull SimpleDataChangedNotifier notifyObject) {
         notifyObject.onDataChanged();
     }
 

@@ -16,7 +16,7 @@
 
 package com.yahoo.android.sqlite;
 
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 /**
  * Represents a query that reads the resulting rows into a {@link SQLiteQuery}.
@@ -64,7 +64,7 @@ public final class SQLiteQuery extends SQLiteProgram {
                 onCorruption();
                 throw ex;
             } catch (SQLiteException ex) {
-                Logger.e(TAG, "exception: " + ex.getMessage() + "; query: " + getSql());
+                SquidbLog.e(TAG, "exception: " + ex.getMessage() + "; query: " + getSql());
                 throw ex;
             } finally {
                 window.releaseReference();

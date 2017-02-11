@@ -9,18 +9,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public final class SqlBuilder {
 
     private static final int STRING_BUILDER_INITIAL_CAPACITY = 128;
 
+    @Nonnull
     public final StringBuilder sql = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+    @Nonnull
     public final CompileContext compileContext;
 
     final List<Object> args;
 
     private boolean needsValidation = false;
 
-    SqlBuilder(CompileContext compileContext, boolean withBoundArguments) {
+    SqlBuilder(@Nonnull CompileContext compileContext, boolean withBoundArguments) {
         this.compileContext = compileContext;
         this.args = withBoundArguments ? new ArrayList<>() : null;
     }
@@ -28,6 +33,7 @@ public final class SqlBuilder {
     /**
      * @return the compiled SQL string
      */
+    @Nonnull
     public String getSqlString() {
         return sql.toString();
     }
@@ -35,6 +41,7 @@ public final class SqlBuilder {
     /**
      * @return a List of objects to bind as arguments to the SQL statement, or null if bound arguments were disabled
      */
+    @Nullable
     List<Object> getBoundArguments() {
         return args;
     }
@@ -67,7 +74,7 @@ public final class SqlBuilder {
      * @param forSqlValidation forSqlValidation true if this statement is being compiled to validate against malicious
      * SQL
      */
-    public void addValueToSql(Object value, boolean forSqlValidation) {
+    public void addValueToSql(@Nullable Object value, boolean forSqlValidation) {
         if (value instanceof DBObject<?>) {
             ((DBObject<?>) value).appendQualifiedExpression(this, forSqlValidation);
         } else if (value instanceof Query) {
@@ -91,7 +98,7 @@ public final class SqlBuilder {
         }
     }
 
-    void addCollectionArg(Collection<?> value) {
+    void addCollectionArg(@Nullable Collection<?> value) {
         if (value != null) {
             if (args == null) {
                 SqlUtils.addInlineCollectionToSqlString(sql, compileContext.getArgumentResolver(), value);
@@ -102,8 +109,8 @@ public final class SqlBuilder {
         }
     }
 
-    void appendConcatenatedCompilables(List<? extends CompilableWithArguments> compilables, String separator,
-            boolean forSqlValidation) {
+    void appendConcatenatedCompilables(@Nullable List<? extends CompilableWithArguments> compilables,
+            @Nonnull String separator, boolean forSqlValidation) {
         if (compilables != null && !compilables.isEmpty()) {
             boolean needSeparator = false;
             for (CompilableWithArguments compilable : compilables) {

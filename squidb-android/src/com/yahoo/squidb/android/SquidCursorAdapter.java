@@ -13,6 +13,9 @@ import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A base {@link Adapter} implementation backed by a {@link SquidCursor}. Subclass implementations typically supply a
  * new instance of the model class inside the constructor like so:
@@ -51,7 +54,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
      * @see #SquidCursorAdapter(AbstractModel, Property)
      */
-    public SquidCursorAdapter(T model) {
+    public SquidCursorAdapter(@Nonnull T model) {
         this(model, model instanceof TableModel ? ((TableModel) model).getRowIdProperty() : null);
     }
 
@@ -62,7 +65,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @param model an instance of the model type to use for this cursor. See note at the top of this file.
      * @param columnForId a column to use for {@link #getItemId(int)}.
      */
-    public SquidCursorAdapter(T model, Property<Long> columnForId) {
+    public SquidCursorAdapter(@Nonnull T model, @Nullable Property<Long> columnForId) {
         super();
         this.model = model;
         this.columnForId = columnForId;
@@ -71,6 +74,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
     /**
      * @return the cursor backing this adapter
      */
+    @Nullable
     public SquidCursor<? extends T> getCursor() {
         return this.cursor;
     }
@@ -107,6 +111,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @return the model object at the specified cursor position
      */
     @Override
+    @Nullable
     public T getItem(int position) {
         if (this.cursor == null) {
             return null;
@@ -120,7 +125,10 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
     public long getItemId(int position) {
         if (hasStableIds()) {
             if (cursor != null && cursor.moveToPosition(position)) {
-                return cursor.get(columnForId);
+                Long id = cursor.get(columnForId);
+                if (id != null) {
+                    return id;
+                }
             }
         }
         return 0;
@@ -138,7 +146,8 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      * @return The old cursor. If there was no previously set cursor or the new Cursor and the old cursor are the same
      * instance, this method returns {@code null}.
      */
-    public SquidCursor<? extends T> swapCursor(SquidCursor<? extends T> newCursor) {
+    @Nullable
+    public SquidCursor<? extends T> swapCursor(@Nullable SquidCursor<? extends T> newCursor) {
         if (newCursor == this.cursor) {
             return null;
         }
@@ -158,7 +167,7 @@ public abstract class SquidCursorAdapter<T extends AbstractModel> extends BaseAd
      *
      * @param newCursor the new cursor
      */
-    public void changeCursor(SquidCursor<? extends T> newCursor) {
+    public void changeCursor(@Nullable SquidCursor<? extends T> newCursor) {
         SquidCursor<? extends T> oldCursor = swapCursor(newCursor);
         if (oldCursor != null) {
             oldCursor.close();

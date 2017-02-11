@@ -170,6 +170,7 @@
 		BDF07D101E45582F003A4B4F /* UpsertKey.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D021E45582F003A4B4F /* UpsertKey.java */; };
 		BDF07D111E45582F003A4B4F /* ViewModelSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D031E45582F003A4B4F /* ViewModelSpec.java */; };
 		BDF07D121E45582F003A4B4F /* ViewQuery.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07D041E45582F003A4B4F /* ViewQuery.java */; };
+		BDFD5DED1E4B908700378880 /* SquidbLog.java in Sources */ = {isa = PBXBuildFile; fileRef = BDFD5DEC1E4B908700378880 /* SquidbLog.java */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -182,7 +183,7 @@
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.m",
 				"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.h",
 			);
-			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar:${J2OBJC_HOME}/lib/j2objc_annotations.jar\" -sourcepath \"${SOURCEPATH}\" --prefixes \"${SRCROOT}/squidb-ios-sample/prefixes.properties\" --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -classpath \"${J2OBJC_HOME}/lib/jre_emul.jar:${J2OBJC_HOME}/lib/j2objc_annotations.jar:${J2OBJC_HOME}/lib/jsr305-3.0.0.jar\" -sourcepath \"${SOURCEPATH}\" --prefixes \"${SRCROOT}/squidb-ios-sample/prefixes.properties\" --nullability --no-package-directories -use-arc -g ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
@@ -362,6 +363,7 @@
 		BDF07D021E45582F003A4B4F /* UpsertKey.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = UpsertKey.java; sourceTree = "<group>"; };
 		BDF07D031E45582F003A4B4F /* ViewModelSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewModelSpec.java; sourceTree = "<group>"; };
 		BDF07D041E45582F003A4B4F /* ViewQuery.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ViewQuery.java; sourceTree = "<group>"; };
+		BDFD5DEC1E4B908700378880 /* SquidbLog.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidbLog.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -871,6 +873,7 @@
 				BDF07CAA1E45581E003A4B4F /* ContentProviderQueryBuilder.java */,
 				BDF07CAB1E45581E003A4B4F /* Logger.java */,
 				BDF07CAC1E45581E003A4B4F /* ProjectionMap.java */,
+				BDFD5DEC1E4B908700378880 /* SquidbLog.java */,
 				BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */,
 				BDF07CAE1E45581E003A4B4F /* VersionCode.java */,
 			);
@@ -1085,6 +1088,7 @@
 				BDC8CA1D1BE931B000F7E9E6 /* CloseGuard.java in Sources */,
 				BDF07CE01E45581E003A4B4F /* QueryTable.java in Sources */,
 				BDF07CBA1E45581E003A4B4F /* SquidDatabase.java in Sources */,
+				BDFD5DED1E4B908700378880 /* SquidbLog.java in Sources */,
 				BDC8CA261BE931B000F7E9E6 /* OperationCanceledException.java in Sources */,
 				BDF07CBD1E45581E003A4B4F /* Upsertable.java in Sources */,
 				BDC8CA631BE9321F00F7E9E6 /* TagSpec.java in Sources */,
@@ -1279,6 +1283,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "squidb-ios-sample/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-l\"jre_emul\"",
+					"-l\"jsr305\"",
+					"-l\"icucore\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-sample";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1290,6 +1300,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "squidb-ios-sample/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-l\"jre_emul\"",
+					"-l\"jsr305\"",
+					"-l\"icucore\"",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.yahoo.squidb-ios-sample";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

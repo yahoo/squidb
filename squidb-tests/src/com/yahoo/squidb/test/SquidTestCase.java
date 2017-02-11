@@ -7,7 +7,7 @@ package com.yahoo.squidb.test;
 
 import com.yahoo.squidb.sql.CompiledStatement;
 import com.yahoo.squidb.sql.SqlStatement;
-import com.yahoo.squidb.utility.Logger;
+import com.yahoo.squidb.utility.SquidbLog;
 
 import junit.framework.TestCase;
 
@@ -15,7 +15,7 @@ public class SquidTestCase extends TestCase {
 
     static {
         // Don't need squidb logs for unit tests
-        Logger.setLogLevel(Logger.Level.ASSERT);
+        SquidbLog.setLogLevel(SquidbLog.Level.ASSERT);
     }
 
     public void testSquidTestCaseSetUpProperly() {
@@ -42,6 +42,7 @@ public class SquidTestCase extends TestCase {
     protected void verifyCompiledSqlArgs(CompiledStatement compiled, int expectedArgCount, Object... expectedArgs) {
         int argCount = getReplaceableArgCount(compiled.sql);
         assertEquals(expectedArgCount, argCount);
+        assertNotNull(compiled.sqlArgs);
         assertEquals(expectedArgCount, compiled.sqlArgs.length);
         for (int i = 0; i < expectedArgCount; i++) {
             assertEquals(expectedArgs[i], compiled.sqlArgs[i]);
@@ -64,5 +65,15 @@ public class SquidTestCase extends TestCase {
         } catch (RuntimeException e) {
             // Success
         }
+    }
+
+    protected void assertNonNullAndTrue(Boolean val) {
+        assertNotNull(val);
+        assertTrue(val);
+    }
+
+    protected void assertNonNullAndFalse(Boolean val) {
+        assertNotNull(val);
+        assertFalse(val);
     }
 }

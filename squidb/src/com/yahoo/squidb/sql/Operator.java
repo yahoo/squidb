@@ -8,6 +8,8 @@ package com.yahoo.squidb.sql;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 /**
  * SQLite operators that can be used in WHERE clauses
  */
@@ -85,6 +87,7 @@ public enum Operator {
     /**
      * @return the {@link Operator} representing the contrary to this operator, if one exists
      */
+    @Nullable
     public Operator getContrary() {
         return contraryRegistry.get(this);
     }

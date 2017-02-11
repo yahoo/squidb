@@ -8,6 +8,9 @@ package com.yahoo.squidb.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Builder class for a SQLite DELETE statement
  */
@@ -16,11 +19,12 @@ public class Delete extends TableStatement {
     private final SqlTable<?> table;
     private final List<Criterion> criterions = new ArrayList<>();
 
-    protected Delete(SqlTable<?> table) {
+    protected Delete(@Nonnull SqlTable<?> table) {
         this.table = table;
     }
 
     @Override
+    @Nonnull
     public SqlTable<?> getTable() {
         return table;
     }
@@ -28,7 +32,8 @@ public class Delete extends TableStatement {
     /**
      * Construct a new Delete statement on the specified {@link Table} or {@link VirtualTable}
      */
-    public static Delete from(Table table) {
+    @Nonnull
+    public static Delete from(@Nonnull Table table) {
         return new Delete(table);
     }
 
@@ -36,7 +41,8 @@ public class Delete extends TableStatement {
      * Construct a new Delete statement on the specified {@link View}. Note that deletes on a View are only permissible
      * when an INSTEAD OF {@link com.yahoo.squidb.sql.Trigger} is constructed on that View.
      */
-    public static Delete from(View view) {
+    @Nonnull
+    public static Delete from(@Nonnull View view) {
         return new Delete(view);
     }
 
@@ -47,7 +53,8 @@ public class Delete extends TableStatement {
      * @param criterion A criterion to use in the where clause
      * @return this Delete object, to allow chaining method calls
      */
-    public Delete where(Criterion criterion) {
+    @Nonnull
+    public Delete where(@Nullable Criterion criterion) {
         if (criterion != null) {
             this.criterions.add(criterion);
             invalidateCompileCache();
@@ -56,12 +63,12 @@ public class Delete extends TableStatement {
     }
 
     @Override
-    void appendToSqlBuilder(SqlBuilder builder, boolean forSqlValidation) {
+    void appendToSqlBuilder(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         builder.sql.append("DELETE FROM ").append(table.getExpression());
         visitWhere(builder, forSqlValidation);
     }
 
-    private void visitWhere(SqlBuilder builder, boolean forSqlValidation) {
+    private void visitWhere(@Nonnull SqlBuilder builder, boolean forSqlValidation) {
         if (criterions.isEmpty()) {
             return;
         }
