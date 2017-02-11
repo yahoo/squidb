@@ -45,7 +45,7 @@ public class CompileContext {
 
         @Nonnull
         public Builder setArgumentResolver(@Nonnull ArgumentResolver argumentResolver) {
-            if(argumentResolver == null) {
+            if (argumentResolver == null) {
                 throw new IllegalArgumentException("Can't construct a CompileContext with a null ArgumentResolver");
             }
             this.argumentResolver = argumentResolver;
