@@ -2,6 +2,7 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.processor.StringUtils;
@@ -48,7 +49,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         super(modelSpec, field, field.getSimpleName().toString(), pluginEnv);
 
         this.columnSpec = field.getAnnotation(ColumnSpec.class);
-        this.columnName = initColumnName(columnSpec);
+        this.columnName = initColumnName(field);
         this.constraintString = initConstraintString();
 
         validateColumnName();
@@ -61,9 +62,10 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         }
     }
 
-    private String initColumnName(ColumnSpec columnDef) {
-        if (columnDef != null && !StringUtils.isEmpty(columnDef.name().trim())) {
-            return columnDef.name().trim();
+    private String initColumnName(VariableElement field) {
+        ColumnName columnName = field.getAnnotation(ColumnName.class);
+        if (columnName != null && !StringUtils.isEmpty(columnName.value().trim())) {
+            return columnName.value().trim();
         }
         return camelCasePropertyName;
     }

@@ -5,13 +5,15 @@
  */
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "TestVirtualModel", tableName = "virtual_models", virtualModule = "fts4")
 public class TestVirtualModelSpec {
 
-    @ColumnSpec(name = "test_num", defaultValue = "7")
+    @ColumnName("test_num")
+    @ColumnSpec(defaultValue = "7")
     long testNumber;
 
     @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)

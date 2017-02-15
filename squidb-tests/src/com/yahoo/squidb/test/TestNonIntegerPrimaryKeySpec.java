@@ -1,5 +1,6 @@
 package com.yahoo.squidb.test;
 
+import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
@@ -8,7 +9,8 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 public class TestNonIntegerPrimaryKeySpec {
 
     @PrimaryKey
-    @ColumnSpec(name = "keyCol", constraints = "NOT NULL")
+    @ColumnName("keyCol")
+    @ColumnSpec(constraints = "NOT NULL")
     String key;
 
     String value;

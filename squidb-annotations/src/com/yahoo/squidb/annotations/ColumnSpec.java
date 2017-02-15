@@ -18,12 +18,6 @@ public @interface ColumnSpec {
     String DEFAULT_NULL = "!NULL!";
 
     /**
-     * Specify a column name here if you want your property to have a different column name in the SQL table than its
-     * declared name
-     */
-    String name() default "";
-
-    /**
      * Specify column constraints here as raw SQL, e.g. "NOT NULL" or "UNIQUE COLLATE NOCASE"
      */
     String constraints() default DEFAULT_NONE;

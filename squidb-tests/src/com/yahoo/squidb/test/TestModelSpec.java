@@ -7,6 +7,7 @@ package com.yahoo.squidb.test;
 
 import com.google.j2objc.annotations.ObjectiveCName;
 
+import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
@@ -50,7 +51,7 @@ public class TestModelSpec {
     public static final int DEPRECATED_CONST = -1;
 
     @PrimaryKey
-    @ColumnSpec(name = "_id")
+    @ColumnName("_id")
     long id;
 
     @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
@@ -70,7 +71,7 @@ public class TestModelSpec {
      * <li>Item 3</li>
      * </ul>
      */
-    @ColumnSpec(name = "creationDate")
+    @ColumnName("creationDate")
     long birthday;
 
     @ColumnSpec(defaultValue = "true")
@@ -84,7 +85,7 @@ public class TestModelSpec {
 
     double someDouble;
 
-    @ColumnSpec(name = "dollar123abc")
+    @ColumnName("dollar123abc")
     int $123abc;
 
     TestEnum someEnum;
