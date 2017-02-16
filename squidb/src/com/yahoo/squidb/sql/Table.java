@@ -7,6 +7,7 @@ package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
 import com.yahoo.squidb.sql.Property.LongProperty;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.List;
 
@@ -130,14 +131,19 @@ public class Table extends SqlTable<TableModel> {
     }
 
     /**
+     * @param compileContext a {@link CompileContext} for generating the <code>CREATE TABLE</code> statement. This
+     * should be a context holding the version code of the SQLite build being targeted by the user. A default context
+     * for a given SQLite version can be constructed using
+     * {@link CompileContext#defaultContextForVersionCode(VersionCode)}, or a context can be built manually using
+     * {@link com.yahoo.squidb.sql.CompileContext.Builder}
      * @return the <code>CREATE TABLE</code> statement for creating this table. Users should generally not need to call
      * this method directly unless they are not working with a SquidDatabase instance and wish to create tables
      * manually.
      */
     @Nonnull
-    public String getCreateTableSql() {
+    public String getCreateTableSql(@Nonnull CompileContext compileContext) {
         StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
-        appendCreateTableSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING), sql);
+        appendCreateTableSql(compileContext, sql);
         return sql.toString();
     }
 

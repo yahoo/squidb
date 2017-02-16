@@ -6,6 +6,7 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.ViewModel;
+import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.Collections;
 import java.util.List;
@@ -112,14 +113,19 @@ public class View extends QueryTable {
     }
 
     /**
+     * @param compileContext a {@link CompileContext} for generating the <code>CREATE VIEW</code> statement. This
+     * should be a context holding the version code of the SQLite build being targeted by the user. A default context
+     * for a given SQLite version can be constructed using
+     * {@link CompileContext#defaultContextForVersionCode(VersionCode)}, or a context can be built manually using
+     * {@link com.yahoo.squidb.sql.CompileContext.Builder}
      * @return the <code>CREATE VIEW</code> statement for creating this view. Users should generally not need to call
      * this method directly unless they are not working with a SquidDatabase instance and wish to create views
      * manually.
      */
     @Nonnull
-    public String getCreateViewSql() {
+    public String getCreateViewSql(@Nonnull CompileContext compileContext) {
         StringBuilder sql = new StringBuilder(SqlStatement.STRING_BUILDER_INITIAL_CAPACITY);
-        appendCreateViewSql(CompileContext.defaultContextForVersionCode(VERSION_FOR_TO_STRING), sql);
+        appendCreateViewSql(compileContext, sql);
         return sql.toString();
     }
 }
