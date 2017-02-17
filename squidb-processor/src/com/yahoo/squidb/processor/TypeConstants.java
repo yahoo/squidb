@@ -43,6 +43,7 @@ public class TypeConstants {
 
     public static final ClassName VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "ValuesStorage");
     public static final ClassName MAP_VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "MapValuesStorage");
+    public static final ClassName UNMODIFIABLE_VALUES_STORAGE = ClassName.get(SQUIDB_DATA_PACKAGE, "UnmodifiableValuesStorage");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
 
     public static final ClassName ABSTRACT_MODEL = ClassName.get(SQUIDB_DATA_PACKAGE, "AbstractModel");
