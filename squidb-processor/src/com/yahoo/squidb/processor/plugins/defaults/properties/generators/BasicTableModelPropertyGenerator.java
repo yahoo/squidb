@@ -118,16 +118,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             toReturn.append(constraints);
         }
 
-        if (!ColumnSpec.DEFAULT_NONE.equals(getDefaultValueFromColumnSpec())) {
-            String columnDefaultValue = columnSpecDefaultValueToSql();
-
-            if (!toReturn.toString().toUpperCase().contains("DEFAULT")) {
-                toReturn.append(" DEFAULT ").append(columnDefaultValue);
-            } else {
-                pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
-                        "Duplicate default value definitions", field);
-            }
-        }
+        handleDefaultValueAnnotations(toReturn);
 
         if (field != null && field.getAnnotation(PrimaryKey.class) != null) {
             PrimaryKey primaryKeyAnnotation = field.getAnnotation(PrimaryKey.class);
@@ -185,32 +176,52 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         return constraintString;
     }
 
-    private String getDefaultValueFromColumnSpec() {
-        return columnSpec != null ? columnSpec.defaultValue() : ColumnSpec.DEFAULT_NONE;
-    }
+    private void handleDefaultValueAnnotations(StringBuilder constraintString) {
+        if (field != null) {
+            // TODO: Handle non-primitive defaults
+            String defaultValueAsSql = getPrimitiveDefaultValueAsSql();
 
-    protected String columnSpecDefaultValueToSql() {
-        String columnDefault = getDefaultValueFromColumnSpec();
-        return ColumnSpec.DEFAULT_NULL.equals(columnDefault) ? "NULL" : columnDefault;
+            if (defaultValueAsSql != null) {
+                if (!constraintString.toString().toUpperCase().contains("DEFAULT")) {
+                    constraintString.append(" DEFAULT ").append(defaultValueAsSql);
+                } else {
+                    pluginEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+                            "Column has more than one default value definition.", field);
+                }
+            }
+        }
     }
 
     @Override
     public CodeBlock buildPutDefault(String contentValuesName) {
-        String defaultValue = getDefaultValueFromColumnSpec();
-        if (ColumnSpec.DEFAULT_NONE.equals(defaultValue)) {
+        Object defaultValue = null;
+        if (field != null) {
+            defaultValue = getPrimitiveDefaultValueFromAnnotation();
+        }
+        if (defaultValue == null) {
             return null;
         }
 
+        // TODO: Handle default null better, including by handling non-primitive defaults
         if (ColumnSpec.DEFAULT_NULL.equals(defaultValue)) {
             return CodeBlock.of("$L.putNull($L.getName())", contentValuesName, propertyName);
         } else {
-            return CodeBlock.of("$L.put($L.getName(), $L)", contentValuesName, propertyName, getDefaultValueForContentValues());
+            String formatSpecifier = "$L";
+            if (defaultValue instanceof String) {
+                formatSpecifier = "$S";
+            } else if (defaultValue instanceof Long) {
+                formatSpecifier = "$LL";
+            }
+            return CodeBlock.of("$L.put($L.getName(), " + formatSpecifier + ")", contentValuesName, propertyName, defaultValue);
         }
     }
 
-    protected String getDefaultValueForContentValues() {
-        return getDefaultValueFromColumnSpec();
-    }
-
     protected abstract Class<? extends Annotation> getDefaultAnnotationType();
+
+    protected abstract Object getPrimitiveDefaultValueFromAnnotation();
+
+    protected String getPrimitiveDefaultValueAsSql() {
+        Object primitiveDefaultValue = getPrimitiveDefaultValueFromAnnotation();
+        return primitiveDefaultValue != null ? primitiveDefaultValue.toString() : null;
+    }
 }

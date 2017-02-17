@@ -56,4 +56,13 @@ public class BasicIntegerPropertyGenerator extends BasicTableModelPropertyGenera
     protected Class<? extends Annotation> getDefaultAnnotationType() {
         return DefaultInt.class;
     }
+
+    @Override
+    protected Integer getPrimitiveDefaultValueFromAnnotation() {
+        DefaultInt defaultInt = field.getAnnotation(DefaultInt.class);
+        if (defaultInt != null) {
+            return defaultInt.value();
+        }
+        return null;
+    }
 }

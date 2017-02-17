@@ -8,17 +8,19 @@ package com.yahoo.squidb.test;
 import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultLong;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 
 @TableModelSpec(className = "TestVirtualModel", tableName = "virtual_models", virtualModule = "fts4")
 public class TestVirtualModelSpec {
 
     @ColumnName("test_num")
-    @ColumnSpec(defaultValue = "7")
+    @DefaultLong(7)
     long testNumber;
 
-    @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
+    @DefaultString(ColumnSpec.DEFAULT_NULL)
     String title;
 
-    @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
+    @DefaultString(ColumnSpec.DEFAULT_NULL)
     String body;
 }

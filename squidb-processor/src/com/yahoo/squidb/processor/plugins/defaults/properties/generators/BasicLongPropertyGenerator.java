@@ -57,28 +57,11 @@ public class BasicLongPropertyGenerator extends BasicTableModelPropertyGenerator
     }
 
     @Override
-    protected String columnSpecDefaultValueToSql() {
-        String value = super.columnSpecDefaultValueToSql();
-        if ("NULL".equalsIgnoreCase(value)) {
-            return value;
+    protected Long getPrimitiveDefaultValueFromAnnotation() {
+        DefaultLong defaultLong = field.getAnnotation(DefaultLong.class);
+        if (defaultLong != null) {
+            return defaultLong.value();
         }
-        char last = value.charAt(value.length() - 1);
-        if (last == 'L' || last == 'l') {
-            return value.substring(0, value.length() - 1);
-        }
-        return value;
-    }
-
-    @Override
-    protected String getDefaultValueForContentValues() {
-        String value = super.getDefaultValueForContentValues();
-        if ("NULL".equalsIgnoreCase(value)) {
-            return value;
-        }
-        char last = value.charAt(value.length() - 1);
-        if (last == 'L' || last == 'l') {
-            return value;
-        }
-        return value + "L";
+        return null;
     }
 }

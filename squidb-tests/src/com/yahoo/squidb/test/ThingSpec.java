@@ -5,9 +5,12 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 
 @TableModelSpec(className = "Thing", tableName = "things")
 public class ThingSpec {
@@ -19,18 +22,18 @@ public class ThingSpec {
     @PrimaryKey(autoincrement = false)
     long id;
 
-    @ColumnSpec(defaultValue = DEFAULT_FOO)
+    @DefaultString(DEFAULT_FOO)
     String foo;
 
-    @ColumnSpec(defaultValue = "100")
+    @DefaultInt(100)
     int bar;
 
     long baz;
 
-    @ColumnSpec(defaultValue = "0.0")
+    @DefaultDouble(0.0)
     double qux;
 
-    @ColumnSpec(defaultValue = "true")
+    @DefaultBool(true)
     boolean isAlive;
 
     byte[] blob;

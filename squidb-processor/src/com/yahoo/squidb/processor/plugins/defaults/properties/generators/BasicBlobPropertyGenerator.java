@@ -54,4 +54,9 @@ public class BasicBlobPropertyGenerator extends BasicTableModelPropertyGenerator
     protected Class<? extends Annotation> getDefaultAnnotationType() {
         return null;
     }
+
+    @Override
+    protected Object getPrimitiveDefaultValueFromAnnotation() {
+        return null;
+    }
 }

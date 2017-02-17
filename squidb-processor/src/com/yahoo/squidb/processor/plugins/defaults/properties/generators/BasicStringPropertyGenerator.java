@@ -58,17 +58,21 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
     }
 
     @Override
-    protected String columnSpecDefaultValueToSql() {
-        String defaultValue = super.columnSpecDefaultValueToSql();
-        if (!ColumnSpec.DEFAULT_NONE.equals(defaultValue) && !"NULL".equals(defaultValue)) {
-            return "'" + defaultValue + "'";
+    protected String getPrimitiveDefaultValueFromAnnotation() {
+        DefaultString defaultString = field.getAnnotation(DefaultString.class);
+        if (defaultString != null) {
+            return defaultString.value();
         }
-        return defaultValue;
+        return null;
     }
 
     @Override
-    protected String getDefaultValueForContentValues() {
-        return "\"" + super.getDefaultValueForContentValues() + "\"";
+    protected String getPrimitiveDefaultValueAsSql() {
+        String primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
+        if (ColumnSpec.DEFAULT_NULL.equals(primitiveDefault)) {
+            return "NULL";
+        }
+        return primitiveDefault != null ? "'" + primitiveDefault + "'" : null;
     }
 
 }

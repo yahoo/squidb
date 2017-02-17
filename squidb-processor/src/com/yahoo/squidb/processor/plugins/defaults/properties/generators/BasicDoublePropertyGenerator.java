@@ -56,4 +56,13 @@ public class BasicDoublePropertyGenerator extends BasicTableModelPropertyGenerat
     protected Class<? extends Annotation> getDefaultAnnotationType() {
         return DefaultDouble.class;
     }
+
+    @Override
+    protected Double getPrimitiveDefaultValueFromAnnotation() {
+        DefaultDouble defaultDouble = field.getAnnotation(DefaultDouble.class);
+        if (defaultDouble != null) {
+            return defaultDouble.value();
+        }
+        return null;
+    }
 }

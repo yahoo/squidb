@@ -13,6 +13,9 @@ import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
 import com.yahoo.squidb.data.TableModel;
@@ -54,7 +57,7 @@ public class TestModelSpec {
     @ColumnName("_id")
     long id;
 
-    @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
+    @DefaultString(ColumnSpec.DEFAULT_NULL)
     String firstName;
 
     @ColumnSpec(constraints = "UNIQUE COLLATE NOCASE")
@@ -74,10 +77,10 @@ public class TestModelSpec {
     @ColumnName("creationDate")
     long birthday;
 
-    @ColumnSpec(defaultValue = "true")
+    @DefaultBool(true)
     boolean isHappy;
 
-    @ColumnSpec(defaultValue = "7")
+    @DefaultInt(7)
     int luckyNumber;
 
     @Deprecated
@@ -90,7 +93,7 @@ public class TestModelSpec {
 
     TestEnum someEnum;
 
-    @ColumnSpec(defaultValue = "[]")
+    @DefaultString("[]")
     @JSONColumn
     List<String> someList;
 

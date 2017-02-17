@@ -58,14 +58,18 @@ public class BasicBooleanPropertyGenerator extends BasicTableModelPropertyGenera
     }
 
     @Override
-    protected String columnSpecDefaultValueToSql() {
-        String defaultValue = super.columnSpecDefaultValueToSql();
-        if ("true".equalsIgnoreCase(defaultValue)) {
-            return "1";
-        } else if ("false".equalsIgnoreCase(defaultValue)) {
-            return "0";
+    protected Boolean getPrimitiveDefaultValueFromAnnotation() {
+        DefaultBool defaultBool = field.getAnnotation(DefaultBool.class);
+        if (defaultBool != null) {
+            return defaultBool.value();
         }
-        return defaultValue;
+        return null;
+    }
+
+    @Override
+    protected String getPrimitiveDefaultValueAsSql() {
+        Boolean primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
+        return primitiveDefault != null ? (primitiveDefault ? "1" : "0") : null;
     }
 
     @Override
