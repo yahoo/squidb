@@ -20,7 +20,7 @@ public @interface ColumnSpec {
     /**
      * Specify column constraints here as raw SQL, e.g. "NOT NULL" or "UNIQUE COLLATE NOCASE"
      */
-    String constraints() default DEFAULT_NONE;
+    String constraints() default "";
 
     /**
      * Default value for the SQL column in table definition

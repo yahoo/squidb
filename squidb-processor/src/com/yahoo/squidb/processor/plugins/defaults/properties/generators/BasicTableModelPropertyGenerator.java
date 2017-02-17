@@ -77,8 +77,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     private String initConstraintString() {
         StringBuilder toReturn = new StringBuilder();
-        String constraints = columnSpec != null ? columnSpec.constraints() : ColumnSpec.DEFAULT_NONE;
-        if (!ColumnSpec.DEFAULT_NONE.equals(constraints)) {
+        String constraints = columnSpec != null ? columnSpec.constraints() : "";
+        if (!StringUtils.isEmpty(constraints)) {
             toReturn.append(constraints);
         }
 
