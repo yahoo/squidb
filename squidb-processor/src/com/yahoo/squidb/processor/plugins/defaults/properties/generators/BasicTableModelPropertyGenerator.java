@@ -10,14 +10,23 @@ import com.squareup.javapoet.FieldSpec;
 import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.defaults.DefaultLong;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
@@ -33,6 +42,14 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     protected final String columnName;
     protected final String constraintString;
 
+    private static final Set<Class<? extends Annotation>> DEFAULT_VALUE_ANNOTATIONS = new HashSet<>(Arrays.asList(
+            DefaultBool.class,
+            DefaultDouble.class,
+            DefaultInt.class,
+            DefaultLong.class,
+            DefaultString.class
+    ));
+
     public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
             PluginEnvironment pluginEnv) {
         this(modelSpec, columnName, columnName, pluginEnv);
@@ -46,7 +63,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         this.columnName = columnName == null ? null : columnName.trim();
         this.constraintString = initConstraintString();
 
-        validateColumnName();
+        doValidation();
     }
 
     public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, VariableElement field,
@@ -57,13 +74,32 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         this.columnName = initColumnName(field);
         this.constraintString = initConstraintString();
 
+        doValidation();
+    }
+
+    private void doValidation() {
         validateColumnName();
+        validateDefaultAnnotationType();
     }
 
     // TODO remove when SqlUtils reports an error for identifiers containing '$'
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);
+        }
+    }
+
+    private void validateDefaultAnnotationType() {
+        if (field != null) {
+            Class<? extends Annotation> expectedDefaultAnnotation = getDefaultAnnotationType();
+            for (Class<? extends Annotation> annotationClass : DEFAULT_VALUE_ANNOTATIONS) {
+                if (!annotationClass.equals(expectedDefaultAnnotation) &&
+                        field.getAnnotation(annotationClass) != null) {
+                    modelSpec.logError("Default value annotation type mismatch. Found " +
+                            annotationClass.getSimpleName() + "but only " + expectedDefaultAnnotation.getSimpleName() +
+                            " is allowed", field);
+                }
+            }
         }
     }
 
@@ -175,4 +211,6 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     protected String getDefaultValueForContentValues() {
         return getDefaultValueFromColumnSpec();
     }
+
+    protected abstract Class<? extends Annotation> getDefaultAnnotationType();
 }

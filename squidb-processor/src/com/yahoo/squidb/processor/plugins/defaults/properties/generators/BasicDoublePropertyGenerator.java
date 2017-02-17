@@ -6,10 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
+import com.yahoo.squidb.annotations.defaults.DefaultDouble;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,4 +52,8 @@ public class BasicDoublePropertyGenerator extends BasicTableModelPropertyGenerat
         return TypeConstants.DOUBLE_PROPERTY;
     }
 
+    @Override
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultDouble.class;
+    }
 }

@@ -6,11 +6,13 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
+import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,6 +50,11 @@ public class BasicBooleanPropertyGenerator extends BasicTableModelPropertyGenera
     @Override
     public TypeName getPropertyType() {
         return TypeConstants.BOOLEAN_PROPERTY;
+    }
+
+    @Override
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultBool.class;
     }
 
     @Override

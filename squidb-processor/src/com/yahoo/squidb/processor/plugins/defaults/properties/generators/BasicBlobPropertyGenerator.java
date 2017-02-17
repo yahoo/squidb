@@ -10,6 +10,7 @@ import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,4 +50,8 @@ public class BasicBlobPropertyGenerator extends BasicTableModelPropertyGenerator
         return TypeConstants.BLOB_PROPERTY;
     }
 
+    @Override
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return null;
+    }
 }

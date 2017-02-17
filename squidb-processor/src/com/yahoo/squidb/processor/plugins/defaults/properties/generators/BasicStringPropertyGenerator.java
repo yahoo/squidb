@@ -7,10 +7,12 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +50,11 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
     @Override
     public TypeName getPropertyType() {
         return TypeConstants.STRING_PROPERTY;
+    }
+
+    @Override
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultString.class;
     }
 
     @Override
