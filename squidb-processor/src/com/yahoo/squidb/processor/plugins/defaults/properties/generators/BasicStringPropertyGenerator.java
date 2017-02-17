@@ -72,7 +72,7 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
         if (ColumnSpec.DEFAULT_NULL.equals(primitiveDefault)) {
             return "NULL";
         }
-        return primitiveDefault != null ? "'" + primitiveDefault + "'" : null;
+        return primitiveDefault != null ? "'" + primitiveDefault.replace("'", "''") + "'" : null;
     }
 
 }
