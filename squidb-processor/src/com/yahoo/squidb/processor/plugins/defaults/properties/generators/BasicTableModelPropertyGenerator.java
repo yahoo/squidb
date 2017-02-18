@@ -7,11 +7,13 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.defaults.DefaultExpression;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.annotations.defaults.DefaultLong;
 import com.yahoo.squidb.annotations.defaults.DefaultNull;
@@ -49,7 +51,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             DefaultInt.class,
             DefaultLong.class,
             DefaultString.class,
-            DefaultNull.class
+            DefaultNull.class,
+            DefaultExpression.class
     ));
 
     public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
@@ -98,6 +101,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             Set<Class<? extends Annotation>> validAnnotations = new HashSet<>();
             validAnnotations.add(getDefaultAnnotationType());
             validAnnotations.add(DefaultNull.class);
+            validAnnotations.add(DefaultExpression.class);
             for (Class<? extends Annotation> annotationClass : DEFAULT_VALUE_ANNOTATIONS) {
                 if (field.getAnnotation(annotationClass) != null) {
                     if (!validAnnotations.contains(annotationClass)) {
@@ -111,6 +115,14 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
                     } else {
                         foundAnnotation = true;
                     }
+                }
+            }
+            if (field.getAnnotation(DefaultExpression.class) != null) {
+                String defaultExpression = field.getAnnotation(DefaultExpression.class).value().trim();
+                if (isDefaultExpressionSpecialTimeCase(defaultExpression) &&
+                        !TypeName.get(String.class).equals(getTypeForAccessors())) {
+                    modelSpec.logError("Special default expression " + defaultExpression + " can only apply to "
+                            + "string columns", field);
                 }
             }
         }
@@ -191,9 +203,10 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     private void handleDefaultValueAnnotations(StringBuilder constraintString) {
         if (field != null) {
-            // TODO: Handle non-primitive defaults
             String defaultValueAsSql;
-            if (field.getAnnotation(DefaultNull.class) != null) {
+            if (field.getAnnotation(DefaultExpression.class) != null) {
+                defaultValueAsSql = getDefaultExpressionValue();
+            } else if (field.getAnnotation(DefaultNull.class) != null) {
                 defaultValueAsSql = "NULL";
             } else {
                 defaultValueAsSql = getPrimitiveDefaultValueAsSql();
@@ -208,6 +221,24 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
                 }
             }
         }
+    }
+
+    private String getDefaultExpressionValue() {
+        String defaultExpression = field.getAnnotation(DefaultExpression.class).value().trim();
+        if (isDefaultExpressionSpecialTimeCase(defaultExpression)) {
+            return defaultExpression;
+        } else {
+            if (!defaultExpression.startsWith("(") || !defaultExpression.endsWith(")")) {
+                defaultExpression = "(" + defaultExpression + ")";
+            }
+            return defaultExpression;
+        }
+    }
+
+    private boolean isDefaultExpressionSpecialTimeCase(String defaultExpression) {
+        return DefaultExpression.CURRENT_TIME.equalsIgnoreCase(defaultExpression) ||
+                DefaultExpression.CURRENT_DATE.equalsIgnoreCase(defaultExpression) ||
+                DefaultExpression.CURRENT_TIMESTAMP.equalsIgnoreCase(defaultExpression);
     }
 
     @Override
