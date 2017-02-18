@@ -14,6 +14,7 @@ import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.annotations.defaults.DefaultLong;
+import com.yahoo.squidb.annotations.defaults.DefaultNull;
 import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
@@ -179,7 +180,12 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     private void handleDefaultValueAnnotations(StringBuilder constraintString) {
         if (field != null) {
             // TODO: Handle non-primitive defaults
-            String defaultValueAsSql = getPrimitiveDefaultValueAsSql();
+            String defaultValueAsSql;
+            if (field.getAnnotation(DefaultNull.class) != null) {
+                defaultValueAsSql = "NULL";
+            } else {
+                defaultValueAsSql = getPrimitiveDefaultValueAsSql();
+            }
 
             if (defaultValueAsSql != null) {
                 if (!constraintString.toString().toUpperCase().contains("DEFAULT")) {
@@ -194,25 +200,26 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     @Override
     public CodeBlock buildPutDefault(String contentValuesName) {
-        Object defaultValue = null;
+        Object primitiveDefaultValue = null;
+        boolean explicitNullDefault = false;
         if (field != null) {
-            defaultValue = getPrimitiveDefaultValueFromAnnotation();
+            explicitNullDefault = field.getAnnotation(DefaultNull.class) != null;
+            primitiveDefaultValue = getPrimitiveDefaultValueFromAnnotation();
         }
-        if (defaultValue == null) {
+        if (primitiveDefaultValue == null && !explicitNullDefault) {
             return null;
         }
 
-        // TODO: Handle default null better, including by handling non-primitive defaults
-        if (ColumnSpec.DEFAULT_NULL.equals(defaultValue)) {
+        if (explicitNullDefault) {
             return CodeBlock.of("$L.putNull($L.getName())", contentValuesName, propertyName);
         } else {
             String formatSpecifier = "$L";
-            if (defaultValue instanceof String) {
+            if (primitiveDefaultValue instanceof String) {
                 formatSpecifier = "$S";
-            } else if (defaultValue instanceof Long) {
+            } else if (primitiveDefaultValue instanceof Long) {
                 formatSpecifier = "$LL";
             }
-            return CodeBlock.of("$L.put($L.getName(), " + formatSpecifier + ")", contentValuesName, propertyName, defaultValue);
+            return CodeBlock.of("$L.put($L.getName(), " + formatSpecifier + ")", contentValuesName, propertyName, primitiveDefaultValue);
         }
     }
 

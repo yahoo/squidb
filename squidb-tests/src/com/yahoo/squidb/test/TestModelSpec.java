@@ -15,6 +15,7 @@ import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.defaults.DefaultNull;
 import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
@@ -57,7 +58,7 @@ public class TestModelSpec {
     @ColumnName("_id")
     long id;
 
-    @DefaultString(ColumnSpec.DEFAULT_NULL)
+    @DefaultNull
     String firstName;
 
     @ColumnSpec(constraints = "UNIQUE COLLATE NOCASE")

@@ -14,9 +14,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ColumnSpec {
 
-    @Deprecated
-    String DEFAULT_NULL = "!NULL!";
-
     /**
      * Specify column constraints here as raw SQL, e.g. "NOT NULL" or "UNIQUE COLLATE NOCASE"
      */

@@ -6,7 +6,6 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -69,9 +68,6 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
     @Override
     protected String getPrimitiveDefaultValueAsSql() {
         String primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
-        if (ColumnSpec.DEFAULT_NULL.equals(primitiveDefault)) {
-            return "NULL";
-        }
         return primitiveDefault != null ? "'" + primitiveDefault.replace("'", "''") + "'" : null;
     }
 
