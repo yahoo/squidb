@@ -48,7 +48,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             DefaultDouble.class,
             DefaultInt.class,
             DefaultLong.class,
-            DefaultString.class
+            DefaultString.class,
+            DefaultNull.class
     ));
 
     public BasicTableModelPropertyGenerator(ModelSpec<?, ?> modelSpec, String columnName,
@@ -80,7 +81,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     private void doValidation() {
         validateColumnName();
-        validateDefaultAnnotationType();
+        validateDefaultAnnotations();
     }
 
     // TODO remove when SqlUtils reports an error for identifiers containing '$'
@@ -90,15 +91,26 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         }
     }
 
-    private void validateDefaultAnnotationType() {
+    private void validateDefaultAnnotations() {
+        // Validate that no more than one default annotation exists, and if one does that it is of the correct type
         if (field != null) {
-            Class<? extends Annotation> expectedDefaultAnnotation = getDefaultAnnotationType();
+            boolean foundAnnotation = false;
+            Set<Class<? extends Annotation>> validAnnotations = new HashSet<>();
+            validAnnotations.add(getDefaultAnnotationType());
+            validAnnotations.add(DefaultNull.class);
             for (Class<? extends Annotation> annotationClass : DEFAULT_VALUE_ANNOTATIONS) {
-                if (!annotationClass.equals(expectedDefaultAnnotation) &&
-                        field.getAnnotation(annotationClass) != null) {
-                    modelSpec.logError("Default value annotation type mismatch. Found " +
-                            annotationClass.getSimpleName() + "but only " + expectedDefaultAnnotation.getSimpleName() +
-                            " is allowed", field);
+                if (field.getAnnotation(annotationClass) != null) {
+                    if (!validAnnotations.contains(annotationClass)) {
+                        modelSpec.logError("Default value annotation type mismatch -- found " +
+                                annotationClass.getSimpleName() + "but only one of " + validAnnotations +
+                                " is allowed", field);
+                        return;
+                    } else if (foundAnnotation) {
+                        modelSpec.logError("Only one default value annotation per field is allowed", field);
+                        return;
+                    } else {
+                        foundAnnotation = true;
+                    }
                 }
             }
         }
