@@ -7,6 +7,7 @@ package com.yahoo.squidb.test;
 
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultBlob;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
@@ -36,5 +37,6 @@ public class ThingSpec {
     @DefaultBool(true)
     boolean isAlive;
 
+    @DefaultBlob("x'123ABC'")
     byte[] blob;
 }

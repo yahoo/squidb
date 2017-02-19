@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.annotations.defaults.DefaultBlob;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
 import com.yahoo.squidb.annotations.defaults.DefaultExpression;
@@ -46,6 +47,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     protected final String constraintString;
 
     private static final Set<Class<? extends Annotation>> DEFAULT_VALUE_ANNOTATIONS = new HashSet<>(Arrays.asList(
+            DefaultBlob.class,
             DefaultBool.class,
             DefaultDouble.class,
             DefaultInt.class,
