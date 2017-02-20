@@ -9,6 +9,7 @@ import com.yahoo.squidb.data.MapValuesStorage;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.test.TestModel;
 
+import java.lang.reflect.Field;
 
 public class IOSModelTest extends DatabaseTestCase {
 
@@ -76,13 +77,23 @@ public class IOSModelTest extends DatabaseTestCase {
         model.readPropertiesFromValuesStorage(values, TestModel.FIRST_NAME);
         model.setFirstName("B");
 
-        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);
+        ValuesStorage defaultValuesInternal;
+        try {
+            // Access this internal field reflectively so we can put a new value for this test
+            Field defaultValuesInternalField = TestModel.class.getDeclaredField("defaultValuesInternal");
+            defaultValuesInternalField.setAccessible(true);
+            defaultValuesInternal = (ValuesStorage) defaultValuesInternalField.get(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        defaultValuesInternal.put(TestModel.IS_HAPPY.getName(), 1);
         assertTrue(model.isHappy()); // Test default values
         model.getDatabaseValues().put(TestModel.IS_HAPPY.getName(), 0);
         assertFalse(model.isHappy()); // Test database values
         model.getSetValues().put(TestModel.IS_HAPPY.getName(), 1);
         assertTrue(model.isHappy()); // Test set values
 
-        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
+        defaultValuesInternal.put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
     }
 }
