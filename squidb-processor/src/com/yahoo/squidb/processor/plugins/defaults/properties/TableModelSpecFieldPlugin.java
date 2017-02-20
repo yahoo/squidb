@@ -184,11 +184,8 @@ public class TableModelSpecFieldPlugin extends BaseFieldPlugin<TableModelSpecWra
 
     @Override
     public void afterDeclareSchema(TypeSpec.Builder builder) {
-        for (PropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-            if (generator instanceof RowidPropertyGenerator) {
-                writeRowidSupportMethods(builder, generator.getPropertyName());
-            }
-        }
+        RowidPropertyGenerator rowidPropertyGenerator = modelSpec.getMetadata(METADATA_KEY_ROWID_ALIAS_PROPERTY_GENERATOR);
+        writeRowidSupportMethods(builder, rowidPropertyGenerator.getPropertyName());
     }
 
     private void writeRowidSupportMethods(TypeSpec.Builder builder, String propertyName) {

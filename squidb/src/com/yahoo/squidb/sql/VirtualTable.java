@@ -6,7 +6,6 @@
 package com.yahoo.squidb.sql;
 
 import com.yahoo.squidb.data.TableModel;
-import com.yahoo.squidb.sql.Property.PropertyVisitor;
 import com.yahoo.squidb.utility.VersionCode;
 
 import java.util.List;
@@ -88,8 +87,7 @@ public class VirtualTable extends Table {
      * call this method and instead let {@link com.yahoo.squidb.data.SquidDatabase} build tables automatically.
      */
     @Override
-    public void appendCreateTableSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql,
-            @Nonnull PropertyVisitor<Void, StringBuilder> propertyVisitor) {
+    public void appendCreateTableSql(@Nonnull CompileContext compileContext, @Nonnull StringBuilder sql) {
         sql.append("CREATE VIRTUAL TABLE ");
         if (compileContext.getVersionCode().isAtLeast(SQLITE_VERSION_IF_NOT_EXISTS)) {
             sql.append("IF NOT EXISTS ");
