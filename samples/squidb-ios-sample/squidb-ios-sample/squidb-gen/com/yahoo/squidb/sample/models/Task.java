@@ -3,6 +3,7 @@ package com.yahoo.squidb.sample.models;
 
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.TableModel;
+import com.yahoo.squidb.data.UnmodifiableValuesStorage;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Table;
@@ -14,6 +15,7 @@ import java.lang.String;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * This class was generated from the model spec at {@link com.yahoo.squidb.sample.models.TaskSpec}
@@ -37,7 +39,9 @@ public class Task extends TableModel {
 
 	public static final Property.IntegerProperty PRIORITY = new Property.IntegerProperty(TABLE_MODEL_NAME, "priority", "DEFAULT 0");
 
-	protected static final ValuesStorage defaultValues = new Task().newValuesStorage();
+	private static final ValuesStorage defaultValuesInternal = new Task().newValuesStorage();
+
+	private static final ValuesStorage defaultValues = new UnmodifiableValuesStorage(defaultValuesInternal);
 
 	static {
 		PROPERTIES_INTERNAL.add(ID);
@@ -47,9 +51,9 @@ public class Task extends TableModel {
 		PROPERTIES_INTERNAL.add(PRIORITY);
 	}
 	static {
-		defaultValues.put(COMPLETION_DATE.getName(), 0L);
-		defaultValues.put(DUE_DATE.getName(), 0L);
-		defaultValues.put(PRIORITY.getName(), 0);
+		defaultValuesInternal.put(COMPLETION_DATE.getName(), 0L);
+		defaultValuesInternal.put(DUE_DATE.getName(), 0L);
+		defaultValuesInternal.put(PRIORITY.getName(), 0);
 	}
 	static {
 		TABLE.setRowIdProperty(ID);
@@ -79,11 +83,13 @@ public class Task extends TableModel {
 	}
 
 	@Override
+	@Nonnull
 	public ValuesStorage getDefaultValues() {
 		return defaultValues;
 	}
 
 	@Override
+	@Nonnull
 	public Property.LongProperty getRowIdProperty() {
 		return ID;
 	}
@@ -140,12 +146,14 @@ public class Task extends TableModel {
 	}
 
 	@Override
+	@Nonnull
 	public Task setRowId(long rowid) {
 		super.setRowId(rowid);
 		return this;
 	}
 
 	@Override
+	@Nonnull
 	public Task clone() {
 		return (Task) super.clone();
 	}

@@ -10,6 +10,7 @@ import com.yahoo.squidb.annotations.ColumnSpec;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.annotations.defaults.DefaultLong;
 
 @TableModelSpec(className = "Task", tableName = "tasks")
@@ -28,7 +29,7 @@ public class TaskSpec {
     @DefaultLong(0)
     long dueDate;
 
-    @DefaultLong(0)
+    @DefaultInt(0)
     int priority;
 
     @ModelMethod

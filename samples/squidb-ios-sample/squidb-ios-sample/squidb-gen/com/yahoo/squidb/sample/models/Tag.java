@@ -3,6 +3,7 @@ package com.yahoo.squidb.sample.models;
 
 import com.yahoo.squidb.data.SquidCursor;
 import com.yahoo.squidb.data.TableModel;
+import com.yahoo.squidb.data.UnmodifiableValuesStorage;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.Property;
 import com.yahoo.squidb.sql.Table;
@@ -13,6 +14,7 @@ import java.lang.String;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * This class was generated from the model spec at {@link com.yahoo.squidb.sample.models.TagSpec}
@@ -32,7 +34,9 @@ public class Tag extends TableModel {
 
 	public static final Property.LongProperty TASK_ID = new Property.LongProperty(TABLE_MODEL_NAME, "taskId", "NOT NULL");
 
-	protected static final ValuesStorage defaultValues = new Tag().newValuesStorage();
+	private static final ValuesStorage defaultValuesInternal = new Tag().newValuesStorage();
+
+	private static final ValuesStorage defaultValues = new UnmodifiableValuesStorage(defaultValuesInternal);
 
 	static {
 		PROPERTIES_INTERNAL.add(ID);
@@ -67,11 +71,13 @@ public class Tag extends TableModel {
 	}
 
 	@Override
+	@Nonnull
 	public ValuesStorage getDefaultValues() {
 		return defaultValues;
 	}
 
 	@Override
+	@Nonnull
 	public Property.LongProperty getRowIdProperty() {
 		return ID;
 	}
@@ -110,12 +116,14 @@ public class Tag extends TableModel {
 	}
 
 	@Override
+	@Nonnull
 	public Tag setRowId(long rowid) {
 		super.setRowId(rowid);
 		return this;
 	}
 
 	@Override
+	@Nonnull
 	public Tag clone() {
 		return (Tag) super.clone();
 	}
