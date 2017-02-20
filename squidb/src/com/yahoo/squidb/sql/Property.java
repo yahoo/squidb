@@ -555,7 +555,7 @@ public abstract class Property<TYPE> extends Field<TYPE> implements Cloneable {
         }
 
         public LongProperty(@Nonnull TableModelName tableModelName, @Nonnull String name,
-                @Nonnull String columnDefinition) {
+                @Nullable String columnDefinition) {
             super(tableModelName, name, columnDefinition);
         }
 
