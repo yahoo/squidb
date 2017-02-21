@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.UpsertKey;
 
@@ -13,7 +13,7 @@ import com.yahoo.squidb.annotations.UpsertKey;
 public class TestSingleColumnUpsertableSpec {
 
     @UpsertKey
-    @ColumnSpec(constraints = "UNIQUE NOT NULL")
+    @ConstraintSql("UNIQUE NOT NULL")
     String guid;
 
     String value1;

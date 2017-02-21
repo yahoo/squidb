@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2228C4C01D11D1AB00955753 /* SquidbUnicode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2228C4BF1D11D1AB00955753 /* SquidbUnicode.m */; };
+		BD1E734E1E5CF5A400D19728 /* ConstraintSql.java in Sources */ = {isa = PBXBuildFile; fileRef = BD1E734D1E5CF5A400D19728 /* ConstraintSql.java */; };
 		BDBF185B1BE976500025045D /* IOSOpenHelperCreator.java in Sources */ = {isa = PBXBuildFile; fileRef = BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */; };
 		BDBF185D1BE980210025045D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDBF185C1BE980210025045D /* Main.storyboard */; };
 		BDC0E2BB1BEA722900F429FE /* TaskCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0E2BA1BEA722900F429FE /* TaskCell.m */; };
@@ -168,7 +169,6 @@
 		BDF07CF11E45581E003A4B4F /* SquidUtilities.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */; };
 		BDF07CF21E45581E003A4B4F /* VersionCode.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CAE1E45581E003A4B4F /* VersionCode.java */; };
 		BDF07D051E45582F003A4B4F /* Alias.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF71E45582F003A4B4F /* Alias.java */; };
-		BDF07D061E45582F003A4B4F /* ColumnSpec.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF81E45582F003A4B4F /* ColumnSpec.java */; };
 		BDF07D071E45582F003A4B4F /* Constants.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CF91E45582F003A4B4F /* Constants.java */; };
 		BDF07D081E45582F003A4B4F /* Ignore.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFA1E45582F003A4B4F /* Ignore.java */; };
 		BDF07D091E45582F003A4B4F /* Implements.java in Sources */ = {isa = PBXBuildFile; fileRef = BDF07CFB1E45582F003A4B4F /* Implements.java */; };
@@ -201,6 +201,7 @@
 /* Begin PBXFileReference section */
 		2228C4BE1D11D1AB00955753 /* SquidbUnicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SquidbUnicode.h; sourceTree = "<group>"; };
 		2228C4BF1D11D1AB00955753 /* SquidbUnicode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SquidbUnicode.m; sourceTree = "<group>"; };
+		BD1E734D1E5CF5A400D19728 /* ConstraintSql.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ConstraintSql.java; sourceTree = "<group>"; };
 		BDBF185A1BE976500025045D /* IOSOpenHelperCreator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = IOSOpenHelperCreator.java; sourceTree = "<group>"; };
 		BDBF185C1BE980210025045D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDC0E2B91BEA722900F429FE /* TaskCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskCell.h; sourceTree = "<group>"; };
@@ -372,7 +373,6 @@
 		BDF07CAD1E45581E003A4B4F /* SquidUtilities.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SquidUtilities.java; sourceTree = "<group>"; };
 		BDF07CAE1E45581E003A4B4F /* VersionCode.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = VersionCode.java; sourceTree = "<group>"; };
 		BDF07CF71E45582F003A4B4F /* Alias.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Alias.java; sourceTree = "<group>"; };
-		BDF07CF81E45582F003A4B4F /* ColumnSpec.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ColumnSpec.java; sourceTree = "<group>"; };
 		BDF07CF91E45582F003A4B4F /* Constants.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Constants.java; sourceTree = "<group>"; };
 		BDF07CFA1E45582F003A4B4F /* Ignore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Ignore.java; sourceTree = "<group>"; };
 		BDF07CFB1E45582F003A4B4F /* Implements.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Implements.java; sourceTree = "<group>"; };
@@ -950,8 +950,8 @@
 				BDE927B51E5A6A3200A2DC66 /* defaults */,
 				BDF07CF71E45582F003A4B4F /* Alias.java */,
 				BDE927B31E5A6A2900A2DC66 /* ColumnName.java */,
-				BDF07CF81E45582F003A4B4F /* ColumnSpec.java */,
 				BDF07CF91E45582F003A4B4F /* Constants.java */,
+				BD1E734D1E5CF5A400D19728 /* ConstraintSql.java */,
 				BDF07CFA1E45582F003A4B4F /* Ignore.java */,
 				BDF07CFB1E45582F003A4B4F /* Implements.java */,
 				BDF07CFC1E45582F003A4B4F /* InheritedModelSpec.java */,
@@ -1070,7 +1070,6 @@
 				BDC8CA3B1BE931B000F7E9E6 /* SQLiteDatatypeMismatchException.java in Sources */,
 				BDF07CEE1E45581E003A4B4F /* ContentProviderQueryBuilder.java in Sources */,
 				BDF07CCF1E45581E003A4B4F /* Delete.java in Sources */,
-				BDF07D061E45582F003A4B4F /* ColumnSpec.java in Sources */,
 				BDF07CD21E45581E003A4B4F /* Function.java in Sources */,
 				BDF07CBF1E45581E003A4B4F /* ViewModel.java in Sources */,
 				BDC8CA441BE931B000F7E9E6 /* SQLiteOpenHelper.java in Sources */,
@@ -1079,6 +1078,7 @@
 				BDF07CE91E45581E003A4B4F /* TableStatement.java in Sources */,
 				BDC8CA4E1BE931B000F7E9E6 /* SQLiteTransactionListener.java in Sources */,
 				BDC8CA1F1BE931B000F7E9E6 /* CursorWindow.java in Sources */,
+				BD1E734E1E5CF5A400D19728 /* ConstraintSql.java in Sources */,
 				BDF07CF11E45581E003A4B4F /* SquidUtilities.java in Sources */,
 				2228C4C01D11D1AB00955753 /* SquidbUnicode.m in Sources */,
 				BDF07D0E1E45582F003A4B4F /* TableModelSpec.java in Sources */,

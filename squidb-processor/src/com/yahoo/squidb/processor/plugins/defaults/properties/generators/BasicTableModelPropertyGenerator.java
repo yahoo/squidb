@@ -9,7 +9,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.defaults.DefaultBlob;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
@@ -42,7 +42,6 @@ import javax.tools.Diagnostic;
 public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGeneratorImpl
         implements TableModelPropertyGenerator {
 
-    protected final ColumnSpec columnSpec;
     protected final String columnName;
     protected final String constraintString;
 
@@ -66,7 +65,6 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             PluginEnvironment pluginEnv) {
         super(modelSpec, null, propertyName, pluginEnv);
 
-        this.columnSpec = null;
         this.columnName = columnName == null ? null : columnName.trim();
         this.constraintString = initConstraintString();
 
@@ -77,7 +75,6 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
             PluginEnvironment pluginEnv) {
         super(modelSpec, field, field.getSimpleName().toString(), pluginEnv);
 
-        this.columnSpec = field.getAnnotation(ColumnSpec.class);
         this.columnName = initColumnName(field);
         this.constraintString = initConstraintString();
 
@@ -140,7 +137,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     private String initConstraintString() {
         StringBuilder toReturn = new StringBuilder();
-        String constraints = columnSpec != null ? columnSpec.constraints() : "";
+        ConstraintSql constraintSql = field != null ? field.getAnnotation(ConstraintSql.class) : null;
+        String constraints = constraintSql != null ? constraintSql.value() : "";
         if (!StringUtils.isEmpty(constraints)) {
             toReturn.append(constraints);
         }

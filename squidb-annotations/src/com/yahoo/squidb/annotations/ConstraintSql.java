@@ -9,13 +9,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * Used for specifying extra metadata about generated column definitions.
+ * Used for specifying constraints as raw SQL
  */
 @Target(ElementType.FIELD)
-public @interface ColumnSpec {
+public @interface ConstraintSql {
 
     /**
-     * Specify column constraints here as raw SQL, e.g. "NOT NULL" or "UNIQUE COLLATE NOCASE"
+     * Specify constraints here as raw SQL, e.g. "NOT NULL" or "UNIQUE COLLATE NOCASE"
      */
-    String constraints() default "";
+    String value() default "";
 }

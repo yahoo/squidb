@@ -6,7 +6,7 @@
 package com.yahoo.squidb.sample.models;
 
 import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
@@ -20,7 +20,7 @@ public class TaskSpec {
     @ColumnName("_id")
     long id;
 
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     String title;
 
     @DefaultLong(0)

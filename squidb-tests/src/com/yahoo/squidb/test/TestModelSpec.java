@@ -8,7 +8,7 @@ package com.yahoo.squidb.test;
 import com.google.j2objc.annotations.ObjectiveCName;
 
 import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
@@ -61,7 +61,7 @@ public class TestModelSpec {
     @DefaultNull
     String firstName;
 
-    @ColumnSpec(constraints = "UNIQUE COLLATE NOCASE")
+    @ConstraintSql("UNIQUE COLLATE NOCASE")
     String lastName;
 
     /**

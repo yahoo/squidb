@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.UpsertKey;
 
@@ -14,11 +14,11 @@ import com.yahoo.squidb.annotations.UpsertKey;
 public class TestMultiColumnUpsertableSpec {
 
     @UpsertKey
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     String key1;
 
     @UpsertKey
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     String key2;
 
     String value1;
