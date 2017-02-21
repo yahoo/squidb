@@ -224,4 +224,14 @@ public class ModelTest extends DatabaseTestCase {
     public void testNonPublicConstantCopying() {
         assertEquals("somePackageProtectedConst", TestModel.PACKAGE_PROTECTED_CONST);
     }
+
+    public void testDefaultExpression() {
+        Thing t = new Thing();
+        database.persist(t);
+
+        t = database.fetch(Thing.class, t.getId());
+        assertNotNull(t);
+        String timestamp = t.getTimestamp();
+        assertTrue(timestamp.matches("\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}"));
+    }
 }

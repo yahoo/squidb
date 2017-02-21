@@ -10,6 +10,7 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 import com.yahoo.squidb.annotations.defaults.DefaultBlob;
 import com.yahoo.squidb.annotations.defaults.DefaultBool;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.defaults.DefaultExpression;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.annotations.defaults.DefaultString;
 
@@ -39,4 +40,7 @@ public class ThingSpec {
 
     @DefaultBlob("x'123ABC'")
     byte[] blob;
+
+    @DefaultExpression(DefaultExpression.CURRENT_TIMESTAMP)
+    String timestamp;
 }
