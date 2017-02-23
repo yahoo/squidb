@@ -5,10 +5,10 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnName;
+import com.yahoo.squidb.annotations.tables.ColumnName;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultLong;
-import com.yahoo.squidb.annotations.defaults.DefaultNull;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultLong;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultNull;
 
 @TableModelSpec(className = "TestVirtualModel", tableName = "virtual_models", virtualModule = "fts4")
 public class TestVirtualModelSpec {

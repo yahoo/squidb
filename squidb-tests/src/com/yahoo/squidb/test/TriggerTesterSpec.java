@@ -5,10 +5,10 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.annotations.tables.ColumnName;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultInt;
 
 @TableModelSpec(className = "TriggerTester", tableName = "trigger_testers")
 public class TriggerTesterSpec {

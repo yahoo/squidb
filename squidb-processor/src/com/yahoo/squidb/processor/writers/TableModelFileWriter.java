@@ -29,8 +29,8 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
         String lastTableArg;
         if (modelSpec.isVirtualTable()) {
             lastTableArg = modelSpec.getSpecAnnotation().virtualModule();
-        } else if (!StringUtils.isEmpty(modelSpec.getSpecAnnotation().tableConstraint())) {
-            lastTableArg = modelSpec.getSpecAnnotation().tableConstraint();
+        } else if (!StringUtils.isEmpty(modelSpec.getTableConstraintString())) {
+            lastTableArg = modelSpec.getTableConstraintString();
         } else {
             lastTableArg = null;
         }

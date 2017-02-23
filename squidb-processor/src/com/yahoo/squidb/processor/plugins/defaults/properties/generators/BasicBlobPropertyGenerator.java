@@ -6,12 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.defaults.DefaultBlob;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBlob;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -55,26 +55,26 @@ public class BasicBlobPropertyGenerator extends BasicTableModelPropertyGenerator
     }
 
     @Override
-    protected Class<? extends Annotation> getDefaultAnnotationType() {
-        return DefaultBlob.class;
-    }
-
-    @Override
-    protected Object getPrimitiveDefaultValueFromAnnotation() {
-        // Returns null even if DefaultBlob annotation is present because we don't put blob values in in-memory defaults
-        return null;
-    }
-
-    @Override
-    protected String getPrimitiveDefaultValueAsSql() {
-        DefaultBlob defaultBlob = field.getAnnotation(DefaultBlob.class);
-        if (defaultBlob != null) {
-            String blobLiteral = defaultBlob.value();
-            if (!BLOB_LITERAL.matcher(blobLiteral).matches()) {
-                modelSpec.logError("Blob literal is not a hexadecimal string", field);
+    protected DefaultValueAnnotationHandler<?, ?> getDefaultValueAnnotationHandler() {
+        return new DefaultValueAnnotationHandler<DefaultBlob, String>() {
+            @Override
+            public Class<DefaultBlob> getAnnotationClass() {
+                return DefaultBlob.class;
             }
-            return blobLiteral;
-        }
-        return null;
+
+            @Override
+            protected String getPrimitiveDefaultValueFromAnnotation(DefaultBlob annotation) {
+                return null;
+            }
+
+            @Override
+            protected String getPrimitiveDefaultValueAsSql(DefaultBlob annotation) {
+                String blobLiteral = annotation.value();
+                if (!BLOB_LITERAL.matcher(blobLiteral).matches()) {
+                    modelSpec.logError("Blob literal is not a hexadecimal string", field);
+                }
+                return blobLiteral;
+            }
+        };
     }
 }

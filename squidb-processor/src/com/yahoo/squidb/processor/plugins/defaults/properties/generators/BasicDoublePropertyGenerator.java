@@ -6,12 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultDouble;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,16 +53,17 @@ public class BasicDoublePropertyGenerator extends BasicTableModelPropertyGenerat
     }
 
     @Override
-    protected Class<? extends Annotation> getDefaultAnnotationType() {
-        return DefaultDouble.class;
-    }
+    protected DefaultValueAnnotationHandler<?, ?> getDefaultValueAnnotationHandler() {
+        return new DefaultValueAnnotationHandler<DefaultDouble, Double>() {
+            @Override
+            public Class<DefaultDouble> getAnnotationClass() {
+                return DefaultDouble.class;
+            }
 
-    @Override
-    protected Double getPrimitiveDefaultValueFromAnnotation() {
-        DefaultDouble defaultDouble = field.getAnnotation(DefaultDouble.class);
-        if (defaultDouble != null) {
-            return defaultDouble.value();
-        }
-        return null;
+            @Override
+            protected Double getPrimitiveDefaultValueFromAnnotation(DefaultDouble annotation) {
+                return annotation.value();
+            }
+        };
     }
 }

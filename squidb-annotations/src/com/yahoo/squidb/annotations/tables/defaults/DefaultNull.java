@@ -3,16 +3,16 @@
  * Copyrights licensed under the Apache 2.0 License.
  * See the accompanying LICENSE file for terms.
  */
-package com.yahoo.squidb.annotations;
+package com.yahoo.squidb.annotations.tables.defaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * Use to explicitly specify a SQLite column name distinct from the field/property name
+ * Annotation for explicitly specifying that a column has a default value of null. This also guarantees that null
+ * will appear in the model default values.
  */
 @Target(ElementType.FIELD)
-public @interface ColumnName {
+public @interface DefaultNull {
 
-    String value();
 }

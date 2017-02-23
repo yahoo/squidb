@@ -6,13 +6,13 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBoolean;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,23 +53,23 @@ public class BasicBooleanPropertyGenerator extends BasicTableModelPropertyGenera
     }
 
     @Override
-    protected Class<? extends Annotation> getDefaultAnnotationType() {
-        return DefaultBoolean.class;
-    }
+    protected DefaultValueAnnotationHandler<?, ?> getDefaultValueAnnotationHandler() {
+        return new DefaultValueAnnotationHandler<DefaultBoolean, Boolean>() {
+            @Override
+            public Class<DefaultBoolean> getAnnotationClass() {
+                return DefaultBoolean.class;
+            }
 
-    @Override
-    protected Boolean getPrimitiveDefaultValueFromAnnotation() {
-        DefaultBoolean defaultBoolean = field.getAnnotation(DefaultBoolean.class);
-        if (defaultBoolean != null) {
-            return defaultBoolean.value();
-        }
-        return null;
-    }
+            @Override
+            protected Boolean getPrimitiveDefaultValueFromAnnotation(DefaultBoolean annotation) {
+                return annotation.value();
+            }
 
-    @Override
-    protected String getPrimitiveDefaultValueAsSql() {
-        Boolean primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
-        return primitiveDefault != null ? (primitiveDefault ? "1" : "0") : null;
+            @Override
+            protected String getPrimitiveDefaultValueAsSql(DefaultBoolean annotation) {
+                return annotation.value() ? "1" : "0";
+            }
+        };
     }
 
     @Override

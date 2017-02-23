@@ -5,13 +5,13 @@
  */
 package com.yahoo.squidb.sample.models;
 
-import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ConstraintSql;
+import com.yahoo.squidb.annotations.tables.ColumnName;
 import com.yahoo.squidb.annotations.ModelMethod;
-import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultInt;
-import com.yahoo.squidb.annotations.defaults.DefaultLong;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultLong;
 
 @TableModelSpec(className = "Task", tableName = "tasks")
 public class TaskSpec {
@@ -20,7 +20,7 @@ public class TaskSpec {
     @ColumnName("_id")
     long id;
 
-    @ConstraintSql("NOT NULL")
+    @NotNull
     String title;
 
     @DefaultLong(0)
