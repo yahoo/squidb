@@ -12,7 +12,7 @@ import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.defaults.DefaultBlob;
-import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
 import com.yahoo.squidb.annotations.defaults.DefaultDouble;
 import com.yahoo.squidb.annotations.defaults.DefaultExpression;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
@@ -47,7 +47,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     private static final Set<Class<? extends Annotation>> DEFAULT_VALUE_ANNOTATIONS = new HashSet<>(Arrays.asList(
             DefaultBlob.class,
-            DefaultBool.class,
+            DefaultBoolean.class,
             DefaultDouble.class,
             DefaultInt.class,
             DefaultLong.class,

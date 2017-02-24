@@ -6,7 +6,7 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -54,14 +54,14 @@ public class BasicBooleanPropertyGenerator extends BasicTableModelPropertyGenera
 
     @Override
     protected Class<? extends Annotation> getDefaultAnnotationType() {
-        return DefaultBool.class;
+        return DefaultBoolean.class;
     }
 
     @Override
     protected Boolean getPrimitiveDefaultValueFromAnnotation() {
-        DefaultBool defaultBool = field.getAnnotation(DefaultBool.class);
-        if (defaultBool != null) {
-            return defaultBool.value();
+        DefaultBoolean defaultBoolean = field.getAnnotation(DefaultBoolean.class);
+        if (defaultBoolean != null) {
+            return defaultBoolean.value();
         }
         return null;
     }

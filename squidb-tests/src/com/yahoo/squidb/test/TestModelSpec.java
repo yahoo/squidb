@@ -13,7 +13,7 @@ import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
 import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.annotations.defaults.DefaultNull;
 import com.yahoo.squidb.annotations.defaults.DefaultString;
@@ -78,7 +78,7 @@ public class TestModelSpec {
     @ColumnName("creationDate")
     long birthday;
 
-    @DefaultBool(true)
+    @DefaultBoolean(true)
     boolean isHappy;
 
     @DefaultInt(7)

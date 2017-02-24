@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * Annotation for specifying a default value on a boolean column
  */
 @Target(ElementType.FIELD)
-public @interface DefaultBool {
+public @interface DefaultBoolean {
 
     boolean value();
 }

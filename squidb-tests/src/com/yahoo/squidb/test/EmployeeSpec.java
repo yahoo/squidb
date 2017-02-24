@@ -9,7 +9,7 @@ import com.yahoo.squidb.annotations.ColumnName;
 import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultBool;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
 
 @TableModelSpec(className = "Employee", tableName = "employees")
 public class EmployeeSpec {
@@ -23,6 +23,6 @@ public class EmployeeSpec {
 
     long managerId;
 
-    @DefaultBool(true)
+    @DefaultBoolean(true)
     boolean isHappy;
 }
