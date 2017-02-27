@@ -6,11 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,17 +52,23 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
     }
 
     @Override
-    protected String columnSpecDefaultValueToSql() {
-        String defaultValue = super.columnSpecDefaultValueToSql();
-        if (!ColumnSpec.DEFAULT_NONE.equals(defaultValue) && !"NULL".equals(defaultValue)) {
-            return "'" + defaultValue + "'";
-        }
-        return defaultValue;
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultString.class;
     }
 
     @Override
-    protected String getDefaultValueForContentValues() {
-        return "\"" + super.getDefaultValueForContentValues() + "\"";
+    protected String getPrimitiveDefaultValueFromAnnotation() {
+        DefaultString defaultString = field.getAnnotation(DefaultString.class);
+        if (defaultString != null) {
+            return defaultString.value();
+        }
+        return null;
+    }
+
+    @Override
+    protected String getPrimitiveDefaultValueAsSql() {
+        String primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
+        return primitiveDefault != null ? "'" + primitiveDefault.replace("'", "''") + "'" : null;
     }
 
 }

@@ -78,7 +78,7 @@ public class TableModelFileWriter extends ModelFileWriter<TableModelSpecWrapper>
     @Override
     protected void buildDefaultValuesInitializationBlock(CodeBlock.Builder block) {
         for (TableModelPropertyGenerator generator : modelSpec.getPropertyGenerators()) {
-            CodeBlock putDefault = generator.buildPutDefault(DEFAULT_VALUES_NAME);
+            CodeBlock putDefault = generator.buildPutDefault(DEFAULT_VALUES_INTERNAL_NAME);
             if (putDefault != null && !putDefault.isEmpty()) {
                 block.addStatement("$L", putDefault);
             }

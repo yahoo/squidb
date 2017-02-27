@@ -5,7 +5,8 @@
  */
 package com.yahoo.squidb.sample.models;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ColumnName;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
@@ -14,13 +15,13 @@ import com.yahoo.squidb.annotations.TableModelSpec;
 public class TagSpec {
 
     @PrimaryKey
-    @ColumnSpec(name = "_id")
+    @ColumnName("_id")
     long id;
 
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     String tag;
 
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     long taskId;
 
 }

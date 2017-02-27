@@ -5,22 +5,24 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ColumnName;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
 
 @TableModelSpec(className = "Employee", tableName = "employees")
 public class EmployeeSpec {
 
     @PrimaryKey
-    @ColumnSpec(name = "_id")
+    @ColumnName("_id")
     long id;
 
-    @ColumnSpec(constraints = "NOT NULL")
+    @ConstraintSql("NOT NULL")
     String name;
 
     long managerId;
 
-    @ColumnSpec(defaultValue = "true")
+    @DefaultBoolean(true)
     boolean isHappy;
 }

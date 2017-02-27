@@ -12,6 +12,8 @@ import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.test.DatabaseTestCase;
 import com.yahoo.squidb.test.TestModel;
 
+import java.lang.reflect.Field;
+
 public class AndroidModelTest extends DatabaseTestCase {
 
     public void testModelParcelable() {
@@ -97,7 +99,17 @@ public class AndroidModelTest extends DatabaseTestCase {
         model.readPropertiesFromContentValues(values, TestModel.FIRST_NAME);
         model.setFirstName("B");
 
-        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), 1);
+        ValuesStorage defaultValuesInternal;
+        try {
+            // Access this internal field reflectively so we can put a new value for this test
+            Field defaultValuesInternalField = TestModel.class.getDeclaredField("defaultValuesInternal");
+            defaultValuesInternalField.setAccessible(true);
+            defaultValuesInternal = (ValuesStorage) defaultValuesInternalField.get(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        defaultValuesInternal.put(TestModel.IS_HAPPY.getName(), 1);
         assertNonNullAndTrue(model.isHappy()); // Test default values
         assertNotNull(model.getDatabaseValues());
         model.getDatabaseValues().put(TestModel.IS_HAPPY.getName(), 0);
@@ -106,6 +118,6 @@ public class AndroidModelTest extends DatabaseTestCase {
         model.getSetValues().put(TestModel.IS_HAPPY.getName(), 1);
         assertNonNullAndTrue(model.isHappy()); // Test set values
 
-        model.getDefaultValues().put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
+        defaultValuesInternal.put(TestModel.IS_HAPPY.getName(), true); // Reset the static variable
     }
 }

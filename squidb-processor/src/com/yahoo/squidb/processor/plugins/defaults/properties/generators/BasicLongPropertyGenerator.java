@@ -6,10 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
+import com.yahoo.squidb.annotations.defaults.DefaultLong;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,28 +52,16 @@ public class BasicLongPropertyGenerator extends BasicTableModelPropertyGenerator
     }
 
     @Override
-    protected String columnSpecDefaultValueToSql() {
-        String value = super.columnSpecDefaultValueToSql();
-        if ("NULL".equalsIgnoreCase(value)) {
-            return value;
-        }
-        char last = value.charAt(value.length() - 1);
-        if (last == 'L' || last == 'l') {
-            return value.substring(0, value.length() - 1);
-        }
-        return value;
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultLong.class;
     }
 
     @Override
-    protected String getDefaultValueForContentValues() {
-        String value = super.getDefaultValueForContentValues();
-        if ("NULL".equalsIgnoreCase(value)) {
-            return value;
+    protected Long getPrimitiveDefaultValueFromAnnotation() {
+        DefaultLong defaultLong = field.getAnnotation(DefaultLong.class);
+        if (defaultLong != null) {
+            return defaultLong.value();
         }
-        char last = value.charAt(value.length() - 1);
-        if (last == 'L' || last == 'l') {
-            return value;
-        }
-        return value + "L";
+        return null;
     }
 }

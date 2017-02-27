@@ -12,6 +12,7 @@
 bin/
 gen/
 out/
+squidb-gen/
 intermediate/
 .apt_generated/
 *.so

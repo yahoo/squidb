@@ -38,6 +38,7 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
 
     protected static final String PROPERTIES_INTERNAL_ARRAY = "PROPERTIES_INTERNAL";
     public static final String PROPERTIES_LIST_NAME = "PROPERTIES";
+    protected static final String DEFAULT_VALUES_INTERNAL_NAME = "defaultValuesInternal";
     protected static final String DEFAULT_VALUES_NAME = "defaultValues";
 
     public ModelFileWriter(T modelSpec, PluginEnvironment pluginEnv) {
@@ -134,9 +135,14 @@ public abstract class ModelFileWriter<T extends ModelSpec<?, ?>> {
     protected abstract void buildPropertiesInitializationBlock(CodeBlock.Builder block);
 
     protected void declareDefaultValues() {
-        FieldSpec.Builder defaultValuesField = FieldSpec.builder(TypeConstants.VALUES_STORAGE, DEFAULT_VALUES_NAME,
-                Modifier.PROTECTED, Modifier.STATIC, Modifier.FINAL)
+        FieldSpec.Builder defaultValuesInternalField = FieldSpec.builder(TypeConstants.VALUES_STORAGE,
+                DEFAULT_VALUES_INTERNAL_NAME, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new $T().newValuesStorage()", modelSpec.getGeneratedClassName());
+        builder.addField(defaultValuesInternalField.build());
+
+        FieldSpec.Builder defaultValuesField = FieldSpec.builder(TypeConstants.VALUES_STORAGE,
+                DEFAULT_VALUES_NAME, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T($L)", TypeConstants.UNMODIFIABLE_VALUES_STORAGE, DEFAULT_VALUES_INTERNAL_NAME);
         builder.addField(defaultValuesField.build());
 
         if (!pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_DEFAULT_VALUES)) {

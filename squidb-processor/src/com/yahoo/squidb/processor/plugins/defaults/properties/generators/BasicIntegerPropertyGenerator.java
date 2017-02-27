@@ -6,10 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,4 +52,17 @@ public class BasicIntegerPropertyGenerator extends BasicTableModelPropertyGenera
         return TypeConstants.INTEGER_PROPERTY;
     }
 
+    @Override
+    protected Class<? extends Annotation> getDefaultAnnotationType() {
+        return DefaultInt.class;
+    }
+
+    @Override
+    protected Integer getPrimitiveDefaultValueFromAnnotation() {
+        DefaultInt defaultInt = field.getAnnotation(DefaultInt.class);
+        if (defaultInt != null) {
+            return defaultInt.value();
+        }
+        return null;
+    }
 }

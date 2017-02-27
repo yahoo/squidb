@@ -7,11 +7,16 @@ package com.yahoo.squidb.test;
 
 import com.google.j2objc.annotations.ObjectiveCName;
 
-import com.yahoo.squidb.annotations.ColumnSpec;
+import com.yahoo.squidb.annotations.ColumnName;
+import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
 import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
+import com.yahoo.squidb.annotations.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.defaults.DefaultNull;
+import com.yahoo.squidb.annotations.defaults.DefaultString;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
 import com.yahoo.squidb.data.TableModel;
@@ -50,13 +55,13 @@ public class TestModelSpec {
     public static final int DEPRECATED_CONST = -1;
 
     @PrimaryKey
-    @ColumnSpec(name = "_id")
+    @ColumnName("_id")
     long id;
 
-    @ColumnSpec(defaultValue = ColumnSpec.DEFAULT_NULL)
+    @DefaultNull
     String firstName;
 
-    @ColumnSpec(constraints = "UNIQUE COLLATE NOCASE")
+    @ConstraintSql("UNIQUE COLLATE NOCASE")
     String lastName;
 
     /**
@@ -70,13 +75,13 @@ public class TestModelSpec {
      * <li>Item 3</li>
      * </ul>
      */
-    @ColumnSpec(name = "creationDate")
+    @ColumnName("creationDate")
     long birthday;
 
-    @ColumnSpec(defaultValue = "true")
+    @DefaultBoolean(true)
     boolean isHappy;
 
-    @ColumnSpec(defaultValue = "7")
+    @DefaultInt(7)
     int luckyNumber;
 
     @Deprecated
@@ -84,12 +89,12 @@ public class TestModelSpec {
 
     double someDouble;
 
-    @ColumnSpec(name = "dollar123abc")
+    @ColumnName("dollar123abc")
     int $123abc;
 
     TestEnum someEnum;
 
-    @ColumnSpec(defaultValue = "[]")
+    @DefaultString("[]")
     @JSONColumn
     List<String> someList;
 
