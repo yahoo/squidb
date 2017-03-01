@@ -36,7 +36,7 @@ abstract class MultipurposeConstraintAnnotationTest<A extends Annotation> extend
             String annotationValue) {
         StringBuilder builder = new StringBuilder();
         handler.appendConstraintForColumn(builder, getMockedPropertyGenerator(annotationValue), pluginEnv);
-        assertEquals(getExpectedConstraintString(annotationValue), builder.toString());
+        assertEquals(getExpectedConstraintString(annotationValue), builder.toString().trim());
     }
 
     @Test
@@ -76,7 +76,7 @@ abstract class MultipurposeConstraintAnnotationTest<A extends Annotation> extend
         StringBuilder builder = new StringBuilder();
         TableModelSpecWrapper modelSpec = getMockedTableModelSpec(annotationValue);
         handler.appendConstraintForTable(builder, modelSpec, pluginEnv);
-        assertEquals(getExpectedConstraintString(annotationValue), builder.toString());
+        assertEquals(getExpectedConstraintString(annotationValue), builder.toString().trim());
     }
 
     @Test

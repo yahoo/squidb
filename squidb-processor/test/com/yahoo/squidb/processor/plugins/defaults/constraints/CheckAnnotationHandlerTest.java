@@ -40,6 +40,6 @@ public class CheckAnnotationHandlerTest extends MultipurposeConstraintAnnotation
         if (!expression.startsWith("(") || !expression.endsWith(")")) {
             expression = "(" + expression + ")";
         }
-        return " CHECK" + expression;
+        return "CHECK" + expression;
     }
 }
