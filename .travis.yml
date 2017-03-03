@@ -3,9 +3,10 @@ env:
   global:
     - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
   matrix:
-    #- ANDROID_TARGET=android-15
-    #- ANDROID_TARGET=android-16
+    - ANDROID_TARGET=android-16
     - ANDROID_TARGET=android-19
+    - ANDROID_TARGET=android-22
+    # - ANDROID_TARGET=android-25
 
 os: linux
 language: android
@@ -13,17 +14,10 @@ jdk: oraclejdk8
 android:
   components:
     - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-    - tools # to install Android SDK tools 25.1.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-    - build-tools-24.0.3
-    - android-24
+    - tools # to install Android SDK tools 25.2.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943). The before-test.sh script will update to the latest tools using sdkmanager
+    - build-tools-25.0.2
+    - android-25
     - extra-android-m2repository
-    #- android-15
-    #- android-16
-    - android-19
-    #- sys-img-armeabi-v7a-android-15
-    #- sys-img-armeabi-v7a-android-16
-    - sys-img-armeabi-v7a-android-19
-
 matrix:
   include:
     - os: osx
