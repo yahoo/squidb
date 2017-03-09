@@ -91,7 +91,7 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
         MethodSpec.Builder params = MethodSpec.methodBuilder(getterMethodName())
                 .addModifiers(Modifier.PUBLIC)
                 .returns(getTypeForAccessors());
-        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotation();
+        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotationInternal();
         if (nullabilityAnnotation != null) {
             params.addAnnotation(nullabilityAnnotation);
         }
@@ -143,7 +143,7 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
      */
     protected MethodSpec.Builder setterMethodParams(String argName) {
         ParameterSpec.Builder arg = ParameterSpec.builder(getTypeForAccessors(), argName);
-        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotation();
+        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotationInternal();
         if (nullabilityAnnotation != null) {
             arg.addAnnotation(nullabilityAnnotation);
         }
@@ -162,15 +162,21 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
         body.addStatement("return this");
     }
 
-    /**
-     * Returns the nullability annotation class to use for the getter return value and the setter parameter. By default,
-     * returns null if the accessor type is a primitive, or {@link Nullable} otherwise. Subclasses may override this
-     * method to return {@link Nonnull}.
-     */
-    protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
-        if (getTypeForAccessors().isPrimitive()) {
+    private Class<? extends Annotation> getAccessorNullabilityAnnotationInternal() {
+        if (getTypeForAccessors().isPrimitive() ||
+                pluginEnv.hasSquidbOption(PluginEnvironment.OPTIONS_DISABLE_ACCESSOR_NULLABILITY)) {
             return null;
         }
+        return getAccessorNullabilityAnnotation();
+    }
+
+    /**
+     * Returns the nullability annotation class to use for the getter return value and the setter parameter. By default,
+     * this returns {@link Nullable}; subclasses may override to return {@link Nonnull}. The return value of this
+     * method will be ignored if {@link #getTypeForAccessors()} returns a primitive type or if
+     * {@link PluginEnvironment#OPTIONS_DISABLE_ACCESSOR_NULLABILITY} is set.
+     */
+    protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
         return Nullable.class;
     }
 }
