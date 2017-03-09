@@ -232,6 +232,7 @@ public class ModelTest extends DatabaseTestCase {
         t = database.fetch(Thing.class, t.getId());
         assertNotNull(t);
         String timestamp = t.getTimestamp();
+        assertNotNull(timestamp);
         assertTrue(timestamp.matches("\\d{4}\\-\\d{2}\\-\\d{2} \\d{2}:\\d{2}:\\d{2}"));
     }
 }
