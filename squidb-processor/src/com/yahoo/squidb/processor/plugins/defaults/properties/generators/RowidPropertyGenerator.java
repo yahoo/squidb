@@ -12,7 +12,6 @@ import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.TableModelSpecFieldPlugin;
 
-import javax.annotation.Nonnull;
 import javax.lang.model.element.VariableElement;
 
 /**
@@ -58,9 +57,6 @@ public class RowidPropertyGenerator extends BasicLongPropertyGenerator {
     private void addAccessorDocumentationForRowids(MethodSpec.Builder params, boolean getter) {
         if (isUnaliasedRowid()) {
             params.addAnnotation(Override.class);
-            if (!getter) {
-                params.addAnnotation(Nonnull.class);
-            }
         } else {
             params.addJavadoc("This " + (getter ? "getter" : "setter") + " is an alias for " +
                     (getter ? "get" : "set") + "RowId(), as the underlying column is an INTEGER PRIMARY KEY\n");

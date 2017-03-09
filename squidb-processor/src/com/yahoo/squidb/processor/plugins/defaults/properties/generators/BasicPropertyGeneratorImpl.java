@@ -2,12 +2,17 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.PropertyGenerator;
 
+import java.lang.annotation.Annotation;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 
@@ -83,9 +88,14 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
      * @see #writeGetterBody(CodeBlock.Builder, MethodSpec)
      */
     protected MethodSpec.Builder getterMethodParams() {
-        return MethodSpec.methodBuilder(getterMethodName())
+        MethodSpec.Builder params = MethodSpec.methodBuilder(getterMethodName())
                 .addModifiers(Modifier.PUBLIC)
                 .returns(getTypeForAccessors());
+        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotation();
+        if (nullabilityAnnotation != null) {
+            params.addAnnotation(nullabilityAnnotation);
+        }
+        return params;
     }
 
     /**
@@ -132,10 +142,16 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
      * @see #writeSetterBody(CodeBlock.Builder, MethodSpec)
      */
     protected MethodSpec.Builder setterMethodParams(String argName) {
-        return  MethodSpec.methodBuilder(setterMethodName())
+        ParameterSpec.Builder arg = ParameterSpec.builder(getTypeForAccessors(), argName);
+        Class<? extends Annotation> nullabilityAnnotation = getAccessorNullabilityAnnotation();
+        if (nullabilityAnnotation != null) {
+            arg.addAnnotation(nullabilityAnnotation);
+        }
+        return MethodSpec.methodBuilder(setterMethodName())
                 .returns(modelSpec.getGeneratedClassName())
+                .addAnnotation(Nonnull.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(getTypeForAccessors(), argName);
+                .addParameter(arg.build());
     }
 
     /**
@@ -144,5 +160,17 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
     protected void writeSetterBody(CodeBlock.Builder body, MethodSpec methodParams) {
         body.addStatement("set($L, $L)", getPropertyName(), methodParams.parameters.get(0).name);
         body.addStatement("return this");
+    }
+
+    /**
+     * Returns the nullability annotation class to use for the getter return value and the setter parameter. By default,
+     * returns null if the accessor type is a primitive, or {@link Nullable} otherwise. Subclasses may override this
+     * method to return {@link Nonnull}.
+     */
+    protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
+        if (getTypeForAccessors().isPrimitive()) {
+            return null;
+        }
+        return Nullable.class;
     }
 }
