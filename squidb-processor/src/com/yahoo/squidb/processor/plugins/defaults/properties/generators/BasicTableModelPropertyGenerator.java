@@ -9,6 +9,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.yahoo.squidb.annotations.tables.ColumnName;
 import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultNull;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -94,12 +95,21 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         for (ColumnConstraintAnnotationHandler<?> handler : annotationHandlers) {
             handler.validateAnnotationForColumn(this, modelSpec);
         }
+        validateNullability();
     }
 
     // TODO remove when SqlUtils reports an error for identifiers containing '$'
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);
+        }
+    }
+
+    private void validateNullability() {
+        if (field != null && field.getAnnotation(DefaultNull.class) != null &&
+                Nonnull.class.equals(getAccessorNullabilityAnnotation())) {
+            modelSpec.logError("Field cannot be annotated with @DefaultNull and have @Nonnull as their accessor "
+                    + "nullability specifier", field);
         }
     }
 
