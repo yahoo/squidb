@@ -18,6 +18,9 @@ import com.yahoo.squidb.processor.plugins.PluginEnvironment;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.InheritedModelPropertyGenerator;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.ViewModelPropertyGenerator;
 
+import java.lang.annotation.Annotation;
+
+import javax.annotation.Nonnull;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 
@@ -84,5 +87,13 @@ public class PropertyReferencePropertyGenerator extends BasicPropertyGeneratorIm
         return FieldSpec.builder(getPropertyType(), getPropertyName(),
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$T.$L", modelSpec.getModelSpecName(), getPropertyName());
+    }
+
+    @Override
+    protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
+        if (field != null && field.getAnnotation(Nonnull.class) != null) {
+            return Nonnull.class;
+        }
+        return super.getAccessorNullabilityAnnotation();
     }
 }
