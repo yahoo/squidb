@@ -5,23 +5,23 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultBlob;
-import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
-import com.yahoo.squidb.annotations.defaults.DefaultDouble;
-import com.yahoo.squidb.annotations.defaults.DefaultExpression;
-import com.yahoo.squidb.annotations.defaults.DefaultInt;
-import com.yahoo.squidb.annotations.defaults.DefaultString;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKeyColumns;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBlob;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBoolean;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultDouble;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultExpression;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultString;
 
 @TableModelSpec(className = "Thing", tableName = "things")
+@PrimaryKeyColumns(columns = "id")
 public class ThingSpec {
 
     public static final String DEFAULT_FOO = "thing";
     public static final int DEFAULT_BAR = 100;
     public static final boolean DEFAULT_IS_ALIVE = true;
 
-    @PrimaryKey(autoincrement = false)
     long id;
 
     @DefaultString(DEFAULT_FOO)

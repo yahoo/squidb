@@ -47,6 +47,7 @@ public class TestDatabase extends SquidDatabase {
                 TestNonIntegerPrimaryKey.TABLE,
                 TestSingleColumnUpsertable.TABLE,
                 TestMultiColumnUpsertable.TABLE,
+                TestConstraint.TABLE
         };
     }
 

@@ -1,19 +1,20 @@
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.TableModelSpec;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKeyColumns;
 
-@TableModelSpec(className = "TestMultiColumnKey", tableName = "multiColumnKey",
-        tableConstraint = "PRIMARY KEY(keyCol1, keyCol2, keyCol3)")
+@TableModelSpec(className = "TestMultiColumnKey", tableName = "multiColumnKey")
+@PrimaryKeyColumns(columns = {"keyCol1", "keyCol2", "keyCol3"})
 public class TestMultiColumnKeySpec {
 
-    @ConstraintSql("NOT NULL")
+    @NotNull
     String keyCol1;
 
-    @ConstraintSql("NOT NULL")
+    @NotNull
     String keyCol2;
 
-    @ConstraintSql("NOT NULL")
+    @NotNull
     String keyCol3;
 
     String otherData;

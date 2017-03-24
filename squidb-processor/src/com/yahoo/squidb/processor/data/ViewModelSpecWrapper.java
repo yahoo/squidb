@@ -28,10 +28,10 @@ public class ViewModelSpecWrapper extends ModelSpec<ViewModelSpec, ViewModelProp
     @Override
     void initialize() {
         super.initialize();
-        checkViewName();
+        validateViewName();
     }
 
-    private void checkViewName() {
+    private void validateViewName() {
         String viewName = getSpecAnnotation().viewName().trim();
         if (viewName.toLowerCase().startsWith("sqlite_")) {
             logError("View names cannot start with 'sqlite_'; such names are reserved for internal use",

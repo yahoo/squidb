@@ -6,12 +6,12 @@
 package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 
 import com.squareup.javapoet.TypeName;
-import com.yahoo.squidb.annotations.defaults.DefaultString;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultString;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,23 +52,22 @@ public class BasicStringPropertyGenerator extends BasicTableModelPropertyGenerat
     }
 
     @Override
-    protected Class<? extends Annotation> getDefaultAnnotationType() {
-        return DefaultString.class;
-    }
+    protected DefaultValueAnnotationHandler<?, ?> getDefaultValueAnnotationHandler() {
+        return new DefaultValueAnnotationHandler<DefaultString, String>() {
+            @Override
+            public Class<DefaultString> getAnnotationClass() {
+                return DefaultString.class;
+            }
 
-    @Override
-    protected String getPrimitiveDefaultValueFromAnnotation() {
-        DefaultString defaultString = field.getAnnotation(DefaultString.class);
-        if (defaultString != null) {
-            return defaultString.value();
-        }
-        return null;
-    }
+            @Override
+            protected String getPrimitiveDefaultValueFromAnnotation(DefaultString annotation) {
+                return annotation.value();
+            }
 
-    @Override
-    protected String getPrimitiveDefaultValueAsSql() {
-        String primitiveDefault = getPrimitiveDefaultValueFromAnnotation();
-        return primitiveDefault != null ? "'" + primitiveDefault.replace("'", "''") + "'" : null;
+            @Override
+            protected String getPrimitiveDefaultValueAsSql(DefaultString annotation) {
+                return "'" + annotation.value().replace("'", "''") + "'";
+            }
+        };
     }
-
 }

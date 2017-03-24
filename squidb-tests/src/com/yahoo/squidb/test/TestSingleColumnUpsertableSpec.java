@@ -5,15 +5,16 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.UpsertKey;
+import com.yahoo.squidb.annotations.tables.UpsertKey;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.constraints.Unique;
 
 @TableModelSpec(className = "TestSingleColumnUpsertable", tableName = "testSingleColumnUpsert")
 public class TestSingleColumnUpsertableSpec {
 
     @UpsertKey
-    @ConstraintSql("UNIQUE NOT NULL")
+    @Unique @NotNull
     String guid;
 
     String value1;

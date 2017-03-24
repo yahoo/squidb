@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.PrimaryKey;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
 
 @TableModelSpec(className = "BasicData", tableName = "data")

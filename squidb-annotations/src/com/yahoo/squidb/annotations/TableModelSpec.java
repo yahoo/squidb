@@ -28,7 +28,13 @@ public @interface TableModelSpec {
      * Optional string for specifying table constraints when creating the table (raw SQL), e.g.
      * "FOREIGN KEY(key_col) REFERENCES other_table(_id) ON DELETE CASCADE" or "UNIQUE (col1, col2) ON CONFLICT
      * IGNORE". This value is ignored for virtual tables.
+     * <p>
+     * This annotation field is deprecated; users should use annotate their model class with
+     * {@link com.yahoo.squidb.annotations.tables.constraints.ConstraintSql ConstraintSql} for raw SQL constraints
+     * or use one of the dedicated constraint annotations found in the com.yahoo.squidb.annotations.tables.constraints
+     * package instead.
      */
+    @Deprecated
     String tableConstraint() default "";
 
     /**

@@ -5,7 +5,7 @@
  */
 package com.yahoo.squidb.processor.plugins.defaults;
 
-import com.yahoo.squidb.annotations.UpsertKey;
+import com.yahoo.squidb.annotations.tables.UpsertKey;
 import com.yahoo.squidb.processor.data.InheritedModelSpecWrapper;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 import com.yahoo.squidb.processor.data.ViewModelSpecWrapper;

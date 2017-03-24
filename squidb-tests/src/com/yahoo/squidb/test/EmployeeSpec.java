@@ -5,11 +5,11 @@
  */
 package com.yahoo.squidb.test;
 
-import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ConstraintSql;
-import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
+import com.yahoo.squidb.annotations.tables.ColumnName;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKey;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBoolean;
 
 @TableModelSpec(className = "Employee", tableName = "employees")
 public class EmployeeSpec {
@@ -18,7 +18,7 @@ public class EmployeeSpec {
     @ColumnName("_id")
     long id;
 
-    @ConstraintSql("NOT NULL")
+    @NotNull
     String name;
 
     long managerId;

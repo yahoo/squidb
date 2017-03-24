@@ -7,16 +7,20 @@ package com.yahoo.squidb.test;
 
 import com.google.j2objc.annotations.ObjectiveCName;
 
-import com.yahoo.squidb.annotations.ColumnName;
-import com.yahoo.squidb.annotations.ConstraintSql;
 import com.yahoo.squidb.annotations.Implements;
 import com.yahoo.squidb.annotations.ModelMethod;
-import com.yahoo.squidb.annotations.PrimaryKey;
 import com.yahoo.squidb.annotations.TableModelSpec;
-import com.yahoo.squidb.annotations.defaults.DefaultBoolean;
-import com.yahoo.squidb.annotations.defaults.DefaultInt;
-import com.yahoo.squidb.annotations.defaults.DefaultNull;
-import com.yahoo.squidb.annotations.defaults.DefaultString;
+import com.yahoo.squidb.annotations.tables.ColumnName;
+import com.yahoo.squidb.annotations.tables.ConflictAlgorithm;
+import com.yahoo.squidb.annotations.tables.constraints.Collate;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
+import com.yahoo.squidb.annotations.tables.constraints.PrimaryKey;
+import com.yahoo.squidb.annotations.tables.constraints.Unique;
+import com.yahoo.squidb.annotations.tables.constraints.UniqueColumns;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultBoolean;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultInt;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultNull;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultString;
 import com.yahoo.squidb.data.AbstractModel;
 import com.yahoo.squidb.data.JSONPojo;
 import com.yahoo.squidb.data.TableModel;
@@ -36,8 +40,8 @@ import javax.annotation.Nullable;
 /**
  * Here's a test javadoc for a model spec. It should be copied to the generated model.
  */
-@TableModelSpec(className = "TestModel", tableName = "testModels",
-        tableConstraint = "UNIQUE (creationDate) ON CONFLICT REPLACE")
+@TableModelSpec(className = "TestModel", tableName = "testModels")
+@UniqueColumns(columns = "creationDate", onConflict = ConflictAlgorithm.REPLACE)
 @Implements(interfaceClasses = Runnable.class,
         interfaceDefinitions = @Implements.InterfaceSpec(interfaceClass = Iterable.class,
                 interfaceTypeArgs = {String.class}))
@@ -61,7 +65,7 @@ public class TestModelSpec {
     @DefaultNull
     String firstName;
 
-    @ConstraintSql("UNIQUE COLLATE NOCASE")
+    @Unique @Collate(Collate.NOCASE)
     String lastName;
 
     /**
@@ -78,10 +82,10 @@ public class TestModelSpec {
     @ColumnName("creationDate")
     long birthday;
 
-    @DefaultBoolean(true)
+    @NotNull @DefaultBoolean(true)
     boolean isHappy;
 
-    @DefaultInt(7)
+    @NotNull @Collate(Collate.BINARY) @DefaultInt(7)
     int luckyNumber;
 
     @Deprecated
