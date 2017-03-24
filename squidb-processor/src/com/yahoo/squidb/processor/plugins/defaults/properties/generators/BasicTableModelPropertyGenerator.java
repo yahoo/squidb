@@ -8,7 +8,6 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.yahoo.squidb.annotations.tables.ColumnName;
-import com.yahoo.squidb.annotations.tables.constraints.NotNull;
 import com.yahoo.squidb.annotations.tables.defaults.DefaultNull;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -24,7 +23,6 @@ import com.yahoo.squidb.processor.plugins.defaults.constraints.PrimaryKeyAnnotat
 import com.yahoo.squidb.processor.plugins.defaults.constraints.UniqueAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.properties.generators.interfaces.TableModelPropertyGenerator;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -162,15 +160,6 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     @Override
     public String getConstraintString() {
         return constraintString;
-    }
-
-    @Override
-    protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
-        if (field != null &&
-                (field.getAnnotation(NotNull.class) != null || field.getAnnotation(Nonnull.class) != null)) {
-            return Nonnull.class;
-        }
-        return super.getAccessorNullabilityAnnotation();
     }
 
     @Override

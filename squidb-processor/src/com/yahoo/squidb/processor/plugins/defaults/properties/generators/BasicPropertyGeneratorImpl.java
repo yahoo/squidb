@@ -4,6 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -172,11 +173,16 @@ public abstract class BasicPropertyGeneratorImpl implements PropertyGenerator {
 
     /**
      * Returns the nullability annotation class to use for the getter return value and the setter parameter. By default,
-     * this returns {@link Nullable}; subclasses may override to return {@link Nonnull}. The return value of this
-     * method will be ignored if {@link #getTypeForAccessors()} returns a primitive type or if
+     * this returns {@link Nonnull} if the property generator has a field annotation with either {@link Nonnull} or
+     * {@link NotNull}; subclasses may override to return either annotation or null for no annotation. The return value
+     * of this method will be ignored if {@link #getTypeForAccessors()} returns a primitive type or if
      * {@link PluginEnvironment#OPTIONS_DISABLE_ACCESSOR_NULLABILITY} is set.
      */
     protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
+        if (field != null &&
+                (field.getAnnotation(NotNull.class) != null || field.getAnnotation(Nonnull.class) != null)) {
+            return Nonnull.class;
+        }
         return Nullable.class;
     }
 }
