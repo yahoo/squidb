@@ -166,7 +166,8 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
 
     @Override
     protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
-        if (field != null && field.getAnnotation(NotNull.class) != null) {
+        if (field != null &&
+                (field.getAnnotation(NotNull.class) != null || field.getAnnotation(Nonnull.class) != null)) {
             return Nonnull.class;
         }
         return super.getAccessorNullabilityAnnotation();
