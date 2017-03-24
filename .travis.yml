@@ -3,9 +3,9 @@ env:
   global:
     - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
   matrix:
-    - ANDROID_TARGET=android-16
+    # - ANDROID_TARGET=android-16
     - ANDROID_TARGET=android-19
-    - ANDROID_TARGET=android-22
+    # - ANDROID_TARGET=android-22
     # - ANDROID_TARGET=android-25
 
 os: linux
