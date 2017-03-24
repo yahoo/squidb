@@ -18,6 +18,7 @@ import com.yahoo.squidb.processor.plugins.defaults.constraints.CollateAnnotation
 import com.yahoo.squidb.processor.plugins.defaults.constraints.ColumnConstraintAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.ConstraintSqlAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.JavaxNonnullAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.NotNullAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.PrimaryKeyAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.UniqueAnnotationHandler;
@@ -76,6 +77,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         handlers.add(new PrimaryKeyAnnotationHandler());
         handlers.add(new UniqueAnnotationHandler());
         handlers.add(new NotNullAnnotationHandler());
+        handlers.add(new JavaxNonnullAnnotationHandler());
         handlers.add(new CollateAnnotationHandler());
         handlers.add(new CheckAnnotationHandler.ColumnCheckAnnotationHandler());
         handlers.add(getDefaultValueAnnotationHandler());
@@ -93,7 +95,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     private void doValidation() {
         validateColumnName();
         for (ColumnConstraintAnnotationHandler<?> handler : annotationHandlers) {
-            handler.validateAnnotationForColumn(this, modelSpec);
+            handler.validateAnnotationForColumn(this, modelSpec, pluginEnv);
         }
         validateNullability();
     }
@@ -108,7 +110,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     private void validateNullability() {
         if (field != null && field.getAnnotation(DefaultNull.class) != null &&
                 Nonnull.class.equals(getAccessorNullabilityAnnotation())) {
-            modelSpec.logError("Field cannot be annotated with @DefaultNull and have @Nonnull as their accessor "
+            modelSpec.logError("Field cannot be annotated with @DefaultNull and have @Nonnull as its accessor "
                     + "nullability specifier", field);
         }
     }

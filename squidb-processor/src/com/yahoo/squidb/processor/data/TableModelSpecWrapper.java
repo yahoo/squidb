@@ -55,7 +55,7 @@ public class TableModelSpecWrapper extends ModelSpec<TableModelSpec, TableModelP
     private void doValidation() {
         validateTableName();
         for (TableConstraintAnnotationHandler<?> handler : annotationHandlers) {
-            handler.validateAnnotationForTable(this);
+            handler.validateAnnotationForTable(this, pluginEnv);
         }
     }
 

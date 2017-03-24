@@ -39,7 +39,7 @@ public class ConstraintSqlAnnotationHandler {
 
         @Override
         protected void validateAnnotationForColumn(ConstraintSql annotation,
-                PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec) {
+                PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnvironment) {
             validateAnnotation(annotation, propertyGenerator.getField(), modelSpec);
         }
 
@@ -58,7 +58,8 @@ public class ConstraintSqlAnnotationHandler {
         }
 
         @Override
-        protected void validateAnnotationForTable(ConstraintSql annotation, TableModelSpecWrapper modelSpec) {
+        protected void validateAnnotationForTable(ConstraintSql annotation, TableModelSpecWrapper modelSpec,
+                PluginEnvironment pluginEnvironment) {
             validateAnnotation(annotation, modelSpec.getModelSpecElement(), modelSpec);
         }
 

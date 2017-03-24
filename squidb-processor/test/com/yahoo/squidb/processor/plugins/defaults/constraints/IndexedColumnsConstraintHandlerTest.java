@@ -11,7 +11,6 @@ import com.yahoo.squidb.annotations.tables.constraints.IndexedColumn;
 import com.yahoo.squidb.processor.data.TableModelSpecWrapper;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.lang.annotation.Annotation;
 
@@ -64,7 +63,7 @@ abstract class IndexedColumnsConstraintHandlerTest<A extends Annotation> extends
         TableConstraintAnnotationHandler<A> handler = getTableAnnotationHandler();
         A annotation = getMockedAnnotation(getMockedColumnNames(1), getMockedIndexedColumns(1), ConflictAlgorithm.NONE);
         TableModelSpecWrapper modelSpec = mockTableModelSpecWithAnnotation(getAnnotationClass(), annotation);
-        handler.validateAnnotationForTable(modelSpec);
+        handler.validateAnnotationForTable(modelSpec, pluginEnv);
         verify(modelSpec, atLeastOnce()).logError(anyString(), any(Element.class));
     }
 
@@ -73,7 +72,7 @@ abstract class IndexedColumnsConstraintHandlerTest<A extends Annotation> extends
         TableConstraintAnnotationHandler<A> handler = getTableAnnotationHandler();
         A annotation = getMockedAnnotation(getMockedColumnNames(0), getMockedIndexedColumns(0), ConflictAlgorithm.NONE);
         TableModelSpecWrapper modelSpec = mockTableModelSpecWithAnnotation(getAnnotationClass(), annotation);
-        handler.validateAnnotationForTable(modelSpec);
+        handler.validateAnnotationForTable(modelSpec, pluginEnv);
         verify(modelSpec, atLeastOnce()).logError(anyString(), any(Element.class));
     }
 

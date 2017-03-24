@@ -40,7 +40,7 @@ public class CollateAnnotationHandlerTest extends SimpleColumnConstraintAnnotati
             String annotationValue, boolean expectError) {
         TableModelSpecWrapper modelSpec = mock(TableModelSpecWrapper.class);
         handler.validateAnnotationForColumn(mockPropertyGeneratorWithAnnotation(getAnnotationClass(),
-                getMockedAnnotation(annotationValue)), modelSpec);
+                getMockedAnnotation(annotationValue)), modelSpec, pluginEnv);
         verify(modelSpec, times(expectError ? 1 : 0)).logError(anyString(), any(Element.class));
     }
 

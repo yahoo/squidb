@@ -33,15 +33,16 @@ public class TableConstraintsContainerAnnotationHandler
     }
 
     @Override
-    protected void validateAnnotationForTable(TableConstraints annotation, TableModelSpecWrapper modelSpec) {
+    protected void validateAnnotationForTable(TableConstraints annotation, TableModelSpecWrapper modelSpec,
+            PluginEnvironment pluginEnvironment) {
         for (UniqueColumns uniqueColumns : annotation.uniques()) {
-            getUniqueHandler(uniqueColumns).validateAnnotationForTable(modelSpec);
+            getUniqueHandler(uniqueColumns).validateAnnotationForTable(modelSpec, pluginEnvironment);
         }
         for (Check check : annotation.checks()) {
-            getCheckHandler(check).validateAnnotationForTable(modelSpec);
+            getCheckHandler(check).validateAnnotationForTable(modelSpec, pluginEnvironment);
         }
         for (ConstraintSql constraintSql : annotation.constraintSqls()) {
-            getConstraintSqlHandler(constraintSql).validateAnnotationForTable(modelSpec);
+            getConstraintSqlHandler(constraintSql).validateAnnotationForTable(modelSpec, pluginEnvironment);
         }
     }
 

@@ -54,7 +54,7 @@ abstract class MultipurposeConstraintAnnotationTest<A extends Annotation> extend
     private void testColumnValidationWithAnnotationValue(ColumnConstraintAnnotationHandler<A> handler,
             String annotationValue, boolean expectError) {
         TableModelSpecWrapper modelSpec = mock(TableModelSpecWrapper.class);
-        handler.validateAnnotationForColumn(getMockedPropertyGenerator(annotationValue), modelSpec);
+        handler.validateAnnotationForColumn(getMockedPropertyGenerator(annotationValue), modelSpec, pluginEnv);
         verify(modelSpec, times(expectError ? 1 : 0)).logError(anyString(), any(Element.class));
     }
 
@@ -94,7 +94,7 @@ abstract class MultipurposeConstraintAnnotationTest<A extends Annotation> extend
     private void testTableValidationWithAnnotationValue(TableConstraintAnnotationHandler<A> handler,
             String annotationValue, boolean expectError) {
         TableModelSpecWrapper modelSpec = getMockedTableModelSpec(annotationValue);
-        handler.validateAnnotationForTable(modelSpec);
+        handler.validateAnnotationForTable(modelSpec, pluginEnv);
         verify(modelSpec, times(expectError ? 1 : 0)).logError(anyString(), any(Element.class));
     }
 

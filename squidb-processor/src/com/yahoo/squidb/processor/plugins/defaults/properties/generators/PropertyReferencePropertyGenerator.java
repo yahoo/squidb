@@ -10,6 +10,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
 import com.yahoo.squidb.annotations.Alias;
+import com.yahoo.squidb.annotations.tables.constraints.NotNull;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.TypeConstants;
 import com.yahoo.squidb.processor.data.ModelSpec;
@@ -91,7 +92,8 @@ public class PropertyReferencePropertyGenerator extends BasicPropertyGeneratorIm
 
     @Override
     protected Class<? extends Annotation> getAccessorNullabilityAnnotation() {
-        if (field != null && field.getAnnotation(Nonnull.class) != null) {
+        if (field != null &&
+                (field.getAnnotation(Nonnull.class) != null || field.getAnnotation(NotNull.class) != null)) {
             return Nonnull.class;
         }
         return super.getAccessorNullabilityAnnotation();

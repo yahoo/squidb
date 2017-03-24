@@ -70,7 +70,8 @@ public abstract class DefaultValueAnnotationHandler<ANNOTATION extends Annotatio
     }
 
     @Override
-    public void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec) {
+    public void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec,
+            PluginEnvironment pluginEnvironment) {
         // Validate that no more than one default annotation exists, and if one does that it is of the correct type
         VariableElement field = propertyGenerator.getField();
         if (field != null) {

@@ -39,12 +39,13 @@ public abstract class AbstractColumnConstraintAnnotationHandler<ANNOTATION exten
     }
 
     @Override
-    public final void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec) {
+    public final void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec,
+            PluginEnvironment pluginEnvironment) {
         VariableElement field = propertyGenerator.getField();
         if (field != null) {
             ANNOTATION annotation = field.getAnnotation(getAnnotationClass());
             if (annotation != null) {
-                validateAnnotationForColumn(annotation, propertyGenerator, modelSpec);
+                validateAnnotationForColumn(annotation, propertyGenerator, modelSpec, pluginEnvironment);
             }
         }
     }
@@ -53,7 +54,7 @@ public abstract class AbstractColumnConstraintAnnotationHandler<ANNOTATION exten
             PropertyGenerator propertyGenerator, PluginEnvironment pluginEnvironment);
 
     protected void validateAnnotationForColumn(ANNOTATION annotation, PropertyGenerator propertyGenerator,
-            ModelSpec<?, ?> modelSpec) {
+            ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnvironment) {
         // Subclasses can override
     }
 
