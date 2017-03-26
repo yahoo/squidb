@@ -180,13 +180,15 @@ public abstract class ValuesStorage {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (String key : keySet()) {
-            result.append(key);
+        StringBuilder result = new StringBuilder(getClass().getSimpleName());
+        result.append(": {\n");
+        for (Map.Entry<String, Object> entry : valueSet()) {
+            result.append(entry.getKey());
             result.append(": \"");
-            result.append(get(key));
+            result.append(entry.getValue());
             result.append("\"\n");
         }
+        result.append("}\n");
         return result.toString();
     }
 
