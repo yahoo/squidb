@@ -179,6 +179,18 @@ public abstract class ValuesStorage {
     }
 
     @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (String key : keySet()) {
+            result.append(key);
+            result.append(": \"");
+            result.append(get(key));
+            result.append("\"\n");
+        }
+        return result.toString();
+    }
+
+    @Override
     public abstract boolean equals(@Nullable Object o);
 
     @Override
