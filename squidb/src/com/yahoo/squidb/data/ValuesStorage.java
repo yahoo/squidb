@@ -179,6 +179,20 @@ public abstract class ValuesStorage {
     }
 
     @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder(getClass().getSimpleName());
+        result.append(": {\n");
+        for (Map.Entry<String, Object> entry : valueSet()) {
+            result.append(entry.getKey());
+            result.append(": \"");
+            result.append(entry.getValue());
+            result.append("\"\n");
+        }
+        result.append("}\n");
+        return result.toString();
+    }
+
+    @Override
     public abstract boolean equals(@Nullable Object o);
 
     @Override
