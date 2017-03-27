@@ -1,6 +1,26 @@
 Change Log
 ==========
 
+Version 4.0.0-beta.2 *(2017-03-28)*
+-----------------------------------
+Version 4.0 of SquiDB will bring several feature enhancements. Development is taking place on the dev_4.0 branch. This second beta adds several feature enhancements (outlined below) to the first beta. Note that 4.0 is not yet fully stable; there may be bugs as well as future API and/or behavior changes. This second beta includes the following changes:
+
+* The public API of SquiDB has been annotated with the jsr305 `@Nonnull` and `@Nullable` nullability annotations. This includes parameters and return values of all public API methods, as well as getters in setters in generated code. If you find something in the API that is either missing a nullability specifier or that you feel has an incorrect nullability specifier, please let us know!
+* Several new annotations for specifying SQL constraints on tables or columns in model spec classes have been added to `squidb-annotations`. These new annotations are preferable to the old method of specifying constraints as raw SQL, because they can be subject to additional validation at compile time. Relevant changes:
+    * The `@ColumnSpec` annotation has been removed in favor of the annotations described below. Users of `@ColumnSpec` will need to update their model specs before they can compile with 4.0 beta 2.
+    * Some annotations have been moved to new packages. Most notably, the `@PrimaryKey` annotation has been moved to the `com.yahoo.squidb.annotations.tables.constraints`, and the upsert annotations introduced in 4.0 beta 1 have been moved to `com.yahoo.squidb.annotations.tables`. Users of these annotations will need to update their model spec imports before they can compile with 4.0 beta 2.
+    * New annotation types:
+        * Table-level constraints. These annotations annotate a table model spec class and add their constraints to the table definition. Examples include `@UniqueColumns` and `@PrimaryKeyColumns` for specifying a collection of columns to be used in a SQL `UNIQUE` or `PRIMARY KEY` table constraint.
+        * Column-level constraints. These annotations annotate a table model spec field and add constraints to the corresponding column definition. Examples include `@NotNull(onConflict = ?)` for specifying a SQL `NOT NULL` constraint, or `@Unique(onConflict = ?)` for specifying a SQL `UNIQUE` column constraint (both with optional conflict resolution clauses).
+        * Default value annotations. These annotations annotate a table model spec field to type-safely specify a default value in the column definition. A dedicated annotation exists for each basic type so that the annotations can be validated that the default value type corresponds to the column type. Examples include things like `@DefaultString`, `@DefaultLong`, and `@DefaultBoolean`.
+        * A dedicated `@ColumnName` annotation has replaced the functionality of `@ColumnSpec(name = ?)`
+    * The constraint annotations can be found in the `com.yahoo.squidb.annotations.tables.constraints` package. The default value annotations can be found in the `com.yahoo.squidb.annotations.tables.defaults` package.
+* The `PROPERTIES` field in every generated model class is now an immutable `List<Property<?>>` instead of an array. Where applicable, methods have been added to the SquiDB API to make sure that variants for either `List<? extends Property<?>>` or `Property<?>...` are available.
+* `squidb-ios` now targets j2objc 1.3.1. Minor source changes may be required if building with an older version of j2objc.
+* Parameter and return value annotations on `@ModelMethod`s are now copied to the generated class, with special handling for `@ObjectiveCName`.
+* Fix an issue where `SqlTable.qualifyField` type inference would behave badly for functions. This method has been replaced with `qualifyField`, which always returns a `Field<?>`, and `qualifyProperty`, which accepts only `Property` objects and does some type inference on the argument to return the same property type.
+* Add `getCreateTableSql` method to `Table` and `getCreateViewSql` to `View` for returning the `CREATE TABLE` and `CREATE VIEW` SQL statements for those objects, respectively.
+
 Version 4.0.0-beta.1 *(2017-01-31)*
 -----------------------------------
 Version 4.0 of SquiDB will bring several feature enhancements. This first beta lays the foundation for future changes in the 4.0 development stream, which is taking place on the dev_4.0 branch. Note that 4.0 is not yet fully stable; there may be bugs as well as future API and/or behavior changes. This first beta includes the following changes:
