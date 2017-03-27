@@ -20,6 +20,8 @@ import com.yahoo.squidb.sql.Query;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 @ViewModelSpec(className = "TestViewModel", viewName = "testView")
 public class TestViewModelSpec {
 
@@ -30,8 +32,10 @@ public class TestViewModelSpec {
     public static final Query CONST_QUERY = Query.select().from(TestModel.TABLE)
             .leftJoin(Employee.TABLE, TestModel.ID.eq(Employee.ID));
 
+    @Nonnull
     public static final LongProperty TEST_MODEL_ID = TestModel.ID;
 
+    @Nonnull
     public static final LongProperty EMPLOYEE_MODEL_ID = Employee.ID;
 
     public static final StringProperty TEST_NAME = TestModel.FIRST_NAME;

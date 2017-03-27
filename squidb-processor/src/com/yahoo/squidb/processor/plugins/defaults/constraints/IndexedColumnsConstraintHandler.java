@@ -80,7 +80,8 @@ abstract class IndexedColumnsConstraintHandler<ANNOTATION extends Annotation>
     }
 
     @Override
-    protected void validateAnnotationForTable(ANNOTATION annotation, TableModelSpecWrapper modelSpec) {
+    protected void validateAnnotationForTable(ANNOTATION annotation, TableModelSpecWrapper modelSpec,
+            PluginEnvironment pluginEnvironment) {
         IndexedColumn[] indexedColumns = getIndexedColumns(annotation);
         String[] columnNames = getColumnNames(annotation);
         if (indexedColumns.length > 0 && columnNames.length > 0) {

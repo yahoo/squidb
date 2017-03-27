@@ -268,6 +268,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 model = database.fetch(TestModel.class, model.getRowId(), TestModel.PROPERTIES);
                 assertNotNull(model);
                 JSONPojo readPojo = model.getSomePojo();
+                assertNotNull(readPojo);
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
                 assertEquals(pojo.pojoInt, readPojo.pojoInt);
                 assertEquals(pojo.pojoDouble, readPojo.pojoDouble);
@@ -295,6 +296,7 @@ public class JSONPropertyTest extends DatabaseTestCase {
                 assertNotNull(viewModel);
 
                 JSONPojo readPojo = viewModel.getJsonProp();
+                assertNotNull(readPojo);
                 assertEquals(pojo.pojoStr, readPojo.pojoStr);
                 assertEquals(pojo.pojoInt, readPojo.pojoInt);
                 assertEquals(pojo.pojoDouble, readPojo.pojoDouble);

@@ -184,9 +184,14 @@ public abstract class ValuesStorage {
         result.append(": {\n");
         for (Map.Entry<String, Object> entry : valueSet()) {
             result.append(entry.getKey());
-            result.append(": \"");
-            result.append(entry.getValue());
-            result.append("\"\n");
+            result.append(": ");
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                result.append("\"").append(value).append("\"");
+            } else {
+                result.append(value);
+            }
+            result.append("\n");
         }
         result.append("}\n");
         return result.toString();

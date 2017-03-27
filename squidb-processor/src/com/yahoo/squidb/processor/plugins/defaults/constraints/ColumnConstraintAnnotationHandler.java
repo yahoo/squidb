@@ -33,6 +33,7 @@ public interface ColumnConstraintAnnotationHandler<ANNOTATION extends Annotation
     /**
      * Validates the annotation parameters for the handler's annotation for the given column and model spec
      */
-    void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec);
+    void validateAnnotationForColumn(PropertyGenerator propertyGenerator, ModelSpec<?, ?> modelSpec,
+            PluginEnvironment pluginEnvironment);
 
 }

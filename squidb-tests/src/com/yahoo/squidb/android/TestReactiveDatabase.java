@@ -8,7 +8,6 @@ package com.yahoo.squidb.android;
 import com.yahoo.squidb.data.ISQLiteDatabase;
 import com.yahoo.squidb.data.ISQLiteOpenHelper;
 import com.yahoo.squidb.reactive.ReactiveSquidDatabase;
-import com.yahoo.squidb.sql.AttachDetachTest;
 import com.yahoo.squidb.sql.Index;
 import com.yahoo.squidb.sql.Table;
 import com.yahoo.squidb.sql.View;
@@ -83,7 +82,7 @@ public class TestReactiveDatabase extends ReactiveSquidDatabase {
 
     @Override
     protected void onConfigure(@Nonnull ISQLiteDatabase db) {
-        /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
+        // see AttachDetachTest#testAttacherInTransactionOnAnotherThread()
         Object wrappedObject = db.getWrappedObject();
         if (wrappedObject instanceof SQLiteDatabase) {
             ((SQLiteDatabase) wrappedObject).enableWriteAheadLogging();

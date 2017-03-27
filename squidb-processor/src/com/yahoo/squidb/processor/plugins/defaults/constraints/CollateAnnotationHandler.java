@@ -33,7 +33,7 @@ public class CollateAnnotationHandler extends AbstractColumnConstraintAnnotation
 
     @Override
     protected void validateAnnotationForColumn(Collate annotation, PropertyGenerator propertyGenerator,
-            ModelSpec<?, ?> modelSpec) {
+            ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnvironment) {
         if (StringUtils.isEmpty(annotation.value().trim())) {
             modelSpec.logError("@Collate annotation cannot have an empty collation sequence name",
                     propertyGenerator.getField());

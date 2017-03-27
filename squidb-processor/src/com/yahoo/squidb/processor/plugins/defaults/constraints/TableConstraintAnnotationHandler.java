@@ -32,6 +32,6 @@ public interface TableConstraintAnnotationHandler<ANNOTATION extends Annotation>
     /**
      * Validates the annotation parameters for the handler's annotation for the given model spec
      */
-    void validateAnnotationForTable(TableModelSpecWrapper modelSpec);
+    void validateAnnotationForTable(TableModelSpecWrapper modelSpec, PluginEnvironment pluginEnvironment);
 
 }

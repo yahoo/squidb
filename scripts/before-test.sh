@@ -7,11 +7,17 @@ elif [ ! -z "$CI_CODE_GENERATOR_TESTS" ]
 then
     echo "Running code generator tests"
 else
+    ANDROID_SDK_HOME=$(dirname $(dirname $(which android)))
+    EMULATOR="system-images;$ANDROID_TARGET;google_apis;armeabi-v7a"
+    echo y | $ANDROID_SDK_HOME/tools/bin/sdkmanager "tools"
+    echo y | $ANDROID_SDK_HOME/tools/bin/sdkmanager "emulator"
+    echo y | $ANDROID_SDK_HOME/tools/bin/sdkmanager "$EMULATOR"
+
     sudo apt-get -qq update
     sudo apt-get install python3
 
-    echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a
-    emulator -avd test -no-skin -no-audio -no-window &
+    echo no | $ANDROID_SDK_HOME/tools/bin/avdmanager create avd --force --name test --package "$EMULATOR" --tag google_apis --abi armeabi-v7a
+    $ANDROID_SDK_HOME/emulator/emulator -avd test -no-skin -no-audio -no-window &
     android-wait-for-emulator
     adb shell input keyevent 82 &
     ./gradlew squidb-tests:installDebug squidb-tests:installDebugAndroidTest

@@ -94,7 +94,7 @@ public class TestDatabase extends SquidDatabase {
 
     @Override
     protected void onConfigure(@Nonnull ISQLiteDatabase db) {
-        /** @see AttachDetachTest#testAttacherInTransactionOnAnotherThread() */
+        // see AttachDetachTest#testAttacherInTransactionOnAnotherThread()
         db.enableWriteAheadLogging();
         setPreparedInsertCacheEnabled(true);
     }

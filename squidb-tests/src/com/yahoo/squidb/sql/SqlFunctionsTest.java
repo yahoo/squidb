@@ -77,7 +77,9 @@ public class SqlFunctionsTest extends DatabaseTestCase {
                 IntegerProperty.fromFunction(Function.length(TestModel.BIRTHDAY), "length");
         TestModel fetch = database.fetch(TestModel.class, model1.getRowId(), length);
         assertNotNull(fetch);
-        assertEquals((Integer) Long.toString(model1.getBirthday()).length(), fetch.get(length));
+        Long birthday = model1.getBirthday();
+        assertNotNull(birthday);
+        assertEquals((Integer) Long.toString(birthday).length(), fetch.get(length));
     }
 
     public void testUpperOfLower() {
@@ -177,7 +179,9 @@ public class SqlFunctionsTest extends DatabaseTestCase {
         }
         StringProperty substrProperty = StringProperty.fromFunction(substr, "substr");
         int trueStart = offset - 1;
-        int end = length == 0 ? model1.getLastName().length() : trueStart + length;
+        String lastName = model1.getLastName();
+        assertNotNull(lastName);
+        int end = length == 0 ? lastName.length() : trueStart + length;
 
         TestModel model = database.fetch(TestModel.class, model1.getRowId(), substrProperty);
         assertNotNull(model);

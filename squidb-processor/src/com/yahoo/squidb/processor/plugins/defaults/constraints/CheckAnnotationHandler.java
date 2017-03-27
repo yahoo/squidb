@@ -42,7 +42,7 @@ public class CheckAnnotationHandler {
 
         @Override
         protected void validateAnnotationForColumn(Check annotation, PropertyGenerator propertyGenerator,
-                ModelSpec<?, ?> modelSpec) {
+                ModelSpec<?, ?> modelSpec, PluginEnvironment pluginEnvironment) {
             validateAnnotation(annotation, propertyGenerator.getField(), modelSpec);
         }
 
@@ -60,7 +60,8 @@ public class CheckAnnotationHandler {
         }
 
         @Override
-        protected void validateAnnotationForTable(Check annotation, TableModelSpecWrapper modelSpec) {
+        protected void validateAnnotationForTable(Check annotation, TableModelSpecWrapper modelSpec,
+                PluginEnvironment pluginEnvironment) {
             validateAnnotation(annotation, modelSpec.getModelSpecElement(), modelSpec);
         }
 

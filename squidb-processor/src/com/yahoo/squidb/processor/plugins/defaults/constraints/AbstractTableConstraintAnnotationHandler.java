@@ -33,14 +33,14 @@ public abstract class AbstractTableConstraintAnnotationHandler<ANNOTATION extend
     }
 
     @Override
-    public final void validateAnnotationForTable(TableModelSpecWrapper modelSpec) {
+    public final void validateAnnotationForTable(TableModelSpecWrapper modelSpec, PluginEnvironment pluginEnvironment) {
         ANNOTATION annotation = getAnnotation(modelSpec);
         if (annotation != null) {
             if (modelSpec.isVirtualTable()) {
                 modelSpec.logError("Virtual tables do not currently support table constraints; annotation @" +
                         getAnnotationClass().getSimpleName() + " should be removed", modelSpec.getModelSpecElement());
             }
-            validateAnnotationForTable(annotation, modelSpec);
+            validateAnnotationForTable(annotation, modelSpec, pluginEnvironment);
         }
     }
 
@@ -52,5 +52,6 @@ public abstract class AbstractTableConstraintAnnotationHandler<ANNOTATION extend
     protected abstract void appendConstraintStringForTable(StringBuilder constraintBuilder, ANNOTATION annotation,
             TableModelSpecWrapper modelSpec, PluginEnvironment pluginEnvironment);
 
-    protected abstract void validateAnnotationForTable(ANNOTATION annotation, TableModelSpecWrapper modelSpec);
+    protected abstract void validateAnnotationForTable(ANNOTATION annotation, TableModelSpecWrapper modelSpec,
+            PluginEnvironment pluginEnvironment);
 }

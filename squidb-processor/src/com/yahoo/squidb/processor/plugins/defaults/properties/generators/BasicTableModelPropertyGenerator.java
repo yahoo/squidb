@@ -8,6 +8,7 @@ package com.yahoo.squidb.processor.plugins.defaults.properties.generators;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.yahoo.squidb.annotations.tables.ColumnName;
+import com.yahoo.squidb.annotations.tables.defaults.DefaultNull;
 import com.yahoo.squidb.processor.StringUtils;
 import com.yahoo.squidb.processor.data.ModelSpec;
 import com.yahoo.squidb.processor.plugins.PluginEnvironment;
@@ -16,6 +17,7 @@ import com.yahoo.squidb.processor.plugins.defaults.constraints.CollateAnnotation
 import com.yahoo.squidb.processor.plugins.defaults.constraints.ColumnConstraintAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.ConstraintSqlAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.DefaultValueAnnotationHandler;
+import com.yahoo.squidb.processor.plugins.defaults.constraints.JavaxNonnullAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.NotNullAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.PrimaryKeyAnnotationHandler;
 import com.yahoo.squidb.processor.plugins.defaults.constraints.UniqueAnnotationHandler;
@@ -26,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 
@@ -72,6 +75,7 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
         handlers.add(new PrimaryKeyAnnotationHandler());
         handlers.add(new UniqueAnnotationHandler());
         handlers.add(new NotNullAnnotationHandler());
+        handlers.add(new JavaxNonnullAnnotationHandler());
         handlers.add(new CollateAnnotationHandler());
         handlers.add(new CheckAnnotationHandler.ColumnCheckAnnotationHandler());
         handlers.add(getDefaultValueAnnotationHandler());
@@ -89,14 +93,23 @@ public abstract class BasicTableModelPropertyGenerator extends BasicPropertyGene
     private void doValidation() {
         validateColumnName();
         for (ColumnConstraintAnnotationHandler<?> handler : annotationHandlers) {
-            handler.validateAnnotationForColumn(this, modelSpec);
+            handler.validateAnnotationForColumn(this, modelSpec, pluginEnv);
         }
+        validateNullability();
     }
 
     // TODO remove when SqlUtils reports an error for identifiers containing '$'
     private void validateColumnName() {
         if (columnName.indexOf('$') >= 0) {
             modelSpec.logError("Column names cannot contain the $ symbol", field);
+        }
+    }
+
+    private void validateNullability() {
+        if (field != null && field.getAnnotation(DefaultNull.class) != null &&
+                Nonnull.class.equals(getAccessorNullabilityAnnotation())) {
+            modelSpec.logError("Field cannot be annotated with @DefaultNull and have @Nonnull as its accessor "
+                    + "nullability specifier", field);
         }
     }
 

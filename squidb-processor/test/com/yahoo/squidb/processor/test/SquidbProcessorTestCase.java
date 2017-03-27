@@ -11,13 +11,19 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.annotation.processing.Messager;
+
+import static org.mockito.Mockito.when;
+
 public class SquidbProcessorTestCase {
 
     @Mock protected PluginEnvironment pluginEnv;
+    @Mock private Messager mockMessager;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        when(pluginEnv.getMessager()).thenReturn(mockMessager);
     }
 
 }

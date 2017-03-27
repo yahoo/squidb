@@ -112,6 +112,11 @@ public class PluginEnvironment {
     public static final String OPTIONS_DISABLE_DEFAULT_UPSERT = "disableUpsert";
 
     /**
+     * Option for disabling the nullability annotations that are added to model getters and setters by default
+     */
+    public static final String OPTIONS_DISABLE_ACCESSOR_NULLABILITY = "disableAccessorNullability";
+
+    /**
      * Option for generating models that have Android-specific features
      */
     public static final String OPTIONS_GENERATE_ANDROID_MODELS = "androidModels";
