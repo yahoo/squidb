@@ -42,14 +42,17 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    compile project(':squidb')
-    compile project(':squidb-android')
-    compile project(':squidb-annotations')
-    compile project(':squidb-json-plugin')
-    compile project(':squidb-json-annotations')
-    compile project(':squidb-sqlite-bindings')
-    compile project(':squidb-reactive')
-    compile project(':squidb-recyclerview')
+    implementation project(':squidb')
+    implementation project(':squidb-android')
+    implementation project(':squidb-annotations')
+    implementation project(':squidb-json-plugin')
+    implementation project(':squidb-json-annotations')
+    implementation project(':squidb-sqlite-bindings')
+    implementation project(':squidb-reactive')
+    implementation project(':squidb-recyclerview')
+    implementation 'io.reactivex:rxjava:1.0.14'
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
     annotationProcessor project(':squidb-json-compiler')
     annotationProcessor project(':squidb-processor')
 
@@ -57,7 +60,7 @@ dependencies {
     androidTestAnnotationProcessor project(':squidb-processor')
 
     // The following three dependencies are used to test the squidb-json plugin
-    compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
-    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
-    compile 'com.google.code.gson:gson:2.8.0'
+    implementation 'org.codehaus.jackson:jackson-core-asl:1.9.12'
+    implementation 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
+    implementation 'com.google.code.gson:gson:2.8.0'
 }

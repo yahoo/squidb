@@ -8,7 +8,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 dependencies {
-    compile project(':squidb')
+    implementation project(':squidb')
 }
 
 android {
@@ -23,16 +23,6 @@ android {
             assets.srcDirs = ['assets']
         }
     }
-
-//    libraryVariants.all { variant ->
-//        variant.outputs.each { output ->
-//            def outputFile = output.outputFile
-//            if (outputFile != null && outputFile.name.endsWith('.aar')) {
-//                def fileName = "${archivesBaseName}-${version}.aar"
-//                output.outputFile = new File(outputFile.parent, fileName)
-//            }
-//        }
-//    }
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'

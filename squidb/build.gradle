@@ -4,7 +4,7 @@
  * See the accompanying LICENSE file for terms.
  */
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -19,8 +19,8 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.google.code.findbugs:jsr305:3.0.1' // For nullability annotations
-    compile 'com.google.j2objc:j2objc-annotations:1.3'
+    api 'com.google.code.findbugs:jsr305:3.0.1' // For nullability annotations
+    api 'com.google.j2objc:j2objc-annotations:1.3'
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'

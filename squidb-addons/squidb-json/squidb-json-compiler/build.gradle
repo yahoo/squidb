@@ -11,8 +11,8 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-    compile project(':squidb-processor')
-    compile project(':squidb-json-annotations')
+    implementation project(':squidb-processor')
+    implementation project(':squidb-json-annotations')
 }
 
 sourceSets {
