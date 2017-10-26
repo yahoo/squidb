@@ -53,7 +53,7 @@ function runTests () {
 }
 
 function downloadSQLiteAmalgamation () {
-    SQLITE_VERSION="sqlite-amalgamation-3150000"
+    SQLITE_VERSION="sqlite-amalgamation-3210000"
     echo "Downloading $SQLITE_VERSION"
     rm -rf $SQUIDB_IOS_NATIVE/sqlite
     mkdir $SQUIDB_IOS_NATIVE/sqlite
@@ -65,7 +65,7 @@ function downloadSQLiteAmalgamation () {
         DESTINATION=/tmp
     fi
 
-    wget https://www.sqlite.org/2016/$SQLITE_VERSION.zip -O $DESTINATION/$SQLITE_VERSION.zip
+    curl https://www.sqlite.org/2017/$SQLITE_VERSION.zip -o $DESTINATION/$SQLITE_VERSION.zip
     unzip -oq $DESTINATION/$SQLITE_VERSION.zip -d $DESTINATION
     mv $DESTINATION/$SQLITE_VERSION/sqlite3.c $SQUIDB_IOS_NATIVE/sqlite
     mv $DESTINATION/$SQLITE_VERSION/sqlite3.h $SQUIDB_IOS_NATIVE/sqlite

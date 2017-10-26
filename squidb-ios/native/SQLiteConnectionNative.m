@@ -26,6 +26,7 @@
 #import "SQLitePreparedStatement.h"
 #import "CursorWindowNative.h"
 #import "NSString+JavaString.h"
+#import "java/nio/charset/StandardCharsets.h"
 
 @implementation SQLiteConnectionNative
 
@@ -163,7 +164,8 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (NSObject *) nativePrepareStatement:(NSObject *)connectionPtr withSql:(NSString *)sqlString {
     SQLiteConnectionNative* connection = (SQLiteConnectionNative *)(connectionPtr);
 
-    IOSByteArray *sql = [sqlString java_getBytesWithEncoding:NSUTF16StringEncoding];
+    IOSByteArray *sql = [sqlString java_getBytesWithCharset:[JavaNioCharsetStandardCharsets UTF_16]];
+    // IOSByteArray *sql = [sqlString java_getBytesWithEncoding:NSUTF16StringEncoding];
     uint32_t sqlLength = [sql length];
     sqlite3_stmt* statement;
     int err = sqlite3_prepare16_v2(connection->db, [sql buffer], sqlLength, &statement, NULL);
@@ -282,7 +284,8 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
 
-    const IOSByteArray *bytes = [value java_getBytesWithEncoding:NSUTF16StringEncoding];
+    const IOSByteArray *bytes = [value java_getBytesWithCharset:[JavaNioCharsetStandardCharsets UTF_16]];
+    // const IOSByteArray *bytes = [value java_getBytesWithEncoding:NSUTF16StringEncoding];
     int err = sqlite3_bind_text16(statement.statement, index, [bytes buffer], [bytes length],
                                   SQLITE_TRANSIENT);
     if (err != SQLITE_OK) {
