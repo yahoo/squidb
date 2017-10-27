@@ -4,8 +4,15 @@ include $(CLEAR_VARS)
 
 # If using SEE, uncomment the following:
 # LOCAL_CFLAGS += -DSQLITE_HAS_CODEC
-LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3
+
+#Define HAVE_USLEEP, otherwise ALL sleep() calls take at least 1000ms
+LOCAL_CFLAGS += -DHAVE_USLEEP=1
+
+# Enable SQLite extensions.
+LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS5 
+LOCAL_CFLAGS += -DSQLITE_ENABLE_RTREE
 LOCAL_CFLAGS += -DSQLITE_ENABLE_JSON1
+LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3
 
 # This is important - it causes SQLite to use memory for temp files. Since 
 # Android has no globally writable temp directory, if this is not defined the
@@ -17,8 +24,9 @@ LOCAL_CFLAGS += -DHAVE_CONFIG_H -DKHTML_NO_EXCEPTIONS -DGKWQ_NO_JAVA
 LOCAL_CFLAGS += -DNO_SUPPORT_JS_BINDING -DQT_NO_WHEELEVENT -DKHTML_NO_XBL
 LOCAL_CFLAGS += -U__APPLE__
 LOCAL_CFLAGS += -DHAVE_STRCHRNUL=0
+LOCAL_CFLAGS += -DSQLITE_USE_URI=1
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-int-to-pointer-cast
-LOCAL_CFLAGS += -Wno-maybe-uninitialized -Wno-parentheses
+LOCAL_CFLAGS += -Wno-uninitialized -Wno-parentheses
 LOCAL_CPPFLAGS += -Wno-conversion-null
 
 

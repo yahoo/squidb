@@ -161,6 +161,12 @@ public final class SQLiteDatabaseConfiguration {
     }
 
     private static String stripPathForLogs(String path) {
+        /* Strip off all URI parameters. */
+        int iIdx = path.indexOf('?');
+        if( iIdx>=0 ){
+            path = (String) path.subSequence(0, iIdx);
+        }
+
         if (path.indexOf('@') == -1) {
             return path;
         }
