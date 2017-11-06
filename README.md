@@ -9,6 +9,8 @@ For support or to ask questions, join our chat channel on [gitter.im](https://gi
 To add SquiDB as a dependency in your build.gradle file:
 ```gradle
 // This example is for a typical Android setup, j2objc/iOS setup may vary
+//If using kotlin language,please add this
+//apply plugin: 'kotlin-kapt'
 buildscript {
     repositories {
         jcenter()
@@ -34,6 +36,8 @@ dependencies {
     annotationProcessor 'com.yahoo.squidb:squidb-processor:3.2.3'
     // If using the android-apt plugin, this becomes
     // apt 'com.yahoo.squidb:squidb-processor:3.2.3'
+    // If using kotlin language, this becomes
+    // kapt 'com.yahoo.squidb:squidb-processor:3.2.3'
 }
 ```
 See [this wiki page](https://github.com/yahoo/squidb/wiki/Adding-SquiDB-as-a-dependency) for more detailed instructions on adding SquiDB as a dependency.
