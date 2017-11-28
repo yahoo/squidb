@@ -27,8 +27,8 @@
 @interface SQLiteConnectionNative : NSObject
 
 @property sqlite3 *db;
-@property NSString *path;
-@property NSString *label;
+@property(copy) NSString *path;
+@property(copy) NSString *label;
 @property int openFlags;
 
 + (SQLiteConnectionNative *) nativeOpen:(NSString *)pathStr openFlags:(jint) openFlags labelStr:(NSString *)labelStr enableTrace:(jboolean)enableTrace enableProfile:(jboolean)enableProfile;
