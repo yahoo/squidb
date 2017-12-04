@@ -1,25 +1,38 @@
 sudo: required # For apt-get install python3
-env:
-  global:
-    - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
-  matrix:
-    # - ANDROID_TARGET=android-16
-    - ANDROID_TARGET=android-19
-    # - ANDROID_TARGET=android-22
-    # - ANDROID_TARGET=android-25
+# Uncomment this when we can restore the android build matrix
+#env:
+#  global:
+#    - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
+#  matrix:
+#    - ANDROID_TARGET=android-16
+#    - ANDROID_TARGET=android-19
+#    - ANDROID_TARGET=android-22
+#    - ANDROID_TARGET=android-25
 
-os: linux
-language: android
-jdk: oraclejdk8
-android:
-  components:
-    - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
-    - tools # to install Android SDK tools 25.2.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943). The before-test.sh script will update to the latest tools using sdkmanager
-    - build-tools-26.0.2
-    - android-26
-    - extra-android-m2repository
+#os: linux
+#language: android
+#jdk: oraclejdk8
+#android:
+#  components:
+#    - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+#    - tools # to install Android SDK tools 25.2.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943). The before-test.sh script will update to the latest tools using sdkmanager
+#    - build-tools-26.0.2
+#    - android-26
+#    - extra-android-m2repository
 matrix:
   include:
+    # Remove this when we can restore the android build matrix
+    - os: linux
+      language: android
+      jdk: oraclejdk8
+      android:
+        components:
+          - tools # to get the new `repository-11.xml` (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
+          - tools # to install Android SDK tools 25.2.x (https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943). The before-test.sh script will update to the latest tools using sdkmanager
+          - build-tools-26.0.2
+          - android-26
+          - extra-android-m2repository
+      env: ADB_INSTALL_TIMEOUT=8 ANDROID_TARGET=android-19
     - os: osx
       osx_image: xcode9
       language: objective-c
