@@ -20,7 +20,6 @@ import com.yahoo.android.sqlite.SQLiteDebug.DbStats;
 import com.yahoo.squidb.data.ICursor;
 import com.yahoo.squidb.data.ValuesStorage;
 import com.yahoo.squidb.sql.SqlUtils;
-import com.yahoo.squidb.utility.Logger;
 import com.yahoo.squidb.utility.SquidbLog;
 
 import java.io.File;
@@ -739,14 +738,16 @@ public final class SQLiteDatabase extends SQLiteClosable {
         File dir = file.getParentFile();
         if (dir != null) {
             final String prefix = file.getName() + "-mj";
-            final FileFilter filter = new FileFilter() {
+            File[] files = dir.listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File candidate) {
                     return candidate.getName().startsWith(prefix);
                 }
-            };
-            for (File masterJournal : dir.listFiles(filter)) {
-                deleted |= masterJournal.delete();
+            });
+            if (files != null) {
+                for (File masterJournal : files) {
+                    deleted |= masterJournal.delete();
+                }
             }
         }
         return deleted;

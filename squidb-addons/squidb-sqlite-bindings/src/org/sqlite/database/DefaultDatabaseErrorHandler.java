@@ -29,21 +29,21 @@ import android.util.Log;
 import android.util.Pair;
 
 /**
- * Default class used to define the actions to take when the database corruption is reported
+ * Default class used to define the action to take when database corruption is reported
  * by sqlite.
  * <p>
  * An application can specify an implementation of {@link DatabaseErrorHandler} on the
  * following:
  * <ul>
  *   <li>{@link SQLiteDatabase#openOrCreateDatabase(String,
- *      org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, DatabaseErrorHandler)}</li>
+ *      android.database.sqlite.SQLiteDatabase.CursorFactory, DatabaseErrorHandler)}</li>
  *   <li>{@link SQLiteDatabase#openDatabase(String,
- *      org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, int, DatabaseErrorHandler)}</li>
+ *      android.database.sqlite.SQLiteDatabase.CursorFactory, int, DatabaseErrorHandler)}</li>
  * </ul>
  * The specified {@link DatabaseErrorHandler} is used to handle database corruption errors, if they
  * occur.
  * <p>
- * If null is specified for DatabaeErrorHandler param in the above calls, then this class is used
+ * If null is specified for the DatabaseErrorHandler param in the above calls, this class is used
  * as the default {@link DatabaseErrorHandler}.
  */
 public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
@@ -59,7 +59,7 @@ public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
         Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
 
 	// If this is a SEE build, do not delete any database files.
-	//
+        // It may be that the user has specified an incorrect password.
 	if( SQLiteDatabase.hasCodec() ) return;
 
         // is the corruption detected even before database could be 'opened'?
