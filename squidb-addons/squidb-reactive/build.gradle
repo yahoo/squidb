@@ -19,8 +19,8 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':squidb')
-    compile 'io.reactivex:rxjava:1.0.14'
+    implementation project(':squidb')
+    implementation 'io.reactivex:rxjava:1.0.14'
 }
 
 def siteUrl = 'https://github.com/yahoo/squidb'

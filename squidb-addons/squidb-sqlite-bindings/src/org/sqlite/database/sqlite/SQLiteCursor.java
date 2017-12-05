@@ -22,9 +22,10 @@ package org.sqlite.database.sqlite;
 
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
-import android.util.Log;
+import org.sqlite.database.DatabaseUtils;
 
-import org.sqlite.database.ExtraUtils;
+import android.os.StrictMode;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,9 +62,6 @@ public class SQLiteCursor extends AbstractWindowedCursor {
     /** A mapping of column names to column indices, to speed up lookups */
     private Map<String, Integer> mColumnNameMap;
 
-    /** Used to find out where a cursor was allocated in case it never got released. */
-    private final Throwable mStackTrace;
-
     /**
      * Execute a query and provide access to its result set through a Cursor
      * interface. For a query such as: {@code SELECT name, birth, phone FROM
@@ -97,11 +95,6 @@ public class SQLiteCursor extends AbstractWindowedCursor {
     public SQLiteCursor(SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
         if (query == null) {
             throw new IllegalArgumentException("query object cannot be null");
-        }
-        if (/* StrictMode.vmSqliteObjectLeaksEnabled() */ false ) {
-            mStackTrace = new DatabaseObjectNotClosedException().fillInStackTrace();
-        } else {
-            mStackTrace = null;
         }
         mDriver = driver;
         mEditTable = editTable;
@@ -162,14 +155,14 @@ public class SQLiteCursor extends AbstractWindowedCursor {
 
         try {
             if (mCount == NO_COUNT) {
-                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
+                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "received count(*) from native_fill_window: " + mCount);
                 }
             } else {
-                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos,
+                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
                         mCursorWindowCapacity);
                 mQuery.fillWindow(mWindow, startPos, requiredPos, false);
             }
@@ -282,18 +275,6 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         try {
             // if the cursor hasn't been closed yet, close it first
             if (mWindow != null) {
-                    /*
-                if (mStackTrace != null) {
-                    String sql = mQuery.getSql();
-                    int len = sql.length();
-                    StrictMode.onSqliteObjectLeaked(
-                        "Finalizing a Cursor that has not been deactivated or closed. " +
-                        "database = " + mQuery.getDatabase().getLabel() +
-                        ", table = " + mEditTable +
-                        ", query = " + sql.substring(0, (len > 1000) ? 1000 : len),
-                        mStackTrace);
-                }
-                */
                 close();
             }
         } finally {

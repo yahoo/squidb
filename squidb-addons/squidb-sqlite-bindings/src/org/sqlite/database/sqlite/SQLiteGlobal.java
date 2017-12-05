@@ -22,7 +22,6 @@ package org.sqlite.database.sqlite;
 
 import android.content.res.Resources;
 import android.os.StatFs;
-/* import android.os.SystemProperties; */
 
 /**
  * Provides access to SQLite functions that affect all database connection,
@@ -65,6 +64,8 @@ public final class SQLiteGlobal {
     public static int getDefaultPageSize() {
         synchronized (sLock) {
             if (sDefaultPageSize == 0) {
+                // If there is an issue accessing /data, something is so seriously
+                // wrong that we just let the IllegalArgumentException propagate.
                 sDefaultPageSize = new StatFs("/data").getBlockSize();
             }
             return 1024;

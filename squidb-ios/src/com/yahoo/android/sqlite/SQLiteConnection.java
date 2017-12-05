@@ -87,8 +87,6 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    private static final Pattern TRIM_SQL_PATTERN = Pattern.compile("[\\s]*\\n+[\\s]*");
-
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
     private final SQLiteConnectionPool mPool;
@@ -1255,7 +1253,11 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
     }
 
     private static String trimSqlForDisplay(String sql) {
-        return TRIM_SQL_PATTERN.matcher(sql).replaceAll(" ");
+        // Note: Creating and caching a regular expression is expensive at preload-time
+        //       and stops compile-time initialization. This pattern is only used when
+        //       dumping the connection, which is a rare (mainly error) case. So:
+        //       DO NOT CACHE.
+        return sql.replaceAll("[\\s]*\\n+[\\s]*", " ");
     }
 
     /**
@@ -1363,6 +1365,7 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
                         operation.mBindArgs.clear();
                     }
                 }
+                operation.mStartWallTime = System.currentTimeMillis();
                 operation.mStartTime = System.currentTimeMillis();
                 operation.mKind = kind;
                 operation.mSql = sql;
@@ -1493,11 +1496,15 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
 
     private static final class Operation {
 
-        private static final SimpleDateFormat sDateFormat =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        // Trim all SQL statements to 256 characters inside the trace marker.
+        // This limit gives plenty of context while leaving space for other
+        // entries in the trace buffer (and ensures atrace doesn't truncate the
+        // marker for us, potentially losing metadata in the process).
+        private static final int MAX_TRACE_METHOD_NAME_LEN = 256;
 
-        public long mStartTime;
-        public long mEndTime;
+        public long mStartWallTime; // in System.currentTimeMillis()
+        public long mStartTime; // in System.currentTimeMillis();
+        public long mEndTime; // in System.currentTimeMillis();
         public String mKind;
         public String mSql;
         public ArrayList<Object> mBindArgs;
@@ -1550,7 +1557,11 @@ public final class SQLiteConnection /*implements CancellationSignal.OnCancelList
         }
 
         private String getFormattedStartTime() {
-            return sDateFormat.format(new Date(mStartTime));
+            // Note: SimpleDateFormat is not thread-safe, cannot be compile-time created, and is
+            //       relatively expensive to create during preloading. This method is only used
+            //       when dumping a connection, which is a rare (mainly error) case. So:
+            //       DO NOT CACHE.
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(mStartWallTime));
         }
     }
 }

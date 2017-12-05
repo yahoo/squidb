@@ -27,7 +27,6 @@ import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.SystemClock;
 import android.util.Log;
-/* import android.util.PrefixPrinter; */
 import android.util.Printer;
 
 import java.io.Closeable;
@@ -950,9 +949,7 @@ public final class SQLiteConnectionPool implements Closeable {
     }
 
     private void setMaxConnectionPoolSizeLocked() {
-        if( !SQLiteDatabase.hasCodec()
-	 && (mConfiguration.openFlags & SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) != 0
-	) {
+        if ((mConfiguration.openFlags & SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) != 0) {
             mMaxConnectionPoolSize = SQLiteGlobal.getWALConnectionPoolSize();
         } else {
             // TODO: We don't actually need to restrict the connection pool size to 1
@@ -1016,8 +1013,7 @@ public final class SQLiteConnectionPool implements Closeable {
      * @param verbose True to dump more verbose information.
      */
     public void dump(Printer printer, boolean verbose) {
-      /*
-        Printer indentedPrinter = Printer.create(printer, "    ");
+        Printer indentedPrinter = printer;
         synchronized (mLock) {
             printer.println("Connection pool for " + mConfiguration.path + ":");
             printer.println("  Open: " + mIsOpen);
@@ -1068,7 +1064,6 @@ public final class SQLiteConnectionPool implements Closeable {
                 indentedPrinter.println("<none>");
             }
         }
-        */
     }
 
     @Override

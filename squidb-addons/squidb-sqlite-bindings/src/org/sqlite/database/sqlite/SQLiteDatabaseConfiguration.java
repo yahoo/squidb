@@ -161,6 +161,14 @@ public final class SQLiteDatabaseConfiguration {
     }
 
     private static String stripPathForLogs(String path) {
+        /* Strip off all URI parameters. This is in case a SEE database is
+         * opened with the password specified as a URI parameter. We do not
+         * want the password to appear in any log files.  */
+        int iIdx = path.indexOf('?');
+        if( iIdx>=0 ){
+            path = (String) path.subSequence(0, iIdx);
+        }
+
         if (path.indexOf('@') == -1) {
             return path;
         }

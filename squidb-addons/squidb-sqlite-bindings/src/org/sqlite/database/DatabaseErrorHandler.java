@@ -18,18 +18,18 @@
 ** sqlite-dev@sqlite.org.
 */
 
+
 package org.sqlite.database;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 
 /**
- * An interface to let the apps define the actions to take when the following errors are detected
- *   database corruption
+ * An interface to let apps define an action to take when database corruption is detected.
  */
 public interface DatabaseErrorHandler {
 
     /**
-     * defines the method to be invoked when database corruption is detected.
+     * The method invoked when database corruption is detected.
      * @param dbObj the {@link SQLiteDatabase} object representing the database on which corruption
      * is detected.
      */

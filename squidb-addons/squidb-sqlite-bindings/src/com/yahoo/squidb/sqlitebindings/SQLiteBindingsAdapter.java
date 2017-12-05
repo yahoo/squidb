@@ -30,7 +30,7 @@ public class SQLiteBindingsAdapter implements ISQLiteDatabase {
      * from source with their own version of SQLite, they should update this definition to match the version of SQLite
      * used.
      */
-    public static final VersionCode SQLITE_VERSION = new VersionCode(3, 15, 0, 0);
+    public static final VersionCode SQLITE_VERSION = new VersionCode(3, 21, 0, 0);
 
     private final SQLiteDatabase db;
 

@@ -83,7 +83,9 @@ public final class SQLiteDebug {
      * @hide
      */
     public static final boolean shouldLogSlowQuery(long elapsedTimeMillis) {
-        int slowQueryMillis = 10000;
+        int slowQueryMillis = Integer.parseInt(
+            System.getProperty("db.log.slow_query_threshold", "10000")
+        );
         return slowQueryMillis >= 0 && elapsedTimeMillis >= slowQueryMillis;
     }
 
