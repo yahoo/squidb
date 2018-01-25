@@ -21,10 +21,9 @@ import java.lang.annotation.Target;
  * In SquiDB's implementation of upsert, logical keys must always uniquely identify a row. To this end, there are two
  * requirements for logical key columns:
  * <ol>
- * <li>There must be a uniqueness constraint across the collection of columns making up the logical key. To facilitate
- * this, SquiDB will generate a unique Index object named <code>UPSERT_INDEX</code> in the model class that represents
- * this uniqueness constraint. This Index should be created in the SquidDatabase by returning it in the getIndexes()
- * method.</li>
+ * <li>There must be a uniqueness constraint across the collection of columns making up the logical key. For single-column
+ * logical keys, this can be specified using a &#064;Unique annotation on the column. For multi-column logical keys, this
+ * can be specified at the table level using the &#064;UniqueColumns annotation.</li>
  * <li>Each individual logical key column must have a NOT NULL constraint, since NULL values are not unique in a SQLite
  * table even if there is a uniqueness constraint on the column. In order to avoid breaking uniqueness, all logical key
  * columns must therefore be NOT NULL. SquiDB will attempt to validate this as best it can by inspecting the
@@ -33,10 +32,6 @@ import java.lang.annotation.Target;
  * override and/or ignore ColumnSpec's constraint handling. Most users will never have this problem, but those who
  * implement custom field handling plugins should be aware of this edge case.</li>
  * </ol>
- * <p>
- * If the logical key consists of more than one column, you will need to specify the order you want them to appear in
- * the uniqueness index using the {@link #order()} parameter. This order will also inform the SQL clause used by
- * upsert() to search for matching rows.
  */
 @Target(ElementType.FIELD)
 public @interface UpsertKey {

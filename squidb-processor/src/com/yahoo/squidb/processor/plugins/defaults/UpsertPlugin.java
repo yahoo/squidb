@@ -198,11 +198,8 @@ public class UpsertPlugin extends AbstractPlugin {
     }
 
     private void declareRowidHasPriorityMethod(TypeSpec.Builder builder) {
-        boolean rowidHasPriority = true;
         UpsertConfig upsertConfig = modelSpec.getModelSpecElement().getAnnotation(UpsertConfig.class);
-        if (upsertConfig != null) {
-            rowidHasPriority = upsertConfig.rowidHasPriority();
-        }
+        boolean rowidHasPriority = upsertConfig == null || upsertConfig.rowidHasPriority();
 
         MethodSpec.Builder params = MethodSpec.methodBuilder("rowidSupersedesLogicalKey")
                 .addModifiers(Modifier.PUBLIC)
@@ -231,9 +228,8 @@ public class UpsertPlugin extends AbstractPlugin {
     }
 
     private CodeBlock buildGetUpsertKeyLookupCriterionBody() {
-        final boolean failureThrowsException;
         UpsertConfig upsertConfig = modelSpec.getModelSpecElement().getAnnotation(UpsertConfig.class);
-        failureThrowsException = upsertConfig == null || upsertConfig.missingLookupValueThrows();
+        boolean failureThrowsException = upsertConfig == null || upsertConfig.missingLookupValueThrows();
 
         CodeBlock.Builder methodBody = CodeBlock.builder();
         methodBody.beginControlFlow("for (int i = 0; i < $L; i++)", upsertColumns.size())
