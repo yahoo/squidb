@@ -168,7 +168,7 @@ const void* getFieldSlotValueBlob(CursorWindowNative *window, struct FieldSlot* 
             NSLog(@"Failed to allocate memory for string with %d bytes", sizeIncludingNull - 1);
             return @"";
         }
-        return [NSString stringWithCharacters:chars];
+        return [NSString java_stringWithCharacters:chars];
     } else if (type == FIELD_TYPE_INTEGER) {
         int64_t value = fieldSlot->data.l;
         return [NSString stringWithFormat:@"%lld", value];

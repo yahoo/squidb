@@ -18,6 +18,6 @@
 
 @property (nonatomic, weak) IBOutlet UILabel *tags;
 
-@property (nonatomic, strong, readonly) SDBSampleTask *task;
+@property (nonatomic, strong, readonly) SDBTask *task;
 
 @end

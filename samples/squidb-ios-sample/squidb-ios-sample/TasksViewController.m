@@ -53,7 +53,7 @@
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {
                                                                  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                                                     [[SDBSampleTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
+                                                                     [[SDBTaskUtils getInstance] insertNewTaskWithNSString:[alert.textFields objectAtIndex:0].text withInt:0 withLong:0 withNSString:[alert.textFields objectAtIndex:1].text];
                                                                  });
                                                              }];
     
@@ -76,7 +76,7 @@
 
 - (void) requery {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        SDBSquidCursor *cursor = [[SDBSampleTaskUtils getInstance] getTasksCursor];
+        SDBSquidCursor *cursor = [[SDBTaskUtils getInstance] getTasksCursor];
         [cursor getCount];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self deliverResult:cursor];
@@ -108,14 +108,14 @@
     } else {
         cell.textLabel.text = [cell.task getTitle];
     }
-    cell.tags.text = [cell.task getWithSDBProperty:SDBSampleTaskUtils_get_TAGS_CONCAT()];
+    cell.tags.text = [cell.task getWithSDBProperty:SDBTaskUtils_get_TAGS_CONCAT()];
     
     return cell;
 }
 
 - (void)tableView:(UITableView * _Nonnull)tableView didSelectRowAtIndexPath:(NSIndexPath * _Nonnull)indexPath {
     [self.tasksCursor moveToPositionWithInt:(int) indexPath.row];
-    SDBSampleTask *task = [[SDBSampleTask alloc] initWithSDBSquidCursor:self.tasksCursor];
+    SDBTask *task = [[SDBTask alloc] initWithSDBSquidCursor:self.tasksCursor];
     
     // Create complete/delete/cancel dialog
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:[task getTitle]
@@ -127,13 +127,13 @@
     UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
                                                          handler:^(UIAlertAction * action) {
                                                              dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                                                 [[SDBSampleTaskUtils getInstance] deleteTaskWithSDBSampleTask:task];
+                                                                 [[SDBTaskUtils getInstance] completeTaskWithSDBTask:task];
                                                              });
                                                          }];
     UIAlertAction *completeAction = [UIAlertAction actionWithTitle:@"Complete" style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction * action) {
                                                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                                                   [[SDBSampleTaskUtils getInstance] completeTaskWithSDBSampleTask:task];
+                                                                   [[SDBTaskUtils getInstance] completeTaskWithSDBTask:task];
                                                                });
                                                            }];
     
