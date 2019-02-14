@@ -18,15 +18,17 @@
 @synthesize task = _task;
 @synthesize tags;
 
-- (SDBSampleTask *) task {
+- (SDBTask *) task {
     if (!_task) {
-        _task = [[SDBSampleTask alloc] init];
+        _task = [[SDBTask alloc] init];
     }
     return _task;
 }
 
 - (void)awakeFromNib {
     // Initialization code
+    [super awakeFromNib];
+    
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
