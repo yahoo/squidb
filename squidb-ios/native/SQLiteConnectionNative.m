@@ -27,6 +27,23 @@
 #import "CursorWindowNative.h"
 #import "NSString+JavaString.h"
 
+
+@interface NSString (IOSByteArrayTrans)
+
+- (IOSByteArray *)java_getBytes_with_encoding:(NSStringEncoding)encoding;
+
+@end
+
+@implementation NSString (IOSByteArrayTrans)
+
+- (IOSByteArray *)java_getBytes_with_encoding:(NSStringEncoding)encoding{
+    NSData *data = [self dataUsingEncoding:encoding];
+    return [IOSByteArray arrayWithNSData:data];
+}
+
+@end
+
+
 @implementation SQLiteConnectionNative
 
 @synthesize db;
@@ -163,7 +180,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
 + (NSObject *) nativePrepareStatement:(NSObject *)connectionPtr withSql:(NSString *)sqlString {
     SQLiteConnectionNative* connection = (SQLiteConnectionNative *)(connectionPtr);
 
-    IOSByteArray *sql = [sqlString java_getBytes];
+    IOSByteArray *sql = [sqlString java_getBytes_with_encoding:NSUTF16StringEncoding];
     uint32_t sqlLength = [sql length];
     sqlite3_stmt* statement;
     int err = sqlite3_prepare16_v2(connection->db, [sql buffer], sqlLength, &statement, NULL);
@@ -282,7 +299,7 @@ static void sqliteProfileCallback(void *data, const char *sql, sqlite3_uint64 tm
     SQLiteConnectionNative *connection = (SQLiteConnectionNative *)(connectionPtr);
     SQLitePreparedStatement *statement = (SQLitePreparedStatement *)(statementPtr);
 
-    const IOSByteArray *bytes = [value java_getBytes];
+    const IOSByteArray *bytes = [value java_getBytes_with_encoding:NSUTF16StringEncoding];
     int err = sqlite3_bind_text16(statement.statement, index, [bytes buffer], [bytes length],
                                   SQLITE_TRANSIENT);
     if (err != SQLITE_OK) {
